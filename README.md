@@ -15,6 +15,10 @@ from py4stats import eda_tools as eda        # 基本統計量やデータの要
 from py4stats import regression_tools as reg # 回帰分析の要約
 ```
 
+### `.eda_tools`
+
+`eda.diagnose()`
+
 ``` python
 import pandas as pd
 from palmerpenguins import load_penguins
@@ -32,6 +36,21 @@ eda.diagnose(penguins)
 | body_mass_g       | float64 |               2 |          0.581395 |             94 |     27.3256   |
 | sex               | object  |              11 |          3.19767  |              2 |      0.581395 |
 | year              | int64   |               0 |          0        |              3 |      0.872093 |
+
+`eda.tabyl()`
+
+``` python
+eda.tabyl(penguins, 'species', 'island')
+```
+| species   | Biscoe       | Dream       | Torgersen   |   All |
+|:----------|:-------------|:------------|:------------|------:|
+| Adelie    | 44 (28.9%)   | 56 (36.8%)  | 52 (34.2%)  |   152 |
+| Chinstrap | 0 (0.0%)     | 68 (100.0%) | 0 (0.0%)    |    68 |
+| Gentoo    | 124 (100.0%) | 0 (0.0%)    | 0 (0.0%)    |   124 |
+| All       | 168 (48.8%)  | 124 (36.0%) | 52 (15.1%)  |   344 |
+
+
+### `.regression_tools`
 
 ``` python
 # 回帰分析の実行
@@ -64,6 +83,7 @@ compare_tab1
 
 
 ``` python
+
 reg.compare_ols(
     list_models = [fit1, fit2, fit3],
     model_name = ['基本モデル', '嘴の高さ追加', '性別追加'], # モデル名を変更
@@ -86,7 +106,6 @@ reg.compare_ols(
 | rsquared_adj         | 0.78           | 0.83             | 0.86            |
 | nobs                 | 342            | 342              | 333             |
 | df                   | 3              | 4                | 5               |
-
 
 ```python
 import matplotlib.pyplot as plt
