@@ -405,7 +405,7 @@ def lineup_models(tidy_list, model_name = None, **kwargs):
 # 2024年1月30日変更 引数 stats と table_style について
 # 妥当な値が指定されているかを検証する機能を追加しました。
 def gazer(
-    res_tidy, estimate = 'coef', stats = 'p_value',
+    res_tidy, estimate = 'coef', stats = 'std_err',
     digits = 4, add_stars = True, style_p = False, p_min = 0.01,
     table_style = 'two_line'
     ):
