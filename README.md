@@ -109,7 +109,7 @@ reg.compare_ols(
 
 ```python
 import matplotlib.pyplot as plt
-reg.plot_coef(fit3)
+reg.coefplot(fit3)
 ```
 ![Unknown](https://github.com/Hirototensho/Py4Stats/assets/55335752/637437c3-f943-4817-a1ad-21bbd538e97d)
 
@@ -127,3 +127,43 @@ ax[1].set_xlim(-900, 1800);
 ```
 
 ![Unknown](https://github.com/Hirototensho/Py4Stats/assets/55335752/0f11205b-5090-4b45-9a2e-7db7be3cc0f4)
+
+`reg.compare_mfx()` と `reg.mfxplot()`：それぞれ `reg.compare_ols()` と `reg.coefplot()` の一般化線型モデルバージョンで、`statsmodels` ライブラリの[`.get_margeff()`](https://www.statsmodels.org/dev/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html)メソッドから得られた限界効果の推定結果を表示します。
+
+```python
+# ロジスティック回帰の実行
+fit_logit1 = smf.logit('female ~ body_mass_g + bill_length_mm + bill_depth_mm', data = penguins).fit()
+fit_logit2 = smf.logit('female ~ body_mass_g + bill_length_mm + bill_depth_mm + species', data = penguins).fit()
+
+reg.compare_mfx([fit_logit1, fit_logit2])
+```
+| term                 | model 1     | model 2     |
+|:---------------------|:------------|:------------|
+| body_mass_g          | -0.0004 *** | -0.0003 *** |
+|                      | (0.0000)    | (0.0000)    |
+| bill_length_mm       | -0.0053     | -0.0357 *** |
+|                      | (0.0036)    | (0.0070)    |
+| bill_depth_mm        | -0.1490 *** | -0.1098 *** |
+|                      | (0.0051)    | (0.0175)    |
+| species[T.Chinstrap] |             | 0.4172 ***  |
+|                      |             | (0.0848)    |
+| species[T.Gentoo]    |             | 0.3527 ***  |
+|                      |             | (0.1308)    |
+| prsquared            | 0.5647      | 0.6187      |
+| nobs                 | 342         | 342         |
+| df                   | 3           | 5           |
+
+
+```python
+plt.rcParams["figure.autolayout"] = True
+
+fig, ax = plt.subplots(1, 2, figsize = (2.2 * 5, 5), dpi = 100)
+
+reg.mfxplot(fit_logit1, ax = ax[0])
+ax[0].set_xlim(-0.2, 0.85)
+
+reg.mfxplot(fit_logit2, ax = ax[1])
+ax[1].set_xlim(-0.2, 0.85);
+```
+
+![Unknown](https://github.com/Hirototensho/Py4Stats/assets/55335752/17ed1a82-5e17-4933-88f5-538a0ce081e0)
