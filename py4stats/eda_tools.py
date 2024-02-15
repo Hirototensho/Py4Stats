@@ -23,7 +23,8 @@ import pandas as pd
 import numpy as np
 import scipy as sp
 
-def missing_percent(x): return 100 * x.isna().mean()
+def missing_percent(x, axis = 'index', pct = True):
+  return (100**pct) * x.isna().mean(axis = axis)
 
 def diagnose(data):
     # 各種集計値の計算
@@ -39,6 +40,22 @@ def diagnose(data):
      result.columns = ['dtype', 'missing_count', 'missing_percent', 'unique_count', 'unique_rate']
 
      return result
+
+def remove_empty(dat, cols = True, rows = True, cutoff = 1, quiet = True):
+  if cols :
+    empty_col = missing_percent(dat, axis = 'index', pct = False) >= 1
+    dat = dat.loc[:, ~empty_col]
+    if not(quiet) :
+      print('drop column(s) :', empty_col[empty_col].index.to_list())
+
+  if rows :
+    empty_rows = missing_percent(dat, axis = 'columns', pct = False) >= 1
+    dat = dat.loc[~empty_rows, :]
+
+    if not(quiet) :
+      print('drop row(s) :', empty_rows[empty_rows].index.to_list())
+
+  return dat
 
 """## クロス集計表ほか"""
 
@@ -196,6 +213,18 @@ def diagnose_category(data):
 def select_dislike(data, pettern):
     data = data.loc[:, data.apply(lambda x: pettern not in x.name)]
     return data
+
+def weighted_mean(x, w):
+  wmean = (x * w).sum() / w.sum()
+  return wmean
+
+def scale(x, ddof = 1):
+    z = (x - x.mean()) / x.std(ddof = ddof)
+    return z
+
+def min_max(x):
+  mn = (x - x.min()) / (x.max() - x.min())
+  return mn
 
 """# パレート図を作図する関数"""
 
