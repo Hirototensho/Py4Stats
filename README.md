@@ -105,6 +105,8 @@ reg.compare_ols(
 | nobs                 | 342           | 342            | 333           |
 | df                   | 3             | 4              | 5             |
 
+`reg.coefplot()`：回帰係数の可視化
+
 ```python
 import matplotlib.pyplot as plt
 reg.plot_coef(fit3)
