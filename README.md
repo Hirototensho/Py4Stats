@@ -64,7 +64,6 @@ compare_tab1
 
 
 ``` python
-
 reg.compare_ols(
     list_models = [fit1, fit2, fit3],
     model_name = ['基本モデル', '嘴の高さ追加', '性別追加'], # モデル名を変更
@@ -87,3 +86,9 @@ reg.compare_ols(
 | rsquared_adj         | 0.78           | 0.83             | 0.86            |
 | nobs                 | 342            | 342              | 333             |
 | df                   | 3              | 4                | 5               |
+
+
+```python
+import matplotlib.pyplot as plt
+reg.plot_coef(fit3)
+```
