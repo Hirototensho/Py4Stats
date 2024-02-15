@@ -17,7 +17,7 @@ from py4stats import regression_tools as reg # 回帰分析の要約
 
 ### `.eda_tools`
 
-`eda.diagnose()`
+　`eda.diagnose()`：R言語の[`dlookr::diagnose()`](https://choonghyunryu.github.io/dlookr/reference/diagnose.data.frame.html)を再現した関数です。
 
 ``` python
 import pandas as pd
@@ -37,7 +37,7 @@ eda.diagnose(penguins)
 | sex               | object  |              11 |          3.19767  |              2 |      0.581395 |
 | year              | int64   |               0 |          0        |              3 |      0.872093 |
 
-`eda.tabyl()`
+`eda.tabyl()`：R言語の [`janitor::tabyl()`](https://sfirke.github.io/janitor/reference/tabyl.html)にいくつかの `adorn_` 関数を追加した状態を再現した関数です。
 
 ``` python
 eda.tabyl(penguins, 'species', 'island')
