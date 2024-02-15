@@ -92,3 +92,4 @@ reg.compare_ols(
 import matplotlib.pyplot as plt
 reg.plot_coef(fit3)
 ```
+![Unknown](https://github.com/Hirototensho/Py4Stats/assets/55335752/7ac8a168-295f-4a61-80ae-fd1dfb394201)
