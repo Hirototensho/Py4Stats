@@ -80,8 +80,9 @@ reg.compare_ols(list_models = [fit1, fit2, fit3]) # 表の作成
 | df                   | 3             | 4              | 5             |
 
 
-``` python
+`reg.compare_ols()` の実行結果は `Pandas` の `DataFrame` として出力されるため、`.xlsx`. ファイルなどに変換することができます。また、用途に応じて表の体裁を調整できるようにしています。
 
+``` python
 reg.compare_ols(
     list_models = [fit1, fit2, fit3],
     model_name = ['基本モデル', '嘴の高さ追加', '性別追加'], # モデル名を変更
