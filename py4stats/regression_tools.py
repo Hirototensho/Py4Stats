@@ -492,13 +492,13 @@ def gazer_MNlogit(MNlogit_margeff, endog_categories = None, **kwargs):
 
 """## 回帰係数の視覚化関数
 
-　`plot_coef()` 関数は次のように使用できます。
+　`coefplot()` 関数は次のように使用できます。
 
 ```python
-plot_coef(fit1) # 回帰係数の視覚化
+coefplot(fit1) # 回帰係数の視覚化
 ```
 
-　グラフ上の縦軸が説明変数、横軸回帰係数の値です。点が回帰係数の推定値を、エラーバー（横棒）が信頼区間を表し、β = 0 を帰無仮説とする仮説検定の結果によって有意であれば青色に、有意でなければグレーに色分けされます。`plot_coef_dot()` 関数の引数は次の通りです。
+　グラフ上の縦軸が説明変数、横軸回帰係数の値です。点が回帰係数の推定値を、エラーバー（横棒）が信頼区間を表し、β = 0 を帰無仮説とする仮説検定の結果によって有意であれば青色に、有意でなければグレーに色分けされます。`coefplot()` 関数の引数は次の通りです。
 
 - `mod`：statsmodelsで作成した回帰分析の結果。
 
@@ -532,7 +532,7 @@ var_list = [
     'C(year)[T.2008]', 'C(year)[T.2009]'
     ]
 
-plot_coef(fit1, subset = var_list, palette = my_pal);
+coefplot(fit1, subset = var_list, palette = my_pal);
 plt.xlabel(f'回帰係数(n = {int(fit1.nobs)})'); # x軸ラベルにサンプルサイズを表示
 ```
 """
@@ -546,40 +546,36 @@ import japanize_matplotlib #日本語化matplotlib
 from statsmodels.iolib.summary import summary_params_frame
 
 # 回帰分析の結果から回帰係数のグラフを作成する関数 --------
-def plot_coef(mod, subset = None, alpha = 0.05, **kwargs):
-    '''model object 回帰係数のグラフを作成する関数'''
+def coefplot(mod, subset = None, alpha = [0.05, 0.01], palette = ['#1b69af', '#629CE7'], **kwargs):
+    '''model object から回帰係数のグラフを作成する関数'''
 
     # 回帰係数の表を抽出
-    tidy_table = tidy(mod, alpha = alpha)
+    tidy_ci_high = tidy(mod, alpha = alpha[0])
+    tidy_ci_row = tidy(mod, alpha = alpha[1])
 
     # subset が指定されていれば、回帰係数の部分集合を抽出する
     if subset is not None:
-        tidy_table = tidy_table.loc[subset, :]
+        tidy_ci_high = tidy_ci_high.loc[subset, :]
+        tidy_ci_row = tidy_ci_row.loc[subset, :]
 
     # グラフの作成
-    coef_dot(tidy_table, alpha = alpha, **kwargs)
+    coef_dot(tidy_ci_high, tidy_ci_row, palette = palette, **kwargs)
 
-# tidy_talbe から回帰係数のグラフを作成する関数 --------
 def coef_dot(
-    tidy_table, ax = None, alpha = 0.05, show_Intercept = False,
-    palette = {True:'#1b69af', False:'#969696'}, show_vline = True,
-    estimate = 'coef', p_value = 'p_value',
-    conf_lower = 'conf_lower', conf_higher = 'conf_higher',
+    tidy_ci_high, tidy_ci_low, ax = None, show_Intercept = False,
+    palette = ['#1b69af', '#629CE7'], show_vline = True,
+    estimate = 'coef', conf_lower = 'conf_lower', conf_higher = 'conf_higher',
     ):
     '''tidy_talbe から回帰係数のグラフを作成する関数'''
-    tidy_table = tidy_table.copy()
+    tidy_ci_high = tidy_ci_high.copy()
+    tidy_ci_low = tidy_ci_low.copy()
 
 
     # 切片項を除外する
     if not show_Intercept:
-        tidy_table = tidy_table.loc[~ tidy_table.index.isin(['Intercept']), :]
+        tidy_ci_high = tidy_ci_high.loc[~ tidy_ci_high.index.isin(['Intercept']), :]
+        tidy_ci_low = tidy_ci_low.loc[~ tidy_ci_low.index.isin(['Intercept']), :]
 
-    # 有意性による色分けを設定する -----------------------------
-    threshold = f'p <= {100 * alpha:.2g}%' # 凡例のラベルを作成
-
-    tidy_table[threshold] = tidy_table[p_value] <= alpha
-
-    tidy_table['.color'] = np.where(tidy_table[threshold], palette[True], palette[False])
 
     if ax is None:
         fig, ax = plt.subplots()
@@ -587,18 +583,25 @@ def coef_dot(
     # 図の描画 -----------------------------
     # 垂直線の描画
     if show_vline:
-        ax.axvline(0, ls = "--", color = palette[False])
+        ax.axvline(0, ls = "--", color = '#969696')
 
     # エラーバーの作図
     ax.hlines(
-        y = tidy_table.index, xmin = tidy_table[conf_lower], xmax = tidy_table[conf_higher],
-        linewidth = 3, color = tidy_table['.color']
+        y = tidy_ci_low.index, xmin = tidy_ci_low[conf_lower], xmax = tidy_ci_low[conf_higher],
+        linewidth = 1.5, 
+        color = palette[1]
+    )
+    ax.hlines(
+        y = tidy_ci_high.index, xmin = tidy_ci_high[conf_lower], xmax = tidy_ci_high[conf_higher],
+        linewidth = 3, 
+        color = palette[0]
     )
 
     # 回帰係数の推定値を表す点の作図
     sns.scatterplot(
-        data = tidy_table, x = estimate, y = tidy_table.index,
-        hue = tidy_table[threshold], palette = palette, s = 85,
+        data = tidy_ci_high, x = estimate, y = tidy_ci_high.index,
+        palette = palette[0], 
+        s = 85,
         ax = ax
     );
     ax.set_ylabel('');
