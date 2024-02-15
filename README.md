@@ -105,7 +105,7 @@ reg.compare_ols(
 | nobs                 | 342           | 342            | 333           |
 | df                   | 3             | 4              | 5             |
 
-`reg.coefplot()`：回帰係数の可視化
+`reg.coefplot()`：回帰係数の可視化。R言語の[`coefplot::coefplot()]`(https://cran.r-project.org/web/packages/coefplot/index.html)を参考にしました。
 
 ```python
 import matplotlib.pyplot as plt
