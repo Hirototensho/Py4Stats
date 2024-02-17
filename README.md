@@ -15,16 +15,18 @@ from py4stats import eda_tools as eda        # 基本統計量やデータの要
 from py4stats import regression_tools as reg # 回帰分析の要約
 ```
 
-### `.eda_tools`
+### `eda_tools`
 
-　`eda.diagnose()`：R言語の[`dlookr::diagnose()`](https://choonghyunryu.github.io/dlookr/reference/diagnose.data.frame.html)を再現した関数です。
+　探索的データ解析と前処理に関する機能を提供するモジュールです。一部の関数は [`pandas-flavor`](https://pypi.org/project/pandas-flavor/)ライブラリの機能を使って実装しており、[`pandas.DataFrame`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html) のメソッドと同じ構文で利用することができます。
+
+　`eda.diagnose()`：R言語の[`dlookr::diagnose()`](https://choonghyunryu.github.io/dlookr/reference/diagnose.data.frame.html)を再現した関数で、データの全般的な状態についての要約を提供します。
 
 ``` python
 import pandas as pd
 from palmerpenguins import load_penguins
 penguins = load_penguins() # サンプルデータの読み込み
 
-eda.diagnose(penguins)
+penguins.diagnose()
 ```
 |                   | dtype   |   missing_count |   missing_percent |   unique_count |   unique_rate |
 |:------------------|:--------|----------------:|------------------:|---------------:|--------------:|
@@ -49,6 +51,97 @@ eda.tabyl(penguins, 'species', 'island')
 | Gentoo    | 124 (100.0%) | 0 (0.0%)    | 0 (0.0%)    |   124 |
 | All       | 168 (48.8%)  | 124 (36.0%) | 52 (15.1%)  |   344 |
 
+　`eda.freq_table()`：：R言語の[`DescTools::Freq()`](https://cran.r-project.org/web/packages/DescTools/DescTools.pdf)を見本として作成した度数分布表を計算する関数。度数 `freq` と相対度数 `perc` に加えて、それぞれの累積値を計算します。
+
+``` python
+print(penguins.freq_table('species'))
+#>            freq      perc  cumfreq   cumperc
+#> species                                     
+#> Adelie      152  0.441860      152  0.441860
+#> Gentoo      124  0.360465      276  0.802326
+#> Chinstrap    68  0.197674      344  1.000000
+```
+
+引数 `group` を指定すると、グループ別の度数分布表を計算できます。
+
+``` python
+print(
+    penguins.assign(bill_length_mm2 = pd.cut(penguins['bill_length_mm'], 4))\
+    .freq_table('bill_length_mm2', group = 'species', sort = False)
+)
+#>                             freq      perc  cumfreq   cumperc
+#> species   bill_length_mm2                                    
+#> Adelie    (32.072, 38.975]    79  0.523179       79  0.523179
+#>           (38.975, 45.85]     71  0.470199      150  0.993377
+#>           (45.85, 52.725]      1  0.006623      151  1.000000
+#>           (52.725, 59.6]       0  0.000000      151  1.000000
+#> Chinstrap (32.072, 38.975]     0  0.000000        0  0.000000
+#>           (38.975, 45.85]     13  0.191176       13  0.191176
+#>           (45.85, 52.725]     50  0.735294       63  0.926471
+#>           (52.725, 59.6]       5  0.073529       68  1.000000
+#> Gentoo    (32.072, 38.975]     0  0.000000        0  0.000000
+#>           (38.975, 45.85]     40  0.325203       40  0.325203
+#>           (45.85, 52.725]     78  0.634146      118  0.959350
+#>           (52.725, 59.6]       5  0.040650      123  1.000000
+```
+
+　`eda.remove_empty()`：完全に空白な列や行の削除する関数。R言語の [`janitor:remove_empty()`](https://sfirke.github.io/janitor/reference/remove_empty.html) をオマージュした関数で、全ての要素が `NaN` である列や行をデータフレームから除外します。
+
+``` python
+penguins2 = penguins.loc[:, ['species', 'body_mass_g']].copy()
+penguins2.loc[:, 'empty'] = np.nan
+penguins2.loc[344, :] = np.nan
+
+print(penguins2.tail(3))
+#>        species  body_mass_g  empty
+#> 342  Chinstrap       4100.0    NaN
+#> 343  Chinstrap       3775.0    NaN
+#> 344        NaN          NaN    NaN
+
+# 完全に空白な行と列を削除。
+print(penguins2.remove_empty(quiet = False).tail(3))
+#> Removing 1 empty column(s) out of 3 columns(Removed: empty).
+#> Removing 1 empty row(s) out of 345 rows(Removed: 344). 
+#>        species  body_mass_g
+#> 341  Chinstrap       3775.0
+#> 342  Chinstrap       4100.0
+#> 343  Chinstrap       3775.0
+
+# 完全に空白な列のみ削除。
+print(penguins2.remove_empty(rows = False, quiet = False).tail(3))
+#> Removing 1 empty column(s) out of 3 columns(Removed: empty).
+#>        species  body_mass_g
+#> 342  Chinstrap       4100.0
+#> 343  Chinstrap       3775.0
+#> 344        NaN          NaN
+
+# 完全に空白な行のみ削除。
+print(penguins2.remove_empty(cols = False, quiet = False).tail(3))
+#> Removing 1 empty row(s) out of 345 rows(Removed: 344). 
+#>        species  body_mass_g  empty
+#> 341  Chinstrap       3775.0    NaN
+#> 342  Chinstrap       4100.0    NaN
+#> 343  Chinstrap       3775.0    NaN
+```
+
+　`eda.remove_constant()`：定数列の削除。R言語の [`janitor:remove_constant()`](https://sfirke.github.io/janitor/reference/remove_constant.html) をオマージュした関数で、1種類だけの要素からなる列をデータフレームから除外します。
+``` python
+penguins2 = penguins.loc[:, ['species', 'body_mass_g']].copy()
+penguins2.loc[:, 'constant'] = 'c'
+
+print(penguins2.head(3))
+#>   species  body_mass_g constant
+#> 0  Adelie       3750.0        c
+#> 1  Adelie       3800.0        c
+#> 2  Adelie       3250.0        c
+
+print(penguins2.remove_constant(quiet = False).head(3))
+#> Removing 1 constant column(s) out of 3 column(s)(Removed: constant). 
+#>   species  body_mass_g
+#> 0  Adelie       3750.0
+#> 1  Adelie       3800.0
+#> 2  Adelie       3250.0
+```
 
 ### `.regression_tools`
 
