@@ -167,7 +167,6 @@ display(penguins.filtering_out(ends_with = '_mm').columns.to_list())
 
 ``` python
 import statsmodels.formula.api as smf
-import japanize_matplotlib #日本語化matplotlib
 
 # 回帰分析の実行
 fit1 = smf.ols('body_mass_g ~ bill_length_mm + species', data = penguins).fit()
