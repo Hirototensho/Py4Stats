@@ -7,8 +7,31 @@ Original file is located at
     https://colab.research.google.com/drive/1Y3xPJY-zCwrnVo5iOiuDKZwMgs2qvHhX
 
 # `eda_tools`：回帰分析の結果を要約する関数群
+"""
 
-## `diagnose()`
+import argparse
+
+def match_arg(value, choices):
+    """
+    Simulates the functionality of R's match.arg() function with partial matching in Python.
+
+    Args:
+    - value: The value to match against the choices (partially).
+    - choices: List of valid choices.
+
+    Returns:
+    - The matched value if found in choices (partially), otherwise raises an ArgumentError.
+    """
+    matches = [c for c in choices if value.lower() in c.lower()]
+    if len(matches) == 1:
+        return matches[0]
+    elif len(matches) > 1:
+        raise ValueError(f"Ambiguous value: '{value}'. Matches multiple choices: {', '.join(matches)}.")
+    else:
+        # raise ValueError(f"No match found for value: '{value}'.")
+        raise argparse.ArgumentTypeError(f"Invalid choice: '{value}'. Should be one of: {', '.join(choices)}.")
+
+"""## `diagnose()`
 
 - `index`（行名）：もとのデータフレームの列名に対応しています。
 - `dtype`：該当する列のpandasにおけるデータの型。「〇〇の個数」や「〇〇の金額」といった列の dtype が `object` になっていたら、文字列として読み込まれているので要注意です。
@@ -22,13 +45,15 @@ Original file is located at
 import pandas as pd
 import numpy as np
 import scipy as sp
+import pandas_flavor as pf
 
 def missing_percent(x, axis = 'index', pct = True):
   return (100**pct) * x.isna().mean(axis = axis)
 
-def diagnose(data):
+@pf.register_dataframe_method
+def diagnose(self):
     # 各種集計値の計算
-     result = data.agg([
+     result = self.agg([
          'dtype',
          lambda x: x.isna().sum(),                  # missing_count
          missing_percent,                           # missing_percent
@@ -41,21 +66,76 @@ def diagnose(data):
 
      return result
 
-def remove_empty(dat, cols = True, rows = True, cutoff = 1, quiet = True):
+"""## 完全な空白列 and / or 行の除去"""
+
+@pf.register_dataframe_method
+def remove_empty(self, cols = True, rows = True, cutoff = 1, quiet = True):
+  df_shape = self.shape
+
+  # 空白列の除去 ------------------------------
   if cols :
-    empty_col = missing_percent(dat, axis = 'index', pct = False) >= 1
-    dat = dat.loc[:, ~empty_col]
-    if not(quiet) :
-      print('drop column(s) :', empty_col[empty_col].index.to_list())
+    empty_col = missing_percent(self, axis = 'index', pct = False) >= 1
+    self = self.loc[:, ~empty_col]
 
+    if not(quiet) :
+      ncol_removed = empty_col.sum()
+      col_removed = empty_col[empty_col].index.to_series().astype('str').to_list()
+      print(
+            f"Removing {ncol_removed} empty column(s) out of {df_shape[1]} columns" +
+            f"(Removed: {','.join(col_removed)}). "
+            )
+  # 空白行の除去 ------------------------------
   if rows :
-    empty_rows = missing_percent(dat, axis = 'columns', pct = False) >= 1
-    dat = dat.loc[~empty_rows, :]
+    empty_rows = missing_percent(self, axis = 'columns', pct = False) >= 1
+    self = self.loc[~empty_rows, :]
 
     if not(quiet) :
-      print('drop row(s) :', empty_rows[empty_rows].index.to_list())
+        nrow_removed = empty_rows.sum()
+        row_removed = empty_rows[empty_rows].index.to_series().astype('str').to_list()
+        print(
+              f"Removing {nrow_removed} empty row(s) out of {df_shape[0]} rows" +
+              f"(Removed: {','.join(row_removed)}). "
+          )
 
-  return dat
+  return self
+
+"""## 定数列の除去"""
+
+@pf.register_dataframe_method
+def remove_constant(self, quiet = True, dropna = False):
+  df_shape = self.shape
+  # データフレーム(self) の行が定数かどうかを判定
+  constant_col = self.nunique(dropna = dropna) == 1
+  self = self.loc[:, ~constant_col]
+
+  if not(quiet) :
+    ncol_removed = constant_col.sum()
+    col_removed = constant_col[constant_col].index.to_series().astype('str').to_list()
+
+    print(
+        f"Removing {ncol_removed} constant column(s) out of {df_shape[1]} columns" +
+        f"(Removed: {','.join(col_removed)}). "
+     )
+
+
+  return self
+
+# 列名に特定の文字列を含む列を除外する関数
+@pf.register_dataframe_method
+def select_dislike(self, contains = None, starts_with = None, ends_with = None):
+    if contains is not None:
+      assert isinstance(contains, str), "'contains' must be a string."
+      self = self.loc[:, self.apply(lambda x: contains not in x.name)]
+
+    if starts_with is not None:
+      assert isinstance(starts_with, str), "'starts_with' must be a string."
+      self = self.loc[:, self.apply(lambda x: not x.name.startswith(starts_with))]
+
+    if ends_with is not None:
+      assert isinstance(ends_with, str), "'ends_with' must be a string."
+      self = self.loc[:, self.apply(lambda x: not x.name.endswith(ends_with))]
+
+    return self
 
 """## クロス集計表ほか"""
 
@@ -71,16 +151,52 @@ def crosstab2(
         dropna = dropna, normalize = normalize
         )
     return res
+
 # -------------------------------
-def freq_table(data, x, sort = True, group = None, dropna = False):
+# def freq_table(data, x, sort = True, group = None, dropna = False):
+
+#     if group is None:
+
+#         count = data[x].value_counts(sort = sort, dropna = dropna)
+#         rel_count = data[x].value_counts(sort = sort, normalize=True, dropna = dropna)
+
+#     # sort = False の場合 index でソートします。
+#         if (not sort):
+#             count = count.sort_index()
+#             rel_count = rel_count.sort_index()
+
+#         res = pd.DataFrame({
+#             'freq':count,
+#             'perc':rel_count,
+#             'cumfreq':count.cumsum(),
+#             'cumperc':rel_count.cumsum()
+#         })
+#     else:
+#         res = pd.crosstab(data[x], data[group]).reset_index()\
+#             .melt(id_vars = x, value_vars = data[group].dropna().unique())\
+#             .sort_values([group, x]).set_index([group, x])
+
+#         res = res.rename(columns = {'value':'freq'})
+
+#         if sort: res = res.sort_values([group, 'freq'], ascending = [True, False])
+
+#         res['total'] = res.groupby(group).transform('sum')
+#         res['perc'] = res['freq'] / res['total']
+#         res['cumfreq'] = res.groupby(group)['freq'].cumsum()
+#         res['cumperc'] = res.groupby(group)['perc'].cumsum()
+#         res = res.drop('total', axis = 'columns')
+
+#     return res
+
+@pf.register_dataframe_method
+def freq_table(self, colum, group = None, sort = True, dropna = False):
 
     if group is None:
-
-        count = data[x].value_counts(sort = sort, dropna = dropna)
-        rel_count = data[x].value_counts(sort = sort, normalize=True, dropna = dropna)
+        count = self[colum].value_counts(sort = sort, dropna = dropna)
+        rel_count = self[colum].value_counts(sort = sort, normalize=True, dropna = dropna)
 
     # sort = False の場合 index でソートします。
-        if (sort == False):
+        if (not sort):
             count = count.sort_index()
             rel_count = rel_count.sort_index()
 
@@ -91,9 +207,9 @@ def freq_table(data, x, sort = True, group = None, dropna = False):
             'cumperc':rel_count.cumsum()
         })
     else:
-        res = pd.crosstab(data[x], data[group]).reset_index()\
-            .melt(id_vars = x, value_vars = data[group].dropna().unique())\
-            .sort_values([group, x]).set_index([group, x])
+        res = pd.crosstab(self[colum], self[group]).reset_index()\
+            .melt(id_vars = colum, value_vars = self[group].dropna().unique())\
+            .sort_values([group, colum]).set_index([group, colum])
 
         res = res.rename(columns = {'value':'freq'})
 
@@ -116,45 +232,90 @@ pad_zero = np.vectorize(pad_z, excluded = 'digits')
 
 def add_big_mark(s): return  f'{s:,}'
 
+# def tabyl(
+#     data, index, columns, values=None, rownames=None, colnames=None,
+#     aggfunc=None, margins=True, margins_name='All', dropna = False, normalize='index',
+#     digits = 1
+#     ):
+
+#     if data[index].dtype == "bool":
+#         data[index] = data[index].astype(str)
+#     if data[columns].dtype == "bool":
+#         data[columns] = data[columns].astype(str)
+
+#     # 度数クロス集計表（最終的な表では左側の数字）
+#     c_tab1 = pd.crosstab(
+#         index = data[index], columns = data[columns], values = values,
+#         rownames = rownames, colnames = colnames,
+#         aggfunc = aggfunc, margins = margins, margins_name = margins_name,
+#         dropna = dropna, normalize = False
+#         )
+
+#     # c_tab1 = c_tab1.style.format('{:,d}')
+
+#     c_tab1 = c_tab1.applymap(add_big_mark)
+
+#     # 回答率クロス集計表（最終的な表では括弧内の数字）
+#     c_tab2 = pd.crosstab(
+#         index = data[index], columns = data[columns], values = values,
+#         rownames = rownames, colnames = colnames,
+#         aggfunc = aggfunc, margins = margins, margins_name = margins_name,
+#         dropna = dropna, normalize = normalize
+#         )
+
+#     # 2つめのクロス集計表の回答率をdigitsで指定した桁数のパーセントに換算し、文字列化します。
+#     c_tab2 = (100 * c_tab2).round(digits).astype('str').apply(pad_zero, digits = digits)
+
+#     col = c_tab2.columns
+#     idx = c_tab2.index
+#     # 1つめのクロス集計表も文字列化して、↑で計算したパーセントに丸括弧と%記号を追加したものを文字列として結合します。
+#     c_tab1.loc[idx, col] = c_tab1.astype('str').loc[idx, col] + ' (' + c_tab2 + '%)'
+#     # c_tab1.loc[idx, col] = c_tab1.astype('str').loc[idx, col] + f'({c_tab2}%)'
+
+#     return c_tab1
+
+@pf.register_dataframe_method
 def tabyl(
-    data, index, columns, values=None, rownames=None, colnames=None,
+    self, index, columns, values=None, rownames=None, colnames=None,
     aggfunc=None, margins=True, margins_name='All', dropna = False, normalize='index',
     digits = 1
     ):
 
-    if data[index].dtype == "bool":
-        data[index] = data[index].astype(str)
-    if data[columns].dtype == "bool":
-        data[columns] = data[columns].astype(str)
+    if(not isinstance(normalize, bool)):
+      normalize = match_arg(normalize, ['index', 'columns', 'all'])
+
+    if self[index].dtype == "bool":
+        self[index] = self[index].astype(str)
+    if self[columns].dtype == "bool":
+        self[columns] = self[columns].astype(str)
 
     # 度数クロス集計表（最終的な表では左側の数字）
     c_tab1 = pd.crosstab(
-        index = data[index], columns = data[columns], values = values,
+        index = self[index], columns = self[columns], values = values,
         rownames = rownames, colnames = colnames,
         aggfunc = aggfunc, margins = margins, margins_name = margins_name,
         dropna = dropna, normalize = False
         )
 
-    # c_tab1 = c_tab1.style.format('{:,d}')
-
     c_tab1 = c_tab1.applymap(add_big_mark)
 
-    # 回答率クロス集計表（最終的な表では括弧内の数字）
-    c_tab2 = pd.crosstab(
-        index = data[index], columns = data[columns], values = values,
-        rownames = rownames, colnames = colnames,
-        aggfunc = aggfunc, margins = margins, margins_name = margins_name,
-        dropna = dropna, normalize = normalize
-        )
+    if(normalize != False):
 
-    # 2つめのクロス集計表の回答率をdigitsで指定した桁数のパーセントに換算し、文字列化します。
-    c_tab2 = (100 * c_tab2).round(digits).astype('str').apply(pad_zero, digits = digits)
+      # 回答率クロス集計表（最終的な表では括弧内の数字）
+      c_tab2 = pd.crosstab(
+          index = self[index], columns = self[columns], values = values,
+          rownames = rownames, colnames = colnames,
+          aggfunc = aggfunc, margins = margins, margins_name = margins_name,
+          dropna = dropna, normalize = normalize
+          )
 
-    col = c_tab2.columns
-    idx = c_tab2.index
-    # 1つめのクロス集計表も文字列化して、↑で計算したパーセントに丸括弧と%記号を追加したものを文字列として結合します。
-    c_tab1.loc[idx, col] = c_tab1.astype('str').loc[idx, col] + ' (' + c_tab2 + '%)'
-    # c_tab1.loc[idx, col] = c_tab1.astype('str').loc[idx, col] + f'({c_tab2}%)'
+      # 2つめのクロス集計表の回答率をdigitsで指定した桁数のパーセントに換算し、文字列化します。
+      c_tab2 = (100 * c_tab2).round(digits).astype('str').apply(pad_zero, digits = digits)
+
+      col = c_tab2.columns
+      idx = c_tab2.index
+      # 1つめのクロス集計表も文字列化して、↑で計算したパーセントに丸括弧と%記号を追加したものを文字列として結合します。
+      c_tab1.loc[idx, col] = c_tab1.astype('str').loc[idx, col] + ' (' + c_tab2 + '%)'
 
     return c_tab1
 
@@ -208,11 +369,6 @@ def diagnose_category(data):
     return res
 
 """## その他の補助関数"""
-
-# 列名に特定の文字列を含む列を除外する関数
-def select_dislike(data, pettern):
-    data = data.loc[:, data.apply(lambda x: pettern not in x.name)]
-    return data
 
 def weighted_mean(x, w):
   wmean = (x * w).sum() / w.sum()
