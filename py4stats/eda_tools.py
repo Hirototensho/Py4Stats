@@ -122,7 +122,7 @@ def remove_constant(self, quiet = True, dropna = False):
 
 # 列名に特定の文字列を含む列を除外する関数
 @pf.register_dataframe_method
-def select_dislike(self, contains = None, starts_with = None, ends_with = None):
+def filtering_out(self, contains = None, starts_with = None, ends_with = None):
     if contains is not None:
       assert isinstance(contains, str), "'contains' must be a string."
       self = self.loc[:, self.apply(lambda x: contains not in x.name)]
@@ -190,7 +190,7 @@ def crosstab2(
 
 @pf.register_dataframe_method
 def freq_table(self, colum, group = None, sort = True, dropna = False):
-
+    # group が指定されていない場合の処理
     if group is None:
         count = self[colum].value_counts(sort = sort, dropna = dropna)
         rel_count = self[colum].value_counts(sort = sort, normalize=True, dropna = dropna)
@@ -206,6 +206,8 @@ def freq_table(self, colum, group = None, sort = True, dropna = False):
             'cumfreq':count.cumsum(),
             'cumperc':rel_count.cumsum()
         })
+    res.index.name = colum
+    # group が指定された場合の処理
     else:
         res = pd.crosstab(self[colum], self[group]).reset_index()\
             .melt(id_vars = colum, value_vars = self[group].dropna().unique())\
