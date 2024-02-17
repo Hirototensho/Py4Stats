@@ -15,7 +15,7 @@ from py4stats import eda_tools as eda        # 基本統計量やデータの要
 from py4stats import regression_tools as reg # 回帰分析の要約
 ```
 
-### `eda_tools`
+### `py4stats.eda_tools`
 
 　探索的データ解析と前処理に関する機能を提供するモジュールです。一部の関数は [`pandas-flavor`](https://pypi.org/project/pandas-flavor/)ライブラリの機能を使って実装しており、[`pandas.DataFrame`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html) のメソッドと同じ構文で利用することができます。
 
@@ -159,9 +159,16 @@ display(penguins.filtering_out(ends_with = '_mm').columns.to_list())
 #> ['species', 'island', 'body_mass_g', 'sex', 'year', 'female'] 
 ```
 
-### `.regression_tools`
+### `py4stats.regression_tools`
+
+　[`statsmodels`](https://www.statsmodels.org/stable/index.html)ライブラリで作成された回帰分析の結果についての表作成と視覚化を補助する機能を提供するモジュールです。
+
+　`reg.compare_ols()` 回帰分析の表を作成。：計量経済学の実証論文でよく用いられる、回帰分析の結果を縦方向に並べて比較する表を作成します。
 
 ``` python
+import statsmodels.formula.api as smf
+import japanize_matplotlib #日本語化matplotlib
+
 # 回帰分析の実行
 fit1 = smf.ols('body_mass_g ~ bill_length_mm + species', data = penguins).fit()
 fit2 = smf.ols('body_mass_g ~ bill_length_mm + bill_depth_mm + species', data = penguins).fit()
