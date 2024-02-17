@@ -144,7 +144,7 @@ print(penguins2.remove_constant(quiet = False).head(3))
 #> 2  Adelie       3250.0
 ```
 
-　`eda.filtering_out()`：`pandas` の `DataFrame.filter()` メソッドでは引数 `like` に文字列を指定することで、列名に特定の文字列を含む列を選択できますが、反対に `eda.filtering_out()` では列名に特定の文字列を含む列を除外します。実装の一部はR言語の [`dplyr::select()`](https://dplyr.tidyverse.org/reference/select.html) を参考にしました。
+　`eda.filtering_out()`：`pandas` の [`DataFrame.filter()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.filter.html) メソッドでは引数 `like` に文字列を指定することで、列名に特定の文字列を含む列を選択できますが、反対に `eda.filtering_out()` では列名に特定の文字列を含む列を除外します。実装の一部はR言語の [`dplyr::select()`](https://dplyr.tidyverse.org/reference/select.html) を参考にしました。
 
 ``` python
  # 列名に 'length' を含む列を除外
