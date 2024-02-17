@@ -85,7 +85,7 @@ print(
 #>           (52.725, 59.6]       5  0.040650      123  1.000000
 ```
 
-　`eda.remove_empty()`：完全に空白な列や行の削除する関数。R言語の [`janitor:remove_empty()`](https://sfirke.github.io/janitor/reference/remove_empty.html) をオマージュした関数で、全ての要素が `NaN` である列や行をデータフレームから除外します。
+　`eda.remove_empty()`：完全に空白な列や行の削除する関数。R言語の [`janitor::remove_empty()`](https://sfirke.github.io/janitor/reference/remove_empty.html) をオマージュした関数で、全ての要素が `NaN` である列や行をデータフレームから除外します。
 
 ``` python
 penguins2 = penguins.loc[:, ['species', 'body_mass_g']].copy()
@@ -124,7 +124,7 @@ print(penguins2.remove_empty(cols = False, quiet = False).tail(3))
 #> 343  Chinstrap       3775.0    NaN
 ```
 
-　`eda.remove_constant()`：定数列の削除。R言語の [`janitor:remove_constant()`](https://sfirke.github.io/janitor/reference/remove_constant.html) をオマージュした関数で、1種類だけの要素からなる列をデータフレームから除外します。
+　`eda.remove_constant()`：定数列の削除。R言語の [`janitor::remove_constant()`](https://sfirke.github.io/janitor/reference/remove_constant.html) をオマージュした関数で、1種類だけの要素からなる列をデータフレームから除外します。
 ``` python
 penguins2 = penguins.loc[:, ['species', 'body_mass_g']].copy()
 penguins2.loc[:, 'constant'] = 'c'
