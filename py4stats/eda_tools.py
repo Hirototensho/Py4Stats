@@ -206,8 +206,8 @@ def freq_table(self, colum, group = None, sort = True, dropna = False):
             'cumfreq':count.cumsum(),
             'cumperc':rel_count.cumsum()
         })
-    res.index.name = colum
-    # group が指定された場合の処理
+        res.index.name = colum
+      # group が指定された場合の処理
     else:
         res = pd.crosstab(self[colum], self[group]).reset_index()\
             .melt(id_vars = colum, value_vars = self[group].dropna().unique())\
