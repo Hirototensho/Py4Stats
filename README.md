@@ -243,7 +243,7 @@ ax[1].set_xlim(-900, 1800);
 
 ![Unknown](https://github.com/Hirototensho/Py4Stats/assets/55335752/0f11205b-5090-4b45-9a2e-7db7be3cc0f4)
 
-`reg.compare_mfx()` と `reg.mfxplot()`：それぞれ `reg.compare_ols()` と `reg.coefplot()` の一般化線型モデルバージョンで、`statsmodels` ライブラリの[`.get_margeff()`](https://www.statsmodels.org/dev/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html)メソッドから得られた限界効果の推定結果を表示します。
+`reg.compare_mfx()` と `reg.mfxplot()`は、それぞれ `reg.compare_ols()` と `reg.coefplot()` の一般化線型モデルバージョンです。`statsmodels` ライブラリの[`.get_margeff()`](https://www.statsmodels.org/dev/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドから得られた限界効果の推定値を表示します。
 
 ```python
 # ロジスティック回帰の実行
