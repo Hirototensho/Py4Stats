@@ -23,6 +23,7 @@ from py4stats import regression_tools as reg # 回帰分析の要約
 
 ``` python
 import pandas as pd
+import numpy as np
 from palmerpenguins import load_penguins
 penguins = load_penguins() # サンプルデータの読み込み
 
