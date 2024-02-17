@@ -143,6 +143,22 @@ print(penguins2.remove_constant(quiet = False).head(3))
 #> 2  Adelie       3250.0
 ```
 
+　`eda.filtering_out()`：`pandas` の `DataFrame.filter()` メソッドでは引数 `like` に文字列を指定することで、列名に特定の文字列を含む列を選択できますが、`eda.filtering_out()` では列名に特定の文字列を含む列を除外します。
+
+``` python
+ # 列名に 'length' を含む列を除外
+display(penguins.filtering_out(contains = 'length').columns.to_list())
+#> ['species', 'island', 'bill_depth_mm', 'body_mass_g', 'sex', 'year', 'female']
+
+# 列名が 'bill' から始まる列を除外
+display(penguins.filtering_out(starts_with = 'bill').columns.to_list())
+#> ['species', 'island', 'flipper_length_mm', 'body_mass_g', 'sex', 'year', 'female']
+
+# 列名が '_mm' で終わる列を除外
+display(penguins.filtering_out(ends_with = '_mm').columns.to_list())
+#> ['species', 'island', 'body_mass_g', 'sex', 'year', 'female'] 
+```
+
 ### `.regression_tools`
 
 ``` python
