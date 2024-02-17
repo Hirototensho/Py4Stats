@@ -164,7 +164,7 @@ display(penguins.filtering_out(ends_with = '_mm').columns.to_list())
 
 　[`statsmodels`](https://www.statsmodels.org/stable/index.html)ライブラリで作成された回帰分析の結果についての表作成と視覚化を補助する機能を提供するモジュールです。
 
-　`reg.compare_ols()` 回帰分析の表を作成。：計量経済学の実証論文でよく用いられる、回帰分析の結果を縦方向に並べて比較する表を作成します。
+　`reg.compare_ols()` 回帰分析の表を作成。：計量経済学の実証論文でよく用いられる、回帰分析の結果を縦方向に並べて比較する表を作成します。表のフォーマットについては[`texreg::screenreg()`](https://cran.r-project.org/web/packages/texreg/index.html)や[`modelsummary::modelsummary()`](https://modelsummary.com/man/modelsummary.html)を参考にしています。同種の機能を提供する Python ライブラリーとしては、R言語の [`stargazer`](https://cran.r-project.org/web/packages/stargazer/index.html) パッケージをもとにした [`stargazer`](https://pypi.org/project/stargazer/) ライブラリがあります。
 
 ``` python
 import statsmodels.formula.api as smf
@@ -228,7 +228,6 @@ import matplotlib.pyplot as plt
 reg.coefplot(fit3)
 ```
 ![Unknown](https://github.com/Hirototensho/Py4Stats/assets/55335752/637437c3-f943-4817-a1ad-21bbd538e97d)
-
 
 ```python
 plt.rcParams["figure.autolayout"] = True
