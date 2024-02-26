@@ -1,14 +1,14 @@
-## `py4stats.regression_tools.compare_ols()`
+# `py4stats.regression_tools.compare_ols()`
 
-### 概要
+## 概要
 
 `reg.compare_ols()` 回帰分析の表を作成。：計量経済学の実証論文でよく用いられる、回帰分析の結果を縦方向に並べて比較する表を作成します。表のフォーマットについてはR言語の [`texreg::screenreg()`](https://cran.r-project.org/web/packages/texreg/index.html)や[`modelsummary::modelsummary()`](https://modelsummary.com/man/modelsummary.html)を参考にしています。
 
-### 引数
+## 引数
 
 　`reg.compare_ols()` 関数では必要に応じて表の体裁を調整できるようにしています。`reg.compare_ols()` 関数に指定できる引数は次の通りです。
 
-- `list_models`：推定結果を表示する分析結果のリスト。`sm.ols()` や `smf.ols()` で作成された回帰分析の結果を `list_models = [fit1, fit2]` のようにリストとして指定してください。
+- `list_models`：推定結果を表示する分析結果のリスト（必須）。`sm.ols()` や `smf.ols()` で作成された回帰分析の結果を `list_models = [fit1, fit2]` のようにリストとして指定してください。
 
 - `model_name = None`：表頭に表示するモデルの名前。`['モデル1', 'モデル2']` のように文字列のリストを指定してください。初期設定では、自動的に `model 1, model 2, model 3 …` と連番が割り当てられます。
 
@@ -41,7 +41,7 @@
     - `'AIC'`：赤池情報量基準
     - `'BIC'`：ベイズ情報量基準
 
-### 使用例
+## 使用例
 
 ``` python
 from py4stats import eda_tools as eda        # 基本統計量やデータの要約など
