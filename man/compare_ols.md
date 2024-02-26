@@ -2,7 +2,7 @@
 
 ### 概要
 
-`reg.compare_ols()` 回帰分析の表を作成。：計量経済学の実証論文でよく用いられる、回帰分析の結果を縦方向に並べて比較する表を作成します。表のフォーマットについては[`texreg::screenreg()`](https://cran.r-project.org/web/packages/texreg/index.html)や[`modelsummary::modelsummary()`](https://modelsummary.com/man/modelsummary.html)を参考にしています。同種の機能を提供する Python ライブラリーとしては、R言語の [`stargazer`](https://cran.r-project.org/web/packages/stargazer/index.html) パッケージをもとにした [`stargazer`](https://pypi.org/project/stargazer/) ライブラリがあります。
+`reg.compare_ols()` 回帰分析の表を作成。：計量経済学の実証論文でよく用いられる、回帰分析の結果を縦方向に並べて比較する表を作成します。表のフォーマットについてはR言語の [`texreg::screenreg()`](https://cran.r-project.org/web/packages/texreg/index.html)や[`modelsummary::modelsummary()`](https://modelsummary.com/man/modelsummary.html)を参考にしています。
 
 ### 引数
 
