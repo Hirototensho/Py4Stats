@@ -4,10 +4,15 @@
 
 ## Install
 
-``` 
+``` python
 ! pip install git+https://github.com/Hirototensho/py4stats.git
 ```
 
+一部の関数は [`pandas-flavor`](https://pypi.org/project/pandas-flavor/)ライブラリの機能を使って実装しているため、事前のインストールをお勧めします。
+
+``` python
+! pip install pandas-flavor
+```
 ## 使用方法
 
 ``` python
