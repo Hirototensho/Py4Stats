@@ -158,10 +158,6 @@ def p_stars(p_value):
     stars = np.where(p_value <= 0.01, ' ***', stars)
     return stars
 
-def scale(x):
-    z = (x - x.mean()) / x.std(ddof = 1)
-    return z
-
 def pad_z(s, digits = 4):
     s = str(s)
     # もし s が整数値なら、何もしない。
@@ -233,7 +229,7 @@ compare_tab1
 # 複数のモデルを比較する表を作成する関数
 def compare_ols(
     list_models, model_name = None,
-    digits = 4, stats = 'p_value', add_stars = True,
+    digits = 4, stats = 'std_err', add_stars = True,
     table_style = 'two_line',
     stats_glance = ['rsquared_adj', 'nobs', 'df'],
     **kwargs
@@ -294,7 +290,7 @@ def lineup_models(tidy_list, model_name = None, **kwargs):
 def gazer(
     res_tidy, estimate = 'coef', stats = 'std_err',
     digits = 4, add_stars = True, style_p = False, p_min = 0.01,
-    table_style = 'two_line'
+    table_style = 'two_line', line_break = '\n'
     ):
 
     # 引数に妥当な値が指定されているかを検証
@@ -304,7 +300,6 @@ def gazer(
     # --------------------
     res = res_tidy.copy()
     res['stars'] = p_stars(res['p_value'])
-    res['p_val'] = res['p_value']
 
     res[[estimate, stats]] = res[[estimate, stats]].round(digits).astype(str)\
         .apply(pad_zero, digits = digits)
@@ -314,13 +309,16 @@ def gazer(
 
 
     if (stats == 'p_value') & style_p:
+        res['p_val'] = res['p_value']
+
         res['p_value'] = np.where(
-            res['p_val'] < p_min, f'p < {p_min}',
+            res['p_val'] < p_min,
+            f'p < {p_min}',
             res['p_value']
             )
-    # table_style に応じて改行とアスタリスクを追加する
+    # # table_style に応じて改行とアスタリスクを追加する
     if(table_style == 'two_line'):
-        sep = '\n'
+        sep = line_break
         if add_stars:
             sep = res['stars'] + sep
 
