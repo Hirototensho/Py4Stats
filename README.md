@@ -225,6 +225,7 @@ reg.compare_ols(
 | nobs                 | 342           | 342            | 333           |
 | df                   | 3             | 4              | 5             |
 
+`table_style = ’two_line’` のときに使用される改行記号は `line_break` で指定できます。[`great_tables`](https://posit-dev.github.io/great-tables/articles/intro.html) モジュールの `GT()` 関数と併用する場合など、html 形式で出力する場合には `line_break = '<br>' ` を指定します。
 
 ``` python
 from great_tables import GT, md, html
