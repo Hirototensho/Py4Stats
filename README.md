@@ -32,7 +32,7 @@ import numpy as np
 from palmerpenguins import load_penguins
 penguins = load_penguins() # サンプルデータの読み込み
 
-penguins.diagnose()
+print(penguins.diagnose().round(4))
 #>                      dtype  missing_count  missing_percent  unique_count  unique_rate
 #> species             object              0           0.0000             3       0.8721
 #> island              object              0           0.0000             3       0.8721
