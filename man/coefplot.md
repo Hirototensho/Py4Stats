@@ -38,3 +38,4 @@ fit3 = smf.ols('body_mass_g ~ bill_length_mm + bill_depth_mm + species + sex', d
 
 reg.coefplot(fit3)
 ```
+![Unknown](https://github.com/Hirototensho/Py4Stats/assets/55335752/637437c3-f943-4817-a1ad-21bbd538e97d)
