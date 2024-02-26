@@ -33,17 +33,16 @@ from palmerpenguins import load_penguins
 penguins = load_penguins() # サンプルデータの読み込み
 
 penguins.diagnose()
+#>                      dtype  missing_count  missing_percent  unique_count  unique_rate
+#> species             object              0           0.0000             3       0.8721
+#> island              object              0           0.0000             3       0.8721
+#> bill_length_mm     float64              2           0.5814           164      47.6744
+#> bill_depth_mm      float64              2           0.5814            80      23.2558
+#> flipper_length_mm  float64              2           0.5814            55      15.9884
+#> body_mass_g        float64              2           0.5814            94      27.3256
+#> sex                 object             11           3.1977             2       0.5814
+#> year                 int64              0           0.0000             3       0.8721
 ```
-|                   | dtype   |   missing_count |   missing_percent |   unique_count |   unique_rate |
-|:------------------|:--------|----------------:|------------------:|---------------:|--------------:|
-| species           | object  |               0 |          0        |              3 |      0.872093 |
-| island            | object  |               0 |          0        |              3 |      0.872093 |
-| bill_length_mm    | float64 |               2 |          0.581395 |            164 |     47.6744   |
-| bill_depth_mm     | float64 |               2 |          0.581395 |             80 |     23.2558   |
-| flipper_length_mm | float64 |               2 |          0.581395 |             55 |     15.9884   |
-| body_mass_g       | float64 |               2 |          0.581395 |             94 |     27.3256   |
-| sex               | object  |              11 |          3.19767  |              2 |      0.581395 |
-| year              | int64   |               0 |          0        |              3 |      0.872093 |
 
 `eda.tabyl()`：R言語の [`janitor::tabyl()`](https://sfirke.github.io/janitor/reference/tabyl.html)にいくつかの `adorn_` 関数を追加した状態を再現した関数です。
 
