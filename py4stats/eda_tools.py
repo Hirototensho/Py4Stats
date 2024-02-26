@@ -63,6 +63,8 @@ def diagnose(self):
 
      # 列名の修正
      result.columns = ['dtype', 'missing_count', 'missing_percent', 'unique_count', 'unique_rate']
+     result[['missing_percent', 'unique_rate']] = result[['missing_percent', 'unique_rate']].astype(float)
+     result[['missing_count', 'unique_count']] = result[['missing_count', 'unique_count']].astype(int)
 
      return result
 
@@ -324,7 +326,7 @@ def tabyl(
 """## `diagnose_category()`：カテゴリー変数専用の要約関数"""
 
 # 適切なダミー変数かどうかを判定する関数
-def is_dummy(x): return x.isin([0, 1]).all(axis = 'index')
+def is_dummy(x): return x.isin([0, 1]).all(axis = 'index') & (x.nunique() == 2)
 
 # カテゴリカル変数についての集計関数 --------------
 
