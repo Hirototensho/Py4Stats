@@ -225,6 +225,153 @@ reg.compare_ols(
 | nobs                 | 342           | 342            | 333           |
 | df                   | 3             | 4              | 5             |
 
+
+``` python
+from great_tables import GT, md, html
+
+compare_tab3 = reg.compare_ols(
+    list_models = [fit1, fit2, fit3],
+    model_name = ['基本モデル', '嘴の高さ追加', '性別追加'], # モデル名を変更
+    line_break = '<br>'                                 # 改行文字の変更
+    )
+
+compare_gt = GT(compare_tab3.reset_index())\
+  .tab_header(title = 'Palmer penguin データを使った回帰分析の結果')\
+  .tab_source_note(
+      source_note= "Signif. codes: 0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1"
+      )\
+  .tab_source_note(source_note = '( ) の値は標準誤差')
+
+compare_gt
+```
+<div id="jodgqjunqd" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>
+#jodgqjunqd table {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+
+#jodgqjunqd thead, tbody, tfoot, tr, td, th { border-style: none; }
+#jodgqjunqd p { margin: 0; padding: 0; }
+ #jodgqjunqd .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #jodgqjunqd .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #jodgqjunqd .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #jodgqjunqd .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #jodgqjunqd .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #jodgqjunqd .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #jodgqjunqd .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #jodgqjunqd .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #jodgqjunqd .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #jodgqjunqd .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #jodgqjunqd .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #jodgqjunqd .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #jodgqjunqd .gt_spanner_row { border-bottom-style: hidden; }
+ #jodgqjunqd .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #jodgqjunqd .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #jodgqjunqd .gt_from_md> :first-child { margin-top: 0; }
+ #jodgqjunqd .gt_from_md> :last-child { margin-bottom: 0; }
+ #jodgqjunqd .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #jodgqjunqd .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #jodgqjunqd .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #jodgqjunqd .gt_row_group_first td { border-top-width: 2px; }
+ #jodgqjunqd .gt_row_group_first th { border-top-width: 2px; }
+ #jodgqjunqd .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #jodgqjunqd .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #jodgqjunqd .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+ #jodgqjunqd .gt_left { text-align: left; }
+ #jodgqjunqd .gt_center { text-align: center; }
+ #jodgqjunqd .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #jodgqjunqd .gt_font_normal { font-weight: normal; }
+ #jodgqjunqd .gt_font_bold { font-weight: bold; }
+ #jodgqjunqd .gt_font_italic { font-style: italic; }
+ #jodgqjunqd .gt_super { font-size: 65%; }
+ #jodgqjunqd .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #jodgqjunqd .gt_asterisk { font-size: 100%; vertical-align: 0; }
+ 
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead class="gt_header">  <tr>
+    <th colspan="4" class="gt_heading gt_title gt_font_normal">Palmer penguin データを使った回帰分析の結果
+  </tr></thead>
+<tr class="gt_col_headings"><th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="term">term</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="基本モデル">基本モデル</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="嘴の高さ追加">嘴の高さ追加</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="性別追加">性別追加</th></tr>
+<tbody class="gt_table_body">
+<tr>
+  <td class="gt_row gt_left">Intercept</td>
+  <td class="gt_row gt_left">153.7397<br>(268.9012)</td>
+  <td class="gt_row gt_left">-1742.7202 ***<br>(313.7697)</td>
+  <td class="gt_row gt_left">843.9812 **<br>(403.5956)</td>
+</tr>
+<tr>
+  <td class="gt_row gt_left">species[T.Chinstrap]</td>
+  <td class="gt_row gt_left">-885.8121 ***<br>(88.2502)</td>
+  <td class="gt_row gt_left">-539.6864 ***<br>(86.9425)</td>
+  <td class="gt_row gt_left">-245.1516 ***<br>(84.5952)</td>
+</tr>
+<tr>
+  <td class="gt_row gt_left">species[T.Gentoo]</td>
+  <td class="gt_row gt_left">578.6292 ***<br>(75.3623)</td>
+  <td class="gt_row gt_left">1492.8283 ***<br>(118.4442)</td>
+  <td class="gt_row gt_left">1443.3525 ***<br>(107.7844)</td>
+</tr>
+<tr>
+  <td class="gt_row gt_left">bill_length_mm</td>
+  <td class="gt_row gt_left">91.4358 ***<br>(6.8871)</td>
+  <td class="gt_row gt_left">55.6461 ***<br>(7.2326)</td>
+  <td class="gt_row gt_left">26.5366 ***<br>(7.2436)</td>
+</tr>
+<tr>
+  <td class="gt_row gt_left">bill_depth_mm</td>
+  <td class="gt_row gt_left"></td>
+  <td class="gt_row gt_left">179.0434 ***<br>(19.0997)</td>
+  <td class="gt_row gt_left">87.9328 ***<br>(20.2192)</td>
+</tr>
+<tr>
+  <td class="gt_row gt_left">sex[T.male]</td>
+  <td class="gt_row gt_left"></td>
+  <td class="gt_row gt_left"></td>
+  <td class="gt_row gt_left">437.2007 ***<br>(49.1098)</td>
+</tr>
+<tr>
+  <td class="gt_row gt_left">rsquared_adj</td>
+  <td class="gt_row gt_left">0.7810</td>
+  <td class="gt_row gt_left">0.8258</td>
+  <td class="gt_row gt_left">0.8613</td>
+</tr>
+<tr>
+  <td class="gt_row gt_left">nobs</td>
+  <td class="gt_row gt_left">342</td>
+  <td class="gt_row gt_left">342</td>
+  <td class="gt_row gt_left">333</td>
+</tr>
+<tr>
+  <td class="gt_row gt_left">df</td>
+  <td class="gt_row gt_left">3</td>
+  <td class="gt_row gt_left">4</td>
+  <td class="gt_row gt_left">5</td>
+</tr>
+</tbody>
+  <tfoot class="gt_sourcenotes">
+  
+  <tr>
+    <td class="gt_sourcenote" colspan="4">Signif. codes: 0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</td>
+  </tr>
+
+
+  <tr>
+    <td class="gt_sourcenote" colspan="4">( ) の値は標準誤差</td>
+  </tr>
+
+</tfoot>
+
+</table>
+
+</div>
+        
+
 `reg.coefplot()`：回帰係数の可視化。R言語の[`coefplot::coefplot()`](https://cran.r-project.org/web/packages/coefplot/index.html)を参考にしました。
 
 ```python
