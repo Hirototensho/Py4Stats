@@ -232,6 +232,7 @@ def compare_ols(
     digits = 4, stats = 'std_err', add_stars = True,
     table_style = 'two_line',
     stats_glance = ['rsquared_adj', 'nobs', 'df'],
+    line_break = '\n',
     **kwargs
     ):
     tidy_list = [tidy(mod) for mod in list_models]
@@ -245,6 +246,7 @@ def compare_ols(
             tidy_list, model_name = model_name,
             digits = digits, stats = stats,
             add_stars = add_stars, table_style = table_style,
+            line_break = line_break,
             **kwargs
         )
 
@@ -666,8 +668,8 @@ def compare_mfx(
     list_models, model_name = None,
     digits = 4, stats = 'std_err', add_stars = True,
     table_style = 'two_line',
-    # stats_glance = ['rsquared_adj', 'nobs', 'df'],
     at = 'overall',
+    line_break = '\n',
     method = 'dydx',
     dummy = False,
     **kwargs
@@ -695,6 +697,7 @@ def compare_mfx(
         add_stars = add_stars,
         table_style = table_style,
         estimate = method,
+        line_break = line_break,
         **kwargs
         )
 
