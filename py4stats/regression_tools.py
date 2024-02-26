@@ -268,7 +268,7 @@ def compare_ols(
     return res
 
 # 複数のモデルを比較する表を作成する関数 対象を sm.ols() に限定しないバージョン
-def lineup_models(tidy_list, model_name = None, **kwargs):
+def lineup_models(tidy_list, model_name = None, subset = None, **kwargs):
 
     # モデル名が指定されていない場合、連番を作成する
     if model_name is None:
@@ -280,6 +280,10 @@ def lineup_models(tidy_list, model_name = None, **kwargs):
     # model_name が列名になるように、辞書の key に設定してから pd.concat() で結合
     res = pd.concat(dict(zip(model_name, list_gazer)), axis = 'columns')\
         .droplevel(1, axis = 'columns') # 列名が2重に設定されるので、これを削除して1つにします。
+
+    # subset が指定された場合は該当する変数を抽出します。
+    if subset is not None:
+        res = res.loc[subset, :]
 
     # モデルで使用されていない変数について NaN が発生するので、空白で置き換えます。
     res = res.fillna('')
@@ -399,29 +403,6 @@ coefplot(fit1) # 回帰係数の視覚化
 - `ax`：matplotlib の ax オブジェクト。複数のグラフを並べる場合などに使用します。
 
 　基本的な使用方法は次のとおりです。グラフ上の点が回帰係数の推定値を、エラーバー（横棒）が信頼区間を表します。β = 0 を帰無仮説とする仮説検定の結果が有意であれば青色に、有意でなければグレーに色分けされます。
-
-### 色の変更と説明変数の指定
-
-グラフで使用する色と表示する説明変数は次のように指定することができます。
-
-
-```python
-# カラーパレット
-my_pal = {
-    True:'#FF6F91',  # 統計的に有意な回帰係数の色
-    False:'#D3C8CA'  # 統計的に有意ではない回帰係数の色
-          }
-
-
-# 表示する説明変数
-var_list = [
-    'sex[T.male]', 'bill_length_mm', 'bill_depth_mm', 'flipper_length_mm',
-    'C(year)[T.2008]', 'C(year)[T.2009]'
-    ]
-
-coefplot(fit1, subset = var_list, palette = my_pal);
-plt.xlabel(f'回帰係数(n = {int(fit1.nobs)})'); # x軸ラベルにサンプルサイズを表示
-```
 """
 
 # 利用するライブラリー
