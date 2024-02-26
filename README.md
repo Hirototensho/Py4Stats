@@ -248,7 +248,7 @@ compare_gt
 ```
 <img width="549" alt="compare_tab_gt" src="https://github.com/Hirototensho/Py4Stats/assets/55335752/7e189a26-c2a3-4a52-b717-61cf71317cd3">
 
-`reg.coefplot()`：回帰係数の可視化。R言語の[`coefplot::coefplot()`](https://cran.r-project.org/web/packages/coefplot/index.html)を参考にしました。
+`reg.coefplot()`：回帰係数の可視化。R言語の[`coefplot::coefplot()`](https://cran.r-project.org/web/packages/coefplot/index.html)を参考にしました。指定できる引数などの詳細については [`reg.coefplot()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/coefplot.md) を参照してください。
 
 ```python
 import matplotlib.pyplot as plt
