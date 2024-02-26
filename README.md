@@ -245,7 +245,7 @@ compare_gt = GT(compare_tab3.reset_index())\
 
 compare_gt
 ```
-<img width="692" alt="GT" src="https://github.com/Hirototensho/Py4Stats/assets/55335752/5fe1c1c1-becf-47a8-a3d8-55ded8ba7eb4">
+<img width="549" alt="compare_tab_gt" src="https://github.com/Hirototensho/Py4Stats/assets/55335752/7e189a26-c2a3-4a52-b717-61cf71317cd3">
 
 `reg.coefplot()`：回帰係数の可視化。R言語の[`coefplot::coefplot()`](https://cran.r-project.org/web/packages/coefplot/index.html)を参考にしました。
 
