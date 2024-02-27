@@ -160,8 +160,8 @@ def p_stars_row(p_value):
 
 p_stars = np.vectorize(p_stars_row)
 
-def pad_zero_row(s, digits = 4):
-    s = str(s)
+def pad_zero_row(x, digits = 2):
+    s = str(x)
     # もし s が整数値なら、何もしない。
     if s.find('.') != -1:
         s_digits = len(s[s.find('.'):])
