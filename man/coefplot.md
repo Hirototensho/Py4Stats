@@ -31,3 +31,17 @@ fit3 = smf.ols('body_mass_g ~ bill_length_mm + bill_depth_mm + species + sex', d
 reg.coefplot(fit3)
 ```
 ![Unknown](https://github.com/Hirototensho/Py4Stats/assets/55335752/637437c3-f943-4817-a1ad-21bbd538e97d)
+
+```python
+plt.rcParams["figure.autolayout"] = True
+
+fig, ax = plt.subplots(1, 2, figsize = (2.2 * 5, 5), dpi = 100)
+
+reg.coefplot(fit2, ax = ax[0])
+ax[0].set_xlim(-900, 1800)
+
+reg.coefplot(fit3, ax = ax[1])
+ax[1].set_xlim(-900, 1800);
+```
+
+![Unknown](https://github.com/Hirototensho/Py4Stats/assets/55335752/0f11205b-5090-4b45-9a2e-7db7be3cc0f4)
