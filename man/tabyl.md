@@ -9,8 +9,6 @@ def tabyl(
     self, 
     index, 
     columns, 
-    values = None,
-    aggfunc = None,
     margins = True, 
     margins_name = 'All', 
     normalize = 'index', 
@@ -28,8 +26,6 @@ def tabyl(
 　集計に使用するデータフレームの変数名（必須）。
 - `columns`：**str**</br>
 　集計に使用するデータフレームの変数名（必須）。
-- `values`：**str**</br>
-　集計に使用するデータフレームの変数名。指定しない場合、`index` と `columns` に基づくクロス集計表が計算されます。
 - `margins`：**bool**</br>
 　行または列の合計を追加するかどうかを表すブール値。初期設定は True です。
 - `dropna`：**bool**</br>
