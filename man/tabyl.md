@@ -1,4 +1,4 @@
-# `eda.tabyl()`
+# `eda_tools.tabyl()`
 
 ## 概要
 
