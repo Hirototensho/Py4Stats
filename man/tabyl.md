@@ -44,3 +44,39 @@ def tabyl(
 
 - `digits`：**int**</br>
 　丸括弧`( )`に表示する相対度数の小数点以下の桁数。初期設定は1です。
+
+## 使用例
+
+```python
+from py4stats import eda_tools as eda
+import pandas as pd
+from palmerpenguins import load_penguins
+penguins = load_penguins() # サンプルデータの読み込
+
+# 横方向の和を100%として計算（初期設定）
+print(eda.tabyl(penguins, 'island', 'species', normalize = 'index'))
+#> species         Adelie   Chinstrap       Gentoo  All
+#> island                                              
+#> Biscoe      44 (26.2%)    0 (0.0%)  124 (73.8%)  168
+#> Dream       56 (45.2%)  68 (54.8%)     0 (0.0%)  124
+#> Torgersen  52 (100.0%)    0 (0.0%)     0 (0.0%)   52
+#> All        152 (44.2%)  68 (19.8%)  124 (36.0%)  344
+
+# 縦方向の和を100%として計算
+print(eda.tabyl(penguins, 'island', 'species', normalize = 'columns'))
+#> species        Adelie    Chinstrap        Gentoo          All
+#> island                                                       
+#> Biscoe     44 (28.9%)     0 (0.0%)  124 (100.0%)  168 (48.8%)
+#> Dream      56 (36.8%)  68 (100.0%)      0 (0.0%)  124 (36.0%)
+#> Torgersen  52 (34.2%)     0 (0.0%)      0 (0.0%)   52 (15.1%)
+#> All               152           68           124          344
+
+# 全体の和を100%として計算
+print(eda.tabyl(penguins, 'island', 'species', normalize = 'all'))
+#> species         Adelie   Chinstrap       Gentoo           All
+#> island                                                       
+#> Biscoe      44 (12.8%)    0 (0.0%)  124 (36.0%)   168 (48.8%)
+#> Dream       56 (16.3%)  68 (19.8%)     0 (0.0%)   124 (36.0%)
+#> Torgersen   52 (15.1%)    0 (0.0%)     0 (0.0%)    52 (15.1%)
+#> All        152 (44.2%)  68 (19.8%)  124 (36.0%)  344 (100.0%)
+```
