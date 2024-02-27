@@ -24,6 +24,8 @@ p_stars(p_value)
 ## 使用例
 
 ``` python
+from py4stats import regression_tools as reg
+
 print(reg.pad_zero([0.11, 0.123, 0.5], digits = 3))
 #> ['0.110' '0.123' '0.500']
 
