@@ -35,15 +35,32 @@ import pandas as pd
 from palmerpenguins import load_penguins
 penguins = load_penguins() # サンプルデータの読み込み
 
+print(penguins.head(3))
+#>   species     island  bill_length_mm  bill_depth_mm  flipper_length_mm  body_mass_g     sex  year  female
+#> 0  Adelie  Torgersen            39.1           18.7              181.0       3750.0    male  2007       0
+#> 1  Adelie  Torgersen            39.5           17.4              186.0       3800.0  female  2007       1
+#> 2  Adelie  Torgersen            40.3           18.0              195.0       3250.0  female  2007       1
+```
+
+```python
 # 列名に 'length' を含む列を除外
-display(penguins.filtering_out(contains = 'length').columns.to_list())
-#> ['species', 'island', 'bill_depth_mm', 'body_mass_g', 'sex', 'year', 'female']
+print(penguins.filtering_out(contains = 'length').head(3))
+#>   species     island  bill_depth_mm  body_mass_g     sex  year  female
+#> 0  Adelie  Torgersen           18.7       3750.0    male  2007       0
+#> 1  Adelie  Torgersen           17.4       3800.0  female  2007       1
+#> 2  Adelie  Torgersen           18.0       3250.0  female  2007       1
 
 # 列名が 'bill' から始まる列を除外
-display(penguins.filtering_out(starts_with = 'bill').columns.to_list())
-#> ['species', 'island', 'flipper_length_mm', 'body_mass_g', 'sex', 'year', 'female']
+print(penguins.filtering_out(starts_with = 'bill').head(3))
+#>   species     island  flipper_length_mm  body_mass_g     sex  year  female
+#> 0  Adelie  Torgersen              181.0       3750.0    male  2007       0
+#> 1  Adelie  Torgersen              186.0       3800.0  female  2007       1
+#> 2  Adelie  Torgersen              195.0       3250.0  female  2007       1
 
 # 列名が '_mm' で終わる列を除外
-display(penguins.filtering_out(ends_with = '_mm').columns.to_list())
-#> ['species', 'island', 'body_mass_g', 'sex', 'year', 'female']
+print(penguins.filtering_out(ends_with = '_mm').head(3))
+#>   species     island  body_mass_g     sex  year  female
+#> 0  Adelie  Torgersen       3750.0    male  2007       0
+#> 1  Adelie  Torgersen       3800.0  female  2007       1
+#> 2  Adelie  Torgersen       3250.0  female  2007       1
 ```
