@@ -1,4 +1,4 @@
-# `py4stats.regression_tools.compare_ols()`, `py4stats.regression_tools.compare_mfx()`
+# 回帰分析の比較 `compare_ols(), compare_mfx()`
 
 ## 概要
 
