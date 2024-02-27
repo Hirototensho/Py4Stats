@@ -199,7 +199,7 @@ reg.compare_ols(list_models = [fit1, fit2, fit3]) # 表の作成
 | df                   | 3             | 4              | 5             |
 
 
-`reg.compare_ols()` の実行結果は `Pandas` の `DataFrame` として出力されるため、`.xlsx`. ファイルなどに変換することができます。また、用途に応じて表の体裁を調整できるようにしています。指定できる引数などの詳細については [`reg.compare_ols()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_ols.md) を参照してください。
+`reg.compare_ols()` の実行結果は `Pandas` の `DataFrame` として出力されるため、`.xlsx`. ファイルなどに変換することができます。また、用途に応じて表の体裁を調整できるようにしています。指定できる引数などの詳細については [回帰分析の比較](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_ols.md) を参照してください。
 
 ``` python
 reg.compare_ols(
