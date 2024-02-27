@@ -26,6 +26,7 @@ penguins = load_penguins() # サンプルデータの読み込み
 
 
 # 回帰分析の実行
+fit2 = smf.ols('body_mass_g ~ bill_length_mm + bill_depth_mm + species', data = penguins).fit()
 fit3 = smf.ols('body_mass_g ~ bill_length_mm + bill_depth_mm + species + sex', data = penguins).fit()
 
 reg.coefplot(fit3)
