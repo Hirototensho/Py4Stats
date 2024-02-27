@@ -57,8 +57,8 @@ def diagnose(self):
   result = pd.DataFrame({
     'dtype':self.dtypes,
     'missing_count':self.isna().sum(),
-    'missing_percent':eda.missing_percent(self),
-    'nunique':self.nunique(),
+    'missing_percent':missing_percent(self),
+    'unique_count':self.nunique(),
     'unique_rate': 100 * self.nunique() / len(self),
   })
 
