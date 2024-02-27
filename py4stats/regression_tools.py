@@ -152,13 +152,15 @@ def glance_jp(fit_lm):
 def est_pct_change(est): return 100 * (np.exp(est) - 1)
 
 # 有意性を表すアスタリスクを作成する関数
-def p_stars(p_value):
+def p_stars_row(p_value):
     stars = np.where(p_value <= 0.1, ' *', '')
     stars = np.where(p_value <= 0.05, ' **', stars)
     stars = np.where(p_value <= 0.01, ' ***', stars)
     return stars
 
-def pad_z(s, digits = 4):
+p_stars = np.vectorize(p_stars_row)
+
+def pad_zero_row(s, digits = 4):
     s = str(s)
     # もし s が整数値なら、何もしない。
     if s.find('.') != -1:
@@ -166,7 +168,7 @@ def pad_z(s, digits = 4):
         s = s + '0' * (digits + 1 - s_digits)
     return s
 
-pad_zero = np.vectorize(pad_z, excluded = 'digits')
+pad_zero = np.vectorize(pad_zero_row, excluded = 'digits')
 
 """## `reg.compare_ols()`
 
@@ -387,26 +389,6 @@ def gazer_MNlogit(MNlogit_margeff, endog_categories = None, **kwargs):
 
 """## 回帰係数の視覚化関数
 
-　`coefplot()` 関数は次のように使用できます。
-
-```python
-coefplot(fit1) # 回帰係数の視覚化
-```
-
-　グラフ上の縦軸が説明変数、横軸回帰係数の値です。点が回帰係数の推定値を、エラーバー（横棒）が信頼区間を表し、β = 0 を帰無仮説とする仮説検定の結果によって有意であれば青色に、有意でなければグレーに色分けされます。`coefplot_dot()` 関数の引数は次の通りです。
-
-- `mod`：statsmodelsで作成した回帰分析の結果。
-
-以下の引数は指定しなくても使用できます。
-
-- `subset`：グラフに回帰係数を表示する説明変数のリスト。指定しなければモデルに含まれる全ての説明変数を使用します。また `subset` を指定することで、表内での回帰係数の並び順を調整できます。
-- `alpha`：信頼区間と有意性による色分けに使う有意水準。初期設定は5％です。
-- `palette`：グラフに使用する色。{True:'有意な回帰係数の色',  False:'有意ではない回帰係数の色'} の形で定義された辞書オブジェクトで指定します。グラフ上の垂直線は有意ではない回帰係数の色で描画されます。
-- `show_Intercept`：切片の係数を表示するかどうか。True だと切片の係数を表示し、False（初期設定）だと表示しません。
-- `show_vline`：回帰係数 = 0 の垂直線を表示するかどうか。True （初期設定）を指定すると垂直線を表示し、False を指定すると表示されません。
-- `ax`：matplotlib の ax オブジェクト。複数のグラフを並べる場合などに使用します。
-
-　基本的な使用方法は次のとおりです。グラフ上の点が回帰係数の推定値を、エラーバー（横棒）が信頼区間を表します。β = 0 を帰無仮説とする仮説検定の結果が有意であれば青色に、有意でなければグレーに色分けされます。
 """
 
 # 利用するライブラリー
@@ -484,14 +466,6 @@ def coef_dot(
         linewidth = 3,
         color = palette[0]
     )
-    # # 回帰係数の推定値を表す点の作図
-    # sns.scatterplot(
-    #     data = tidy_ci_high, x = estimate, y = tidy_ci_high.index,
-    #     palette = palette,
-    #     s = 85,
-    #     ax = ax
-    # );
-    # ax.set_ylabel('');
 
     # 回帰係数の推定値を表す点の作図
     ax.scatter(
@@ -601,47 +575,6 @@ def F_test_lm(mod_restriction, mod_full):
 
 """## `reg.compare_mfx()`
 
-### 概要
-
-　`reg.compare_mfx()` は計量経済学の実証論文でよく用いられる、回帰分析の結果を縦方向に並べて比較する表をする関数です。
-　使用方法は次の通りで、`smf.logit()` や `smf.probit()` で作成した分析結果のオブジェクトのリストを代入します。  
-
-
-### 引数
-
-　　`reg.compare_mfx()` 関数に指定できる引数は次の通りです。
-
-- `list_models`：推定結果を表示する分析結果のリスト。`sm.ols()` や `smf.ols()` で作成された回帰分析の結果を `list_models = [fit1, fit2]` のような形で指定してください。
-- `model_name`：表頭に表示するモデルの名前。`['モデル1', 'モデル2']` のように文字列のリストを指定してください。何もしていされなければ、自動的に `model 1, model 2, model 3 …` と連番が振られます。
-- `stats`：表中の( ) 内に表示する統計値の設定。次の値を指定できます（部分一致可）。
-    - `'p_value'` p-値（初期設定）
-    - `'std_err'` 標準誤差
-    - `'statistics'` t統計量
-
-- `add_stars`：回帰係数の統計的有意性を表すアスタリスク `*` を表示するかどうかを表すブール値。`add_stars = True`（初期設定）なら表示、`add_stars = False`なら非表示となります。`table_style` に `'two_line'` を指定した場合はアスタリスクは回帰係数の直後に表示され、`'one_line'` を指定した場合は統計値の後に表示されます。アスタリスクはp-値の値に応じて次のように表示されます。
-    - p ≤ 0.1 `*`
-    - p ≤ 0.05 `**`
-    - p ≤ 0.01 `***`
-    - p > 0.1 表示なし
-
-- `digits`：回帰係数と統計値について表示する小数点以下の桁数。初期設定は4です。
-- `table_style`：表の書式設定。次の値から選択できます（部分一致可）。
-    - `'two_line'`回帰係数と統計値を2行に分ける（初期設定）
-    - `'one_line'`回帰係数と統計値を1行で表示する
-
-
-- `at`：限界効果の集計方法。基本的には[`statsmodels.discrete.discrete_model.DiscreteResults.get_margeff()`](https://www.statsmodels.org/devel/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html)の引数 `at` と同様に次の値を指定できます。ただし、`method = 'coef'` を指定した場合、この引数は無視されます（部分一致可）。
-    - `'overall'`：各観測値の限界効果の平均値を表示（初期設定）
-    - `'mean'`：各説明変数の平均値における限界効果を表示
-    - `'median'`：各説明変数の中央値における限界効果を表示
-    - `'zero'`：各説明変数の値がゼロであるときの限界効果を表示
-
-- `method`：表中に表示する推定値の種類。次の値を指定でき、`'coef'` なら回帰係数の推定値がそのままま表示され、それ以外なら限界効果の推定値が表示されます。基本的には[`statsmodels.discrete.discrete_model.DiscreteResults.get_margeff()`](https://www.statsmodels.org/devel/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html)の引数 `method` と同様です。
-    - `'coef'`：回帰係数の推定値を表示
-    - `'dydx'`：限界効果の値を変換なしでそのまま表。（初期設定）
-    - `'eyex'`：弾力性 d(lny)/d(lnx) の推定値を表示
-    - `'dyex'`：準弾力性 dy /d(lnx) の推定値を表示
-    - `'eydx'`：準弾力性 d(lny)/dx の推定値を表
 """
 
 def tidy_mfx(mod, at = 'overall', method = 'dydx', dummy = False, alpha = 0.05, **kwargs):
