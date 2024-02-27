@@ -2,7 +2,7 @@
 
 ## 概要
 
-R言語の[`DescTools::Freq()`](https://cran.r-project.org/web/packages/DescTools/DescTools.pdf)をオマージュした、1変数の度数分布表を計算する関数。度数 `freq` と相対度数 `perc` に加えて、それぞれの累積値を計算します。
+　R言語の[`DescTools::Freq()`](https://cran.r-project.org/web/packages/DescTools/DescTools.pdf)をオマージュした、1変数の度数分布表を計算する関数。度数 `freq` と相対度数 `perc` に加えて、それぞれの累積値を計算します。
 
 ``` python
 freq_table(
@@ -22,6 +22,9 @@ freq_table(
 - `ascending`：**bool**</br>
 　ソートの方式。True なら昇順でソートし、False（初期設定）なら降順でソートします。
 - `dropna`：**bool**</br>
+　`subset` で指定した列の値が全て NaN である観測値を除外するかどうか。初期設定は False です。
+
+以上の引数は、基本的に [pandas.DataFrame.value_counts](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.value_counts.html)の同名の引数と同じですが、  `dropna` のみ初期設定を変更しています。
 
 ## 使用例
 
