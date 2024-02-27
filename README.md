@@ -55,7 +55,7 @@ print(penguins.tabyl('island', 'species'))
 #> Torgersen  52 (100.0%)    0 (0.0%)     0 (0.0%)   52
 #> All        152 (44.2%)  68 (19.8%)  124 (36.0%)  344
 ```
-　`eda.freq_table()`：：R言語の[`DescTools::Freq()`](https://cran.r-project.org/web/packages/DescTools/DescTools.pdf)を見本として作成した度数分布表を計算する関数。度数 `freq` と相対度数 `perc` に加えて、それぞれの累積値を計算します。
+　`eda.freq_table()`：R言語の[`DescTools::Freq()`](https://cran.r-project.org/web/packages/DescTools/DescTools.pdf)をオマージュした、1変数の度数分布表を計算する関数。度数 `freq` と相対度数 `perc` に加えて、それぞれの累積値を計算します。
 
 ``` python
 print(penguins.freq_table('species'))
