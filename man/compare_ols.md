@@ -4,6 +4,21 @@
 
 `reg.compare_ols()` 回帰分析の表を作成。：計量経済学の実証論文でよく用いられる、回帰分析の結果を縦方向に並べて比較する表を作成します。表のフォーマットについてはR言語の [`texreg::screenreg()`](https://cran.r-project.org/web/packages/texreg/index.html)や[`modelsummary::modelsummary()`](https://modelsummary.com/man/modelsummary.html)を参考にしています。
 
+``` python
+compare_ols(
+    list_models, 
+    model_name = None,
+    subset = None,
+    stats = 'std_err',
+    add_stars = True,
+    stats_glance = ['rsquared_adj', 'nobs', 'df'],
+    digits = 4, 
+    table_style = 'two_line',
+    line_break = '\n',
+    **kwargs
+)
+```
+
 ## 引数
 
 　`reg.compare_ols()` 関数では必要に応じて表の体裁を調整できるようにしています。`reg.compare_ols()` 関数に指定できる引数は次の通りです。
