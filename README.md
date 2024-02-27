@@ -167,7 +167,7 @@ display(penguins.filtering_out(ends_with = '_mm').columns.to_list())
 
 　[`statsmodels`](https://www.statsmodels.org/stable/index.html)ライブラリで作成された回帰分析の結果についての表作成と視覚化を補助する機能を提供するモジュールです。
 
-　`reg.compare_ols()` 回帰分析の表を作成。：計量経済学の実証論文でよく用いられる、回帰分析の結果を縦方向に並べて比較する表を作成します。表のフォーマットについてはR言語の[`texreg::screenreg()`](https://cran.r-project.org/web/packages/texreg/index.html)や[`modelsummary::modelsummary()`](https://modelsummary.com/man/modelsummary.html)を参考にしています。同種の機能を提供する Python ライブラリーとしては、R言語の [`stargazer`](https://cran.r-project.org/web/packages/stargazer/index.html) パッケージをもとにした [`stargazer`](https://pypi.org/project/stargazer/) ライブラリがあります。
+　[`reg.compare_ols()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_ols.md) 回帰分析の表を作成。：計量経済学の実証論文でよく用いられる、回帰分析の結果を縦方向に並べて比較する表を作成します。表のフォーマットについてはR言語の[`texreg::screenreg()`](https://cran.r-project.org/web/packages/texreg/index.html)や[`modelsummary::modelsummary()`](https://modelsummary.com/man/modelsummary.html)を参考にしています。同種の機能を提供する Python ライブラリーとしては、R言語の [`stargazer`](https://cran.r-project.org/web/packages/stargazer/index.html) パッケージをもとにした [`stargazer`](https://pypi.org/project/stargazer/) ライブラリがあります。
 
 ``` python
 import statsmodels.formula.api as smf
@@ -199,7 +199,7 @@ reg.compare_ols(list_models = [fit1, fit2, fit3]) # 表の作成
 | df                   | 3             | 4              | 5             |
 
 
-`reg.compare_ols()` の実行結果は `Pandas` の `DataFrame` として出力されるため、`.xlsx`. ファイルなどに変換することができます。また、用途に応じて表の体裁を調整できるようにしています。指定できる引数などの詳細については [回帰分析の比較](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_ols.md) を参照してください。
+`reg.compare_ols()` の実行結果は `Pandas` の `DataFrame` として出力されるため、`.xlsx`. ファイルなどに変換することができます。また、用途に応じて表の体裁を調整できるようにしています。詳細については [「回帰分析の比較」](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_ols.md) を参照してください。
 
 ``` python
 reg.compare_ols(
@@ -224,7 +224,7 @@ reg.compare_ols(
 | nobs                 | 342           | 342            | 333           |
 | df                   | 3             | 4              | 5             |
 
-`reg.coefplot()`：回帰係数の可視化。R言語の[`coefplot::coefplot()`](https://cran.r-project.org/web/packages/coefplot/index.html)を参考にしました。指定できる引数などの詳細については [`reg.coefplot()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/coefplot.md) を参照してください。
+[`reg.coefplot()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/coefplot.md)：回帰係数の可視化。R言語の[`coefplot::coefplot()`](https://cran.r-project.org/web/packages/coefplot/index.html)を参考にしました。
 
 ```python
 import matplotlib.pyplot as plt
@@ -246,7 +246,7 @@ ax[1].set_xlim(-900, 1800);
 
 ![Unknown](https://github.com/Hirototensho/Py4Stats/assets/55335752/0f11205b-5090-4b45-9a2e-7db7be3cc0f4)
 
-`reg.compare_mfx()` と `reg.mfxplot()`は、それぞれ `reg.compare_ols()` と `reg.coefplot()` の一般化線型モデルバージョンです。`statsmodels` ライブラリの[`.get_margeff()`](https://www.statsmodels.org/dev/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドから得られた限界効果の推定値を表示します。
+　[`reg.compare_mfx()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_ols.md) と `reg.mfxplot()`は、それぞれ `reg.compare_ols()` と `reg.coefplot()` の一般化線型モデルバージョンです。`statsmodels` ライブラリの[`.get_margeff()`](https://www.statsmodels.org/dev/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドから得られた限界効果の推定値を表示します。
 
 ```python
 # ロジスティック回帰の実行
