@@ -220,16 +220,16 @@ compare_tab4
 
 ``` python
 compare_tab4 = reg.compare_ols(
-    list_models = [fit1, fit2, fit3]
+    list_models = [fit2, fit3, fit4]
     )
 
 compare_tab4 = eda.filtering_out(
     compare_tab4,
-    contains = 'Intercept|species', 
+    contains = 'Intercept|island', 
     axis = 'index'
     )
 
-compare_tab4.loc['種ダミー', :] = ['Yes', 'Yes', 'Yes']
+compare_tab4.loc['島ダミー', :] = ['No', 'No', 'Yes']
 
 compare_tab4 # 上記のコードと同じ結果
 ```
