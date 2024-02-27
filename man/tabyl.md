@@ -40,7 +40,7 @@ def tabyl(
     - `columns` 各セルの度数を行の列で割り、縦方向の相対度数の和が100%になるように計算します。
     - `all` 各セルの度数を総度数で割り、全てのセルの相対度数の和が100%になるように計算します。
 
-以上の引数は、全て内部で使用している [`pandas.crosstab`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.contains.html#pandas.Series.str.contains) の同名の引数と同じ意味を持ちます。
+以上の引数は全て、内部で使用している [`pandas.crosstab`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.contains.html#pandas.Series.str.contains) の同名の引数と同じ意味を持ちます。
 
 - `digits`：**int**</br>
 　丸括弧`( )`に表示する相対度数の小数点以下の桁数。初期設定は1です。
