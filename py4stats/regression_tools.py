@@ -228,10 +228,14 @@ compare_tab1
 
 # 複数のモデルを比較する表を作成する関数
 def compare_ols(
-    list_models, model_name = None,
-    digits = 4, stats = 'std_err', add_stars = True,
-    table_style = 'two_line',
+    list_models,
+    model_name = None,
+    subset = None,
+    stats = 'std_err',
+    add_stars = True,
     stats_glance = ['rsquared_adj', 'nobs', 'df'],
+    digits = 4,
+    table_style = 'two_line',
     line_break = '\n',
     **kwargs
     ):
@@ -414,7 +418,16 @@ import japanize_matplotlib #日本語化matplotlib
 from statsmodels.iolib.summary import summary_params_frame
 
 # 回帰分析の結果から回帰係数のグラフを作成する関数 --------
-def coefplot(mod, subset = None, alpha = [0.05, 0.01], palette = ['#1b69af', '#629CE7'], **kwargs):
+def coefplot(
+    mod,
+    subset = None,
+    alpha = [0.05, 0.01],
+    palette = ['#1b69af', '#629CE7'],
+    show_Intercept = False,
+    show_vline = True,
+    ax = None,
+    **kwargs
+    ):
     '''model object から回帰係数のグラフを作成する関数'''
 
     # 回帰係数の表を抽出
@@ -427,18 +440,24 @@ def coefplot(mod, subset = None, alpha = [0.05, 0.01], palette = ['#1b69af', '#6
         tidy_ci_row = tidy_ci_row.loc[subset, :]
 
     # グラフの作成
-    coef_dot(tidy_ci_high, tidy_ci_row, palette = palette, **kwargs)
+    coef_dot(
+        tidy_ci_high, tidy_ci_row, palette = palette,
+        show_Intercept = show_Intercept, show_vline = show_vline,
+        ax = ax, **kwargs
+        )
 
 
 def coef_dot(
-    tidy_ci_high, tidy_ci_low, ax = None, show_Intercept = False,
-    palette = ['#1b69af', '#629CE7'], show_vline = True,
+    tidy_ci_high, tidy_ci_low,
+    ax = None,
+    show_Intercept = False,
+    show_vline = True,
+    palette = ['#1b69af', '#629CE7'],
     estimate = 'coef', conf_lower = 'conf_lower', conf_higher = 'conf_higher',
     ):
     '''tidy_talbe から回帰係数のグラフを作成する関数'''
     tidy_ci_high = tidy_ci_high.copy()
     tidy_ci_low = tidy_ci_low.copy()
-
 
     # 切片項を除外する
     if not show_Intercept:
@@ -465,14 +484,22 @@ def coef_dot(
         linewidth = 3,
         color = palette[0]
     )
+    # # 回帰係数の推定値を表す点の作図
+    # sns.scatterplot(
+    #     data = tidy_ci_high, x = estimate, y = tidy_ci_high.index,
+    #     palette = palette,
+    #     s = 85,
+    #     ax = ax
+    # );
+    # ax.set_ylabel('');
 
     # 回帰係数の推定値を表す点の作図
-    sns.scatterplot(
-        data = tidy_ci_high, x = estimate, y = tidy_ci_high.index,
-        palette = palette[0],
-        s = 85,
-        ax = ax
-    );
+    ax.scatter(
+      x = tidy_ci_high[estimate],
+      y = tidy_ci_high.index,
+      c = palette [0],
+      s = 60
+    )
     ax.set_ylabel('');
 
 """## 回帰係数の線型結合に関するに関するt検定"""
@@ -617,12 +644,13 @@ def F_test_lm(mod_restriction, mod_full):
     - `'eydx'`：準弾力性 d(lny)/dx の推定値を表
 """
 
-def tidy_mfx(mod, at = 'overall', method = 'dydx', dummy = False):
+def tidy_mfx(mod, at = 'overall', method = 'dydx', dummy = False, alpha = 0.05, **kwargs):
   # 引数に妥当な値が指定されているかを検証
   at = match_arg(at, ['overall', 'mean', 'median', 'zero'])
   method = match_arg(method, ['coef', 'dydx', 'eyex', 'dyex', 'eydx'])
 
-  tab = mod.get_margeff(dummy = dummy, at = at, method = method).summary_frame()
+  est_margeff = mod.get_margeff(dummy = dummy, at = at, method = method, **kwargs)
+  tab = est_margeff.summary_frame()
 
   method_dict = {
             'coef':'coef',
@@ -632,7 +660,6 @@ def tidy_mfx(mod, at = 'overall', method = 'dydx', dummy = False):
             'eydx':'d(lny)/dx',
         }
 
-
   tab = tab.rename(columns = {
             method_dict[method]:method,
             'Std. Err.':'std_err',
@@ -641,18 +668,29 @@ def tidy_mfx(mod, at = 'overall', method = 'dydx', dummy = False):
             'Conf. Int. Low':'conf_lower',
             'Cont. Int. Hi.':'conf_higher'
             })
+
+  # alpha に 0.05 以外の値が指定されていた場合は、信頼区間を個別に推定てし値を書き換えます。
+  if(alpha != 0.05):
+    CI = est_margeff.conf_int(alpha = alpha)
+    tab['conf_lower'] = CI[:, 0]
+    tab['conf_higher'] = CI[:, 1]
+
   return tab
 
 
 # 複数のロジットモデルを比較する表を作成する関数
 def compare_mfx(
-    list_models, model_name = None,
-    digits = 4, stats = 'std_err', add_stars = True,
-    table_style = 'two_line',
+    list_models,
+    model_name = None,
+    subset = None,
+    stats = 'std_err',
+    add_stars = True,
     at = 'overall',
-    line_break = '\n',
     method = 'dydx',
     dummy = False,
+    digits = 4,
+    table_style = 'two_line',
+    line_break = '\n',
     **kwargs
     ):
     # 引数に妥当な値が指定されているかを検証
@@ -663,7 +701,10 @@ def compare_mfx(
     if method == 'coef':
         tidy_list = [tidy(mod) for mod in list_models]
     else:
-        tidy_list = [tidy_mfx(mod) for mod in list_models]
+        tidy_list = [
+            tidy_mfx(mod, at = at, method = method, dummy = dummy)
+            for mod in list_models
+            ]
 
     # モデル名が指定されていない場合、連番を作成する
     if model_name is None:
@@ -691,50 +732,37 @@ def compare_mfx(
 
     return res
 
-# 限界効果の推定結果グラフを作成する関数 --------
+# 回帰分析の結果から回帰係数のグラフを作成する関数 --------
 def mfxplot(
-    mod, subset = None, show_vline = True,
-    palette = {True:'#1b69af', False:'#969696'}, ax = None, alpha = 0.05,
-    at = 'overall', method = 'dydx', dummy = False, p_value = 'p_value',
-    conf_lower = 'conf_lower', conf_higher = 'conf_higher',
-
+    mod,
+    subset = None,
+    alpha = [0.05, 0.01],
+    at = 'overall',
+    method = 'dydx',
+    dummy = False,
+    palette = ['#1b69af', '#629CE7'],
+    show_Intercept = False,
+    show_vline = True,
+    ax = None,
+    **kwargs
     ):
     '''model object から回帰係数のグラフを作成する関数'''
+      # 引数に妥当な値が指定されているかを検証
+    at = match_arg(at, ['overall', 'mean', 'median', 'zero'])
+    method = match_arg(method, ['coef', 'dydx', 'eyex', 'dyex', 'eydx'])
 
     # 回帰係数の表を抽出
-    tidy_table = tidy_mfx(mod, at = at, method = method, dummy = dummy)
+    tidy_ci_high = tidy_mfx(mod, at = at, method = method, dummy = dummy, alpha = alpha[0])
+    tidy_ci_row =  tidy_mfx(mod, at = at, method = method, dummy = dummy, alpha = alpha[1])
 
     # subset が指定されていれば、回帰係数の部分集合を抽出する
     if subset is not None:
         tidy_ci_high = tidy_ci_high.loc[subset, :]
         tidy_ci_row = tidy_ci_row.loc[subset, :]
 
-        tidy_table = tidy_table.copy()
-
-    # 有意性による色分けを設定する -----------------------------
-    threshold = f'p <= {100 * alpha:.2g}%' # 凡例のラベルを作成
-
-    tidy_table[threshold] = tidy_table[p_value] <= alpha
-
-    tidy_table['.color'] = np.where(tidy_table[threshold], palette[True], palette[False])
-
-    if ax is None:
-        fig, ax = plt.subplots()
-
-    # 図の描画 -----------------------------
-    # 垂直線の描画
-    if show_vline:
-        ax.axvline(0, ls = "--", color = palette[False])
-   # エラーバーの作図
-    ax.hlines(
-        y = tidy_table.index, xmin = tidy_table[conf_lower], xmax = tidy_table[conf_higher],
-        linewidth = 3, color = tidy_table['.color']
-    )
-
-    # 回帰係数の推定値を表す点の作図
-    sns.scatterplot(
-        data = tidy_table, x = method, y = tidy_table.index,
-        hue = tidy_table[threshold], palette = palette, s = 85,
-        ax = ax
-    );
-    ax.set_ylabel('');
+    # グラフの作成
+    coef_dot(
+        tidy_ci_high, tidy_ci_row, estimate = method, palette = palette,
+        show_Intercept = show_Intercept, show_vline = show_vline,
+        ax = ax, **kwargs
+        )
