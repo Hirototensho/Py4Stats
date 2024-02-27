@@ -1,4 +1,4 @@
-# 回帰分析の比較 `compare_ols(), compare_mfx()`
+# 回帰分析の比較：`compare_ols(), compare_mfx()`
 
 ## 概要
 
