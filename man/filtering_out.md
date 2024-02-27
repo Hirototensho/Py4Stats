@@ -1,4 +1,4 @@
-# `eda.filtering_out()`
+# `eda_tools.filtering_out()`
 
 ## 概要
 
