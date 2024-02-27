@@ -17,6 +17,21 @@ compare_ols(
     line_break = '\n',
     **kwargs
 )
+
+compare_mfx(
+    list_models, 
+    model_name = None,
+    subset = None,
+    stats = 'std_err',
+    add_stars = True,
+    at = 'overall',
+    method = 'dydx',
+    dummy = False,
+    digits = 4, 
+    table_style = 'two_line',
+    line_break = '\n',
+    **kwargs
+)
 ```
 
 ## 引数
