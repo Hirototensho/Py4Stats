@@ -59,3 +59,17 @@ ax[1].set_xlim(-900, 1800);
 ```
 
 ![Unknown](https://github.com/Hirototensho/Py4Stats/assets/55335752/4c2dbfda-c67d-45c5-ba28-0f7fc72bd7d3)
+
+```python
+plt.rcParams["figure.autolayout"] = True
+
+fig, ax = plt.subplots(1, 2, figsize = (2.2 * 5, 5), dpi = 100)
+
+reg.mfxplot(fit_logit1, ax = ax[0])
+ax[0].set_xlim(-0.2, 0.85)
+
+reg.mfxplot(fit_logit2, ax = ax[1], palette = ['#FF6F91', '#F2E5EB'])
+ax[1].set_xlim(-0.2, 0.85);
+```
+
+![Unknown](https://github.com/Hirototensho/Py4Stats/assets/55335752/f62e934a-91da-4ca8-9272-3006df2383f0)
