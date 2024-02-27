@@ -1,4 +1,4 @@
-# `py4stats.regression_tools.compare_ols()`
+# `py4stats.regression_tools.compare_ols()`, `py4stats.regression_tools.compare_mfx()`
 
 ## 概要
 
@@ -53,7 +53,7 @@ compare_mfx(
     - p ≤ 0.01 `***`
     - p > 0.1 表示なし
 
-- `stats_glance`：表の下部に追加する回帰モデル全体に関する統計値の種類を表す文字列のリスト。初期設定は `['rsquared_adj', 'nobs', 'df']`。リストの値には次の値を指定できます（部分一致可）。
+- `stats_glance`：表の下部に追加する回帰モデル全体に関する統計値の種類を表す文字列のリスト（`compare_ols()` のみ）。初期設定は `['rsquared_adj', 'nobs', 'df']`。リストの値には次の値を指定できます（部分一致可）。
     - `'rsquared'`：決定係数
     - `'rsquared_adj'`：自由度調整済み決定係数
     - `'nobs'`：サインプルサイズ
@@ -71,6 +71,19 @@ compare_mfx(
     - `'one_line'`回帰係数と統計値を1行で表示する
    
 - line_break = '\n'：`table_style = 'two_line'` とした場合に使用される改行記号。`table_style = 'one_line'` とした場合、この引数は無視されます。
+
+- `at = 'overall'`：限界効果の集計方法（`compare_mfx()` のみ）。内部で使用している[`statsmodels.discrete.discrete_model.DiscreteResults.get_margeff()`](https://www.statsmodels.org/devel/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドに引数 `at` として渡されます。`method = 'coef'` を指定した場合、この引数は無視されます（部分一致可）。
+    - `'overall'`：各観測値の限界効果の平均値を表示（初期設定）
+    - `'mean'`：各説明変数の平均値における限界効果を表示
+    - `'median'`：各説明変数の中央値における限界効果を表示
+    - `'zero'`：各説明変数の値がゼロであるときの限界効果を表示
+
+- `method = 'dydx'`：推定する限界効果の種類（`compare_mfx()` のみ）。次の値を指定でき、`'coef'` なら回帰係数の推定値がそのままま表示され、それ以外なら限界効果の推定値が表示されます。基本的には[`statsmodels.discrete.discrete_model.DiscreteResults.get_margeff()`](https://www.statsmodels.org/devel/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html)の引数 `method` と同様です。
+    - `'coef'`：回帰係数の推定値を表示
+    - `'dydx'`：限界効果の値を変換なしでそのまま表。（初期設定）
+    - `'eyex'`：弾力性 d(lny)/d(lnx) の推定値を表示
+    - `'dyex'`：準弾力性 dy /d(lnx) の推定値を表示
+    - `'eydx'`：準弾力性 d(lny)/dx の推定値を表示
 
 ## 使用例
 
