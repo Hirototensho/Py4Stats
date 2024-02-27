@@ -44,7 +44,7 @@ print(penguins.diagnose().round(4))
 #> year                 int64              0           0.0000             3       0.8721
 ```
 
-[`eda.tabyl()`](https://github.com/Hirototensho/Py4Stats/blob/3d578d48953afd918ec5c9b21557640ae983887f/man/tabyl.md)：R言語の [`janitor::tabyl()`](https://sfirke.github.io/janitor/reference/tabyl.html)にいくつかの `adorn_` 関数を追加した状態を再現した関数です。
+[`eda.tabyl()`](https://github.com/Hirototensho/Py4Stats/blob/3d578d48953afd918ec5c9b21557640ae983887f/man/tabyl.md)：R言語の [`janitor::tabyl()`](https://sfirke.github.io/janitor/reference/tabyl.html)を参考にした、クロス集計表を作成する関数です。
 
 ``` python
 print(penguins.tabyl('island', 'species'))
