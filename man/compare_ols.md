@@ -12,6 +12,8 @@
 
 - `model_name = None`：表頭に表示するモデルの名前。`['モデル1', 'モデル2']` のように文字列のリストを指定してください。初期設定では、自動的に `model 1, model 2, model 3 …` と連番が割り当てられます。
 
+- `subset = None`：表示する回帰係数のリスト。指定しない場合（初期設定）、モデルに含まれる全ての回帰係数が表示されます。内部では[`pandas.DataFrame.loc`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.loc.html)メソッドを用いて処理を行っているため、`['変数1', '変数2', ...]` のような文字列のリスト、`[True, False, True, ...]` のようなブール値のリストに対応しています。文字列のリストが指定された場合、リストの並び順に合わせて回帰係数が表示されます。
+
 - `stats = 'std_err'`：表中の丸括弧 ( ) 内に表示する統計値の設定。次の値が指定できます（部分一致可）。
     - `'p_value'` p-値（初期設定）
     - `'std_err'` 標準誤差
@@ -127,3 +129,61 @@ compare_gt = GT(compare_tab3.reset_index())\
 compare_gt
 ```
 <img width="549" alt="compare_tab_gt" src="https://github.com/Hirototensho/Py4Stats/assets/55335752/7e189a26-c2a3-4a52-b717-61cf71317cd3">
+
+引数 `subset` を使って表示したい回帰係数を指定することで、一部の回帰係数を省略して表記することもできます。
+
+``` python
+# 説明変数に island を追加したモデルを推定
+fit4 = smf.ols(
+    'body_mass_g ~ bill_length_mm + bill_depth_mm + species + sex + island', 
+    data = penguins).fit()
+
+var_list = [
+    'species[T.Chinstrap]', 'species[T.Gentoo]', 
+    'bill_length_mm', 'bill_depth_mm', 'sex[T.male]'
+    ]
+
+# 全て表示すると表が長すぎるので、island 一部を省略したい
+compare_tab4 = reg.compare_ols(
+    list_models = [fit2, fit3, fit4],
+    subset = var_list
+    )
+
+compare_tab4.loc['島ダミー', :] = ['No', 'No', 'Yes']
+
+compare_tab4
+```
+| term                 | model 1       | model 2       | model 3       |
+|:---------------------|:--------------|:--------------|:--------------|
+| species[T.Chinstrap] | -539.6864 *** | -245.1516 *** | -255.2732 *** |
+|                      | (86.9425)     | (84.5952)     | (92.4796)     |
+| species[T.Gentoo]    | 1492.8283 *** | 1443.3525 *** | 1446.1574 *** |
+|                      | (118.4442)    | (107.7844)    | (114.1676)    |
+| bill_length_mm       | 55.6461 ***   | 26.5366 ***   | 26.6643 ***   |
+|                      | (7.2326)      | (7.2436)      | (7.2792)      |
+| bill_depth_mm        | 179.0434 ***  | 87.9328 ***   | 88.3284 ***   |
+|                      | (19.0997)     | (20.2192)     | (20.3267)     |
+| sex[T.male]          |               | 437.2007 ***  | 436.0334 ***  |
+|                      |               | (49.1098)     | (49.4227)     |
+| rsquared_adj         | 0.8258        | 0.8613        | 0.8605        |
+| nobs                 | 342           | 333           | 333           |
+| df                   | 4             | 5             | 7             |
+| 島ダミー             | No            | No            | Yes           |
+
+`eda.filtering_out()` 関数を使って行名に `'Intercept'` または `'island'` を含む列を除外しても同じ結果を得ることができます。
+
+``` python
+compare_tab4 = reg.compare_ols(
+    list_models = [fit1, fit2, fit3]
+    )
+
+compare_tab4 = eda.filtering_out(
+    compare_tab4,
+    contains = 'Intercept|species', 
+    axis = 'index'
+    )
+
+compare_tab4.loc['種ダミー', :] = ['Yes', 'Yes', 'Yes']
+
+compare_tab4
+```
