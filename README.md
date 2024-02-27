@@ -232,6 +232,20 @@ reg.coefplot(fit3)
 ```
 ![Unknown](https://github.com/Hirototensho/Py4Stats/assets/55335752/637437c3-f943-4817-a1ad-21bbd538e97d)
 
+```python
+plt.rcParams["figure.autolayout"] = True
+
+fig, ax = plt.subplots(1, 2, figsize = (2.2 * 5, 5), dpi = 100)
+
+reg.coefplot(fit2, ax = ax[0])
+ax[0].set_xlim(-900, 1800)
+
+reg.coefplot(fit3, ax = ax[1], palette = ['#FF6F91', '#F2E5EB'])
+ax[1].set_xlim(-900, 1800);
+```
+
+![Unknown](https://github.com/Hirototensho/Py4Stats/assets/55335752/4c2dbfda-c67d-45c5-ba28-0f7fc72bd7d3)
+
 　[`reg.compare_mfx()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_ols.md) と `reg.mfxplot()`は、それぞれ `reg.compare_ols()` と `reg.coefplot()` の一般化線型モデルバージョンです。`statsmodels` ライブラリの[`.get_margeff()`](https://www.statsmodels.org/dev/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドから得られた限界効果の推定値を表示します。
 
 ```python
