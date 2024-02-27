@@ -213,18 +213,15 @@ compare_tab4
 | df                   | 4             | 5             | 7             |
 | 島ダミー             | No            | No            | Yes           |
 
-[`eda.filtering_out()`](https://github.com/Hirototensho/Py4Stats/blob/cb2f1a885ec0072c14320655620c219bc04032e4/man/filtering_out.md) 関数を使って行名に `'Intercept'` または `'island'` を含む列を除外しても同じ結果を得ることができます。
+pandas の [`pandas.DataFrame.query`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.query.html) メソッドを使って、次のように説明変数を除外することもできます。
 
 ``` python
 compare_tab4 = reg.compare_ols(
     list_models = [fit2, fit3, fit4]
     )
 
-compare_tab4 = eda.filtering_out(
-    compare_tab4,
-    contains = 'Intercept|island', 
-    axis = 'index'
-    )
+compare_tab4 = compare_tab4\
+  .query('~term.str.contains("Intercept|island")')
 
 compare_tab4.loc['島ダミー', :] = ['No', 'No', 'Yes']
 
