@@ -54,8 +54,8 @@ fig, ax = plt.subplots(1, 2, figsize = (2.2 * 5, 5), dpi = 100)
 reg.coefplot(fit2, ax = ax[0])
 ax[0].set_xlim(-900, 1800)
 
-reg.coefplot(fit3, ax = ax[1])
+reg.coefplot(fit3, ax = ax[1], palette = ['#FF6F91', '#F2E5EB'])
 ax[1].set_xlim(-900, 1800);
 ```
 
-![Unknown](https://github.com/Hirototensho/Py4Stats/assets/55335752/0f11205b-5090-4b45-9a2e-7db7be3cc0f4)
+![Unknown](https://github.com/Hirototensho/Py4Stats/assets/55335752/4c2dbfda-c67d-45c5-ba28-0f7fc72bd7d3)
