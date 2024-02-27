@@ -14,7 +14,21 @@ coefplot(
     show_vline = True,
     ax = None,
     **kwargs
-    )
+)
+
+mfxplot(
+    mod, 
+    subset = None, 
+    alpha = [0.05, 0.01], 
+    at = 'overall',
+    method = 'dydx',
+    dummy = False,
+    palette = ['#1b69af', '#629CE7'], 
+    show_Intercept = False,
+    show_vline = True,
+    ax = None,
+    **kwargs
+)
 ```
 
 - `mod`：`statsmodels` で作成した回帰分析の結果（必須）。
