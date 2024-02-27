@@ -4,7 +4,7 @@
 
 `reg.compare_ols()` 回帰分析の表を作成。：計量経済学の実証論文でよく用いられる、回帰分析の結果を縦方向に並べて比較する表を作成します。表のフォーマットについてはR言語の [`texreg::screenreg()`](https://cran.r-project.org/web/packages/texreg/index.html)や[`modelsummary::modelsummary()`](https://modelsummary.com/man/modelsummary.html)を参考にしています。
 
-``` python
+```python
 compare_ols(
     list_models, 
     model_name = None,
@@ -72,18 +72,22 @@ compare_mfx(
    
 - line_break = '\n'：`table_style = 'two_line'` とした場合に使用される改行記号。`table_style = 'one_line'` とした場合、この引数は無視されます。
 
+
+
 - `at = 'overall'`：限界効果の集計方法（`compare_mfx()` のみ）。内部で使用している[`statsmodels.discrete.discrete_model.DiscreteResults.get_margeff()`](https://www.statsmodels.org/devel/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドに引数 `at` として渡されます。`method = 'coef'` を指定した場合、この引数は無視されます（部分一致可）。
     - `'overall'`：各観測値の限界効果の平均値を表示（初期設定）
     - `'mean'`：各説明変数の平均値における限界効果を表示
     - `'median'`：各説明変数の中央値における限界効果を表示
     - `'zero'`：各説明変数の値がゼロであるときの限界効果を表示
 
-- `method = 'dydx'`：推定する限界効果の種類（`compare_mfx()` のみ）。次の値を指定でき、`'coef'` なら回帰係数の推定値がそのままま表示され、それ以外なら限界効果の推定値が表示されます。基本的には[`statsmodels.discrete.discrete_model.DiscreteResults.get_margeff()`](https://www.statsmodels.org/devel/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html)の引数 `method` と同様です。
+- `method = 'dydx'`：推定する限界効果の種類（`compare_mfx()` のみ）。内部で使用している[`statsmodels.discrete.discrete_model.DiscreteResults.get_margeff()`](https://www.statsmodels.org/devel/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドに引数 `method` として渡されます。ただし、`method = 'coef'` を指定した場合には限界効果を推定せずに回帰係数をそのまま表示します。
     - `'coef'`：回帰係数の推定値を表示
     - `'dydx'`：限界効果の値を変換なしでそのまま表。（初期設定）
     - `'eyex'`：弾力性 d(lny)/d(lnx) の推定値を表示
     - `'dyex'`：準弾力性 dy /d(lnx) の推定値を表示
     - `'eydx'`：準弾力性 d(lny)/dx の推定値を表示
+
+- `dummy = False`：ダミー変数の限界効果の推定方法（`compare_mfx()` のみ）。もし False （初期設定）であれば、ダミー変数を連続な数値変数として扱います。もし、True であればダミー変数が0から1へと変化したときの予測値の変化を推定します。内部で使用している[`statsmodels.discrete.discrete_model.DiscreteResults.get_margeff()`](https://www.statsmodels.org/devel/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドに引数 `dummy` として渡されます。
 
 ## 使用例
 
@@ -229,3 +233,30 @@ compare_tab4.loc['種ダミー', :] = ['Yes', 'Yes', 'Yes']
 
 compare_tab4 # 上記のコードと同じ結果
 ```
+
+`reg.compare_mfx()` は `reg.compare_ols()` の一般化線型モデルバージョンで、初期設定では `statsmodels` ライブラリの[`.get_margeff()`](https://www.statsmodels.org/dev/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドから得られた限界効果の推定値を表示します。
+
+```python
+# ロジスティック回帰の実行
+fit_logit1 = smf.logit('female ~ body_mass_g + bill_length_mm + bill_depth_mm', data = penguins).fit()
+fit_logit2 = smf.logit('female ~ body_mass_g + bill_length_mm + bill_depth_mm + species', data = penguins).fit()
+
+reg.compare_mfx([fit_logit1, fit_logit2])
+```
+| term                 | model 1     | model 2     |
+|:---------------------|:------------|:------------|
+| body_mass_g          | -0.0004 *** | -0.0003 *** |
+|                      | (0.0000)    | (0.0000)    |
+| bill_length_mm       | -0.0053     | -0.0357 *** |
+|                      | (0.0036)    | (0.0070)    |
+| bill_depth_mm        | -0.1490 *** | -0.1098 *** |
+|                      | (0.0051)    | (0.0175)    |
+| species[T.Chinstrap] |             | 0.4172 ***  |
+|                      |             | (0.0848)    |
+| species[T.Gentoo]    |             | 0.3527 ***  |
+|                      |             | (0.1308)    |
+| prsquared            | 0.5647      | 0.6187      |
+| nobs                 | 342         | 342         |
+| df                   | 3           | 5           |
+
+
