@@ -164,8 +164,8 @@ def pad_zero_row(x, digits = 2):
     s = str(x)
     # もし s が整数値なら、何もしない。
     if s.find('.') != -1:
-        s_digits = len(s[s.find('.'):])
-        s = s + '0' * (digits + 1 - s_digits)
+        s_digits = len(s[s.find('.'):])       # 小数点以下の桁数を計算
+        s = s + '0' * (digits + 1 - s_digits) # 足りない分だけ0を追加
     return s
 
 pad_zero = np.vectorize(pad_zero_row, excluded = 'digits')
@@ -548,20 +548,20 @@ def lincomb_test(model, const_mat, beta_H0 = 0, alpha = 0.05, stars = False, pct
 
 """# $F$検定による回帰モデルの比較
 
-- `mod_restriction`：制約モデル。`statsmodels.ols()` などで作成されたモデルオブジェクト
-- `mod_full`：フルモデル。`statsmodels.ols()` などで作成されたモデルオブジェクト
+- `restriction`：制約モデル。`statsmodels.ols()` などで作成されたモデルオブジェクト
+- `full`：フルモデル。`statsmodels.ols()` などで作成されたモデルオブジェクト
 """
 
 from scipy.stats import f
-def F_test_lm(mod_restriction, mod_full):
-    q = mod_restriction.df_resid - mod_full.df_resid
-    F_val = ((mod_restriction.ssr - mod_full.ssr) / q) / mod_full.mse_resid
+def F_test_lm(restriction, full):
+    q = restriction.df_resid - full.df_resid
+    F_val = ((restriction.ssr - full.ssr) / q) / full.mse_resid
 
-    p_value = f.sf(F_val, dfn = q , dfd = mod_full.df_resid)
+    p_value = f.sf(F_val, dfn = q , dfd = full.df_resid)
 
     res_df = pd.DataFrame({
-        'df_resid':[mod_restriction.df_resid, mod_full.df_resid],
-        'RSS':[mod_restriction.ssr, mod_full.ssr],
+        'df_resid':[restriction.df_resid, full.df_resid],
+        'RSS':[restriction.ssr, full.ssr],
         'DF':[np.nan, int(q)],
         'statistics': [np.nan, F_val],
         'p_value': [np.nan, p_value]
