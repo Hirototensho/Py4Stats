@@ -8,7 +8,8 @@ R言語の[`DescTools::Freq()`](https://cran.r-project.org/web/packages/DescTool
 freq_table(
     self, 
     subset, 
-    sort = True, 
+    sort = True,
+    ascending = False,
     dropna = False
 )
 ``` 
