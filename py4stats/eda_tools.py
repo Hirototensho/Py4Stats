@@ -72,7 +72,7 @@ def remove_empty(self, cols = True, rows = True, cutoff = 1, quiet = True):
 
   # 空白列の除去 ------------------------------
   if cols :
-    empty_col = missing_percent(self, axis = 'index', pct = False) >= 1
+    empty_col = missing_percent(self, axis = 'index', pct = False) >= cutoff
     self = self.loc[:, ~empty_col]
 
     if not(quiet) :
@@ -84,7 +84,7 @@ def remove_empty(self, cols = True, rows = True, cutoff = 1, quiet = True):
             )
   # 空白行の除去 ------------------------------
   if rows :
-    empty_rows = missing_percent(self, axis = 'columns', pct = False) >= 1
+    empty_rows = missing_percent(self, axis = 'columns', pct = False) >= cutoff
     self = self.loc[~empty_rows, :]
 
     if not(quiet) :
