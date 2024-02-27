@@ -90,7 +90,6 @@ compare_mfx(
 ## 使用例
 
 ``` python
-from py4stats import eda_tools as eda        # 基本統計量やデータの要約など
 from py4stats import regression_tools as reg # 回帰分析の要約
 import statsmodels.formula.api as smf
 
