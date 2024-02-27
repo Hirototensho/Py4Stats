@@ -69,12 +69,13 @@ print(penguins.freq_table('species'))
 引数 `group` を指定すると、グループ別の度数分布表を計算できます。
 
 ``` python
+penguins2 = penguins.assign(bill_length_mm2 = pd.cut(penguins['bill_length_mm'], 6))
+
 print(
-    penguins.assign(bill_length_mm2 = pd.cut(penguins['bill_length_mm'], 4))\
-    .freq_table('bill_length_mm2', group = 'species', sort = False)
-)
+    penguins2.freq_table(['species', 'bill_length_mm2'], sort = False)
+    )
 #>                             freq      perc  cumfreq   cumperc
-#> species   bill_length_mm2                                    
+#> species   bill_length_mm2
 #> Adelie    (32.072, 38.975]    79  0.523179       79  0.523179
 #>           (38.975, 45.85]     71  0.470199      150  0.993377
 #>           (45.85, 52.725]      1  0.006623      151  1.000000
