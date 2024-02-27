@@ -1,4 +1,4 @@
-# 空白列, 定数列の削除
+# 空白列, 定数列の削除：`eda_tools.remove_empty(), eda_tools.remove_constant()`
 
 ## 概要
 
@@ -37,9 +37,17 @@ remove_constant(
 
 ## 使用例
 
+`eda_tools.remove_empty()` の使用例。
+
 ``` python
+import pandas as pd
+import numpy as np
+from palmerpenguins import load_penguins
+
 penguins2 = penguins.loc[:, ['species', 'body_mass_g']].copy()
+# 空白列を作成
 penguins2.loc[:, 'empty'] = np.nan
+# 空白行を作成
 penguins2.loc[344, :] = np.nan
 
 print(penguins2.tail(3))
@@ -47,7 +55,9 @@ print(penguins2.tail(3))
 #> 342  Chinstrap       4100.0    NaN
 #> 343  Chinstrap       3775.0    NaN
 #> 344        NaN          NaN    NaN
+```
 
+``` python
 # 完全に空白な行と列を削除。
 print(penguins2.remove_empty(quiet = False).tail(3))
 #> Removing 1 empty column(s) out of 3 columns(Removed: empty).
@@ -82,6 +92,8 @@ print(penguins2.remove_empty().tail(3))
 #> 342  Chinstrap       4100.0
 #> 343  Chinstrap       3775.0
 ```
+
+`eda_tools.remove_constant()` の使用例。
 
 ``` python
 penguins2 = penguins.loc[:, ['species', 'body_mass_g']].copy()
