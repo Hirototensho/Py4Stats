@@ -19,7 +19,7 @@ p_stars(p_value)
 
 - `x`：**scalar or array-like**</br>
 - `digits`：**scalar**</br>
-- `p_value`：**scalar**</br>
+- `p_value`：**scalar or array-like**</br>
 
 ## 使用例
 
