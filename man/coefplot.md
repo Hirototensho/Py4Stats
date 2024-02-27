@@ -34,27 +34,27 @@ mfxplot(
 ## 引数
 
 - `mod`：`statsmodels` で作成した回帰分析の結果（必須）。
-- `subset = None`：グラフに回帰係数を表示する説明変数のリスト。指定しなければモデルに含まれる全ての説明変数を使用します。また `subset` に指定された順番に合わせてグラフ内での回帰係数の並び順が変更されます。
-- `alpha = [0.05, 0.01]`：信頼区間の計算に用いる有意水準。1つ目の要素が太い方のエラーバーの幅に、2つ目の要素が細い方のエラーバーの幅に対応します。
-- `palette = ['#1b69af', '#629CE7']`：グラフの描画に使用する色コード。1つ目の要素が太い方のエラーバーの色に、2つ目の要素が細い方のエラーバーの色に対応します。
-- `show_Intercept = False`：切片の係数を表示するかどうか。True だと切片の係数を表示し、False（初期設定）だと表示しません。
+- `subset`：グラフに回帰係数を表示する説明変数のリスト。指定しなければモデルに含まれる全ての説明変数を使用します。また `subset` に指定された順番に合わせてグラフ内での回帰係数の並び順が変更されます。
+- `alpha`：信頼区間の計算に用いる有意水準。1つ目の要素が太い方のエラーバーの幅に、2つ目の要素が細い方のエラーバーの幅に対応します。初期設定は `[0.05, 0.01]` です。
+- `palette`：グラフの描画に使用する色コード。1つ目の要素が太い方のエラーバーの色に、2つ目の要素が細い方のエラーバーの色に対応します。
+- `show_Intercept`：切片の係数を表示するかどうか。True だと切片の係数を表示し、False（初期設定）だと表示しません。
 - `show_vline`：回帰係数 = 0 の垂直線を表示するかどうか。True （初期設定）を指定すると垂直線を表示し、False を指定すると表示されません。
 - `ax`：matplotlib の ax オブジェクト。複数のグラフを並べる場合などに使用します。
 
-- `at = 'overall'`：限界効果の集計方法（`mfxplot()` のみ）。内部で使用している[`statsmodels.discrete.discrete_model.DiscreteResults.get_margeff()`](https://www.statsmodels.org/devel/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドに引数 `at` として渡されます。`method = 'coef'` を指定した場合、この引数は無視されます（部分一致可）。
+- `at`：限界効果の集計方法（`mfxplot()` のみ）。内部で使用している[`statsmodels.discrete.discrete_model.DiscreteResults.get_margeff()`](https://www.statsmodels.org/devel/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドに引数 `at` として渡されます。`method = 'coef'` を指定した場合、この引数は無視されます（部分一致可）。
     - `'overall'`：各観測値の限界効果の平均値を表示（初期設定）
     - `'mean'`：各説明変数の平均値における限界効果を表示
     - `'median'`：各説明変数の中央値における限界効果を表示
     - `'zero'`：各説明変数の値がゼロであるときの限界効果を表示
 
-- `method = 'dydx'`：推定する限界効果の種類（`mfxplot()` のみ）。内部で使用している[`statsmodels.discrete.discrete_model.DiscreteResults.get_margeff()`](https://www.statsmodels.org/devel/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドに引数 `method` として渡されます。ただし、`method = 'coef'` を指定した場合には限界効果を推定せずに回帰係数をそのまま表示します。
+- `method`：推定する限界効果の種類（`mfxplot()` のみ）。内部で使用している[`statsmodels.discrete.discrete_model.DiscreteResults.get_margeff()`](https://www.statsmodels.org/devel/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドに引数 `method` として渡されます。ただし、`method = 'coef'` を指定した場合には限界効果を推定せずに回帰係数をそのまま表示します。
     - `'coef'`：回帰係数の推定値を表示
     - `'dydx'`：限界効果の値を変換なしでそのまま表。（初期設定）
     - `'eyex'`：弾力性 d(lny)/d(lnx) の推定値を表示
     - `'dyex'`：準弾力性 dy /d(lnx) の推定値を表示
     - `'eydx'`：準弾力性 d(lny)/dx の推定値を表示
 
-- `dummy = False`：ダミー変数の限界効果の推定方法（`mfxplot()` のみ）。もし False （初期設定）であれば、ダミー変数を連続な数値変数として扱います。もし、True であればダミー変数が0から1へと変化したときの予測値の変化を推定します。内部で使用している[`statsmodels.discrete.discrete_model.DiscreteResults.get_margeff()`](https://www.statsmodels.org/devel/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドに引数 `dummy` として渡されます。
+- `dummy`：ダミー変数の限界効果の推定方法（`mfxplot()` のみ）。もし False （初期設定）であれば、ダミー変数を連続な数値変数として扱います。もし、True であればダミー変数が0から1へと変化したときの予測値の変化を推定します。内部で使用している[`statsmodels.discrete.discrete_model.DiscreteResults.get_margeff()`](https://www.statsmodels.org/devel/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドに引数 `dummy` として渡されます。
 
 ## 使用例
 
