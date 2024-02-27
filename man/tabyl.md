@@ -2,7 +2,7 @@
 
 ## 概要
 
-　データフレームのクロス集計表を作成します。R言語の [`janitor::tabyl()`](https://sfirke.github.io/janitor/reference/tabyl.html)にいくつかの `adorn_` 関数を追加した状態を再現した関数です。初期設定ではクロス集計表の各セルに度数と相対度数を `度数(相対度数%)` の形式で表示します。
+　データフレームのクロス集計表を作成します。R言語の [`janitor::tabyl()`](https://sfirke.github.io/janitor/reference/tabyl.html)にいくつかの `adorn_` 関数を追加した状態を再現した関数です。初期設定ではクロス集計表の各セルに度数と相対度数を 「度数(相対度数%)`」 の形式で表示します。
 
 ```python
 def tabyl(
