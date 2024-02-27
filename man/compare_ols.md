@@ -185,5 +185,5 @@ compare_tab4 = eda.filtering_out(
 
 compare_tab4.loc['種ダミー', :] = ['Yes', 'Yes', 'Yes']
 
-compare_tab4
+compare_tab4 # 上記のコードと同じ結果
 ```
