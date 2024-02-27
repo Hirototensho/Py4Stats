@@ -38,16 +38,16 @@ compare_mfx(
 
 - `list_models`：推定結果を表示する分析結果のリスト（必須）。`sm.ols()` や `smf.ols()` で作成された回帰分析の結果を `list_models = [fit1, fit2]` のようにリストとして指定してください。
 
-- `model_name = None`：表頭に表示するモデルの名前。`['モデル1', 'モデル2']` のように文字列のリストを指定してください。初期設定では、自動的に `model 1, model 2, model 3 …` と連番が割り当てられます。
+- `model_name`：表頭に表示するモデルの名前。`['モデル1', 'モデル2']` のように文字列のリストを指定してください。初期設定では、自動的に `model 1, model 2, model 3 …` と連番が割り当てられます。
 
 - `subset = None`：表示する回帰係数のリスト。指定しない場合（初期設定）、モデルに含まれる全ての回帰係数が表示されます。内部では[`pandas.DataFrame.loc`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.loc.html)メソッドを用いて処理を行っているため、`['変数1', '変数2', ...]` のような文字列のリスト、`[True, False, True, ...]` のようなブール値のリストに対応しています。文字列のリストが指定された場合、リストの並び順に合わせて回帰係数が表示されます。
 
-- `stats = 'std_err'`：表中の丸括弧 ( ) 内に表示する統計値の設定。次の値が指定できます（部分一致可）。
+- `stats`：表中の丸括弧 ( ) 内に表示する統計値の設定。次の値が指定できます（部分一致可）。
     - `'p_value'` p-値（初期設定）
     - `'std_err'` 標準誤差
     - `'statistics'` t統計量
 
-- `add_stars = True`：回帰係数の統計的有意性を表すアスタリスク `*` を表示するかどうかを表すブール値。`add_stars = True`（初期設定）なら表示、`add_stars = False`なら非表示となります。`table_style` に `'two_line'` を指定した場合はアスタリスクは回帰係数の直後に表示され、`'one_line'` を指定した場合は `stats` で指定した統計値の後に表示されます。アスタリスクはp-値の値に応じて次のように表示されます。
+- `add_stars`：回帰係数の統計的有意性を表すアスタリスク `*` を表示するかどうかを表すブール値。`add_stars = True`（初期設定）なら表示、`add_stars = False`なら非表示となります。`table_style` に `'two_line'` を指定した場合はアスタリスクは回帰係数の直後に表示され、`'one_line'` を指定した場合は `stats` で指定した統計値の後に表示されます。アスタリスクはp-値の値に応じて次のように表示されます。
     - p ≤ 0.1 `*`
     - p ≤ 0.05 `**`
     - p ≤ 0.01 `***`
@@ -66,26 +66,26 @@ compare_mfx(
 
 - `digits = 4`：回帰係数と統計値について表示する小数点以下の桁数。初期設定は4です。
 
-- `table_style = 'two_line'`：表の書式設定。次の値から選択できます（部分一致可）。
+- `table_style`：表の書式設定。次の値から選択できます（部分一致可）。
     - `'two_line'`回帰係数と統計値を2行に分ける（初期設定）
     - `'one_line'`回帰係数と統計値を1行で表示する
    
-- line_break = '\n'：`table_style = 'two_line'` とした場合に使用される改行記号。`table_style = 'one_line'` とした場合、この引数は無視されます。
+- `line_break`：`table_style = 'two_line'` とした場合に使用される改行記号。`table_style = 'one_line'` とした場合、この引数は無視されます。
 
-- `at = 'overall'`：限界効果の集計方法（`compare_mfx()` のみ）。内部で使用している[`statsmodels.discrete.discrete_model.DiscreteResults.get_margeff()`](https://www.statsmodels.org/devel/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドに引数 `at` として渡されます。`method = 'coef'` を指定した場合、この引数は無視されます（部分一致可）。
+- `at`：限界効果の集計方法（`compare_mfx()` のみ）。内部で使用している[`statsmodels.discrete.discrete_model.DiscreteResults.get_margeff()`](https://www.statsmodels.org/devel/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドに引数 `at` として渡されます。`method = 'coef'` を指定した場合、この引数は無視されます（部分一致可）。
     - `'overall'`：各観測値の限界効果の平均値を表示（初期設定）
     - `'mean'`：各説明変数の平均値における限界効果を表示
     - `'median'`：各説明変数の中央値における限界効果を表示
     - `'zero'`：各説明変数の値がゼロであるときの限界効果を表示
 
-- `method = 'dydx'`：推定する限界効果の種類（`compare_mfx()` のみ）。内部で使用している[`statsmodels.discrete.discrete_model.DiscreteResults.get_margeff()`](https://www.statsmodels.org/devel/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドに引数 `method` として渡されます。ただし、`method = 'coef'` を指定した場合には限界効果を推定せずに回帰係数をそのまま表示します。
+- `method`：推定する限界効果の種類（`compare_mfx()` のみ）。内部で使用している[`statsmodels.discrete.discrete_model.DiscreteResults.get_margeff()`](https://www.statsmodels.org/devel/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドに引数 `method` として渡されます。ただし、`method = 'coef'` を指定した場合には限界効果を推定せずに回帰係数をそのまま表示します。
     - `'coef'`：回帰係数の推定値を表示
     - `'dydx'`：限界効果の値を変換なしでそのまま表。（初期設定）
     - `'eyex'`：弾力性 d(lny)/d(lnx) の推定値を表示
     - `'dyex'`：準弾力性 dy /d(lnx) の推定値を表示
     - `'eydx'`：準弾力性 d(lny)/dx の推定値を表示
 
-- `dummy = False`：ダミー変数の限界効果の推定方法（`compare_mfx()` のみ）。もし False （初期設定）であれば、ダミー変数を連続な数値変数として扱います。もし、True であればダミー変数が0から1へと変化したときの予測値の変化を推定します。内部で使用している[`statsmodels.discrete.discrete_model.DiscreteResults.get_margeff()`](https://www.statsmodels.org/devel/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドに引数 `dummy` として渡されます。
+- `dummy`：ダミー変数の限界効果の推定方法（`compare_mfx()` のみ）。もし False （初期設定）であれば、ダミー変数を連続な数値変数として扱います。もし、True であればダミー変数が0から1へと変化したときの予測値の変化を推定します。内部で使用している[`statsmodels.discrete.discrete_model.DiscreteResults.get_margeff()`](https://www.statsmodels.org/devel/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドに引数 `dummy` として渡されます。
 
 ## 使用例
 
