@@ -21,7 +21,7 @@ tabyl(
 
 ## 引数
 
-- `self`：`pandas DataFrame`
+- `self`：`pandas DataFrame`（必須）
 - `index`：**str**</br>
 　集計に使用するデータフレームの変数名（必須）。
 - `columns`：**str**</br>
