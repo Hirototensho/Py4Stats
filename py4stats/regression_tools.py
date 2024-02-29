@@ -54,10 +54,9 @@ def match_arg(value, choices, arg_name = 'argument'):
           # raise ValueError(f"No match found for value: '{value}'.")
           raise ValueError(f"'{arg_name}' must be one of {', '.join(choices)}.")
 
-# import argparse
 def arg_match(value, choices, arg_name = 'argument'):
     """
-    Simulates the functionality of R's rlang::match_arg() function with partial matching in Python.
+    Simulates the functionality of R's rlang::arg_match() function with partial matching in Python.
 
     Args:
     - value: The value to match against the choices.
@@ -73,7 +72,7 @@ def arg_match(value, choices, arg_name = 'argument'):
       if len(matches) >= 1:
         raise ValueError(
             f"""'{arg_name}' must be one of: {', '.join(choices)}.
-            Did you mean {' or '.join(matches)} ?"""
+            Did you mean {' or '.join(matches)}?"""
         )
       else:
         raise ValueError(f"'{arg_name}' must be one of {', '.join(choices)}.")
@@ -179,7 +178,7 @@ def glance_jp(fit_lm):
     }, index = [0])
     return res
 
-def est_pct_change(est): return 100 * (np.exp(est) - 1)
+def log_to_pct(est): return 100 * (np.exp(est) - 1)
 
 # 有意性を表すアスタリスクを作成する関数
 def p_stars_row(p_value):
@@ -217,45 +216,6 @@ fit3 = smf.ols('body_mass_g ~ bill_length_mm + bill_depth_mm + species + sex', d
 compare_tab1 = reg.compare_ols([fit1, fit2, fit3])
 compare_tab1
 ```
-
-### 引数
-
-　`reg.compare_ols()` 関数では必要に応じて表の体裁を調整できるようにしています。`reg.compare_ols()` 関数に指定できる引数は次の通りです。
-
-- `list_models`：推定結果を表示する分析結果のリスト。`sm.ols()` や `smf.ols()` で作成された回帰分析の結果を `list_models = [fit1, fit2]` のような形で指定してください。
-- `model_name`：表頭に表示するモデルの名前。`['モデル1', 'モデル2']` のように文字列のリストを指定してください。何もしていされなければ、自動的に `model 1, model 2, model 3 …` と連番が振られます。
-- `stats`：表中の() 内に表示する統計値の設定。次の値が指定できます（部分一致可）。
-    - `'p_value'` p-値（初期設定）
-    - `'std_err'` 標準誤差
-    - `'statistics'` t統計量
-
-- `add_stars`：回帰係数の統計的有意性を表すアスタリスク `*` を表示するかどうかを表すブール値。`add_stars = True`（初期設定）なら表示、`add_stars = False`なら非表示となります。`table_style` に `'two_line'` を指定した場合はアスタリスクは回帰係数の直後に表示され、`'one_line'` を指定した場合は統計値の後に表示されます。アスタリスクはp-値の値に応じて次のように表示されます。
-    - p ≤ 0.1 `*`
-    - p ≤ 0.05 `**`
-    - p ≤ 0.01 `***`
-    - p > 0.1 表示なし
-
-- `digits`：回帰係数と統計値について表示する小数点以下の桁数。初期設定は4です。
-- `table_style`：表の書式設定。次の値から選択できます（部分一致可）。
-    - `'two_line'`回帰係数と統計値を2行に分ける（初期設定）
-    - `'one_line'`回帰係数と統計値を1行で表示する
-
-- `stats_glance`：表の下部に追加する回帰モデル全体に関する統計値の種類を表す文字列のリスト。初期設定は `['rsquared_adj', 'nobs', 'df']`。リストの値には次の値を指定できます（部分一致可）。
-    - `'rsquared'`：決定係数
-    - `'rsquared_adj'`：自由度調整済み決定係数
-    - `'nobs'`：サインプルサイズ
-    - `'df'`：モデルの自由度（説明変数の数）
-    - `'sigma'`：回帰式の標準誤差
-    - `'F_values'`：全ての回帰係数がゼロであることを帰無仮説とするF検定の統計量
-    - `'p_values'`：F検定のP-値
-    - `'AIC'`：赤池情報量基準
-    - `'BIC'`：ベイズ情報量基準
-
-　**注意**：pandas データフレームとしの表示では、`table_style = 'two_line'` としたときの回帰係数とp-値の間の改行が、改行記号「\n」が表示されますが、Excel ファイルとして保存すると、正しくセル内での改行として扱われます。
-
-### 論文での利用方法
-
-　 `reg.compare_ols()` の出力は pandas データフレームです。そのため `.to_excel()` メソッドでExcel ファイルとして保存でき、そこから Word へ貼り付けると良いと思います。
 """
 
 # 複数のモデルを比較する表を作成する関数
@@ -290,7 +250,7 @@ def compare_ols(
     if len(stats_glance) > 0: # もし stats_glance が空のリストなら統計値を追加しない
     # 引数に妥当な値が指定されているかを検証
         choices = ['rsquared', 'rsquared_adj', 'nobs', 'df', 'sigma', 'F_values', 'p_values', 'AIC', 'BIC']
-        stats_glance = [match_arg(stats, choices) for stats in stats_glance]
+        stats_glance = [arg_match(stats, choices) for stats in stats_glance]
 
         res2 = pd.concat([glance(mod) for mod in list_models])\
             .loc[:, stats_glance].round(digits)\
@@ -336,7 +296,8 @@ def gazer(
     ):
 
     # 引数に妥当な値が指定されているかを検証
-    stats = match_arg(stats, ['std_err', 'statistics', 'p_value', 'conf_lower', 'conf_higher'])
+    stats = arg_match(stats, ['std_err', 'statistics', 'p_value', 'conf_lower', 'conf_higher'])
+    # こちらは部分一致可としています。
     table_style = match_arg(table_style, ['two_line', 'one_line'])
 
     # --------------------
@@ -363,7 +324,6 @@ def gazer(
         sep = line_break
         if add_stars:
             sep = res['stars'] + sep
-
         sufix = ''
 
     elif(table_style == 'one_line'):
@@ -609,8 +569,8 @@ def F_test_lm(restriction, full):
 
 def tidy_mfx(mod, at = 'overall', method = 'dydx', dummy = False, alpha = 0.05, **kwargs):
   # 引数に妥当な値が指定されているかを検証
-  at = match_arg(at, ['overall', 'mean', 'median', 'zero'])
-  method = match_arg(method, ['coef', 'dydx', 'eyex', 'dyex', 'eydx'])
+  at = arg_match(at, ['overall', 'mean', 'median', 'zero'])
+  method = arg_match(method, ['coef', 'dydx', 'eyex', 'dyex', 'eydx'])
 
   est_margeff = mod.get_margeff(dummy = dummy, at = at, method = method, **kwargs)
   tab = est_margeff.summary_frame()
@@ -632,7 +592,7 @@ def tidy_mfx(mod, at = 'overall', method = 'dydx', dummy = False, alpha = 0.05, 
             'Cont. Int. Hi.':'conf_higher'
             })
 
-  # alpha に 0.05 以外の値が指定されていた場合は、信頼区間を個別に推定てし値を書き換えます。
+  # alpha に 0.05 以外の値が指定されていた場合は、信頼区間を個別に推定して値を書き換えます。
   if(alpha != 0.05):
     CI = est_margeff.conf_int(alpha = alpha)
     tab['conf_lower'] = CI[:, 0]
@@ -656,9 +616,6 @@ def compare_mfx(
     line_break = '\n',
     **kwargs
     ):
-    # 引数に妥当な値が指定されているかを検証
-    at = match_arg(at, ['overall', 'mean', 'median', 'zero'])
-    method = match_arg(method, ['coef', 'dydx', 'eyex', 'dyex', 'eydx'])
 
     # 限界効果の推定-------------
     if method == 'coef':
@@ -710,10 +667,6 @@ def mfxplot(
     **kwargs
     ):
     '''model object から回帰係数のグラフを作成する関数'''
-      # 引数に妥当な値が指定されているかを検証
-    at = match_arg(at, ['overall', 'mean', 'median', 'zero'])
-    method = match_arg(method, ['coef', 'dydx', 'eyex', 'dyex', 'eydx'])
-
     # 回帰係数の表を抽出
     tidy_ci_high = tidy_mfx(mod, at = at, method = method, dummy = dummy, alpha = alpha[0])
     tidy_ci_row =  tidy_mfx(mod, at = at, method = method, dummy = dummy, alpha = alpha[1])
