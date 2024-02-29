@@ -162,14 +162,12 @@ compare_tab3 = reg.compare_ols(
     line_break = '<br>'                                 # 改行文字の変更
     )
 
-compare_gt = GT(compare_tab3.reset_index())\
+GT(compare_tab3.reset_index())\
   .tab_header(title = 'Palmer penguin データを使った回帰分析の結果')\
   .tab_source_note(
       source_note= "Signif. codes: 0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1"
       )\
   .tab_source_note(source_note = '( ) の値は標準誤差')
-
-compare_gt
 ```
 <img width="549" alt="compare_tab_gt" src="https://github.com/Hirototensho/Py4Stats/assets/55335752/7e189a26-c2a3-4a52-b717-61cf71317cd3">
 
