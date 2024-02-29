@@ -42,7 +42,7 @@ compare_mfx(
 
 - `subset = None`：表示する回帰係数のリスト。指定しない場合（初期設定）、モデルに含まれる全ての回帰係数が表示されます。内部では[`pandas.DataFrame.loc`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.loc.html)メソッドを用いて処理を行っているため、`['変数1', '変数2', ...]` のような文字列のリスト、`[True, False, True, ...]` のようなブール値のリストに対応しています。文字列のリストが指定された場合、リストの並び順に合わせて回帰係数が表示されます。
 
-- `stats`：表中の丸括弧 ( ) 内に表示する統計値の設定。次の値が指定できます（部分一致可）。
+- `stats`：表中の丸括弧 ( ) 内に表示する統計値の設定。次の値が指定できます。
     - `'p_value'` p-値（初期設定）
     - `'std_err'` 標準誤差
     - `'statistics'` t統計量
@@ -53,7 +53,7 @@ compare_mfx(
     - p ≤ 0.01 `***`
     - p > 0.1 表示なし
 
-- `stats_glance`：表の下部に追加する回帰モデル全体に関する統計値の種類を表す文字列のリスト（`compare_ols()` のみ）。初期設定は `['rsquared_adj', 'nobs', 'df']`。リストの値には次の値を指定できます（部分一致可）。
+- `stats_glance`：表の下部に追加する回帰モデル全体に関する統計値の種類を表す文字列のリスト（`compare_ols()` のみ）。初期設定は `['rsquared_adj', 'nobs', 'df']`。リストの値には次の値を指定できます。
     - `'rsquared'`：決定係数
     - `'rsquared_adj'`：自由度調整済み決定係数
     - `'nobs'`：サインプルサイズ
@@ -72,7 +72,7 @@ compare_mfx(
    
 - `line_break`：`table_style = 'two_line'` とした場合に使用される改行記号。`table_style = 'one_line'` とした場合、この引数は無視されます。
 
-- `at`：限界効果の集計方法（`compare_mfx()` のみ）。内部で使用している[`statsmodels.discrete.discrete_model.DiscreteResults.get_margeff()`](https://www.statsmodels.org/devel/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドに引数 `at` として渡されます。`method = 'coef'` を指定した場合、この引数は無視されます（部分一致可）。
+- `at`：限界効果の集計方法（`compare_mfx()` のみ）。内部で使用している[`statsmodels.discrete.discrete_model.DiscreteResults.get_margeff()`](https://www.statsmodels.org/devel/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドに引数 `at` として渡されます。`method = 'coef'` を指定した場合、この引数は無視されます。
     - `'overall'`：各観測値の限界効果の平均値を表示（初期設定）
     - `'mean'`：各説明変数の平均値における限界効果を表示
     - `'median'`：各説明変数の中央値における限界効果を表示
