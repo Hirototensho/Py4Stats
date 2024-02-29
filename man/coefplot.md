@@ -41,7 +41,7 @@ mfxplot(
 - `show_vline`：回帰係数 = 0 の垂直線を表示するかどうか。True （初期設定）を指定すると垂直線を表示し、False を指定すると表示されません。
 - `ax`：matplotlib の ax オブジェクト。複数のグラフを並べる場合などに使用します。
 
-- `at`：限界効果の集計方法（`mfxplot()` のみ）。内部で使用している[`statsmodels.discrete.discrete_model.DiscreteResults.get_margeff()`](https://www.statsmodels.org/devel/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドに引数 `at` として渡されます。`method = 'coef'` を指定した場合、この引数は無視されます（部分一致可）。
+- `at`：限界効果の集計方法（`mfxplot()` のみ）。内部で使用している[`statsmodels.discrete.discrete_model.DiscreteResults.get_margeff()`](https://www.statsmodels.org/devel/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドに引数 `at` として渡されます。`method = 'coef'` を指定した場合、この引数は無視されます。
     - `'overall'`：各観測値の限界効果の平均値を表示（初期設定）
     - `'mean'`：各説明変数の平均値における限界効果を表示
     - `'median'`：各説明変数の中央値における限界効果を表示
