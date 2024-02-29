@@ -89,6 +89,8 @@ compare_mfx(
 
 ## 使用例
 
+### `reg.compare_ols()` 
+
 ``` python
 from py4stats import regression_tools as reg # 回帰分析の要約
 import statsmodels.formula.api as smf
@@ -171,7 +173,9 @@ GT(compare_tab3.reset_index())\
 ```
 <img width="549" alt="compare_tab_gt" src="https://github.com/Hirototensho/Py4Stats/assets/55335752/7e189a26-c2a3-4a52-b717-61cf71317cd3">
 
-引数 `subset` を使って表示したい回帰係数を指定することで、一部の回帰係数を省略して表記することもできます。
+#### 回帰係数の sbusetting
+
+ 引数 `subset` を使って表示したい回帰係数を指定することで、一部の回帰係数を省略して表記することもできます。
 
 ``` python
 # 説明変数に island を追加したモデルを推定
@@ -226,7 +230,9 @@ compare_tab4.loc['島ダミー', :] = ['No', 'No', 'Yes']
 compare_tab4 # 上記のコードと同じ結果
 ```
 
-`reg.compare_mfx()` は `reg.compare_ols()` の一般化線型モデルバージョンで、初期設定では `statsmodels` ライブラリの[`.get_margeff()`](https://www.statsmodels.org/dev/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドから得られた限界効果の推定値を表示します。
+#### `reg.compare_mfx()`
+
+　`reg.compare_mfx()` は `reg.compare_ols()` の一般化線型モデルバージョンで、初期設定では `statsmodels` ライブラリの[`.get_margeff()`](https://www.statsmodels.org/dev/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドから得られた限界効果の推定値を表示します。
 
 ```python
 # ロジスティック回帰の実行
