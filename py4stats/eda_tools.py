@@ -11,7 +11,7 @@ Original file is located at
 
 import argparse
 
-def match_arg(value, choices):
+def match_arg(value, choices, arg_name = 'argument'):
     """
     Simulates the functionality of R's match.arg() function with partial matching in Python.
 
@@ -22,14 +22,43 @@ def match_arg(value, choices):
     Returns:
     - The matched value if found in choices (partially), otherwise raises an ArgumentError.
     """
-    matches = [c for c in choices if value.lower() in c.lower()]
-    if len(matches) == 1:
-        return matches[0]
-    elif len(matches) > 1:
-        raise ValueError(f"Ambiguous value: '{value}'. Matches multiple choices: {', '.join(matches)}.")
+    if(value in choices):
+      return value
     else:
-        # raise ValueError(f"No match found for value: '{value}'.")
-        raise argparse.ArgumentTypeError(f"Invalid choice: '{value}'. Should be one of: {', '.join(choices)}.")
+      matches = [c for c in choices if value.lower() in c.lower()]
+      if len(matches) == 1:
+          return matches[0]
+      elif len(matches) > 1:
+          raise ValueError(
+              f"""'{value}' is ambiguous value for '{arg_name}'. Matches multiple choices: {', '.join(matches)}.
+              '{arg_name}' must be one of {', '.join(choices)}."""
+              )
+      else:
+          # raise ValueError(f"No match found for value: '{value}'.")
+          raise ValueError(f"'{arg_name}' must be one of {', '.join(choices)}.")
+
+def arg_match(value, choices, arg_name = 'argument'):
+    """
+    Simulates the functionality of R's rlang::arg_match() function with partial matching in Python.
+
+    Args:
+    - value: The value to match against the choices.
+    - choices: List of valid choices.
+
+    Returns:
+    - The matched value if found in choices (partially), otherwise raises an ArgumentError.
+    """
+    if(value in choices):
+      return value
+    else:
+      matches = [c for c in choices if value.lower() in c.lower()]
+      if len(matches) >= 1:
+        raise ValueError(
+            f"""'{arg_name}' must be one of: {', '.join(choices)}.
+            Did you mean {' or '.join(matches)}?"""
+        )
+      else:
+        raise ValueError(f"'{arg_name}' must be one of {', '.join(choices)}.")
 
 """## `diagnose()`
 
@@ -121,7 +150,7 @@ def remove_constant(self, quiet = True, dropna = False):
 @pf.register_dataframe_method
 def filtering_out(self, contains = None, starts_with = None, ends_with = None, axis = 1):
   axis = str(axis)
-  axis = match_arg(axis, ['1', 'columns', '0', 'index'])
+  axis = arg_match(axis, ['1', 'columns', '0', 'index'])
   self = self.copy()
 
   if((axis == '1') | (axis == 'columns')):
@@ -205,7 +234,7 @@ def tabyl(
     digits = 1,
     ):
     if(not isinstance(normalize, bool)):
-      normalize = match_arg(normalize, ['index', 'columns', 'all'])
+      normalize = arg_match(normalize, ['index', 'columns', 'all'])
 
     if self[index].dtype == "bool":
         self[index] = self[index].astype(str)
