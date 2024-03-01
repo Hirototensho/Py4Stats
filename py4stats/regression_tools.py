@@ -40,6 +40,7 @@ def tidy(
   conf_level = 0.95,
   add_one_sided = False,
   to_jp = False,
+  **kwargs
   ):
   tidied = summary_params_frame(x, alpha = 1 - conf_level, xname = name_of_term)
 
@@ -527,7 +528,7 @@ def F_test_lm(restriction, full):
 
 """
 
-def tidy_mfx(mod, at = 'overall', method = 'dydx', dummy = False, conf_level = 0.95, **kwargs):
+def tidy_mfx(x, at = 'overall', method = 'dydx', dummy = False, conf_level = 0.95, **kwargs):
   # 引数に妥当な値が指定されているかを検証
   at = bild.arg_match(at, ['overall', 'mean', 'median', 'zero'], arg_name = 'at')
 
@@ -537,7 +538,7 @@ def tidy_mfx(mod, at = 'overall', method = 'dydx', dummy = False, conf_level = 0
       arg_name = 'method'
       )
   # 限界効果の推定
-  est_margeff = mod.get_margeff(dummy = dummy, at = at, method = method, **kwargs)
+  est_margeff = x.get_margeff(dummy = dummy, at = at, method = method, **kwargs)
   tab = est_margeff.summary_frame()
 
   method_dict = {
@@ -550,6 +551,50 @@ def tidy_mfx(mod, at = 'overall', method = 'dydx', dummy = False, conf_level = 0
 
   tab = tab.rename(columns = {
             method_dict[method]:method,
+            'Std. Err.':'std_err',
+            'z':'statistics',
+            'Pr(>|z|)':'p_value',
+            'Conf. Int. Low':'conf_lower',
+            'Cont. Int. Hi.':'conf_higher'
+            })
+
+  # conf_level に 0.95 以外の値が指定されていた場合は、信頼区間を個別に推定して値を書き換えます。
+  if(conf_level != 0.95):
+    CI = est_margeff.conf_int(alpha = 1 - conf_level)
+    tab['conf_lower'] = CI[:, 0]
+    tab['conf_higher'] = CI[:, 1]
+
+  return tab
+
+def tidy_mfx(
+    x,
+    at = 'overall',
+    method = 'dydx',
+    dummy = False,
+    conf_level = 0.95,
+    **kwargs):
+  # 引数に妥当な値が指定されているかを検証
+  at = bild.arg_match(at, ['overall', 'mean', 'median', 'zero'], arg_name = 'at')
+
+  method = bild.arg_match(
+      method,
+      choices = ['coef', 'dydx', 'eyex', 'dyex', 'eydx'],
+      arg_name = 'method'
+      )
+  # 限界効果の推定
+  est_margeff = x.get_margeff(dummy = dummy, at = at, method = method, **kwargs)
+  tab = est_margeff.summary_frame()
+
+  method_dict = {
+            'coef':'coef',
+            'dydx':'dy/dx',
+            'eyex':'d(lny)/d(lnx)',
+            'dyex':'dy/d(lnx)',
+            'eydx':'d(lny)/dx',
+        }
+
+  tab = tab.rename(columns = {
+            method_dict[method]:'estimate',
             'Std. Err.':'std_err',
             'z':'statistics',
             'Pr(>|z|)':'p_value',
@@ -603,7 +648,7 @@ def compare_mfx(
         stats = stats,
         add_stars = add_stars,
         table_style = table_style,
-        estimate = method,
+        estimate = 'estimate',
         line_break = line_break,
         **kwargs
         )
@@ -647,7 +692,7 @@ def mfxplot(
 
     # グラフの作成
     coef_dot(
-        tidy_ci_high, tidy_ci_row, estimate = method, palette = palette,
+        tidy_ci_high, tidy_ci_row, estimate = 'estimate', palette = palette,
         show_Intercept = show_Intercept, show_vline = show_vline,
         ax = ax, **kwargs
         )
