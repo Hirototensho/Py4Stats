@@ -2,7 +2,7 @@
 
 ## 概要
 
-`reg.compare_ols()` 回帰分析の表を作成。：計量経済学の実証論文でよく用いられる、回帰分析の結果を縦方向に並べて比較する表を作成します。表のフォーマットについてはR言語の [`texreg::screenreg()`](https://cran.r-project.org/web/packages/texreg/index.html)や[`modelsummary::modelsummary()`](https://modelsummary.com/man/modelsummary.html)を参考にしています。
+　`sm.ols()` や `smf.ols()` で作成された回帰分析の結果から、推定結果を縦方向に並べて比較する表を作成します。表のフォーマットについてはR言語の [`texreg::screenreg()`](https://cran.r-project.org/web/packages/texreg/index.html)や[`modelsummary::modelsummary()`](https://modelsummary.com/man/modelsummary.html)を参考にしています。
 
 ```python
 compare_ols(
@@ -197,3 +197,6 @@ compare_tab4.loc['島ダミー', :] = ['No', 'No', 'Yes']
 compare_tab4 # 上記のコードと同じ結果
 ```
 
+## 参照
+
+　一般化線形モデルの限界効果を比較する場合は [`regression_tools.compare_mfx()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_ols.md)を利用してください。
