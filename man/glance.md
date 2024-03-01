@@ -47,8 +47,8 @@ penguins['female'] = np.where(penguins['sex'] == 'female', 1, 0)
 fit_logit1 = smf.logit('female ~ body_mass_g + bill_length_mm + bill_depth_mm', data = penguins).fit()
 
 print(reg.glance(fit_logit1).round(4))
-#>    prsquared   LL-Null  df_null    logLik       AIC      BIC  deviance  df_resid  nobs
-#> 0     0.5647 -236.8458      341 -103.1079  214.2157  229.555  206.2157       338   342
+#>    prsquared   LL-Null  df_null    logLik       AIC      BIC  deviance  df_resid  df_model  nobs
+#> 0     0.5647 -236.8458      341 -103.1079  214.2157  229.555  206.2157       338         3   342
 ```
 
 ## 注意点
