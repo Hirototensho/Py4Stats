@@ -41,7 +41,7 @@ compare_mfx(
     - p ≤ 0.01 `***`
     - p > 0.1 表示なし
 
-- `stats_glance`：表の下部に追加する回帰モデル全体に関する統計値の種類を表す文字列のリスト。リストの値には次の値を指定できます。
+- `stats_glance`**list of str**：表の下部に追加する当てはまりの尺度の種類を表す文字列のリスト。リストの値には次の値を指定できます。
     - `'prsquared'`：擬似決定係数
     - `'LL-Null'`： Null model の対数尤度
     - `'df_null'`, ：Null model の自由度 `= nobs - 1`
