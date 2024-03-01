@@ -34,8 +34,14 @@ from statsmodels.iolib.summary import summary_params_frame
 from scipy.stats import t
 
 # definition of tidy --------------------------------------------------
-def tidy(fit, alpha = 0.05, to_jp = False, add_one_sided = False, name_of_term = None):
-  tidied = summary_params_frame(fit, alpha = alpha, xname = name_of_term)
+def tidy(
+  x,
+  name_of_term = None,
+  conf_level = 0.95,
+  add_one_sided = False,
+  to_jp = False,
+  ):
+  tidied = summary_params_frame(x, alpha = 1 - conf_level, xname = name_of_term)
 
   tidied.index.name = 'term'
 
@@ -49,33 +55,33 @@ def tidy(fit, alpha = 0.05, to_jp = False, add_one_sided = False, name_of_term =
   tidied = tidied.rename(columns = rename_cols)
 
   if add_one_sided:
-      tidied = add_one_sided_p_value(fit, tidied)
+      tidied = add_one_sided_p_value(x, tidied)
 
   # 列名を日本語に変換
   if to_jp:
-      tidied = tidy_to_jp(tidied, alpha = alpha)
+      tidied = tidy_to_jp(tidied, conf_level = 0.95)
 
   return tidied
 
 
-def tidy_to_jp(tidied, alpha = 0.05):
-    tidied = tidied\
-       .rename(columns = {
-           'term':'説明変数',
-           'coef':'回帰係数', 'std_err':'標準誤差',
-           'statistics':'t-値', 'p_value':'p-値',
-           'conf_lower': str(int((1-alpha)*100)) + '%信頼区間下側',
-           'conf_higher': str(int((1-alpha)*100)) + '%信頼区間上側',
-           'one_sided_p_value':'片側p-値'
-           })
+def tidy_to_jp(tidied, conf_level = 0.95):
+  tidied = tidied\
+      .rename(columns = {
+          'term':'説明変数',
+          'coef':'回帰係数', 'std_err':'標準誤差',
+          'statistics':'t-値', 'p_value':'p-値',
+          'conf_lower': str(int(conf_level*100)) + '%信頼区間下側',
+          'conf_higher': str(int(conf_level*100)) + '%信頼区間上側',
+          'one_sided_p_value':'片側p-値'
+          })
 
-    tidied.index.name = '説明変数'
+  tidied.index.name = '説明変数'
 
-    return tidied
+  return tidied
 
-def add_one_sided_p_value(fit, tidied):
-        tidied['one_sided_p_value'] = t.sf(abs(tidied['statistics']), fit.df_resid)
-        return tidied
+def add_one_sided_p_value(x, tidied):
+      tidied['one_sided_p_value'] = t.sf(abs(tidied['statistics']), x.df_resid)
+      return tidied
 
 # # `tidy_heckit()` の旧バージョン-------------------------
 # def tidy_heckit(fit, name_of_term = [], alpha = 0.05, to_jp = False, add_one_sided = False):
@@ -312,7 +318,7 @@ from statsmodels.iolib.summary import summary_params_frame
 def coefplot(
     mod,
     subset = None,
-    alpha = [0.05, 0.01],
+    conf_level = [0.95, 0.99],
     palette = ['#1b69af', '#629CE7'],
     show_Intercept = False,
     show_vline = True,
@@ -322,8 +328,8 @@ def coefplot(
     '''model object から回帰係数のグラフを作成する関数'''
 
     # 回帰係数の表を抽出
-    tidy_ci_high = tidy(mod, alpha = alpha[0])
-    tidy_ci_row = tidy(mod, alpha = alpha[1])
+    tidy_ci_high = tidy(mod, conf_level = conf_level[0])
+    tidy_ci_row = tidy(mod, conf_level = conf_level[1])
 
     # subset が指定されていれば、回帰係数の部分集合を抽出する
     if subset is not None:
@@ -521,7 +527,7 @@ def F_test_lm(restriction, full):
 
 """
 
-def tidy_mfx(mod, at = 'overall', method = 'dydx', dummy = False, alpha = 0.05, **kwargs):
+def tidy_mfx(mod, at = 'overall', method = 'dydx', dummy = False, conf_level = 0.95, **kwargs):
   # 引数に妥当な値が指定されているかを検証
   at = bild.arg_match(at, ['overall', 'mean', 'median', 'zero'], arg_name = 'at')
 
@@ -551,9 +557,9 @@ def tidy_mfx(mod, at = 'overall', method = 'dydx', dummy = False, alpha = 0.05, 
             'Cont. Int. Hi.':'conf_higher'
             })
 
-  # alpha に 0.05 以外の値が指定されていた場合は、信頼区間を個別に推定して値を書き換えます。
-  if(alpha != 0.05):
-    CI = est_margeff.conf_int(alpha = alpha)
+  # conf_level に 0.95 以外の値が指定されていた場合は、信頼区間を個別に推定して値を書き換えます。
+  if(conf_level != 0.95):
+    CI = est_margeff.conf_int(alpha = 1 - conf_level)
     tab['conf_lower'] = CI[:, 0]
     tab['conf_higher'] = CI[:, 1]
 
@@ -615,7 +621,7 @@ def compare_mfx(
 def mfxplot(
     mod,
     subset = None,
-    alpha = [0.05, 0.01],
+    conf_level = [0.95, 0.99],
     at = 'overall',
     method = 'dydx',
     dummy = False,
@@ -627,8 +633,12 @@ def mfxplot(
     ):
     '''model object から回帰係数のグラフを作成する関数'''
     # 回帰係数の表を抽出
-    tidy_ci_high = tidy_mfx(mod, at = at, method = method, dummy = dummy, alpha = alpha[0])
-    tidy_ci_row =  tidy_mfx(mod, at = at, method = method, dummy = dummy, alpha = alpha[1])
+    tidy_ci_high = tidy_mfx(
+        mod, at = at, method = method, dummy = dummy, conf_level = conf_level[0]
+        )
+    tidy_ci_row =  tidy_mfx(
+        mod, at = at, method = method, dummy = dummy, conf_level = conf_level[1]
+        )
 
     # subset が指定されていれば、回帰係数の部分集合を抽出する
     if subset is not None:
