@@ -24,6 +24,7 @@ compare_mfx(
     subset = None,
     stats = 'std_err',
     add_stars = True,
+    stats_glance = ['prsquared', 'nobs', 'df_model'],
     at = 'overall',
     method = 'dydx',
     dummy = False,
@@ -53,7 +54,7 @@ compare_mfx(
     - p ≤ 0.01 `***`
     - p > 0.1 表示なし
 
-- `stats_glance`：表の下部に追加する回帰モデル全体に関する統計値の種類を表す文字列のリスト（`compare_ols()` のみ）。初期設定は `['rsquared_adj', 'nobs', 'df']`。リストの値には次の値を指定できます。
+- `stats_glance`：表の下部に追加する回帰モデル全体に関する統計値の種類を表す文字列のリスト。リストの値には次の値を指定できます。
     - `'rsquared'`：決定係数
     - `'rsquared_adj'`：自由度調整済み決定係数
     - `'nobs'`：サインプルサイズ
