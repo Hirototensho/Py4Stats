@@ -48,7 +48,7 @@ compare_mfx(
     - `'logLik'` ：モデルの対数尤度
     - `'AIC'`：赤池情報量基準
     - `'BIC'`：ベイズ情報量基準 
-    - 'deviance'：モデルの逸脱度  `-2logLik`
+    - `'deviance'`：モデルの逸脱度  `= -2logLik`
     - `'nobs'`：サインプルサイズ
     - `'df'`：モデルの自由度（説明変数の数）
     - `'df_resid'`：残差の自由度 
