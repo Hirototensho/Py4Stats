@@ -35,11 +35,11 @@ def match_arg(value, choices, arg_name = 'argument'):
       elif len(matches) > 1:
           raise ValueError(
               f"""'{value}' is ambiguous value for '{arg_name}'. Matches multiple choices: {', '.join(matches)}.
-              '{arg_name}' must be one of {', '.join(choices)}."""
+              '{arg_name}' must be one of {oxford_comma_or(choices)}."""
               )
       else:
           # raise ValueError(f"No match found for value: '{value}'.")
-          raise ValueError(f"'{arg_name}' must be one of {', '.join(choices)}.")
+          raise ValueError(f"'{arg_name}' must be one of {oxford_comma_or(choices)}.")
 
 def arg_match(value, choices, arg_name = 'argument'):
     """
@@ -58,11 +58,11 @@ def arg_match(value, choices, arg_name = 'argument'):
       matches = [c for c in choices if value.lower() in c.lower()]
       if len(matches) >= 1:
         raise ValueError(
-            f"""'{arg_name}' must be one of: {', '.join(choices)}.
+            f"""'{arg_name}' must be one of {oxford_comma_or(choices)}.
             Did you mean {' or '.join(matches)}?"""
         )
       else:
-        raise ValueError(f"'{arg_name}' must be one of {', '.join(choices)}.")
+        raise ValueError(f"'{arg_name}' must be one of {oxford_comma_or(choices)}.")
 
 """## 数値などのフォーマット"""
 
@@ -88,3 +88,29 @@ def pad_zero_row(x, digits = 2):
     return s
 
 pad_zero = np.vectorize(pad_zero_row, excluded = 'digits')
+
+def add_big_mark_row(s): return  f'{s:,}'
+add_big_mark = np.vectorize(add_big_mark_row)
+
+"""　文字列のリストを与えると、英文の並列の形に変換する関数です。表記法については[Wikipedia Serial comma](https://en.wikipedia.org/wiki/Serial_comma)を参照し、コードについては[stack overflow:Grammatical List Join in Python [duplicate]](https://stackoverflow.com/questions/19838976/grammatical-list-join-in-python)を参照しました。
+
+```python
+choices = ['apple', 'orange', 'grape']
+oxford_comma_or(choices)
+#> 'apple, orange or grape'
+```
+"""
+
+def oxford_comma_and(lst):
+    if not lst:
+        return ""
+    elif len(lst) == 1:
+        return str(lst[0])
+    return "{} and {}".format(", ".join(lst[:-1]), lst[-1])
+
+def oxford_comma_or(lst):
+    if not lst:
+        return ""
+    elif len(lst) == 1:
+        return str(lst[0])
+    return "{} or {}".format(", ".join(lst[:-1]), lst[-1])
