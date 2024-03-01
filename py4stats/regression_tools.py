@@ -26,56 +26,7 @@ import statsmodels.formula.api as smf
 
 import sys
 
-import argparse
-
-def match_arg(value, choices, arg_name = 'argument'):
-    """
-    Simulates the functionality of R's match.arg() function with partial matching in Python.
-
-    Args:
-    - value: The value to match against the choices (partially).
-    - choices: List of valid choices.
-
-    Returns:
-    - The matched value if found in choices (partially), otherwise raises an ArgumentError.
-    """
-    if(value in choices):
-      return value
-    else:
-      matches = [c for c in choices if value.lower() in c.lower()]
-      if len(matches) == 1:
-          return matches[0]
-      elif len(matches) > 1:
-          raise ValueError(
-              f"""'{value}' is ambiguous value for '{arg_name}'. Matches multiple choices: {', '.join(matches)}.
-              '{arg_name}' must be one of {', '.join(choices)}."""
-              )
-      else:
-          # raise ValueError(f"No match found for value: '{value}'.")
-          raise ValueError(f"'{arg_name}' must be one of {', '.join(choices)}.")
-
-def arg_match(value, choices, arg_name = 'argument'):
-    """
-    Simulates the functionality of R's rlang::arg_match() function with partial matching in Python.
-
-    Args:
-    - value: The value to match against the choices.
-    - choices: List of valid choices.
-
-    Returns:
-    - The matched value if found in choices (partially), otherwise raises an ArgumentError.
-    """
-    if(value in choices):
-      return value
-    else:
-      matches = [c for c in choices if value.lower() in c.lower()]
-      if len(matches) >= 1:
-        raise ValueError(
-            f"""'{arg_name}' must be one of: {', '.join(choices)}.
-            Did you mean {' or '.join(matches)}?"""
-        )
-      else:
-        raise ValueError(f"'{arg_name}' must be one of {', '.join(choices)}.")
+from py4stats import bilding_block as bild # py4stats のプログラミングを補助する関数群
 
 """## 回帰分析の結果をデータフレームに変換する関数"""
 
@@ -250,7 +201,7 @@ def compare_ols(
     if len(stats_glance) > 0: # もし stats_glance が空のリストなら統計値を追加しない
     # 引数に妥当な値が指定されているかを検証
         choices = ['rsquared', 'rsquared_adj', 'nobs', 'df', 'sigma', 'F_values', 'p_values', 'AIC', 'BIC']
-        stats_glance = [arg_match(stats, choices) for stats in stats_glance]
+        stats_glance = [bild.arg_match(stats, choices) for stats in stats_glance]
 
         res2 = pd.concat([glance(mod) for mod in list_models])\
             .loc[:, stats_glance].round(digits)\
@@ -296,9 +247,9 @@ def gazer(
     ):
 
     # 引数に妥当な値が指定されているかを検証
-    stats = arg_match(stats, ['std_err', 'statistics', 'p_value', 'conf_lower', 'conf_higher'])
+    stats = bild.arg_match(stats, ['std_err', 'statistics', 'p_value', 'conf_lower', 'conf_higher'])
     # こちらは部分一致可としています。
-    table_style = match_arg(table_style, ['two_line', 'one_line'])
+    table_style = bild.match_arg(table_style, ['two_line', 'one_line'])
 
     # --------------------
     res = res_tidy.copy()
@@ -569,8 +520,8 @@ def F_test_lm(restriction, full):
 
 def tidy_mfx(mod, at = 'overall', method = 'dydx', dummy = False, alpha = 0.05, **kwargs):
   # 引数に妥当な値が指定されているかを検証
-  at = arg_match(at, ['overall', 'mean', 'median', 'zero'])
-  method = arg_match(method, ['coef', 'dydx', 'eyex', 'dyex', 'eydx'])
+  at = bild.arg_match(at, ['overall', 'mean', 'median', 'zero'])
+  method = bild.arg_match(method, ['coef', 'dydx', 'eyex', 'dyex', 'eydx'])
 
   est_margeff = mod.get_margeff(dummy = dummy, at = at, method = method, **kwargs)
   tab = est_margeff.summary_frame()
