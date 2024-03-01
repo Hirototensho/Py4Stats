@@ -2,7 +2,7 @@
 
 ## 概要
 
-　R言語の [`bloom::tidy()`](https://broom.tidymodels.org/reference/tidy.lm.html) をオマージュした関数で、[`sm.ols()`](https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.OLS.html) や [`sm.glm()`](https://www.statsmodels.org/devel/generated/statsmodels.genmod.generalized_linear_model.GLM.html) の推定結果をpands.DataFrame に変換します。`regression_tools.tidy_mfx()` は回帰係数の代わりに限界効果の推定値を表示します。
+　R言語の [`broom::tidy()`](https://broom.tidymodels.org/reference/tidy.lm.html) をオマージュした関数で、[`sm.ols()`](https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.OLS.html) や [`sm.glm()`](https://www.statsmodels.org/devel/generated/statsmodels.genmod.generalized_linear_model.GLM.html) の推定結果をpands.DataFrame に変換します。`regression_tools.tidy_mfx()` は回帰係数の代わりに限界効果の推定値を表示します。
 
 ```python
 tidy(
@@ -25,7 +25,7 @@ tidy_mfx(
 ## 引数 Argument
 
 - `x`（必須）</br>
-　[`sm.ols()`](https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.OLS.html) で作成された `RegressionResultsWrapper` オブジェクト。
+　[`sm.ols()`](https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.OLS.html)もしくは[`sm.glm()`](https://www.statsmodels.org/devel/generated/statsmodels.genmod.generalized_linear_model.GLM.html) で作成された分析結果のオブジェクト。
 - `name_of_term`：**list of str**</br>
 　`term` 列（index） として表示する説明変数の名前のリスト。指定しない場合（初期設定）、モデルの推定に使用された説明変数の名前がそのまま表示されます。
 - `conf_level`：**float**</br>
@@ -109,4 +109,4 @@ print(reg.tidy_mfx(fit_logit1).round(4))
 
 ## 注意点
 
-　参考にしたR言語の [`bloom::tidy()`](https://broom.tidymodels.org/reference/tidy.lm.html) は様々な種類のモデルに対応したジェネリック関数として定義されていますが、`regression_tools.tidy()` と `regression_tools.tidy_mfx()` はジェネリック関数としては実装できていないため、[`sm.ols()`](https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.OLS.html) と [`sm.glm()`](https://www.statsmodels.org/devel/generated/statsmodels.genmod.generalized_linear_model.GLM.html) で推定されたモデルのみでしか正しく機能しない可能性があります。
+　参考にしたR言語の [`broom::tidy()`](https://broom.tidymodels.org/reference/tidy.lm.html) は様々な種類のモデルに対応したジェネリック関数として定義されていますが、`regression_tools.tidy()` と `regression_tools.tidy_mfx()` はジェネリック関数としては実装できていないため、[`sm.ols()`](https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.OLS.html) と [`sm.glm()`](https://www.statsmodels.org/devel/generated/statsmodels.genmod.generalized_linear_model.GLM.html) で推定されたモデルのみでしか正しく機能しない可能性があります。
