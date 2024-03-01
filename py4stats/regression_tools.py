@@ -77,30 +77,30 @@ def add_one_sided_p_value(fit, tidied):
         tidied['one_sided_p_value'] = t.sf(abs(tidied['statistics']), fit.df_resid)
         return tidied
 
-# `tidy_heckit()` の旧バージョン-------------------------
-def tidy_heckit(fit, name_of_term = [], alpha = 0.05, to_jp = False, add_one_sided = False):
-    tidied = pd.DataFrame({
-        'coef':fit.params,
-        'std_err':fit.bse,
-        'statistics':fit.tvalues,
-        'p_value':fit.pvalues,
-        'conf_lower':fit.conf_int(alpha = alpha)[:, 0],
-        'conf_higher':fit.conf_int(alpha = alpha)[:, 1]
-        }
-    )
+# # `tidy_heckit()` の旧バージョン-------------------------
+# def tidy_heckit(fit, name_of_term = [], alpha = 0.05, to_jp = False, add_one_sided = False):
+#     tidied = pd.DataFrame({
+#         'coef':fit.params,
+#         'std_err':fit.bse,
+#         'statistics':fit.tvalues,
+#         'p_value':fit.pvalues,
+#         'conf_lower':fit.conf_int(alpha = alpha)[:, 0],
+#         'conf_higher':fit.conf_int(alpha = alpha)[:, 1]
+#         }
+#     )
 
-    if add_one_sided:
-        tidied = add_one_sided_p_value(fit, tidied)
+#     if add_one_sided:
+#         tidied = add_one_sided_p_value(fit, tidied)
 
-    if(len(name_of_term) > 0):
-        tidied['term'] = name_of_term
-        tidied = tidied.set_index('term')
+#     if(len(name_of_term) > 0):
+#         tidied['term'] = name_of_term
+#         tidied = tidied.set_index('term')
 
-    # 列名を日本語に変換
-    if to_jp:
-        tidied = tidy_to_jp(tidied, alpha = alpha)
+#     # 列名を日本語に変換
+#     if to_jp:
+#         tidied = tidy_to_jp(tidied, alpha = alpha)
 
-    return  tidied
+#     return  tidied
 
 def glance(fit_lm):
     res = pd.DataFrame({
@@ -264,7 +264,7 @@ def gazer(
     res['stars'] = p_stars(res['p_value'])
 
     res[[estimate, stats]] = res[[estimate, stats]].round(digits).astype(str)\
-        .apply(, digits = digits)
+        .apply(bild.pad_zero, digits = digits)
 
     if (stats == 'p_value') & style_p:
         res['p_val'] = res['p_value']
