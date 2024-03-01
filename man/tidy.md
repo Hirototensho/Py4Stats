@@ -21,20 +21,37 @@ tidy(
 - `conf_level`：**float**</br>
 　信頼区間の計算に用いる信頼係数。
 
+- `at`：限界効果の集計方法（`tidy_mfx()` のみ）。内部で使用している[`statsmodels.discrete.discrete_model.DiscreteResults.get_margeff()`](https://www.statsmodels.org/devel/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドに引数 `at` として渡されます。`method = 'coef'` を指定した場合、この引数は無視されます。
+    - `'overall'`：各観測値の限界効果の平均値を表示（初期設定）
+    - `'mean'`：各説明変数の平均値における限界効果を表示
+    - `'median'`：各説明変数の中央値における限界効果を表示
+    - `'zero'`：各説明変数の値がゼロであるときの限界効果を表示
+
+- `method`：推定する限界効果の種類（`tidy_mfx()` のみ）。内部で使用している[`statsmodels.discrete.discrete_model.DiscreteResults.get_margeff()`](https://www.statsmodels.org/devel/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドに引数 `method` として渡されます。ただし、`method = 'coef'` を指定した場合には限界効果を推定せずに回帰係数をそのまま表示します。
+    - `'coef'`：回帰係数の推定値を表示
+    - `'dydx'`：限界効果の値を変換なしでそのまま表。（初期設定）
+    - `'eyex'`：弾力性 d(lny)/d(lnx) の推定値を表示
+    - `'dyex'`：準弾力性 dy /d(lnx) の推定値を表示
+    - `'eydx'`：準弾力性 d(lny)/dx の推定値を表示
+
+- `dummy`：ダミー変数の限界効果の推定方法（`tidy_mfx()` のみ）。もし False （初期設定）であれば、ダミー変数を連続な数値変数として扱います。もし、True であればダミー変数が0から1へと変化したときの予測値の変化を推定します。内部で使用している[`statsmodels.discrete.discrete_model.DiscreteResults.get_margeff()`](https://www.statsmodels.org/devel/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドに引数 `dummy` として渡されます。
+
 ## 返り値 Value
 
 　次の列を含む pands.DataFrame が出力されます。
 
 - `term`（index）</br>
 　説明変数の名称
-- `coef`</br>
+- `coef`（`tidy()`のみ）</br>
 　回帰係数の推定値
+- `estimate`（`tidy_mfx()`のみ）</br>
+　限界効果の推定値
 - `std_err`</br>
 　回帰係数の標準誤差
 - `statistics`</br>
-  β = 0 を帰無仮説とする仮説検定の標本検定統計量。`x` に代入されたモデルが `sm.ols()` によって作成されたものであれば $t$ 統計量が表示され、`sm.glm()` によって作成されたものであれば $z$ 統計量が表示されます。
+  推定値 = 0 を帰無仮説とする仮説検定の標本検定統計量。`x` に代入されたモデルが `sm.ols()` によって作成されたものであれば $t$ 統計量が表示され、`sm.glm()` によって作成されたものであれば $z$ 統計量が表示されます。
 - `p_value`</br>
-  β = 0 を帰無仮説とする両側検定の標本$p$-値
+  推定値 = 0 を帰無仮説とする両側検定の標本$p$-値
 - conf_lower</br>
 　信頼区間の下側信頼限界
 - conf_higher</br>
@@ -64,3 +81,6 @@ print(reg.tidy(fit1).round(4))
 #> species[T.Gentoo]     578.6292   75.3623      7.6780   0.0000    430.3909     726.8674
 #> bill_length_mm         91.4358    6.8871     13.2764   0.0000     77.8888     104.9828
 ```
+
+
+
