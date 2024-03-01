@@ -2,7 +2,7 @@
 
 ## 概要
 
-　R言語の [bloom::tidy()](https://broom.tidymodels.org/reference/tidy.lm.html) をオマージュした関数で、[`sm.ols()`](https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.OLS.html) や [`sm.glm()`](https://www.statsmodels.org/devel/generated/statsmodels.genmod.generalized_linear_model.GLM.html) の推定結果をpands.DataFrame に変換します。`regression_tools.tidy_mfx()` は回帰係数の代わりに限界効果の推定値を表示します。
+　R言語の [`bloom::tidy()`](https://broom.tidymodels.org/reference/tidy.lm.html) をオマージュした関数で、[`sm.ols()`](https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.OLS.html) や [`sm.glm()`](https://www.statsmodels.org/devel/generated/statsmodels.genmod.generalized_linear_model.GLM.html) の推定結果をpands.DataFrame に変換します。`regression_tools.tidy_mfx()` は回帰係数の代わりに限界効果の推定値を表示します。
 
 ```python
 tidy(
@@ -106,3 +106,7 @@ print(reg.tidy_mfx(fit_logit1).round(4))
 #> bill_length_mm   -0.0053   0.0036     -1.4628   0.1435     -0.0123       0.0018
 #> bill_depth_mm    -0.1490   0.0051    -29.1681   0.0000     -0.1591      -0.1390
 ```
+
+## 注意点
+
+　参考にしたR言語の [`bloom::tidy()`](https://broom.tidymodels.org/reference/tidy.lm.html) は様々な種類のモデルに対応したジェネリック関数として定義されていますが、`regression_tools.tidy()` と `regression_tools.tidy_mfx()` はジェネリック関数としては実装できていないため、[`sm.ols()`](https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.OLS.html) と [`sm.glm()`](https://www.statsmodels.org/devel/generated/statsmodels.genmod.generalized_linear_model.GLM.html) で推定されたモデルのみを対象としています。
