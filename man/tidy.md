@@ -1,14 +1,24 @@
-# `tidy()`
+# `regression_tools.tidy(), regression_tools.tidy_mfx()`
 
 ## 概要
 
-　R言語の [bloom::tidy()](https://broom.tidymodels.org/reference/tidy.lm.html) をオマージュした関数で、[`sm.ols()`](https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.OLS.html) や [`sm.glm()`](https://www.statsmodels.org/devel/generated/statsmodels.genmod.generalized_linear_model.GLM.html) の結果をpands.DataFrame に変換します。
+　R言語の [bloom::tidy()](https://broom.tidymodels.org/reference/tidy.lm.html) をオマージュした関数で、[`sm.ols()`](https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.OLS.html) や [`sm.glm()`](https://www.statsmodels.org/devel/generated/statsmodels.genmod.generalized_linear_model.GLM.html) の推定結果をpands.DataFrame に変換します。`regression_tools.tidy_mfx()` は回帰係数の代わりに限界効果の推定値を表示します。
 
 ```python
 tidy(
   x, 
   name_of_term = None,
-  conf_level = 0.95
+  conf_level = 0.95,
+  **kwargs
+  )
+
+tidy_mfx(
+  x, 
+  at = 'overall', 
+  method = 'dydx', 
+  dummy = False, 
+  conf_level = 0.95, 
+  **kwargs
   )
 ```
 
@@ -83,4 +93,16 @@ print(reg.tidy(fit1).round(4))
 ```
 
 
+```python
+penguins['female'] = np.where(penguins['sex'] == 'female', 1, 0)
 
+# ロジスティック回帰の実行
+fit_logit1 = smf.logit('female ~ body_mass_g + bill_length_mm + bill_depth_mm', data = penguins).fit()
+
+pd.set_option('display.expand_frame_repr', False)
+print(reg.tidy_mfx(fit_logit1).round(4))
+#>                 estimate  std_err  statistics  p_value  conf_lower  conf_higher
+#> body_mass_g      -0.0004   0.0000    -17.6561   0.0000     -0.0004      -0.0003
+#> bill_length_mm   -0.0053   0.0036     -1.4628   0.1435     -0.0123       0.0018
+#> bill_depth_mm    -0.1490   0.0051    -29.1681   0.0000     -0.1591      -0.1390
+```
