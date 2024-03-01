@@ -66,6 +66,10 @@ def arg_match(value, choices, arg_name = 'argument'):
 
 """## 数値などのフォーマット"""
 
+import pandas as pd
+import numpy as np
+import scipy as sp
+
 # 有意性を表すアスタリスクを作成する関数
 def p_stars_row(p_value):
     stars = np.where(p_value <= 0.1, ' *', '')
