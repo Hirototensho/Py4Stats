@@ -1,4 +1,4 @@
-# 回帰分析の比較：`regression_tools.compare_ols(), regression_tools.compare_mfx()`
+# 回帰分析の比較：`regression_tools.compare_ols()`
 
 ## 概要
 
