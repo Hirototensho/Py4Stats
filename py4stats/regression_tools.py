@@ -109,29 +109,41 @@ def add_one_sided_p_value(x, tidied):
 
 #     return  tidied
 
-def glance(fit_lm):
-    res = pd.DataFrame({
-        'rsquared':fit_lm.rsquared,
-        'rsquared_adj':fit_lm.rsquared_adj,
-        'nobs':int(fit_lm.nobs),
-        'df':int(fit_lm.df_model),
-        'sigma':np.sqrt(fit_lm.mse_resid),
-        'F_values':fit_lm.fvalue,
-        'p_values':fit_lm.f_pvalue,
-        'AIC':fit_lm.aic,
-        'BIC':fit_lm.bic
-    }, index = [0])
-    return res
+from statsmodels.regression.linear_model import RegressionResultsWrapper
+from statsmodels.discrete.discrete_model import BinaryResultsWrapper
+from functools import singledispatch
+@singledispatch
+def glance(x):
+    return x
 
-def glance_jp(fit_lm):
+@glance.register(BinaryResultsWrapper)
+def _(x):
+  res = pd.DataFrame({
+      'prsquared':x.prsquared,
+      'LL-Null':x.llnull ,
+      'df_null':x.nobs - 1,
+      'logLik':x.llf,
+      'AIC':x.aic,
+      'BIC':x.bic,
+      'deviance':-2*x.llf,
+      'nobs':x.nobs,
+      'df': int(x.df_model),
+      'df_resid':int(x.df_resid)
+  }, index = [0])
+  return res
+
+@glance.register(RegressionResultsWrapper)
+def _(x):
     res = pd.DataFrame({
-        'サンプルサイズ':int(fit_lm.nobs),
-        'モデルの自由度':int(fit_lm.df_model),
-        '自由度調整済み決定係数':fit_lm.rsquared_adj,
-        'モデルMSE':fit_lm.mse_model,
-        '残差MSE':fit_lm.mse_resid,
-        'F値':fit_lm.fvalue,
-        'F検定のp-値':fit_lm.f_pvalue
+        'rsquared':x.rsquared,
+        'rsquared_adj':x.rsquared_adj,
+        'nobs':int(x.nobs),
+        'df':int(x.df_model),
+        'sigma':np.sqrt(x.mse_resid),
+        'F_values':x.fvalue,
+        'p_values':x.f_pvalue,
+        'AIC':x.aic,
+        'BIC':x.bic
     }, index = [0])
     return res
 
@@ -251,7 +263,8 @@ def lineup_models(tidy_list, model_name = None, subset = None, **kwargs):
 def gazer(
     res_tidy, estimate = 'coef', stats = 'std_err',
     digits = 4, add_stars = True, style_p = False, p_min = 0.01,
-    table_style = 'two_line', line_break = '\n'
+    table_style = 'two_line', line_break = '\n',
+    **kwargs
     ):
 
     # 引数に妥当な値が指定されているかを検証
@@ -610,7 +623,6 @@ def tidy_mfx(
 
   return tab
 
-
 # 複数のロジットモデルを比較する表を作成する関数
 def compare_mfx(
     list_models,
@@ -618,6 +630,7 @@ def compare_mfx(
     subset = None,
     stats = 'std_err',
     add_stars = True,
+    stats_glance = ['prsquared', 'nobs', 'df'],
     at = 'overall',
     method = 'dydx',
     dummy = False,
@@ -654,9 +667,21 @@ def compare_mfx(
         )
 
     # 表の下部にモデルの当てはまりに関する統計値を追加
-    res.loc['prsquared', :] = [mod.prsquared.round(digits) for mod in list_models]
-    res.loc['nobs', :] = [mod.nobs for mod in list_models]
-    res.loc['df', :] = [int(mod.df_model) for mod in list_models]
+    if len(stats_glance) > 0: # もし stats_glance が空のリストなら統計値を追加しない
+    # 引数に妥当な値が指定されているかを検証
+        choices = [
+            'prsquared', 'LL-Null', 'df_null', 'logLik', 'AIC', 'BIC',
+            'deviance','nobs', 'df', 'df_resid'
+            ]
+        stats_glance = [bild.arg_match(stats, choices, arg_name = 'stats_glance') for stats in stats_glance]
+
+        res2 = pd.concat([glance(mod) for mod in list_models])\
+            .loc[:, stats_glance].round(digits)\
+            .apply(bild.pad_zero, digits = digits).T
+
+        res2.columns = model_name
+        res = pd.concat([res, res2])
+
 
     res.index.name = 'term'
 
