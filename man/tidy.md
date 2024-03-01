@@ -2,7 +2,7 @@
 
 ## 概要
 
-　R言語の [`broom::tidy()`](https://broom.tidymodels.org/reference/tidy.lm.html) をオマージュした関数で、[`sm.ols()`](https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.OLS.html) や [`sm.glm()`](https://www.statsmodels.org/devel/generated/statsmodels.genmod.generalized_linear_model.GLM.html) の推定結果をpands.DataFrame に変換します。`regression_tools.tidy_mfx()` は回帰係数の代わりに限界効果の推定値を表示します。
+　R言語の [`broom::tidy()`](https://broom.tidymodels.org/reference/tidy.lm.html) をオマージュした関数で、[`sm.ols()`](https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.OLS.html) や [`sm.glm()`](https://www.statsmodels.org/devel/generated/statsmodels.genmod.generalized_linear_model.GLM.html) の推定結果を pands.DataFrame に変換します。`regression_tools.tidy()` は回帰係数と関連する検定結果を表示し、 `regression_tools.tidy_mfx()` は限界効果と関連する検定結果を表示します。
 
 ```python
 tidy(
