@@ -35,28 +35,27 @@ from scipy.stats import t
 
 # definition of tidy --------------------------------------------------
 def tidy(fit, alpha = 0.05, to_jp = False, add_one_sided = False, name_of_term = None):
+  tidied = summary_params_frame(fit, alpha = alpha, xname = name_of_term)
 
-    tidied = summary_params_frame(fit, alpha = alpha, xname = name_of_term)
+  tidied.index.name = 'term'
 
-    tidied.index.name = 'term'
+  rename_cols = {
+      'std err':'std_err',
+      't':'statistics', 'P>|t|': 'p_value',
+      'Conf. Int. Low': 'conf_lower',
+      'Conf. Int. Upp.': 'conf_higher'
+  }
 
-    rename_cols = {
-        'std err':'std_err',
-        't':'statistics', 'P>|t|': 'p_value',
-        'Conf. Int. Low': 'conf_lower',
-        'Conf. Int. Upp.': 'conf_higher'
-    }
+  tidied = tidied.rename(columns = rename_cols)
 
-    tidied = tidied.rename(columns = rename_cols)
+  if add_one_sided:
+      tidied = add_one_sided_p_value(fit, tidied)
 
-    if add_one_sided:
-        tidied = add_one_sided_p_value(fit, tidied)
+  # 列名を日本語に変換
+  if to_jp:
+      tidied = tidy_to_jp(tidied, alpha = alpha)
 
-    # 列名を日本語に変換
-    if to_jp:
-        tidied = tidy_to_jp(tidied, alpha = alpha)
-
-    return tidied
+  return tidied
 
 
 def tidy_to_jp(tidied, alpha = 0.05):
@@ -182,6 +181,8 @@ def compare_ols(
     line_break = '\n',
     **kwargs
     ):
+    assert isinstance(list_models, list), 'list_models is must be a list of models.'
+
     tidy_list = [tidy(mod) for mod in list_models]
 
     # モデル名が指定されていない場合、連番を作成する
@@ -201,11 +202,11 @@ def compare_ols(
     if len(stats_glance) > 0: # もし stats_glance が空のリストなら統計値を追加しない
     # 引数に妥当な値が指定されているかを検証
         choices = ['rsquared', 'rsquared_adj', 'nobs', 'df', 'sigma', 'F_values', 'p_values', 'AIC', 'BIC']
-        stats_glance = [bild.arg_match(stats, choices) for stats in stats_glance]
+        stats_glance = [bild.arg_match(stats, choices, arg_name = 'stats_glance') for stats in stats_glance]
 
         res2 = pd.concat([glance(mod) for mod in list_models])\
             .loc[:, stats_glance].round(digits)\
-            .apply(pad_zero, digits = digits).T
+            .apply(bild.pad_zero, digits = digits).T
 
         res2.columns = model_name
         res = pd.concat([res, res2])
@@ -247,20 +248,23 @@ def gazer(
     ):
 
     # 引数に妥当な値が指定されているかを検証
-    stats = bild.arg_match(stats, ['std_err', 'statistics', 'p_value', 'conf_lower', 'conf_higher'])
+    stats = bild.arg_match(
+        stats, ['std_err', 'statistics', 'p_value'],
+        arg_name = 'stats'
+        )
     # こちらは部分一致可としています。
-    table_style = bild.match_arg(table_style, ['two_line', 'one_line'])
+    table_style = bild.match_arg(
+        table_style, ['two_line', 'one_line'],
+        arg_name = 'table_style'
+        )
 
     # --------------------
     res = res_tidy.copy()
+
     res['stars'] = p_stars(res['p_value'])
 
     res[[estimate, stats]] = res[[estimate, stats]].round(digits).astype(str)\
-        .apply(pad_zero, digits = digits)
-
-    res[estimate] = pad_zero(res[estimate], digits)
-    res[stats] = pad_zero(res[stats], digits)
-
+        .apply(, digits = digits)
 
     if (stats == 'p_value') & style_p:
         res['p_val'] = res['p_value']
@@ -291,45 +295,9 @@ def gazer(
 
     return res[['value']]
 
-"""### `gazer()` 関数の多項ロジットモデルバージョン"""
+"""### `gazer()` 関数の多項ロジットモデルバージョン
 
-def gazer_MNlogit(MNlogit_margeff, endog_categories = None, **kwargs):
-
-    if ~pd.Series(MNlogit_margeff.columns).isin(['endog']).any():
-        MNlogit_margeff = MNlogit_margeff.reset_index(level = 'endog')
-
-    if endog_categories is None:
-        endog_categories = MNlogit_margeff['endog'].unique()
-
-    # gazer 関数で扱えるように列名を修正します。
-    MNlogit_margeff = MNlogit_margeff.rename(columns = {
-            'Std. Err.':'std_err',
-            'z':'statistics',
-            'Pr(>|z|)':'p_value',
-            'Conf. Int. Low':'conf_lower',
-            'Cont. Int. Hi.':'conf_higher'
-            }
-    )
-
-    list_gazer = list(map(
-        lambda categ : gazer(
-        MNlogit_margeff.query('endog == @categ'),
-        estimate = 'dy/dx',
-        **kwargs
-        ),
-        endog_categories
-        ))
-
-    endog_categories2 = [i.split('[')[1].split(']')[0] for i in endog_categories]
-
-    # # flm_total.keys() で回帰式を作成したときに設定したモデル名を抽出し、列名にします。
-    res = pd.concat(dict(zip(list(endog_categories2), list_gazer)), axis = 'columns')\
-        .droplevel(1, axis = 'columns') # 列名が2重に設定されるので、これを削除して1つにします。
-
-    return res
-
-"""## 回帰係数の視覚化関数
-
+## 回帰係数の視覚化関数
 """
 
 # 利用するライブラリー
@@ -417,6 +385,41 @@ def coef_dot(
     )
     ax.set_ylabel('');
 
+def gazer_MNlogit(MNlogit_margeff, endog_categories = None, **kwargs):
+
+    if ~pd.Series(MNlogit_margeff.columns).isin(['endog']).any():
+        MNlogit_margeff = MNlogit_margeff.reset_index(level = 'endog')
+
+    if endog_categories is None:
+        endog_categories = MNlogit_margeff['endog'].unique()
+
+    # gazer 関数で扱えるように列名を修正します。
+    MNlogit_margeff = MNlogit_margeff.rename(columns = {
+            'Std. Err.':'std_err',
+            'z':'statistics',
+            'Pr(>|z|)':'p_value',
+            'Conf. Int. Low':'conf_lower',
+            'Cont. Int. Hi.':'conf_higher'
+            }
+    )
+
+    list_gazer = list(map(
+        lambda categ : gazer(
+        MNlogit_margeff.query('endog == @categ'),
+        estimate = 'dy/dx',
+        **kwargs
+        ),
+        endog_categories
+        ))
+
+    endog_categories2 = [i.split('[')[1].split(']')[0] for i in endog_categories]
+
+    # # flm_total.keys() で回帰式を作成したときに設定したモデル名を抽出し、列名にします。
+    res = pd.concat(dict(zip(list(endog_categories2), list_gazer)), axis = 'columns')\
+        .droplevel(1, axis = 'columns') # 列名が2重に設定されるので、これを削除して1つにします。
+
+    return res
+
 """## 回帰係数の線型結合に関するに関するt検定"""
 
 def lincomb(model, const_mat, beta_H0 = 0, alpha = 0.05, stars = False, pct_change = False):
@@ -450,9 +453,9 @@ def lincomb(model, const_mat, beta_H0 = 0, alpha = 0.05, stars = False, pct_chan
     }, index = range(len(estimate)))
 
     if pct_change:
-        res['estimate'] = est_pct_change(res['estimate'])
-        res['conf_lower'] = est_pct_change(res['conf_lower'])
-        res['conf_higher'] = est_pct_change(res['conf_higher'])
+        res['estimate'] = log_to_pct(res['estimate'])
+        res['conf_lower'] = log_to_pct(res['conf_lower'])
+        res['conf_higher'] = log_to_pct(res['conf_higher'])
 
     if stars:
         res['stars'] = p_stars(res['p_value'])
@@ -482,7 +485,7 @@ def lincomb_test(model, const_mat, beta_H0 = 0, alpha = 0.05, stars = False, pct
                 stars = stars, pct_change = pct_change
                 )
     else:
-        sys.exit('const_matには pd.DataFrame, pd.Series, もしくはリストを指定してください')
+        sys.exit('const_matには pd.DataFrame, pd.Series もしくはリストを指定してください')
 
 
     return res_df
@@ -520,9 +523,14 @@ def F_test_lm(restriction, full):
 
 def tidy_mfx(mod, at = 'overall', method = 'dydx', dummy = False, alpha = 0.05, **kwargs):
   # 引数に妥当な値が指定されているかを検証
-  at = bild.arg_match(at, ['overall', 'mean', 'median', 'zero'])
-  method = bild.arg_match(method, ['coef', 'dydx', 'eyex', 'dyex', 'eydx'])
+  at = bild.arg_match(at, ['overall', 'mean', 'median', 'zero'], arg_name = 'at')
 
+  method = bild.arg_match(
+      method,
+      choices = ['coef', 'dydx', 'eyex', 'dyex', 'eydx'],
+      arg_name = 'method'
+      )
+  # 限界効果の推定
   est_margeff = mod.get_margeff(dummy = dummy, at = at, method = method, **kwargs)
   tab = est_margeff.summary_frame()
 
@@ -567,7 +575,7 @@ def compare_mfx(
     line_break = '\n',
     **kwargs
     ):
-
+    assert isinstance(list_models, list), 'list_models is must be a list of models.'
     # 限界効果の推定-------------
     if method == 'coef':
         tidy_list = [tidy(mod) for mod in list_models]
