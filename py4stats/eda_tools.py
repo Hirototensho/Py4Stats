@@ -9,56 +9,7 @@ Original file is located at
 # `eda_tools`：データセットを要約する関数群
 """
 
-import argparse
-
-def match_arg(value, choices, arg_name = 'argument'):
-    """
-    Simulates the functionality of R's match.arg() function with partial matching in Python.
-
-    Args:
-    - value: The value to match against the choices (partially).
-    - choices: List of valid choices.
-
-    Returns:
-    - The matched value if found in choices (partially), otherwise raises an ArgumentError.
-    """
-    if(value in choices):
-      return value
-    else:
-      matches = [c for c in choices if value.lower() in c.lower()]
-      if len(matches) == 1:
-          return matches[0]
-      elif len(matches) > 1:
-          raise ValueError(
-              f"""'{value}' is ambiguous value for '{arg_name}'. Matches multiple choices: {', '.join(matches)}.
-              '{arg_name}' must be one of {', '.join(choices)}."""
-              )
-      else:
-          # raise ValueError(f"No match found for value: '{value}'.")
-          raise ValueError(f"'{arg_name}' must be one of {', '.join(choices)}.")
-
-def arg_match(value, choices, arg_name = 'argument'):
-    """
-    Simulates the functionality of R's rlang::arg_match() function with partial matching in Python.
-
-    Args:
-    - value: The value to match against the choices.
-    - choices: List of valid choices.
-
-    Returns:
-    - The matched value if found in choices (partially), otherwise raises an ArgumentError.
-    """
-    if(value in choices):
-      return value
-    else:
-      matches = [c for c in choices if value.lower() in c.lower()]
-      if len(matches) >= 1:
-        raise ValueError(
-            f"""'{arg_name}' must be one of: {', '.join(choices)}.
-            Did you mean {' or '.join(matches)}?"""
-        )
-      else:
-        raise ValueError(f"'{arg_name}' must be one of {', '.join(choices)}.")
+from py4stats import bilding_block as bild # py4stats のプログラミングを補助する関数群
 
 """## `diagnose()`
 
@@ -150,7 +101,7 @@ def remove_constant(self, quiet = True, dropna = False):
 @pf.register_dataframe_method
 def filtering_out(self, contains = None, starts_with = None, ends_with = None, axis = 1):
   axis = str(axis)
-  axis = arg_match(axis, ['1', 'columns', '0', 'index'])
+  axis = bild.arg_match(axis, ['1', 'columns', '0', 'index'], arg_name = 'axis')
   self = self.copy()
 
   if((axis == '1') | (axis == 'columns')):
@@ -197,8 +148,15 @@ def crosstab2(
 
 @pf.register_dataframe_method
 def freq_table(self, subset, sort = True, ascending = False, dropna = False):
-  count =     self.value_counts(subset = subset, sort = sort, ascending = ascending, normalize=False, dropna = dropna)
-  rel_count = self.value_counts(subset = subset, sort = sort, ascending = ascending, normalize=True,  dropna = dropna)
+  count = self.value_counts(
+      subset = subset, sort = sort, ascending = ascending,
+      normalize=False, dropna = dropna
+      )
+
+  rel_count = self.value_counts(
+      subset = subset, sort = sort, ascending = ascending,
+      normalize=True, dropna = dropna
+      )
 
   res = pd.DataFrame({
           'freq':count,
@@ -207,18 +165,6 @@ def freq_table(self, subset, sort = True, ascending = False, dropna = False):
           'cumperc':rel_count.cumsum()
       })
   return res
-
-def pad_zero_row(s, digits = 4):
-    s = str(s)
-    # もし s が整数値なら、何もしない。
-    if s.find('.') != -1:
-        s_digits = len(s[s.find('.'):])
-        s = s + '0' * (digits + 1 - s_digits)
-    return s
-
-pad_zero = np.vectorize(pad_zero_row, excluded = 'digits')
-
-def add_big_mark(s): return  f'{s:,}'
 
 @pf.register_dataframe_method
 def tabyl(
@@ -234,7 +180,10 @@ def tabyl(
     digits = 1,
     ):
     if(not isinstance(normalize, bool)):
-      normalize = arg_match(normalize, ['index', 'columns', 'all'])
+      normalize = bild.arg_match(
+          normalize, ['index', 'columns', 'all'],
+          arg_name = 'normalize'
+          )
 
     if self[index].dtype == "bool":
         self[index] = self[index].astype(str)
@@ -249,7 +198,7 @@ def tabyl(
         dropna = dropna, normalize = False
         )
 
-    c_tab1 = c_tab1.applymap(add_big_mark)
+    c_tab1 = c_tab1.applymap(bild.add_big_mark)
 
     if(normalize != False):
 
@@ -262,7 +211,7 @@ def tabyl(
           )
 
       # 2つめのクロス集計表の回答率をdigitsで指定した桁数のパーセントに換算し、文字列化します。
-      c_tab2 = (100 * c_tab2).round(digits).astype('str').apply(pad_zero, digits = digits)
+      c_tab2 = (100 * c_tab2).round(digits).astype('str').apply(bild.pad_zero, digits = digits)
 
       col = c_tab2.columns
       idx = c_tab2.index
