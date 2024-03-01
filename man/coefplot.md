@@ -8,7 +8,7 @@
 coefplot(
     mod, 
     subset = None, 
-    conf.level = [0.95, 0.99], 
+    conf_level = [0.95, 0.99], 
     palette = ['#1b69af', '#629CE7'], 
     show_Intercept = False,
     show_vline = True,
@@ -19,7 +19,7 @@ coefplot(
 mfxplot(
     mod, 
     subset = None, 
-    conf.level = [0.95, 0.99], 
+    conf_level = [0.95, 0.99], 
     at = 'overall',
     method = 'dydx',
     dummy = False,
