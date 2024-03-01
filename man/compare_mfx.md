@@ -2,7 +2,7 @@
 
 ## 概要
 
-[`sm.glm()`](https://www.statsmodels.org/devel/generated/statsmodels.genmod.generalized_linear_model.GLM.html) の推定結果を計量経済学の実証論文でよく用いられる、回帰分析の結果を縦方向に並べて比較する表を作成します。表のフォーマットについてはR言語の [`texreg::screenreg()`](https://cran.r-project.org/web/packages/texreg/index.html)や[`modelsummary::modelsummary()`](https://modelsummary.com/man/modelsummary.html)を参考にしています。
+　[`sm.glm()`](https://www.statsmodels.org/devel/generated/statsmodels.genmod.generalized_linear_model.GLM.html)の推定結果を計量経済学の実証論文でよく用いられる、回帰分析の結果を縦方向に並べて比較する表を作成します。表のフォーマットについてはR言語の [`texreg::screenreg()`](https://cran.r-project.org/web/packages/texreg/index.html)や[`modelsummary::modelsummary()`](https://modelsummary.com/man/modelsummary.html)を参考にしています。
 
 ```python
 compare_mfx(
@@ -24,7 +24,7 @@ compare_mfx(
 
 ## 引数
 
-- `list_models`：推定結果を表示する分析結果のリスト（必須）。`sm.ols()` や `smf.ols()` で作成された回帰分析の結果を `list_models = [fit1, fit2]` のようにリストとして指定してください。
+- `list_models`：推定結果を表示する分析結果のリスト（必須）。[`sm.glm()`](https://www.statsmodels.org/devel/generated/statsmodels.genmod.generalized_linear_model.GLM.html)で作成された一般化線形モデルの結果を `list_models = [fit1, fit2]` のようにリストとして指定してください。
 
 - `model_name`：表頭に表示するモデルの名前。`['モデル1', 'モデル2']` のように文字列のリストを指定してください。初期設定では、自動的に `model 1, model 2, model 3 …` と連番が割り当てられます。
 
@@ -87,7 +87,7 @@ from palmerpenguins import load_penguins
 penguins = load_penguins() # サンプルデータの読み込み
 ```
 
-　`reg.compare_mfx()` は `reg.compare_ols()` の一般化線型モデルバージョンで、初期設定では `statsmodels` ライブラリの[`.get_margeff()`](https://www.statsmodels.org/dev/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドから得られた限界効果の推定値を表示します。
+　`reg.compare_mfx()` は [`reg.compare_ols()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_ols.md) の一般化線型モデルバージョンで、初期設定では `statsmodels` ライブラリの[`.get_margeff()`](https://www.statsmodels.org/dev/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドから得られた限界効果の推定値を表示します。
 
 ```python
 penguins['female'] = np.where(penguins['sex'] == 'female', 1, 0)
