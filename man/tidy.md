@@ -12,7 +12,7 @@ tidy(
   )
 ```
 
-## 引数
+## 引数 Argument
 
 - `x`（必須）</br>
 　[`sm.ols()`](https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.OLS.html) で作成された `RegressionResultsWrapper` オブジェクト。
@@ -21,7 +21,7 @@ tidy(
 - `conf_level`：**float**</br>
 　信頼区間の計算に用いる信頼係数。
 
-## 返り値
+## 返り値 Value
 
 　次の列を含む pands.DataFrame が出力されます。
 
@@ -40,7 +40,7 @@ tidy(
 - conf_higher</br>
 　信頼区間の上側信頼限界
 
-## 使用例
+## 使用例 Examples
 
 ```python
 import pandas as pd
