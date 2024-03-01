@@ -99,7 +99,6 @@ penguins['female'] = np.where(penguins['sex'] == 'female', 1, 0)
 # ロジスティック回帰の実行
 fit_logit1 = smf.logit('female ~ body_mass_g + bill_length_mm + bill_depth_mm', data = penguins).fit()
 
-pd.set_option('display.expand_frame_repr', False)
 print(reg.tidy_mfx(fit_logit1).round(4))
 #>                 estimate  std_err  statistics  p_value  conf_lower  conf_higher
 #> body_mass_g      -0.0004   0.0000    -17.6561   0.0000     -0.0004      -0.0003
