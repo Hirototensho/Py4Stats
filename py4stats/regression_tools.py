@@ -84,38 +84,15 @@ def add_one_sided_p_value(x, tidied):
       tidied['one_sided_p_value'] = t.sf(abs(tidied['statistics']), x.df_resid)
       return tidied
 
-# # `tidy_heckit()` の旧バージョン-------------------------
-# def tidy_heckit(fit, name_of_term = [], alpha = 0.05, to_jp = False, add_one_sided = False):
-#     tidied = pd.DataFrame({
-#         'coef':fit.params,
-#         'std_err':fit.bse,
-#         'statistics':fit.tvalues,
-#         'p_value':fit.pvalues,
-#         'conf_lower':fit.conf_int(alpha = alpha)[:, 0],
-#         'conf_higher':fit.conf_int(alpha = alpha)[:, 1]
-#         }
-#     )
-
-#     if add_one_sided:
-#         tidied = add_one_sided_p_value(fit, tidied)
-
-#     if(len(name_of_term) > 0):
-#         tidied['term'] = name_of_term
-#         tidied = tidied.set_index('term')
-
-#     # 列名を日本語に変換
-#     if to_jp:
-#         tidied = tidy_to_jp(tidied, alpha = alpha)
-
-#     return  tidied
-
 from statsmodels.regression.linear_model import RegressionResultsWrapper
 from statsmodels.discrete.discrete_model import BinaryResultsWrapper
 from functools import singledispatch
+
 @singledispatch
 def glance(x):
     return x
 
+# ロジスティック回帰などの二項モデル用のメソッド
 @glance.register(BinaryResultsWrapper)
 def _(x):
   res = pd.DataFrame({
@@ -132,6 +109,7 @@ def _(x):
   }, index = [0])
   return res
 
+# 線形回帰用のメソッド
 @glance.register(RegressionResultsWrapper)
 def _(x):
     res = pd.DataFrame({
@@ -218,10 +196,15 @@ def compare_ols(
         )
 
     # 表の下部にモデルの当てはまりに関する統計値を追加
-    if len(stats_glance) > 0: # もし stats_glance が空のリストなら統計値を追加しない
+    if stats_glance is not None: # もし stats_glance が None なら統計値を追加しない
     # 引数に妥当な値が指定されているかを検証
-        choices = ['rsquared', 'rsquared_adj', 'nobs', 'df', 'sigma', 'F_values', 'p_values', 'AIC', 'BIC']
-        stats_glance = [bild.arg_match(stats, choices, arg_name = 'stats_glance') for stats in stats_glance]
+        values = ['rsquared', 'rsquared_adj', 'nobs', 'df', 'sigma', 'F_values', 'p_values', 'AIC', 'BIC']
+
+        stats_glance = bild.arg_match(
+            stats_glance, values,
+            arg_name = 'stats_glance',
+            multiple = True
+            )
 
         res2 = pd.concat([glance(mod) for mod in list_models])\
             .loc[:, stats_glance].round(digits)\
@@ -547,7 +530,7 @@ def tidy_mfx(x, at = 'overall', method = 'dydx', dummy = False, conf_level = 0.9
 
   method = bild.arg_match(
       method,
-      choices = ['coef', 'dydx', 'eyex', 'dyex', 'eydx'],
+      values = ['coef', 'dydx', 'eyex', 'dyex', 'eydx'],
       arg_name = 'method'
       )
   # 限界効果の推定
@@ -591,7 +574,7 @@ def tidy_mfx(
 
   method = bild.arg_match(
       method,
-      choices = ['coef', 'dydx', 'eyex', 'dyex', 'eydx'],
+      values = ['coef', 'dydx', 'eyex', 'dyex', 'eydx'],
       arg_name = 'method'
       )
   # 限界効果の推定
@@ -667,13 +650,18 @@ def compare_mfx(
         )
 
     # 表の下部にモデルの当てはまりに関する統計値を追加
-    if len(stats_glance) > 0: # もし stats_glance が空のリストなら統計値を追加しない
+    if stats_glance is not None: # もし stats_glance が None なら統計値を追加しない
     # 引数に妥当な値が指定されているかを検証
-        choices = [
+        values = [
             'prsquared', 'LL-Null', 'df_null', 'logLik', 'AIC', 'BIC',
             'deviance','nobs', 'df', 'df_resid'
             ]
-        stats_glance = [bild.arg_match(stats, choices, arg_name = 'stats_glance') for stats in stats_glance]
+        # stats_glance = [bild.arg_match(stats, values, arg_name = 'stats_glance') for stats in stats_glance]
+        stats_glance = bild.arg_match(
+            stats_glance, values,
+            arg_name = 'stats_glance',
+            multiple = True
+            )
 
         res2 = pd.concat([glance(mod) for mod in list_models])\
             .loc[:, stats_glance].round(digits)\
