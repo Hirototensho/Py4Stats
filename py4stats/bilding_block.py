@@ -15,54 +15,85 @@ Original file is located at
 
 import argparse
 
-def match_arg(value, choices, arg_name = 'argument'):
+def match_arg(arg, values, arg_name = 'argument'):
     """
     Simulates the functionality of R's match.arg() function with partial matching in Python.
 
     Args:
-    - value: The value to match against the choices (partially).
-    - choices: List of valid choices.
+    - arg: The arg to match against the values (partially).
+    - values: List of valid values.
 
     Returns:
-    - The matched value if found in choices (partially), otherwise raises an ArgumentError.
+    - The matched arg if found in values (partially), otherwise raises an ArgumentError.
     """
-    if(value in choices):
-      return value
+    if(arg in values):
+      return arg
     else:
-      matches = [c for c in choices if value.lower() in c.lower()]
+      matches = [c for c in values if arg.lower() in c.lower()]
       if len(matches) == 1:
           return matches[0]
       elif len(matches) > 1:
-          raise ValueError(
-              f"""'{value}' is ambiguous value for '{arg_name}'. Matches multiple choices: {', '.join(matches)}.
-              '{arg_name}' must be one of {oxford_comma_or(choices)}."""
+          raise argError(
+              f"""'{arg}' is ambiguous arg for '{arg_name}'. Matches multiple values: {', '.join(matches)}.
+              '{arg_name}' must be one of {oxford_comma_or(values)}."""
               )
       else:
-          # raise ValueError(f"No match found for value: '{value}'.")
-          raise ValueError(f"'{arg_name}' must be one of {oxford_comma_or(choices)}.")
+          # raise argError(f"No match found for arg: '{arg}'.")
+          raise argError(f"'{arg_name}' must be one of {oxford_comma_or(values)}, not '{arg}'.")
 
-def arg_match(value, choices, arg_name = 'argument'):
+def arg_match0(arg, values, arg_name = 'argument'):
     """
     Simulates the functionality of R's rlang::arg_match() function with partial matching in Python.
 
     Args:
-    - value: The value to match against the choices.
-    - choices: List of valid choices.
+    - arg: The arg to match against the values.
+    - values: List of valid values.
 
     Returns:
-    - The matched value if found in choices (partially), otherwise raises an ArgumentError.
+    - The matched arg if found in values, otherwise raises an ArgumentError.
     """
-    if(value in choices):
-      return value
+    if(arg in values):
+      return arg
     else:
-      matches = [c for c in choices if value.lower() in c.lower()]
+      matches = [c for c in values if arg.lower() in c.lower()]
       if len(matches) >= 1:
-        raise ValueError(
-            f"""'{arg_name}' must be one of {oxford_comma_or(choices)}.
-            Did you mean {' or '.join(matches)}?"""
+        # raise ValueError(
+        #     f""" '{arg_name}' must be one of {oxford_comma_or(values)}.
+        #     Did you mean {oxford_comma_or(matches)}?"""
+        # )
+       raise ValueError(
+            f"""'{arg_name}' must be one of {oxford_comma_or(values)}, not '{arg}'.
+             Did you mean {oxford_comma_or(matches)}?"""
         )
       else:
-        raise ValueError(f"'{arg_name}' must be one of {oxford_comma_or(choices)}.")
+        raise ValueError(f"'{arg_name}' must be one of {oxford_comma_or(values)}, not '{arg}'.")
+
+def arg_match(arg, values, arg_name = 'argument', multiple = False):
+  """
+  Simulates the functionality of R's rlang::arg_match() function with partial matching in Python.
+
+  Args:
+  - arg: The list or str of arg to match against the values.
+  - values: List of valid values.
+  - arg_name : name of argument.
+  - multiple: Whether multiple values are allowed for the arg.
+
+  Returns:
+  - The matched arg if found in values, otherwise raises an ArgumentError.
+  """
+  if (type(arg) is str):
+    arg = arg_match0(arg, values, arg_name)
+    return arg
+
+  # 与えられた引数がリストの場合
+  elif (type(arg) is list) & multiple:
+    # 複数選択可の場合
+    arg = [arg_match0(val, values, arg_name = arg_name) for val in arg]
+    return arg
+  else:
+    # 複数選択不可の場合 最初の要素を取り出して使います。
+    arg = arg_match0(arg[0], values, arg_name)
+    return arg
 
 """## 数値などのフォーマット"""
 
@@ -90,6 +121,7 @@ def pad_zero_row(x, digits = 2):
 pad_zero = np.vectorize(pad_zero_row, excluded = 'digits')
 
 def add_big_mark_row(s): return  f'{s:,}'
+
 add_big_mark = np.vectorize(add_big_mark_row)
 
 """　文字列のリストを与えると、英文の並列の形に変換する関数です。表記法については[Wikipedia Serial comma](https://en.wikipedia.org/wiki/Serial_comma)を参照し、コードについては[stack overflow:Grammatical List Join in Python [duplicate]](https://stackoverflow.com/questions/19838976/grammatical-list-join-in-python)を参照しました。
@@ -102,15 +134,15 @@ oxford_comma_or(choices)
 """
 
 def oxford_comma_and(lst):
-    if not lst:
-        return ""
+    if isinstance(lst, str):
+        return f"'{lst}'"
     elif len(lst) == 1:
-        return str(lst[0])
-    return "{} and {}".format(", ".join(lst[:-1]), lst[-1])
+        return f"'{lst[0]}'"
+    return "'"+ "', '".join(lst[:-1]) + "' and '" + lst[-1] + "'"
 
 def oxford_comma_or(lst):
-    if not lst:
-        return ""
+    if isinstance(lst, str):
+        return f"'{lst}'"
     elif len(lst) == 1:
-        return str(lst[0])
-    return "{} or {}".format(", ".join(lst[:-1]), lst[-1])
+        return f"'{lst[0]}'"
+    return "'"+ "', '".join(lst[:-1]) + "' or '" + lst[-1] + "'"
