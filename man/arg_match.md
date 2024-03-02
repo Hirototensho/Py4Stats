@@ -60,3 +60,16 @@ bild.arg_match(['apple', 'ora'], values, 'fruits', multiple = True)
 #> ValueError: 'fruits' must be one of 'apple', 'orange' or 'grape', not 'ora'.
 #>              Did you mean 'orange'?
 ```
+
+　`Py4Stats` では [`eda_tools.tabyl()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tabyl.md)や [`regression_tools.compare_ols()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_ols.md) など、文字列で指定する引数をもつ関数で、引数のアサーションに `bild.arg_match()` を使用しています。
+
+```python
+from py4stats import eda_tools as eda
+import pandas as pd
+from palmerpenguins import load_penguins
+penguins = load_penguins() # サンプルデータの読み込
+
+penguins.tabyl('island', 'species', normalize = 'ind')
+#> ValueError: 'normalize' must be one of 'index', 'columns' or 'all', not 'ind'.
+#>              Did you mean 'index'?
+```
