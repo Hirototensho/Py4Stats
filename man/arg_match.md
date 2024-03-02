@@ -46,10 +46,12 @@ bild.arg_match('ora', values, 'fruits')
 bild.arg_match('ap', values, 'fruits')
 #> ValueError: 'fruits' must be one of 'apple', 'orange' or 'grape', not 'ap'.
 #>              Did you mean 'apple' or 'grape'?
+```
 
-bild.arg_match(['apple', 'orange'], values, 'fruits')
+```python
+# arg に list が指定された場合
+bild.arg_match(['apple', 'orange'], values, 'fruits', multiple = False)
 #> 'apple'
-
 
 bild.arg_match(['apple', 'orange'], values, 'fruits', multiple = True)
 #> ['apple', 'orange']
