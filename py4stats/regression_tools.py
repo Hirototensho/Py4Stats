@@ -47,6 +47,7 @@ def tidy(
   tidied.index.name = 'term'
 
   rename_cols = {
+      'coef':'estimate',
       'std err':'std_err',
       't':'statistics', 'P>|t|': 'p_value',
       'Conf. Int. Low': 'conf_lower',
@@ -69,7 +70,7 @@ def tidy_to_jp(tidied, conf_level = 0.95):
   tidied = tidied\
       .rename(columns = {
           'term':'説明変数',
-          'coef':'回帰係数', 'std_err':'標準誤差',
+          'estimate':'回帰係数', 'std_err':'標準誤差',
           'statistics':'t-値', 'p_value':'p-値',
           'conf_lower': str(int(conf_level*100)) + '%信頼区間下側',
           'conf_higher': str(int(conf_level*100)) + '%信頼区間上側',
@@ -127,25 +128,6 @@ def _(x):
 
 def log_to_pct(est): return 100 * (np.exp(est) - 1)
 
-# 有意性を表すアスタリスクを作成する関数
-def p_stars_row(p_value):
-    stars = np.where(p_value <= 0.1, ' *', '')
-    stars = np.where(p_value <= 0.05, ' **', stars)
-    stars = np.where(p_value <= 0.01, ' ***', stars)
-    return stars
-
-p_stars = np.vectorize(p_stars_row)
-
-def pad_zero_row(x, digits = 2):
-    s = str(x)
-    # もし s が整数値なら、何もしない。
-    if s.find('.') != -1:
-        s_digits = len(s[s.find('.'):])       # 小数点以下の桁数を計算
-        s = s + '0' * (digits + 1 - s_digits) # 足りない分だけ0を追加
-    return s
-
-pad_zero = np.vectorize(pad_zero_row, excluded = 'digits')
-
 """## `reg.compare_ols()`
 
 ### 概要
@@ -165,7 +147,6 @@ compare_tab1
 ```
 """
 
-# 複数のモデルを比較する表を作成する関数
 def compare_ols(
     list_models,
     model_name = None,
@@ -178,44 +159,73 @@ def compare_ols(
     line_break = '\n',
     **kwargs
     ):
-    assert isinstance(list_models, list), 'list_models is must be a list of models.'
+  """複数のモデルを比較する表を作成する関数"""
+  assert isinstance(list_models, list), 'list_models is must be a list of models.'
 
-    tidy_list = [tidy(mod) for mod in list_models]
+  tidy_list = [tidy(mod) for mod in list_models]
 
-    # モデル名が指定されていない場合、連番を作成する
-    if model_name is None:
-        model_name = [f'model {i + 1}' for i in range(len(tidy_list))]
+  # モデル名が指定されていない場合、連番を作成する
+  if model_name is None:
+      model_name = [f'model {i + 1}' for i in range(len(tidy_list))]
 
-    # lineup_models() を適用してモデルを比較する表を作成
-    res = lineup_models(
-            tidy_list, model_name = model_name,
-            digits = digits, stats = stats,
-            add_stars = add_stars, table_style = table_style,
-            line_break = line_break,
-            **kwargs
-        )
+  # lineup_models() を適用してモデルを比較する表を作成
+  res = lineup_models(
+          tidy_list, model_name = model_name,
+          digits = digits, stats = stats,
+          add_stars = add_stars, table_style = table_style,
+          line_break = line_break,
+          **kwargs
+      )
+  res.index.name = 'term'
+  # 表の下部にモデルの当てはまりに関する統計値を追加
+  if stats_glance is not None: # もし stats_glance が None なら統計値を追加しない
+      res2 = make_glance_tab(
+          list_models,
+          model_name = model_name,
+          stats_glance = stats_glance,
+          digits = digits
+          )
+      res = pd.concat([res, res2])
 
-    # 表の下部にモデルの当てはまりに関する統計値を追加
-    if stats_glance is not None: # もし stats_glance が None なら統計値を追加しない
-    # 引数に妥当な値が指定されているかを検証
-        values = ['rsquared', 'rsquared_adj', 'nobs', 'df', 'sigma', 'F_values', 'p_values', 'AIC', 'BIC']
+  return res
 
-        stats_glance = bild.arg_match(
-            stats_glance, values,
-            arg_name = 'stats_glance',
-            multiple = True
-            )
+def make_glance_tab(
+    list_models,
+    model_name = None,
+    stats_glance = ['rsquared_adj', 'nobs', 'df'],
+    digits = 4,
+    **kwargs
+  ):
+  '''compare_ols() で出力する表の下部に追加する当てはまり指標の表を作成する関数'''
+  # モデル名が指定されていない場合、連番を作成する
+  if model_name is None:
+      model_name = [f'model {i + 1}' for i in range(len(list_models))]
 
-        res2 = pd.concat([glance(mod) for mod in list_models])\
-            .loc[:, stats_glance].round(digits)\
-            .apply(bild.pad_zero, digits = digits).T
+  glance_list = [glance(mod) for mod in list_models]
 
-        res2.columns = model_name
-        res = pd.concat([res, res2])
+  # glance_list 内のデータフレームの列名の和集合を取得
+  # つまり、代入されたどのモデルの、当てはまりの指標にもない名前を指定することはできないという処理
+  union_set = glance_list[0].columns
+  for i in range(1, len(glance_list)):
+    union_set = union_set.union(glance_list[i].columns)
 
-    res.index.name = 'term'
+  # 引数に妥当な値が指定されているかを検証
+  stats_glance = bild.arg_match(
+              stats_glance,
+              values = union_set.to_list(),
+              arg_name = 'stats_glance',
+              multiple = True
+              )
 
-    return res
+  res = pd.concat(glance_list)\
+    .loc[:, stats_glance]\
+    .round(digits)\
+    .apply(bild.pad_zero, digits = digits).T
+
+  res.columns = model_name
+  res[res == 'nan'] = ''
+  res.index.name = 'term'
+  return res
 
 # 複数のモデルを比較する表を作成する関数 対象を sm.ols() に限定しないバージョン
 def lineup_models(tidy_list, model_name = None, subset = None, **kwargs):
@@ -244,7 +254,7 @@ def lineup_models(tidy_list, model_name = None, subset = None, **kwargs):
 # 2024年1月30日変更 引数 stats と table_style について
 # 妥当な値が指定されているかを検証する機能を追加しました。
 def gazer(
-    res_tidy, estimate = 'coef', stats = 'std_err',
+    res_tidy, estimate = 'estimate', stats = 'std_err',
     digits = 4, add_stars = True, style_p = False, p_min = 0.01,
     table_style = 'two_line', line_break = '\n',
     **kwargs
@@ -264,7 +274,7 @@ def gazer(
     # --------------------
     res = res_tidy.copy()
 
-    res['stars'] = p_stars(res['p_value'])
+    res['stars'] = bild.p_stars(res['p_value'])
 
     res[[estimate, stats]] = res[[estimate, stats]].round(digits).astype(str)\
         .apply(bild.pad_zero, digits = digits)
@@ -347,7 +357,7 @@ def coef_dot(
     show_Intercept = False,
     show_vline = True,
     palette = ['#1b69af', '#629CE7'],
-    estimate = 'coef', conf_lower = 'conf_lower', conf_higher = 'conf_higher',
+    estimate = 'estimate', conf_lower = 'conf_lower', conf_higher = 'conf_higher',
     ):
     '''tidy_talbe から回帰係数のグラフを作成する関数'''
     tidy_ci_high = tidy_ci_high.copy()
@@ -388,41 +398,6 @@ def coef_dot(
     )
     ax.set_ylabel('');
 
-def gazer_MNlogit(MNlogit_margeff, endog_categories = None, **kwargs):
-
-    if ~pd.Series(MNlogit_margeff.columns).isin(['endog']).any():
-        MNlogit_margeff = MNlogit_margeff.reset_index(level = 'endog')
-
-    if endog_categories is None:
-        endog_categories = MNlogit_margeff['endog'].unique()
-
-    # gazer 関数で扱えるように列名を修正します。
-    MNlogit_margeff = MNlogit_margeff.rename(columns = {
-            'Std. Err.':'std_err',
-            'z':'statistics',
-            'Pr(>|z|)':'p_value',
-            'Conf. Int. Low':'conf_lower',
-            'Cont. Int. Hi.':'conf_higher'
-            }
-    )
-
-    list_gazer = list(map(
-        lambda categ : gazer(
-        MNlogit_margeff.query('endog == @categ'),
-        estimate = 'dy/dx',
-        **kwargs
-        ),
-        endog_categories
-        ))
-
-    endog_categories2 = [i.split('[')[1].split(']')[0] for i in endog_categories]
-
-    # # flm_total.keys() で回帰式を作成したときに設定したモデル名を抽出し、列名にします。
-    res = pd.concat(dict(zip(list(endog_categories2), list_gazer)), axis = 'columns')\
-        .droplevel(1, axis = 'columns') # 列名が2重に設定されるので、これを削除して1つにします。
-
-    return res
-
 """## 回帰係数の線型結合に関するに関するt検定"""
 
 def lincomb(model, const_mat, beta_H0 = 0, alpha = 0.05, stars = False, pct_change = False):
@@ -461,7 +436,7 @@ def lincomb(model, const_mat, beta_H0 = 0, alpha = 0.05, stars = False, pct_chan
         res['conf_higher'] = log_to_pct(res['conf_higher'])
 
     if stars:
-        res['stars'] = p_stars(res['p_value'])
+        res['stars'] = bild.p_stars(res['p_value'])
 
     return res
 
@@ -622,58 +597,45 @@ def compare_mfx(
     line_break = '\n',
     **kwargs
     ):
-    assert isinstance(list_models, list), 'list_models is must be a list of models.'
-    # 限界効果の推定-------------
-    if method == 'coef':
-        tidy_list = [tidy(mod) for mod in list_models]
-    else:
-        tidy_list = [
-            tidy_mfx(mod, at = at, method = method, dummy = dummy)
-            for mod in list_models
-            ]
+  assert isinstance(list_models, list), 'list_models is must be a list of models.'
+  # 限界効果の推定-------------
+  if method == 'coef':
+      tidy_list = [tidy(mod) for mod in list_models]
+  else:
+      tidy_list = [
+          tidy_mfx(mod, at = at, method = method, dummy = dummy)
+          for mod in list_models
+          ]
 
-    # モデル名が指定されていない場合、連番を作成する
-    if model_name is None:
-        model_name = [f'model {i + 1}' for i in range(len(tidy_list))]
+  # モデル名が指定されていない場合、連番を作成する
+  if model_name is None:
+      model_name = [f'model {i + 1}' for i in range(len(tidy_list))]
 
-    # lineup_models() を適用してモデルを比較する表を作成
-    res = lineup_models(
-        tidy_list,
-        model_name = model_name,
-        digits = digits,
-        stats = stats,
-        add_stars = add_stars,
-        table_style = table_style,
-        estimate = 'estimate',
-        line_break = line_break,
-        **kwargs
-        )
+  # lineup_models() を適用してモデルを比較する表を作成
+  res = lineup_models(
+      tidy_list,
+      model_name = model_name,
+      digits = digits,
+      stats = stats,
+      add_stars = add_stars,
+      table_style = table_style,
+      estimate = 'estimate',
+      line_break = line_break,
+      **kwargs
+      )
 
-    # 表の下部にモデルの当てはまりに関する統計値を追加
-    if stats_glance is not None: # もし stats_glance が None なら統計値を追加しない
-    # 引数に妥当な値が指定されているかを検証
-        values = [
-            'prsquared', 'LL-Null', 'df_null', 'logLik', 'AIC', 'BIC',
-            'deviance','nobs', 'df', 'df_resid'
-            ]
-        # stats_glance = [bild.arg_match(stats, values, arg_name = 'stats_glance') for stats in stats_glance]
-        stats_glance = bild.arg_match(
-            stats_glance, values,
-            arg_name = 'stats_glance',
-            multiple = True
-            )
+  res.index.name = 'term'
+  # 表の下部にモデルの当てはまりに関する統計値を追加
+  if stats_glance is not None: # もし stats_glance が None なら統計値を追加しない
+      res2 = make_glance_tab(
+          list_models,
+          model_name = model_name,
+          stats_glance = stats_glance,
+          digits = digits
+          )
+      res = pd.concat([res, res2])
 
-        res2 = pd.concat([glance(mod) for mod in list_models])\
-            .loc[:, stats_glance].round(digits)\
-            .apply(bild.pad_zero, digits = digits).T
-
-        res2.columns = model_name
-        res = pd.concat([res, res2])
-
-
-    res.index.name = 'term'
-
-    return res
+  return res
 
 # 回帰分析の結果から回帰係数のグラフを作成する関数 --------
 def mfxplot(
@@ -709,3 +671,40 @@ def mfxplot(
         show_Intercept = show_Intercept, show_vline = show_vline,
         ax = ax, **kwargs
         )
+
+"""### 多項ロジスティック回帰用"""
+
+def gazer_MNlogit(MNlogit_margeff, endog_categories = None, **kwargs):
+
+    if ~pd.Series(MNlogit_margeff.columns).isin(['endog']).any():
+        MNlogit_margeff = MNlogit_margeff.reset_index(level = 'endog')
+
+    if endog_categories is None:
+        endog_categories = MNlogit_margeff['endog'].unique()
+
+    # gazer 関数で扱えるように列名を修正します。
+    MNlogit_margeff = MNlogit_margeff.rename(columns = {
+            'Std. Err.':'std_err',
+            'z':'statistics',
+            'Pr(>|z|)':'p_value',
+            'Conf. Int. Low':'conf_lower',
+            'Cont. Int. Hi.':'conf_higher'
+            }
+    )
+
+    list_gazer = list(map(
+        lambda categ : gazer(
+        MNlogit_margeff.query('endog == @categ'),
+        estimate = 'dy/dx',
+        **kwargs
+        ),
+        endog_categories
+        ))
+
+    endog_categories2 = [i.split('[')[1].split(']')[0] for i in endog_categories]
+
+    # # flm_total.keys() で回帰式を作成したときに設定したモデル名を抽出し、列名にします。
+    res = pd.concat(dict(zip(list(endog_categories2), list_gazer)), axis = 'columns')\
+        .droplevel(1, axis = 'columns') # 列名が2重に設定されるので、これを削除して1つにします。
+
+    return res
