@@ -57,3 +57,33 @@ print(s[s.is_ymd_like()])
 #> 14           NaN
 #> dtype: object
 ```
+
+```python
+# 厚生労働省：食中毒統計資料より
+data = pd.read_excel('https://www.mhlw.go.jp/content/R2itiran.xlsx',  header = 1)    .query('都道府県名等.str.contains("東京")')
+
+print(data['摂食者数'])
+#> 280    41
+#> 281    86
+#> 282     3
+#> 283    10
+#> 284     3
+#>        ..
+#> 381     2
+#> 382     2
+#> 383     4
+#> 384     6
+#> 385     4
+#> Name: 摂食者数, Length: 106, dtype: object
+
+print(data.loc[~data['摂食者数'].is_number(), '摂食者数'])
+#> 285    不明
+#> 315    不明
+#> 374    不明
+#> 375    不明
+#> 377    不明
+#> 378    不明
+#> 379    不明
+#> 380    不明
+#> Name: 摂食者数, dtype: object
+```
