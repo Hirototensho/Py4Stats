@@ -358,3 +358,59 @@ def Pareto_plot(
     ax.yaxis.set_tick_params(labelsize = fontsize * 0.9)
     ax2.yaxis.set_tick_params(labelsize = fontsize * 0.9);
 
+"""## 正規表現を文字列関連の論理関数"""
+
+import regex
+def detect_Kanzi(s):
+  p = regex.compile(r'.*\p{Script=Han}+.*')
+  res = p.fullmatch(s)
+  return res is not None
+
+@pf.register_series_method
+def is_number(self, na_default = True):
+  """文字列が数字であるかどうかを判定する関数"""
+  rex_phone = '[0-9]{0,4}(?: |-)[0-9]{0,4}(?: |-)[0-9]{0,4}'
+  rex_han = '[Script=Han]+'
+
+  self_str = self.copy().astype(str)
+
+  res = self_str.str.contains('[0-9]+', regex = True)\
+    & ~ self_str.str.contains(rex_phone, regex = True)\
+    & ~ self_str.str.contains('[\u3041-\u309F]+', regex = True)\
+    & ~ self_str.str.contains('[\u30A1-\u30FF]+', regex = True)\
+    & ~ self_str.str.contains('[A-z]+', regex = True)\
+    & ~ self_str.map(detect_Kanzi)\
+    & ~ is_ymd_like(self_str)
+
+  exponent = self_str.str.contains('[0-9]+[E,e]+(?:\+|-)[0-9]+', regex = True)
+  res[exponent] = True
+
+  res[self.isna()] = na_default
+
+  return res
+
+@pf.register_series_method
+def is_ymd(self, na_default = True):
+  """与えられた文字列が ymd 形式の日付かどうかを判定する関数"""
+  rex_ymd = '[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}'
+
+  self_str = self.copy().astype(str)
+
+  res = self_str.str.contains(rex_ymd, regex = True)
+
+  res[self.isna()] = na_default
+
+  return res
+
+@pf.register_series_method
+def is_ymd_like(self, na_default = True):
+  """与えられた文字列が ymd 形式っぽい日付かどうかを判定する関数"""
+  rex_ymd_like = '[Script=Han]{0,2}[0-9]{1,4}(?:年|-)[0-9]{1,2}(?:月|-)[0-9]{1,2}(?:日)?'
+
+  self_str = self.copy().astype(str)
+
+  res = self_str.str.contains(rex_ymd_like, regex = True)
+
+  res[self.isna()] = na_default
+
+  return res
