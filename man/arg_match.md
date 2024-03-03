@@ -32,32 +32,50 @@ arg_match(
 ## 使用例 Examples
 
 ```python
-from py4stats import bilding_block as bild 
+from py4stats import bilding_block as bild
+def my_faivarit(fruits):
+  fruits = bild.arg_match(
+      fruits, 
+      values = ['apple', 'orange', 'grape'], 
+      arg_name = 'fruits',
+      multiple = False
+      )
+  return fruits
 
-values = ['apple', 'orange', 'grape']
-
-bild.arg_match('apple', values, 'fruits')
+my_faivarit('apple')
 #> 'apple'
 
-bild.arg_match('ora', values, 'fruits')
-#> ValueError: 'fruits' must be one of 'apple', 'orange' or 'grape', not 'ora'.
+my_faivarit('orang')
+#> ValueError: 'fruits' must be one of 'apple', 'orange' or 'grape', not 'orang'.
 #>              Did you mean 'orange'?
 
-bild.arg_match('ap', values, 'fruits')
+my_faivarit('ap')
 #> ValueError: 'fruits' must be one of 'apple', 'orange' or 'grape', not 'ap'.
 #>              Did you mean 'apple' or 'grape'?
 ```
 
 ```python
-# arg に list が指定された場合
-bild.arg_match(['apple', 'orange'], values, 'fruits', multiple = False)
+# arg に list を指定した場合
+# 初期設定では1つ目の要素だけ使用されます。
+my_faivarit(['apple', 'orange'])
 #> 'apple'
+```
+```python
+# multiple = True として再度関数を定義
+def my_faivarit2(fruits):
+  fruits = bild.arg_match(
+      fruits, 
+      values = ['apple', 'orange', 'grape'], 
+      arg_name = 'fruits',
+      multiple = True
+      )
+  return fruits
 
-bild.arg_match(['apple', 'orange'], values, 'fruits', multiple = True)
+my_faivarit2(['apple', 'orange'])
 #> ['apple', 'orange']
 
-bild.arg_match(['apple', 'ora'], values, 'fruits', multiple = True)
-#> ValueError: 'fruits' must be one of 'apple', 'orange' or 'grape', not 'ora'.
+my_faivarit2(['apple', 'orang'])
+#> ValueError: 'fruits' must be one of 'apple', 'orange' or 'grape', not 'orang'.
 #>              Did you mean 'orange'?
 ```
 
