@@ -59,8 +59,7 @@ my_faivarit('ap')
 # 初期設定では1つ目の要素だけ使用されます。
 my_faivarit(['apple', 'orange'])
 #> 'apple'
-```
-```python
+
 # multiple = True として再度関数を定義
 def my_faivarit2(fruits):
   fruits = bild.arg_match(
