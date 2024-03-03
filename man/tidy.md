@@ -52,10 +52,8 @@ tidy_mfx(
 
 - `term`（index）</br>
 　説明変数の名称
-- `coef`（`tidy()`のみ）</br>
-　回帰係数の推定値
-- `estimate`（`tidy_mfx()`のみ）</br>
-　限界効果の推定値
+- `estimate`）</br>
+　回帰係数(`tidy()`の場合)、もしくは限界効果(`tidy_mfx()`の場合)の推定値
 - `std_err`</br>
 　回帰係数の標準誤差
 - `statistics`</br>
@@ -84,7 +82,7 @@ penguins = load_penguins() # サンプルデータの読み込み
 fit1 = smf.ols('body_mass_g ~ bill_length_mm + species', data = penguins).fit()
 
 print(reg.tidy(fit1).round(4))
-#>                           coef   std_err  statistics  p_value  conf_lower  conf_higher
+#>                       estimate   std_err  statistics  p_value  conf_lower  conf_higher
 #> term                                                                                  
 #> Intercept             153.7397  268.9012      0.5717   0.5679   -375.1910     682.6704
 #> species[T.Chinstrap] -885.8121   88.2502    -10.0375   0.0000  -1059.4008    -712.2234
