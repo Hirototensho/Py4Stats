@@ -58,7 +58,7 @@ print(s[s.is_ymd_like()])
 #> dtype: object
 ```
 
-　実践的な使用例として、[「厚生労働省 ４．食中毒統計資料」](https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/kenkou_iryou/shokuhin/syokuchu/04.html)の2020年の食中毒事件一覧を考えます。東京都のデータを取り出て`'摂食者数'`の列を見ると、数字が並んでいるものの `dtype` は `object` となっており、数字ではない値が含まれていることが疑われます。
+　実践的な使用例として[「厚生労働省 ４．食中毒統計資料」](https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/kenkou_iryou/shokuhin/syokuchu/04.html)のうち、2020年の食中毒事件一覧を考えます。東京都のデータを取り出て`'摂食者数'`の列を見ると、数字が並んでいるものの `dtype` は `object` となっており、数字ではない値が含まれていることが疑われます。
 
 ```python
 # 厚生労働省：食中毒統計資料より
