@@ -58,9 +58,12 @@ print(s[s.is_ymd_like()])
 #> dtype: object
 ```
 
+　実践的な使用例として、[「厚生労働省 ４．食中毒統計資料」](https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/kenkou_iryou/shokuhin/syokuchu/04.html)の2020年の食中毒事件一覧を考えます。東京都のデータを取り出て`'摂食者数'`の列を見ると、数字が並んでいるものの `dtype` は `object` となっており、数字ではない値が含まれていることが疑われます。
+
 ```python
 # 厚生労働省：食中毒統計資料より
-data = pd.read_excel('https://www.mhlw.go.jp/content/R2itiran.xlsx',  header = 1)    .query('都道府県名等.str.contains("東京")')
+data = pd.read_excel('https://www.mhlw.go.jp/content/R2itiran.xlsx', header = 1)\
+  .query('都道府県名等.str.contains("東京")')
 
 print(data['摂食者数'])
 #> 280    41
@@ -75,7 +78,11 @@ print(data['摂食者数'])
 #> 384     6
 #> 385     4
 #> Name: 摂食者数, Length: 106, dtype: object
+```
 
+`eda.is_number()` を使うと数字以外にどのような値が含まれているかを確認できるため、これをもとに「不明」となっている部分は `NaN` に置き換えるなどの対処法が考えられます。
+
+```python
 print(data.loc[~data['摂食者数'].is_number(), '摂食者数'])
 #> 285    不明
 #> 315    不明
