@@ -25,7 +25,7 @@ is_ymd_like(self, na_default = True)
 ```python
 import pandas as pd
 import numpy as np
-from py4stats import eda_tools as eda        # 基本統計量やデータの要約など
+from py4stats import eda_tools as eda
 
 s = pd.Series([
     '123', "0.12", "1e+07", '-31', '2個', '1A',
