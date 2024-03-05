@@ -44,6 +44,38 @@ def diagnose(self):
 
   return result
 
+"""### 異なるデータフレームの列を比較する関数"""
+
+def compare_df_cols(df_list, df_name = None, return_match = 'all'):
+  """複数のモデルを比較する表を作成する関数"""
+  # 引数のアサーション ----------------------
+  assert isinstance(df_list, list) & \
+        all([isinstance(v, pd.DataFrame) for v in df_list]),\
+        "argument 'df_list' is must be a list of pandas.DataFrame."
+
+  return_match = bild.arg_match(
+      return_match,
+       ["all", "match", "mismatch"],
+      arg_name = 'return_match'
+      )
+  # --------------------------------------
+  if df_name is None:
+      df_name = [f'df{i + 1}' for i in range(len(df_list))]
+
+  df_list = [v.copy() for v in df_list]
+  dtype_list = [v.dtypes for v in df_list]
+  res = pd.concat(dtype_list, axis = 1)
+  res.columns = df_name
+  res.index.name = 'term'
+  res['match_dtype'] = res.nunique(axis = 1) == 1
+
+  if(return_match == 'match'):
+    res = res[res['match_dtype']]
+  elif(return_match == 'mismatch'):
+    res = res[~res['match_dtype']]
+
+  return res
+
 """## 完全な空白列 and / or 行の除去"""
 
 @pf.register_dataframe_method
