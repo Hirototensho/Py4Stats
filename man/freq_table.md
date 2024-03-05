@@ -1,4 +1,4 @@
-# `eda.freq_table()`
+# `eda_tools.freq_table()`
 
 ## 概要
 
