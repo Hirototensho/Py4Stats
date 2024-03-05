@@ -1,4 +1,4 @@
-# 空白列, 定数列の削除：`eda_tools.remove_empty(), eda_tools.remove_constant()`
+# 空白列, 定数列の削除：`eda_tools.remove_empty()`, `eda_tools.remove_constant()`
 
 ## 概要
 
