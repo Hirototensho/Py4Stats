@@ -8,9 +8,7 @@
 
 [`eda_tools.freq_table()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/freq_table.md)
 
-[`eda_tools.remove_empty()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/remove_empty_constant.md)
-
-[`eda_tools.remove_constant()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/remove_empty_constant.md)
+[`eda_tools.remove_empty()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/remove_empty_constant.md)  [`eda_tools.remove_constant()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/remove_empty_constant.md)
 
 [`eda_tools.filtering_out()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/filtering_out.md)
 
