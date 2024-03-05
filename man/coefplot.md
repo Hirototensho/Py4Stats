@@ -1,4 +1,4 @@
-# 回帰分析による推定値の視覚化：`regression_tools.coefplot(), regression_tools.mfxplot()`
+# 回帰分析による推定値の視覚化：`regression_tools.coefplot()`, `regression_tools.mfxplot()`
 
 ## 概要
 
