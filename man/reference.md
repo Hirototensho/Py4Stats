@@ -14,6 +14,8 @@
 
 [`eda_tools.filtering_out()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/filtering_out.md)
 
+[`eda.is_number()`](https://github.com/Hirototensho/Py4Stats/edit/main/man/predicate.md)  [`eda.is_ymd()`](https://github.com/Hirototensho/Py4Stats/edit/main/man/predicate.md)    [`eda.is_ymd_like()`](https://github.com/Hirototensho/Py4Stats/edit/main/man/predicate.md)
+
 ## `py4stats.regression_tools`
 
 [`regression_tools.compare_ols()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_ols.md)
