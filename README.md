@@ -24,7 +24,7 @@ from py4stats import regression_tools as reg # 回帰分析の要約
 
 　探索的データ解析と前処理に関する機能を提供するモジュールです。一部の関数は [`pandas-flavor`](https://pypi.org/project/pandas-flavor/)ライブラリの機能を使って実装しており、[`pandas.DataFrame`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html) のメソッドと同じ構文で利用することができます。
 
-　`eda.diagnose()`：R言語の[`dlookr::diagnose()`](https://choonghyunryu.github.io/dlookr/reference/diagnose.data.frame.html)を再現した関数で、データの全般的な状態についての要約を提供します。
+　[`eda.diagnose()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/diagnose.md)：R言語の[`dlookr::diagnose()`](https://choonghyunryu.github.io/dlookr/reference/diagnose.data.frame.html)を再現した関数で、データの全般的な状態についての要約を提供します。
 
 ``` python
 import pandas as pd
