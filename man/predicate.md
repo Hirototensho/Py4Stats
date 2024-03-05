@@ -1,4 +1,4 @@
-# 文字列のフォーマットについての論理関数</br> `eda.is_number(), eda.is_ymd(),  eda.is_ymd_like()`
+# 文字列のフォーマットについての論理関数</br> `eda.is_number()` `eda.is_ymd()`,  `eda.is_ymd_like()`
 
 ## 概要
 
