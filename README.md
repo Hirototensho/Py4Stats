@@ -1,6 +1,6 @@
 # `py4stats` 
 
-　回帰分析を中心とした統計分析の場面で、よく使うR言語の機能を Python で再現することを目的としたモジュールです。`py4stats` モジュールで実装されている関数の一覧は [reference](https://github.com/Hirototensho/Py4Stats/blob/main/man/reference.md)をご覧ください。
+　回帰分析を中心とした統計分析の場面で、よく使うR言語の機能を Python で再現することを目的としたモジュールです。`py4stats` モジュールで実装されている関数の一覧は [reference](https://github.com/Hirototensho/Py4Stats/blob/main/man/reference.md) をご覧ください。
 
 ## Install
 
