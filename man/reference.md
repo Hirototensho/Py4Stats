@@ -30,4 +30,6 @@
 
 ## `py4stats.bilding_block`
 
+[`bilding_block.arg_match()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/arg_match.md)
+
 [`bilding_block.pad_zero()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/miscellaneous.md)  [`bilding_block.p_stars()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/miscellaneous.md)
