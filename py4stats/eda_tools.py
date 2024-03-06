@@ -46,7 +46,7 @@ def diagnose(self):
 
 """### 異なるデータフレームの列を比較する関数"""
 
-def compare_df_cols(df_list, df_name = None, return_match = 'all'):
+def compare_df_cols(df_list, return_match = 'all', df_name = None):
   """複数のモデルを比較する表を作成する関数"""
   # 引数のアサーション ----------------------
   assert isinstance(df_list, list) & \
