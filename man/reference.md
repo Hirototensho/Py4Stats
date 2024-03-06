@@ -17,6 +17,10 @@
 
 [`eda_tools.filtering_out()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/filtering_out.md)
 
+### 複数のデータフレームの比較
+
+[`eda_tools.compare_df_cols()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_df_cols.md)
+
 ### 論理関数
 
 [`eda_tools.is_number()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/predicate.md)  [`eda_tools.is_ymd()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/predicate.md)    [`eda_tools.is_ymd_like()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/predicate.md)
