@@ -254,11 +254,16 @@ def tabyl(
 
 """## `diagnose_category()`：カテゴリー変数専用の要約関数"""
 
-# 適切なダミー変数かどうかを判定する関数
-def is_dummy(x): return x.isin([0, 1]).all(axis = 'index') & (x.nunique() == 2)
+from functools import singledispatch
+@pf.register_dataframe_method
+@pf.register_series_method
+@singledispatch
+def is_dummy(self, cording = [0, 1]): return set(self) == set(cording)
+
+@is_dummy.register(pd.DataFrame)
+def _(self, cording = [0, 1]): return self.apply(is_dummy, cording = cording)
 
 # カテゴリカル変数についての集計関数 --------------
-
 # 情報エントロピーと、その値を0から1に標準化したもの --------------
 def entropy(X, base = 2, axis = 0):
     vc = pd.Series(X).value_counts(normalize = True, sort = False)
