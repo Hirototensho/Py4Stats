@@ -107,3 +107,6 @@ print(reg.tidy_mfx(fit_logit1).round(4))
 ## 注意点
 
 　参考にしたR言語の [`broom::tidy()`](https://broom.tidymodels.org/reference/tidy.lm.html) は様々な種類のモデルに対応したジェネリック関数として定義されていますが、`regression_tools.tidy()` と `regression_tools.tidy_mfx()` はジェネリック関数としては実装できていないため、[`sm.ols()`](https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.OLS.html) と [`sm.glm()`](https://www.statsmodels.org/devel/generated/statsmodels.genmod.generalized_linear_model.GLM.html) で推定されたモデルのみでしか正しく機能しない可能性があります。
+
+***
+[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/man/reference.md)
