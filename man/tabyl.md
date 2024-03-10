@@ -76,3 +76,5 @@ print(eda.tabyl(penguins, 'island', 'species', normalize = 'all'))
 #> Torgersen   52 (15.1%)    0 (0.0%)     0 (0.0%)    52 (15.1%)
 #> All        152 (44.2%)  68 (19.8%)  124 (36.0%)  344 (100.0%)
 ```
+***
+[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/man/reference.md)
