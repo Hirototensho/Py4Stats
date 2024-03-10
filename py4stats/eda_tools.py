@@ -11,17 +11,6 @@ Original file is located at
 
 from py4stats import bilding_block as bild # py4stats のプログラミングを補助する関数群
 
-"""## `diagnose()`
-
-- `index`（行名）：もとのデータフレームの列名に対応しています。
-- `dtype`：該当する列のpandasにおけるデータの型。「〇〇の個数」や「〇〇の金額」といった列の dtype が `object` になっていたら、文字列として読み込まれているので要注意です。
-
-- `missing_count`：該当する列のなかで `NaN` などの欠測値になっている数
-- `missing_percent`：該当する列のなかで欠測値が占めている割合で 欠`missing_percent = 100 * missing_count/ nrow` として計算されます。もし `missing_percent = 100` なら、その列は完全に空白です。
-- `unique_count`：その列で重複を除外したユニークな値の数。例えばある列の中身が「a, a, b, b, b」であればユニークな値は `a` と `b` の2つなのでユニーク値の数は2です。もし ユニーク値の数 = 1 であれば、その行にはたった1種類の値しか含まれていないことが分かりますし、例えば都道府県を表す列のユニーク値の数が47より多ければ、都道府県以外のものが混ざっていると考えられます。
-- `unique_rate`： サンプルに占めるユニークな値の割合。 `unique_rate = 100 * unique_count / nrow`と計算されます。 `unique_rate = 100` であれば、全ての行に異なる値が入っています。一般的に実数値の列はユニーク率が高くなりますが、年齢の「20代」や価格の「400円代」のように、階級に分けられている場合にはユニーク率が低くなります。
-"""
-
 import pandas as pd
 import numpy as np
 import scipy as sp
@@ -32,6 +21,17 @@ def missing_percent(x, axis = 'index', pct = True):
 
 @pf.register_dataframe_method
 def diagnose(self):
+  """
+  ## `diagnose()`
+  ### ## 返り値 Value
+  - `index`（行名）：もとのデータフレームの列名に対応しています。
+  - `dtype`：該当する列のpandasにおけるデータの型。「〇〇の個数」や「〇〇の金額」といった列の dtype が `object` になっていたら、文字列として読み込まれているので要注意です。
+
+  - `missing_count`：該当する列のなかで `NaN` などの欠測値になっている数
+  - `missing_percent`：該当する列のなかで欠測値が占めている割合で 欠`missing_percent = 100 * missing_count/ nrow` として計算されます。もし `missing_percent = 100` なら、その列は完全に空白です。
+  - `unique_count`：その列で重複を除外したユニークな値の数。例えばある列の中身が「a, a, b, b, b」であればユニークな値は `a` と `b` の2つなのでユニーク値の数は2です。もし ユニーク値の数 = 1 であれば、その行にはたった1種類の値しか含まれていないことが分かりますし、例えば都道府県を表す列のユニーク値の数が47より多ければ、都道府県以外のものが混ざっていると考えられます。
+  - `unique_rate`： サンプルに占めるユニークな値の割合。 `unique_rate = 100 * unique_count / nrow`と計算されます。 `unique_rate = 100` であれば、全ての行に異なる値が入っています。一般的に実数値の列はユニーク率が高くなりますが、年齢の「20代」や価格の「400円代」のように、階級に分けられている場合にはユニーク率が低くなります。
+  """
   self = self.copy()
   # 各種集計値の計算 ------------
   result = pd.DataFrame({
@@ -47,7 +47,7 @@ def diagnose(self):
 """### 異なるデータフレームの列を比較する関数"""
 
 def compare_df_cols(df_list, return_match = 'all', df_name = None):
-  """複数のモデルを比較する表を作成する関数"""
+  """複数の pandas.DataFrame に含まれる同じ名前を持つ列同士のデータ型 `dtype` を比較します。"""
   # 引数のアサーション ----------------------
   assert isinstance(df_list, list) & \
         all([isinstance(v, pd.DataFrame) for v in df_list]),\
@@ -55,7 +55,7 @@ def compare_df_cols(df_list, return_match = 'all', df_name = None):
 
   return_match = bild.arg_match(
       return_match,
-       ["all", "match", "mismatch"],
+       ['all', 'match', 'mismatch'],
       arg_name = 'return_match'
       )
   # --------------------------------------
@@ -341,25 +341,28 @@ def make_rank_table(data, group, values, aggfunc = 'sum'):
     rank_table['share'] = (rank_table[values] / rank_table[values].sum())
     rank_table['cumshare'] = rank_table['share'].cumsum()
     return rank_table
-    # return p_table
 
-# -----------------------------------------------
 # パレート図を作成する関数
 def Pareto_plot(
-    data, group, values = None, top_n = 20, aggfunc = 'sum',
-    ax = None, fontsize = 12, palette = {'bar':'#478FCE', 'line':'#252525'},
-    xlab_rotation = 90
+    data,
+    group,
+    values = None,
+    top_n = None,
+    aggfunc = 'sum',
+    ax = None,
+    fontsize = 12,
+    xlab_rotation = 0,
+    # palette = {'bar':'#478FCE', 'line':'#252525'}
+    palette = ['#478FCE', '#252525']
     ):
 
     # 指定された変数でのランクを表すデータフレームを作成
-    # グラフの見やすさのために上位 top_n 件を抽出します。
     if values is None:
-        shere_rank = freq_table(data, group, dropna = True).head(top_n)
+        shere_rank = freq_table(data, group, dropna = True)
         cumlative = 'cumfreq'
     else:
-        shere_rank = make_rank_table(data, group, values, aggfunc = aggfunc).head(top_n)
+        shere_rank = make_rank_table(data, group, values, aggfunc = aggfunc)
         cumlative = 'cumshare'
-
 
     # グラフの描画
     if ax is None:
@@ -367,13 +370,16 @@ def Pareto_plot(
 
     # yで指定された変数の棒グラフ
 
-    # グラフの見やすさのために上位 top_n 件を抽出します。
+    # top_n が指定されていた場合、上位 top_n 件を抽出します。
+    if top_n is not None:
+      shere_rank = shere_rank.head(top_n)
+
     if values is None:
-        ax.bar(shere_rank.index, shere_rank['freq'], color = palette['bar'])
+        ax.bar(shere_rank.index, shere_rank['freq'], color = palette[0])
         ax.set_ylabel('freq', fontsize = fontsize * 1.1)
     else:
         # yで指定された変数の棒グラフ
-        ax.bar(shere_rank.index, shere_rank[values], color = palette['bar'])
+        ax.bar(shere_rank.index, shere_rank[values], color = palette[0])
         ax.set_ylabel(values, fontsize = fontsize * 1.1)
 
 
@@ -383,7 +389,7 @@ def Pareto_plot(
     ax2 = ax.twinx()
     ax2.plot(
         shere_rank.index, shere_rank[cumlative],
-        linestyle = 'dashed', color = palette['line'], marker = 'o'
+        linestyle = 'dashed', color = palette[1], marker = 'o'
         )
 
     ax2.set_xlabel(group, fontsize = fontsize * 1.1)
