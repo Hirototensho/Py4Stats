@@ -40,4 +40,4 @@ print(penguins.diagnose().round(4))
 #> year                 int64              0           0.0000             3       0.8721
 ```
 
-[Return to Function reference.](https://github.com/Hirototensho/Py4Stats/blob/main/man/reference.md)
+[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/man/reference.md)
