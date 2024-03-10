@@ -11,6 +11,8 @@
 
 [`eda_tools.freq_table()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/freq_table.md)
 
+[`eda_tools.Pareto_plot()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/Pareto_plot.md)
+
 ### データフレームの列や行の削除
 
 [`eda_tools.remove_empty()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/remove_empty_constant.md)  [`eda_tools.remove_constant()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/remove_empty_constant.md)
