@@ -130,3 +130,5 @@ print(penguins2.remove_constant(dropna = True).head(3))
 #> 1  Adelie       3800.0
 #> 2  Adelie       3250.0
 ```
+***
+[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/man/reference.md)
