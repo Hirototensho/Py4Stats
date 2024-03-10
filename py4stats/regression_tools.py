@@ -160,7 +160,7 @@ def compare_ols(
     **kwargs
     ):
   """複数のモデルを比較する表を作成する関数"""
-  assert isinstance(list_models, list), 'list_models is must be a list of models.'
+  assert isinstance(list_models, list), "argument 'list_models' is must be a list of models."
 
   tidy_list = [tidy(mod) for mod in list_models]
 
@@ -318,7 +318,7 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
-import japanize_matplotlib #日本語化matplotlib
+# import japanize_matplotlib #日本語化matplotlib
 from statsmodels.iolib.summary import summary_params_frame
 
 # 回帰分析の結果から回帰係数のグラフを作成する関数 --------
@@ -597,7 +597,7 @@ def compare_mfx(
     line_break = '\n',
     **kwargs
     ):
-  assert isinstance(list_models, list), 'list_models is must be a list of models.'
+  assert isinstance(list_models, list), "argument 'list_models' is must be a list of models."
   # 限界効果の推定-------------
   if method == 'coef':
       tidy_list = [tidy(mod) for mod in list_models]
