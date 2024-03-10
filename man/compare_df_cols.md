@@ -53,4 +53,6 @@ print(eda.compare_df_cols(
 #> term
 #> 発生月日  int64  object  object        False
 ```
+***
 [Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/man/reference.md)
+
