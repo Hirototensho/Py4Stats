@@ -91,3 +91,4 @@ penguins.tabyl('island', 'species', normalize = 'ind')
 #> ValueError: 'normalize' must be one of 'index', 'columns' or 'all', not 'ind'.
 #>              Did you mean 'index'?
 ```
+[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/man/reference.md)
