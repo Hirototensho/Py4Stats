@@ -94,3 +94,5 @@ print(data.loc[~data['摂食者数'].is_number(), '摂食者数'])
 #> 380    不明
 #> Name: 摂食者数, dtype: object
 ```
+***
+[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/man/reference.md)
