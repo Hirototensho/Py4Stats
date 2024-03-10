@@ -39,3 +39,8 @@ print(penguins.diagnose().round(4))
 #> sex                 object             11           3.1977             2       0.5814
 #> year                 int64              0           0.0000             3       0.8721
 ```
+
+:::note info
+インフォメーション
+infoは省略可能です。
+:::
