@@ -197,7 +197,7 @@ compare_tab4.loc['島ダミー', :] = ['No', 'No', 'Yes']
 compare_tab4 # 上記のコードと同じ結果
 ```
 
-## 参照
+## 参照 see also
 
 　一般化線形モデルの限界効果を比較する場合は [`regression_tools.compare_mfx()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_ols.md)を利用してください。
 
