@@ -117,3 +117,5 @@ reg.compare_mfx([fit_logit1, fit_logit2])
 
 　**注意**：pandas データフレームとしの表示では、`table_style = 'two_line'` としたときの回帰係数とp-値の間の改行が、改行記号「\n」が表示されますが、Excel ファイルとして保存すると、正しくセル内での改行として扱われます。  
 　`reg.compare_ols()` の実行結果は `Pandas` の `DataFrame` として出力されるため、`.xlsx`. ファイルなどに変換することができます。また、用途に応じて表の体裁を調整できるようにしています。
+
+[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/man/reference.md)
