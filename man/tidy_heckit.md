@@ -1,4 +1,4 @@
-# heckit_helper.tidy_heckit()
+# `heckit_helper.tidy_heckit()`
 
 ## 概要
 
