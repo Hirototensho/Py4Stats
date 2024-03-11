@@ -130,3 +130,4 @@ for k, mod in enumerate(list_fitted2):
   ax[k].set_title(list_groups[k])
   ax[k].set_xlabel(f'coefficient (n = {mod.nobs:,.0f})')
 ```
+![Unknown-1](https://github.com/Hirototensho/Py4Stats/assets/55335752/abb362d3-f0f7-42d0-9dd5-8379e5c05b55)
