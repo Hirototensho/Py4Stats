@@ -53,6 +53,8 @@
 
 [`heckit_helper.tidy_heckit()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy_heckit.md)
 
+[`heckit_helper.heckitmfx_compute()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/heckitmfx_compute.md)
+
 ## `py4stats.bilding_block`
 
 ### 引数のアサーション関数
