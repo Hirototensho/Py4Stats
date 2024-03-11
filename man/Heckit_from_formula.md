@@ -21,9 +21,17 @@ Heckit_from_formula(
 - `**kwargs` </br>
   `py4etrics.heckit.Heckit()` に渡すその他の引数
 
+## 返り値 Value
+
+　3つの要素を持つ tuple。左から順に次の3つのオブジェクトが出力されます。
+
+1. `py4etrics.heckit.Heckit()` から出力されたモデルの推定結果
+2. 第2段階の regression equation(賃金関数)の説明変数からなる pd.DataFrame
+3. 第1段階のselection equation(選択関数, 就業決定関数)の説明変数からなる pd.DataFrame
+
 ## 使用例 Examples
 
-　`heckit_helper` モジュールはヘックマンの2段階推定（Heckit）を実行を [`Py4Etrics`](https://github.com/Py4Etrics/py4etrics) モジュールに依存しているため、事前のインストールをお願いします。
+　`heckit_helper` モジュールはヘックマンの2段階推定（Heckit）を実行を [`Py4Etrics`](https://github.com/Py4Etrics/py4etrics) モジュールの `py4etrics.heckit.Heckit()` に依存しているため、事前のインストールをお願いします。
 
 ```python
 pip install git+https://github.com/Py4Etrics/py4etrics.git
