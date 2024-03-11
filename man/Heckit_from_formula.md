@@ -102,35 +102,6 @@ print(res_heckit.summary())
 #> Third table is the estimate for the coef of the inverse Mills ratio (Heckman's Lambda).
 ```
 
-[`reg.tidy()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy.md)を使うことで、第2段階の推定結果を pd.DataFrame として取り出すことができます。
-
-```python
-print(reg.tidy(res_heckit).round(4))
-#>            estimate  std_err  statistics  p_value  conf_lower  conf_higher
-#> term                                                                      
-#> Intercept   -0.5781   0.3050     -1.8954   0.0580     -1.1759       0.0197
-#> educ         0.1091   0.0155      7.0261   0.0000      0.0786       0.1395
-#> exper        0.0439   0.0163      2.6989   0.0070      0.0120       0.0758
-#> expersq     -0.0009   0.0004     -1.9574   0.0503     -0.0017       0.0000
-```
-
-また、第2段階の推定結果についても `.select_res` メソッドを使うことで取り出すことができます。ただし、`reg.tidy()` を使用すると `Heckit()` の仕様上説明変数の名前が反映されないため、説明変数の名前を反映するには `name_of_term` 引数で指定する必要があります。
-
-```python
-print(reg.tidy(res_heckit.select_res, name_of_term = exog_select.columns).round(4))
-#>            estimate  std_err  statistics  p_value  conf_lower  conf_higher
-#> term                                                                      
-#> Intercept    0.2701   0.5086      0.5310   0.5954     -0.7267       1.2669
-#> educ         0.1309   0.0253      5.1835   0.0000      0.0814       0.1804
-#> exper        0.1233   0.0187      6.5903   0.0000      0.0867       0.1600
-#> expersq     -0.0019   0.0006     -3.1452   0.0017     -0.0031      -0.0007
-#> nwifeinc    -0.0120   0.0048     -2.4843   0.0130     -0.0215      -0.0025
-#> age         -0.0529   0.0085     -6.2347   0.0000     -0.0695      -0.0362
-#> kidslt6     -0.8683   0.1185     -7.3263   0.0000     -1.1006      -0.6360
-#> kidsge6      0.0360   0.0435      0.8281   0.4076     -0.0492       0.1212
-```
-Type2トービットモデルとヘックマンの2段階推定についての詳細は、春山(2023)の第24章や末石(2015, p.117)の第6章を参照してください。
-
 ## 参考文献
 - 末石直也(2015)『計量経済学：ミクロデータ分析へのいざない』 日本評論社.
 - 春山鉄源(2023) 『Pythonで学ぶ入門計量経済学』 https://py4etrics.github.io/index.html
