@@ -105,6 +105,10 @@ print(heckit_helper.heckitmfx_compute(
 #> nwifeinc        -0.8730       0.0217    -0.8945   0.0000 -0.0120
 ```
 
+## 注意
+
+　`heckitmfx_compute()` の実装は実験的なものであり、 Stata における `margins` コマンドなどの既存の手法とは計算結果が一致しない可能性があります。
+
 ## 参考文献
 - ダハナ・ウィラワン ドニ, 勝又壮太郎(2023) 『Rによるマーケティング・データ分析: 基礎から応用まで (ライブラリ データ分析への招待 4)』新世社.
 - 春山鉄源 (2023) 『Pythonで学ぶ入門計量経済学』. https://py4etrics.github.io/index.html
