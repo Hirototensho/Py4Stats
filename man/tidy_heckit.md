@@ -16,7 +16,7 @@ tidy_heckit(
 ## 引数 Argument
 
 - `x`（必須）</br>
-　[`sm.ols()`](https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.OLS.html)もしくは[`sm.glm()`](https://www.statsmodels.org/devel/generated/statsmodels.genmod.generalized_linear_model.GLM.html) で作成された分析結果のオブジェクト。
+　 [`Py4Etrics`](https://github.com/Py4Etrics/py4etrics) モジュールの `py4etrics.heckit.Heckit()` で作成された `HeckitResults` クラスのオブジェクト。
 - `name_selection`：**list of str**</br>
 　`term` 列（index） のうち、第1段階の説明変数の名称として表示する文字列のリスト。指定しない場合（初期設定）、モデルの推定に使用された説明変数の名前がそのまま表示されます。
 - `name_outcome`：**list of str**</br>
