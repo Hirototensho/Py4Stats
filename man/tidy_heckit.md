@@ -2,7 +2,7 @@
 
 ## 概要
 
-　R言語の [`broom::tidy()`](https://broom.tidymodels.org/reference/tidy.lm.html) をオマージュした関数で、[`sm.ols()`](https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.OLS.html) や
+　R言語の [`broom::tidy()`](https://broom.tidymodels.org/reference/tidy.lm.html) をオマージュした [`regression_tools.tidy()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy.md) 関数の、`py4etrics.heckit.HeckitResults` クラス専用のメソッドです。
 
 ```python
 tidy_heckit(
@@ -45,6 +45,14 @@ tidy_heckit(
 
 ## 使用例 Examples
 
+　`heckit_helper` モジュールはヘックマンの2段階推定（Heckit）を実行を [`Py4Etrics`](https://github.com/Py4Etrics/py4etrics) モジュールの `py4etrics.heckit.Heckit()` に依存しているため、事前のインストールをお願いします。
+
+```python
+pip install git+https://github.com/Py4Etrics/py4etrics.git
+```
+
+ここでは `wooldridge` モジュールの `mroz` データを使い、春山(2023, Chap.24)のモデルを再現します。
+
 ```python
 import pandas as pd
 import wooldridge
@@ -60,7 +68,11 @@ mod_heckit, exog_outcome, exog_select =   heckit_helper.Heckit_from_formula(
 )
 
 res_heckit = mod_heckit.fit(cov_type_2 = 'HC1')
+```
 
+内部で `functools.singledispatch` を使用して定義しているため、`heckit_helper` モジュールの読み込み後は、`reg.tidy()` 関数を呼び出すことで `tidy_heckit()` を実行することができます。
+
+```python
 # 初期設定で使用した場合
 print(reg.tidy(res_heckit).round(4))
 #>               estimate  std_err  statistics  p_value  conf_lower  conf_higher
@@ -79,7 +91,7 @@ print(reg.tidy(res_heckit).round(4))
 #> S: x7           0.0360   0.0435      0.8281   0.4076     -0.0492       0.1212
 ```
 
-　**注意**：内部で使用している `statsmodels.iolib.summary.summary_params_frame()` の仕様上、初期設定では第1段階の説明変数の名前が反映できないため、説明変数の名前を反映するには `name_selection` 引数で指定してください。
+　**注意**：内部で使用している `statsmodels.iolib.summary.summary_params_frame()` の仕様上、初期設定では第1段階の説明変数の名前が反映されません。説明変数の名前を反映するには `name_selection` 引数で指定してください。
 
 ```python
 print(reg.tidy(res_heckit, name_selection = exog_select.columns).round(4))
