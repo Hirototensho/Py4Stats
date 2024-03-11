@@ -79,6 +79,8 @@ print(reg.tidy(res_heckit).round(4))
 #> S: x7           0.0360   0.0435      0.8281   0.4076     -0.0492       0.1212
 ```
 
+　**注意**：内部で使用している `statsmodels.iolib.summary.summary_params_frame()` の仕様上、初期設定では第1段階の説明変数の名前が反映できないため、説明変数の名前を反映するには `name_selection` 引数で指定してください。
+
 ```python
 print(reg.tidy(res_heckit, name_selection = exog_select.columns).round(4))
 #>               estimate  std_err  statistics  p_value  conf_lower  conf_higher
