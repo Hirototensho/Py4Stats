@@ -15,21 +15,22 @@ import statsmodels.formula.api as smf
 import patsy
 
 from py4stats import bilding_block as bild # py4stats のプログラミングを補助する関数群
+from py4stats import regression_tools as reg
+
+from functools import singledispatch
 
 """### 回帰式を使った Heckit のインターフェース"""
 
 def Heckit_from_formula(selection, outcome, data, **kwargs):
   # ステップ1：第１段階の説明変数
   y_select, exog_select = patsy.dmatrices(
-      selection,
-      data, return_type = "dataframe",
+      selection, data, return_type = 'dataframe',
       NA_action=patsy.NAAction(NA_types=[]) # 欠測値の除外を止める
       )
 
   # ステップ2：第２段階の説明変数と被説明変数
   endog, exog_outcome = patsy.dmatrices(
-      outcome,
-      data, return_type = "dataframe",
+      outcome, data, return_type = 'dataframe',
       NA_action=patsy.NAAction(NA_types=[]) # 欠測値の除外を止める
       )
 
@@ -37,6 +38,30 @@ def Heckit_from_formula(selection, outcome, data, **kwargs):
 
   model = Heckit(endog[endog_name], exog_outcome, exog_select, **kwargs)
   return model, exog_outcome, exog_select
+
+# regression_tools.tdy() にメソッドを後付けする実験的試み
+from py4etrics.heckit import HeckitResults
+
+@reg.tidy.register(HeckitResults)
+def tidy_heckit(model, name_outcome = None, name_selection = None, conf_level = 0.95):
+  tidy_outcome = reg.tidy_default(
+      model,
+      name_of_term = name_outcome,
+      conf_level = conf_level
+      )
+
+  tidy_outcome.index = 'O: ' + tidy_outcome.index.to_series()
+
+  tidy_select = reg.tidy_default(
+      model.select_res,
+      name_of_term = name_selection,
+      conf_level = conf_level
+      )
+
+  tidy_select.index = 'S: ' + tidy_select.index.to_series()
+
+  res = pd.concat([tidy_outcome, tidy_select])
+  return res
 
 """### 限界効果を推定する関数"""
 
@@ -63,29 +88,29 @@ def f_d_log_cdf(var_name, Z, gamma, beta_lambda):
   res = (np.log(norm.cdf(z1 @ gamma)) - np.log(norm.cdf(z0 @ gamma)))
   return res
 
-def heckitmfx_compute(mod, exog_select, exog_outcome, exponentiate = False, params = None):
+def heckitmfx_compute(model, exog_select, exog_outcome, exponentiate = False, params = None):
   # 回帰係数の抽出 --------------
   if params is not None:
     # 回帰係数が指定された場合の処理（デルタ法の実装用）
-    n_gamma = int(mod.select_res.df_model + 1)
+    n_gamma = int(model.select_res.df_model + 1)
     beta = pd.Series(params[n_gamma:], exog_outcome.columns)
     gamma = pd.Series(params[:n_gamma], exog_select.columns)
   else:
-    beta = pd.Series(mod.params, exog_outcome.columns)
-    gamma = pd.Series(mod.select_res.params, exog_select.columns)
+    beta = pd.Series(model.params, exog_outcome.columns)
+    gamma = pd.Series(model.select_res.params, exog_select.columns)
 
   beta.name = 'beta'
   gamma.name = 'gamma'
 
   # 逆ミルズ比の回帰係数 --------------
-  beta_lambda = mod.params_inverse_mills
+  beta_lambda = model.params_inverse_mills
 
   est = pd.merge(beta[1:], gamma[1:], how='outer', left_index=True, right_index=True)
   # 賃金関数で使われていない変数については beta に nan が発生するため、0で置換します。
   est[est.isna()] = 0
 
   # 連続変数用の処理--------------
-  # alpha = mod.select_res.fittedvalues
+  # alpha = model.select_res.fittedvalues
   alpha = exog_select @ gamma
 
   lambda_value = finv_mills(alpha)
@@ -143,7 +168,9 @@ def jacobian(f, x, h=0.00001, *args):
 from scipy.stats import norm
 
 def heckitmfx(
-    mod, exog_select, exog_outcome,
+    model,
+    exog_select,
+    exog_outcome,
     type_estimate = 'unconditional',
     exponentiate = False,
     alpha = 0.05
@@ -156,13 +183,13 @@ def heckitmfx(
 
   # 限界効果の推定
   estimate = heckitmfx_compute(
-      mod, exog_select, exog_outcome,
+      model, exog_select, exog_outcome,
       exponentiate = exponentiate
       ).loc[:, type_estimate]
 
   # 共分散行列の作成
-  vcv1 = mod.select_res.cov_params()
-  vcv2 = mod.cov_params()
+  vcv1 = model.select_res.cov_params()
+  vcv2 = model.cov_params()
 
   O = np.zeros(shape = (vcv1.shape[0], vcv2.shape[0]))
 
@@ -171,10 +198,10 @@ def heckitmfx(
   # ヤコブ行列の計算
   J_mat = jacobian(
       f = lambda x : heckitmfx_compute(
-          mod, exog_select, exog_outcome,
+          model, exog_select, exog_outcome,
           params = x, exponentiate = exponentiate
           ).loc[:, type_estimate],
-      x = np.append(mod.select_res.params, mod.params)
+      x = np.append(model.select_res.params, model.params)
       )
   # デルタ法による標準誤差の推定
   std_err = np.sqrt(np.diag(J_mat @ vcv @ J_mat.T))
