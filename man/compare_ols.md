@@ -134,7 +134,7 @@ compare_tab3 = reg.compare_ols(
 GT(compare_tab3.reset_index())\
   .tab_header(title = 'Palmer penguin データを使った回帰分析の結果')\
   .tab_source_note(
-      source_note= "Signif. codes: 0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1"
+      source_note= "Signif. codes: 0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’"
       )\
   .tab_source_note(source_note = '( ) の値は標準誤差')
 ```
