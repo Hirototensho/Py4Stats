@@ -28,13 +28,26 @@ import sys
 
 from py4stats import bilding_block as bild # py4stats のプログラミングを補助する関数群
 
+from functools import singledispatch
+
 """## 回帰分析の結果をデータフレームに変換する関数"""
 
-from statsmodels.iolib.summary import summary_params_frame
-from scipy.stats import t
+from functools import singledispatch
 
 # definition of tidy --------------------------------------------------
-def tidy(
+@singledispatch
+def tidy(x, name_of_term = None, conf_level = 0.95, **kwargs):
+  raise ValueError(f'tidy mtethod for object {type(x)} is not implemented.')
+
+from statsmodels.iolib.summary import summary_params_frame
+from statsmodels.discrete.discrete_model import BinaryResultsWrapper
+from statsmodels.regression.linear_model import RegressionResultsWrapper
+from scipy.stats import t
+
+
+@tidy.register(RegressionResultsWrapper)
+@tidy.register(BinaryResultsWrapper)
+def tidy_default(
   x,
   name_of_term = None,
   conf_level = 0.95,
@@ -64,7 +77,6 @@ def tidy(
       tidied = tidy_to_jp(tidied, conf_level = 0.95)
 
   return tidied
-
 
 def tidy_to_jp(tidied, conf_level = 0.95):
   tidied = tidied\
