@@ -24,6 +24,8 @@ heckitmfx_compute(
 
 これらの引数は [`heckit_helper.Heckit_from_formula()`](https://github.com/Hirototensho/Py4Stats/edit/main/man/Heckit_from_formula.md) の出力を使用することを想定しています（使用例を参照）。
 
+$100[\exp(e_{I} - 1)]$
+
 ## 返り値 Value
 
 　次の列を含む pands.DataFrame が出力されます。
