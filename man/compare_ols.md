@@ -138,7 +138,7 @@ GT(compare_tab3.reset_index())\
       )\
   .tab_source_note(source_note = '( ) の値は標準誤差')
 ```
-<img width="549" alt="compare_tab_gt" src="https://github.com/Hirototensho/Py4Stats/assets/55335752/7e189a26-c2a3-4a52-b717-61cf71317cd3">
+<img width="538" alt="compare_tab_gt" src="https://github.com/Hirototensho/Py4Stats/assets/55335752/7aef91d5-87dc-4be0-97d6-f72d9ec1f5a0">
 
 #### 回帰係数の sbusetting
 
