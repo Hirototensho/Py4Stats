@@ -102,7 +102,9 @@ print(reg.tidy(res_heckit).round(4))
 #> educ         0.1091   0.0155      7.0261   0.0000      0.0786       0.1395
 #> exper        0.0439   0.0163      2.6989   0.0070      0.0120       0.0758
 #> expersq     -0.0009   0.0004     -1.9574   0.0503     -0.0017       0.0000
+```
 
+```python
 print(reg.tidy(res_heckit.select_res, exog_select.columns).round(4))
 #>            estimate  std_err  statistics  p_value  conf_lower  conf_higher
 #> term                                                                      
