@@ -1,4 +1,4 @@
-# `regression_tools.tidy(), regression_tools.tidy_mfx()`
+# `regression_tools.tidy()`, `regression_tools.tidy_mfx()`
 
 ## 概要
 
