@@ -61,6 +61,7 @@ mod_heckit, exog_outcome, exog_select =   heckit_helper.Heckit_from_formula(
 
 res_heckit = mod_heckit.fit(cov_type_2 = 'HC1')
 
+# 初期設定で使用した場合
 print(reg.tidy(res_heckit).round(4))
 #>               estimate  std_err  statistics  p_value  conf_lower  conf_higher
 #> term                                                                         
