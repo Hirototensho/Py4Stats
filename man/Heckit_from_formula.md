@@ -94,6 +94,8 @@ print(res_heckit.summary())
 #> Third table is the estimate for the coef of the inverse Mills ratio (Heckman's Lambda).
 ```
 
+[`reg.tidy()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy.md)を使うことで、推定結果を pd.DataFrame として取り出すこともできます。
+
 ```python
 print(reg.tidy(res_heckit).round(4))
 #>            estimate  std_err  statistics  p_value  conf_lower  conf_higher
