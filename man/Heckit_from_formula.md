@@ -94,7 +94,7 @@ print(res_heckit.summary())
 #> Third table is the estimate for the coef of the inverse Mills ratio (Heckman's Lambda).
 ```
 
-[`reg.tidy()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy.md)を使うことで、推定結果を pd.DataFrame として取り出すこともできます。
+[`reg.tidy()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy.md)を使うことで、第2段階の推定結果を pd.DataFrame として取り出すことができます。
 
 ```python
 print(reg.tidy(res_heckit).round(4))
@@ -106,8 +106,10 @@ print(reg.tidy(res_heckit).round(4))
 #> expersq     -0.0009   0.0004     -1.9574   0.0503     -0.0017       0.0000
 ```
 
+また、第2段階の推定結果についても `.select_res` メソッドを使うことで取り出すことができます。ただし、`reg.tidy()` を使用すると `Heckit()` の仕様上説明変数の名前が反映されないため、説明変数の名前を反映するには `name_of_term` 引数で指定する必要があります。
+
 ```python
-print(reg.tidy(res_heckit.select_res, exog_select.columns).round(4))
+print(reg.tidy(res_heckit.select_res, name_of_term = exog_select.columns).round(4))
 #>            estimate  std_err  statistics  p_value  conf_lower  conf_higher
 #> term                                                                      
 #> Intercept    0.2701   0.5086      0.5310   0.5954     -0.7267       1.2669
