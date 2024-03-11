@@ -23,7 +23,7 @@ Heckit_from_formula(
 
 ## 使用例 Examples
 
-　`heckit_helper` モジュールはヘックマンの2段階推定（Heckit）を実行するために [`Py4Etrics`](https://github.com/Py4Etrics/py4etrics) に依存しているため、事前のインストールをお願いします。
+　`heckit_helper` モジュールはヘックマンの2段階推定（Heckit）を実行を [`Py4Etrics`](https://github.com/Py4Etrics/py4etrics) モジュールに依存しているため、事前のインストールをお願いします。
 
 ```python
 pip install git+https://github.com/Py4Etrics/py4etrics.git
