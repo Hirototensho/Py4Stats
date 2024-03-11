@@ -24,7 +24,8 @@ heckitmfx_compute(
 
 これらの引数は [`heckit_helper.Heckit_from_formula()`](https://github.com/Hirototensho/Py4Stats/edit/main/man/Heckit_from_formula.md) の出力を使用することを想定しています（使用例を参照）。
 
-$100[\exp(e_{I} - 1)]$
+- `exponentiate`**bool**</br>
+　推定結果に指数関数を用いた変換を行うかどうかを表す論理値。もし False （初期設定）であれば限界効果と回帰係数の推定値をそのまま出力し、もし True であれば出力されるデータフレームのうち `unconditional`、`conditional`、`selection`、`beta` の列について指数関数 $100[\exp(x - 1)]$ を用いた変換を行います。例えば被説明変数は対数賃金であれば、変換後の限界効果はパーセンテージで表された賃金の変化率として解釈できます。
 
 ## 返り値 Value
 
@@ -37,7 +38,7 @@ $100[\exp(e_{I} - 1)]$
 - `conditional`</br>
 　Hoffmann, Kassouf(2005, pp.4-5)の(8)式および(9)式に基づく条件付平均限界効果（conditional marginal effect）
 - `selection`</br>
-　Hoffmann, Kassouf(2005, p.6)の(14)式および(15)式の第3項に当たる間接効果 $e_{II} = \gamma_j \lambda(\boldsymbol{Z}_i^\mathsf{T}\boldsymbol{\gamma})$
+　Hoffmann, Kassouf(2005, p.6)の(14)式および(15)式の第3項に当たる間接効果
 - `beta`</br>
 　第2段階の regression equation の回帰係数
 - `gamma`</br>
