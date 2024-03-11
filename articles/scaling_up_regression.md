@@ -72,6 +72,7 @@ for k, mod in enumerate(list_fitted1):
   ax[k].set_title(f'model {k + 1}')
   ax[k].set_xlabel(f'coefficient (n = {mod.nobs:,.0f})')
 ```
+![Unknown](https://github.com/Hirototensho/Py4Stats/assets/55335752/c3971702-b97a-4679-ae9a-f5787b1443cb)
 
 ## グループ別の回帰分析
 
