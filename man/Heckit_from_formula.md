@@ -14,28 +14,34 @@ Heckit_from_formula(
 ## 引数 Argument
 
 - `selection`**str**（必須）</br>
-　Type2トービットモデルのうち selection equation(選択関数, 就業決定関数)の回帰式
+　Type2トービットモデルのうち第1段階の selection equation(選択関数, 就業決定関数)の回帰式
 - `outcome`**str**（必須）</br>
-　Type2トービットモデルのうち regression equation(賃金関数)の回帰式
+　Type2トービットモデルのうち第2段階の regression equation(賃金関数)の回帰式
 - `data`：**pandas.DataFrame**（必須）</br>
 - `**kwargs` </br>
   `py4etrics.heckit.Heckit()` に渡すその他の引数
 
 ## 使用例 Examples
 
+　`heckit_helper` モジュールはヘックマンの2段階推定（Heckit）を実行するために [`Py4Etrics`](https://github.com/Py4Etrics/py4etrics) に依存しているため、事前のインストールをお願いします。
+
 ```python
 pip install git+https://github.com/Py4Etrics/py4etrics.git
 ```
 
+ここでは春山(2023, Chap.24)のモデルを再現するため、`wooldridge` モジュールから `mroz` データを読み込みます。
+
 ```python
-from py4etrics.heckit import Heckit
 import pandas as pd
 import wooldridge
-import patsy
 from py4stats import heckit_helper
 
-mroz = wooldridge.data('mroz')
+mroz = wooldridge.data('mroz') # サンプルデータの読み込み
+```
 
+`Heckit_from_formula()` 関数を使い、モデルを推定します。なお、Type2トービットモデルを推定する場合、第2段階の回帰式 `outcome` で使用される説明変数は全て第1段階の回帰式 `selection` に含まれ、なおかつ `selection` に含まれるものの、`outcome` には含まれない説明変数が少なくとも1つは必要であることに注意してください(末石, 2015, p.117)。
+
+```python
 mod_heckit, exog_outcome, exog_select = \
  heckit_helper.Heckit_from_formula(
     selection = 'lwage ~ educ + exper + expersq + nwifeinc + age + kidslt6 + kidsge6',
@@ -44,9 +50,7 @@ mod_heckit, exog_outcome, exog_select = \
 )
 
 res_heckit = mod_heckit.fit(cov_type_2 = 'HC1')
-```
 
-```python
 print(res_heckit.summary())
 #>                            Heckit Regression Results                            
 #> ================================================================================
@@ -90,5 +94,11 @@ print(res_heckit.summary())
 #> Third table is the estimate for the coef of the inverse Mills ratio (Heckman's Lambda).
 ```
 
+Type2トービットモデルとヘックマンの2段階推定についての詳細は、春山(2023)の第24章や末石(2015, p.117)の第6章を参照してください。
+
 ## 参考文献
-- 春山鉄源(2023) 『Pythonで学ぶ入門計量経済学』. https://py4etrics.github.io/index.html
+- 末石直也(2015)『計量経済学：ミクロデータ分析へのいざない』 日本評論社.
+- 春山鉄源(2023) 『Pythonで学ぶ入門計量経済学』 https://py4etrics.github.io/index.html
+
+***
+[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/man/reference.md)
