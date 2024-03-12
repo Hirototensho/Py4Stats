@@ -9,9 +9,14 @@ Original file is located at
 # `py4stats` のプログラミングを補助する関数群
 
 `eda_tools` や `regression_tools` で共通して使う関数をここにまとめておきます。`bilding_block` モジュール自体は外部から呼び出さずに使用することを想定しています。
-
-## 引数のアサーション
 """
+
+import pandas as pd
+import numpy as np
+import scipy as sp
+from varname import argname
+
+"""## 引数のアサーション"""
 
 import argparse
 
@@ -33,15 +38,14 @@ def match_arg(arg, values, arg_name = 'argument'):
       if len(matches) == 1:
           return matches[0]
       elif len(matches) > 1:
-          raise argError(
+          raise ValueError(
               f"""'{arg}' is ambiguous arg for '{arg_name}'. Matches multiple values: {', '.join(matches)}.
               '{arg_name}' must be one of {oxford_comma_or(values)}."""
               )
       else:
-          # raise argError(f"No match found for arg: '{arg}'.")
-          raise argError(f"'{arg_name}' must be one of {oxford_comma_or(values)}, not '{arg}'.")
+          raise ValueError(f"'{arg_name}' must be one of {oxford_comma_or(values)}, not '{arg}'.")
 
-def arg_match0(arg, values, arg_name = 'argument'):
+def arg_match0(arg, values, arg_name = None):
     """
     Simulates the functionality of R's rlang::arg_match() function with partial matching in Python.
 
@@ -52,15 +56,14 @@ def arg_match0(arg, values, arg_name = 'argument'):
     Returns:
     - The matched arg if found in values, otherwise raises an ArgumentError.
     """
+    if(arg_name is None):
+      arg_name = argname('arg')
+
     if(arg in values):
       return arg
     else:
       matches = [c for c in values if arg.lower() in c.lower()]
       if len(matches) >= 1:
-        # raise ValueError(
-        #     f""" '{arg_name}' must be one of {oxford_comma_or(values)}.
-        #     Did you mean {oxford_comma_or(matches)}?"""
-        # )
        raise ValueError(
             f"""'{arg_name}' must be one of {oxford_comma_or(values)}, not '{arg}'.
              Did you mean {oxford_comma_or(matches)}?"""
@@ -68,7 +71,7 @@ def arg_match0(arg, values, arg_name = 'argument'):
       else:
         raise ValueError(f"'{arg_name}' must be one of {oxford_comma_or(values)}, not '{arg}'.")
 
-def arg_match(arg, values, arg_name = 'argument', multiple = False):
+def arg_match(arg, values, arg_name = None, multiple = False):
   """
   Simulates the functionality of R's rlang::arg_match() function with partial matching in Python.
 
@@ -81,36 +84,58 @@ def arg_match(arg, values, arg_name = 'argument', multiple = False):
   Returns:
   - The matched arg if found in values, otherwise raises an ArgumentError.
   """
+  if(arg_name is None):
+      arg_name = argname('arg')
+
   if (type(arg) is str):
-    arg = arg_match0(arg, values, arg_name)
+    arg = arg_match0(arg, values, arg_name = arg_name)
     return arg
 
   # 与えられた引数がリストの場合
   elif (type(arg) is list) & multiple:
     # 複数選択可の場合
-    arg = [arg_match0(val, values, arg_name = arg_name) for val in arg]
+    arg = [arg_match0(val, values = values, arg_name = arg_name) for val in arg]
     return arg
   else:
     # 複数選択不可の場合 最初の要素を取り出して使います。
-    arg = arg_match0(arg[0], values, arg_name)
+    arg = arg_match0(arg[0], values = values, arg_name = arg_name)
     return arg
+
+"""## タイプチェックを行う関数"""
+
+from varname import argname
+import pandas.api.types
+
+def is_numeric(x):
+  return pandas.api.types.is_numeric_dtype(pd.Series(x))
+
+def assert_numeric(x, lower = -float('inf'), upper = float('inf'), inclusive = 'both'):
+  valid_type = ['float', 'int']
+  assert is_numeric(x), f"Argment '{argname('x')}' must be of type 'int' or 'float'."
+
+  x = pd.Series(x)
+  cond = x.between(lower, upper, inclusive = inclusive)
+  assert all(cond),\
+  f"Argment '{argname('x')}' must have value(s) {lower} <= x <= {upper}."
+
+def is_character(x):
+  return pandas.api.types.is_string_dtype(pd.Series(x))
+
+def assert_character(x):
+  assert is_character(x), f"Argment '{argname('x')}' must be of type 'str'."
 
 """## 数値などのフォーマット"""
 
-import pandas as pd
-import numpy as np
-import scipy as sp
-
 # 有意性を表すアスタリスクを作成する関数
-def p_stars_row(p_value):
+@np.vectorize
+def p_stars(p_value):
     stars = np.where(p_value <= 0.1, ' *', '')
     stars = np.where(p_value <= 0.05, ' **', stars)
     stars = np.where(p_value <= 0.01, ' ***', stars)
     return stars
 
-p_stars = np.vectorize(p_stars_row)
-
-def pad_zero_row(x, digits = 2):
+@np.vectorize
+def pad_zero(x, digits = 2):
     s = str(x)
     # もし s が整数値なら、何もしない。
     if s.find('.') != -1:
@@ -118,11 +143,8 @@ def pad_zero_row(x, digits = 2):
         s = s + '0' * (digits + 1 - s_digits) # 足りない分だけ0を追加
     return s
 
-pad_zero = np.vectorize(pad_zero_row, excluded = 'digits')
-
-def add_big_mark_row(s): return  f'{s:,}'
-
-add_big_mark = np.vectorize(add_big_mark_row)
+@np.vectorize
+def add_big_mark(s): return  f'{s:,}'
 
 """　文字列のリストを与えると、英文の並列の形に変換する関数です。表記法については[Wikipedia Serial comma](https://en.wikipedia.org/wiki/Serial_comma)を参照し、コードについては[stack overflow:Grammatical List Join in Python [duplicate]](https://stackoverflow.com/questions/19838976/grammatical-list-join-in-python)を参照しました。
 
