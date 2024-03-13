@@ -65,4 +65,4 @@ print(penguins.filtering_out(ends_with = '_mm').head(3))
 #> 2  Adelie  Torgersen       3250.0  female  2007       1
 ```
 ***
-[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/man/reference.md)
+[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
