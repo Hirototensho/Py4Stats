@@ -71,3 +71,9 @@
 ### 数字のフォーマット
 
 [`bilding_block.pad_zero()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/miscellaneous.md)  [`bilding_block.p_stars()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/miscellaneous.md)
+
+### 文字列のフォーマット
+
+[`bilding_block.oxford_comma()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/oxford_comma.md)
+[`bilding_block.oxford_comma_and()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/oxford_comma.md)
+[`bilding_block.oxford_comma_or()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/oxford_comma.md)
