@@ -2,7 +2,7 @@
 
 ## 概要
 
-　リストや pandas.Series がダミー変数かどうかを判定する関数。
+　リストや pandas.Series の要素がダミー変数かどうかを判定する関数。
 
 ```python
 is_dummy(self, cording = [0, 1])
@@ -53,4 +53,4 @@ print(penguins2.is_dummy())
 #> dtype: bool
 ```
 ***
-[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/man/reference.md)
+[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
