@@ -61,4 +61,4 @@ eda.Pareto_plot(
 ![Unknown-2](https://github.com/Hirototensho/Py4Stats/assets/55335752/5e323376-eb56-4407-a047-0fded76c6619)
 
 ***
-[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/man/reference.md)
+[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
