@@ -55,6 +55,8 @@ def tidy_default(
   to_jp = False,
   **kwargs
   ):
+  bild.assert_numeric(conf_level, lower = 0, upper = 1)
+
   tidied = summary_params_frame(x, alpha = 1 - conf_level, xname = name_of_term)
 
   tidied.index.name = 'term'
@@ -159,6 +161,16 @@ compare_tab1
 ```
 """
 
+from statsmodels.regression.linear_model import RegressionResultsWrapper
+from varname import argname
+
+def assert_reg_reuslt(x):
+  x = pd.Series(x)
+  condition =  x.apply(lambda x: isinstance(x, (RegressionResultsWrapper))).all()
+  assert condition, f"Argment '{argname('x')}' must be of type '{RegressionResultsWrapper}'."
+
+import pandas.api.types
+
 def compare_ols(
     list_models,
     model_name = None,
@@ -172,7 +184,8 @@ def compare_ols(
     **kwargs
     ):
   """複数のモデルを比較する表を作成する関数"""
-  assert isinstance(list_models, list), "argument 'list_models' is must be a list of models."
+  assert pandas.api.types.is_list_like(list_models), "argument 'list_models' is must be a list of models."
+  assert_reg_reuslt(list_models)
 
   tidy_list = [tidy(mod) for mod in list_models]
 
@@ -345,6 +358,9 @@ def coefplot(
     **kwargs
     ):
     '''model object から回帰係数のグラフを作成する関数'''
+
+    bild.assert_numeric(conf_level, lower = 0, upper = 1)
+    bild.assert_character(palette)
 
     # 回帰係数の表を抽出
     tidy_ci_high = tidy(mod, conf_level = conf_level[0])
@@ -557,6 +573,7 @@ def tidy_mfx(
     conf_level = 0.95,
     **kwargs):
   # 引数に妥当な値が指定されているかを検証
+  bild.assert_numeric(conf_level, lower = 0, upper = 1)
   at = bild.arg_match(at, ['overall', 'mean', 'median', 'zero'], arg_name = 'at')
 
   method = bild.arg_match(
@@ -609,7 +626,8 @@ def compare_mfx(
     line_break = '\n',
     **kwargs
     ):
-  assert isinstance(list_models, list), "argument 'list_models' is must be a list of models."
+  assert pandas.api.types.is_list_like(list_models), "argument 'list_models' is must be a list of models."
+  assert_reg_reuslt(list_models)
   # 限界効果の推定-------------
   if method == 'coef':
       tidy_list = [tidy(mod) for mod in list_models]
@@ -664,6 +682,7 @@ def mfxplot(
     **kwargs
     ):
     '''model object から回帰係数のグラフを作成する関数'''
+
     # 回帰係数の表を抽出
     tidy_ci_high = tidy_mfx(
         mod, at = at, method = method, dummy = dummy, conf_level = conf_level[0]
