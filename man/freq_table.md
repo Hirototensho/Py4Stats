@@ -73,4 +73,4 @@ print(
 #>           (52.725, 59.6]       5  0.040650      123  1.000000
 ``` 
 ***
-[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/man/reference.md)
+[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
