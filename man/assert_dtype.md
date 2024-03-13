@@ -3,13 +3,7 @@
 
 ## 概要
 
-　第一引数に代入された array-like オブジェクトの要素が、次の型ではない場合にエラーを出力する関数です。
-
-- `assert_character()`：**str**
-- `assert_numeric()`：**int or float**
-- `assert_integer()`：**int**
-- `assert_count()`：**int**
-- `assert_float()`：**float**
+　引数に代入された値が想定されたデータ型ではないときにエラーを出力する関数です。
 
 ``` python
 assert_character(arg, arg_name = None)
@@ -45,7 +39,15 @@ assert_float(
     inclusive = 'both', 
     arg_name = None
     )
-``` 
+```
+
+　それぞれの関数は第一引数 `arg` に代入された array-like オブジェクトの要素が、次の型ではない場合にエラーを出力します。
+
+- `assert_character()`：**str**
+- `assert_numeric()`：**int or float**
+- `assert_integer()`：**int**
+- `assert_count()`：**int**
+- `assert_float()`：**float**
 
 ## 引数 Argument
 
