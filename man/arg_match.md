@@ -90,5 +90,5 @@ penguins.tabyl('island', 'species', normalize = 'ind')
 #>              Did you mean 'index'?
 ```
 ***
-[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/man/reference.md)
+[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
 
