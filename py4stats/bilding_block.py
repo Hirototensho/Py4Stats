@@ -106,23 +106,28 @@ def arg_match(arg, values, arg_name = None, multiple = False):
 from varname import argname
 import pandas.api.types
 
+def is_character(x):
+  return pandas.api.types.is_string_dtype(pd.Series(x))
+
 def is_numeric(x):
   return pandas.api.types.is_numeric_dtype(pd.Series(x))
 
-def assert_numeric(x, lower = -float('inf'), upper = float('inf'), inclusive = 'both'):
+def assert_character(x, arg_name = None):
+  if(arg_name is None):
+      arg_name = argname('x')
+  assert is_character(x), f"Argment '{arg_name}' must be of type 'str'."
+
+def assert_numeric(x, lower = -float('inf'), upper = float('inf'), inclusive = 'both', arg_name = None):
+  if(arg_name is None):
+      arg_name = argname('x')
+
   valid_type = ['float', 'int']
-  assert is_numeric(x), f"Argment '{argname('x')}' must be of type 'int' or 'float'."
+  assert is_numeric(x), f"Argment '{arg_name}' must be of type 'int' or 'float'."
 
   x = pd.Series(x)
   cond = x.between(lower, upper, inclusive = inclusive)
   assert all(cond),\
-  f"Argment '{argname('x')}' must have value(s) {lower} <= x <= {upper}."
-
-def is_character(x):
-  return pandas.api.types.is_string_dtype(pd.Series(x))
-
-def assert_character(x):
-  assert is_character(x), f"Argment '{argname('x')}' must be of type 'str'."
+  f"Argment '{arg_name}' must have value(s) {lower} <= x <= {upper}."
 
 """## 数値などのフォーマット"""
 
