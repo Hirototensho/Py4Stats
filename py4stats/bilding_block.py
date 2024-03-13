@@ -117,15 +117,15 @@ def assert_character(x, arg_name = None):
       arg_name = argname('x')
   assert is_character(x), f"Argment '{arg_name}' must be of type 'str'."
 
-def assert_numeric(x, lower = -float('inf'), upper = float('inf'), inclusive = 'both', arg_name = None):
+def assert_numeric(arg, lower = -float('inf'), upper = float('inf'), inclusive = 'both', arg_name = None):
   if(arg_name is None):
-      arg_name = argname('x')
+      arg_name = argname('arg')
 
   valid_type = ['float', 'int']
-  assert is_numeric(x), f"Argment '{arg_name}' must be of type 'int' or 'float'."
+  assert is_numeric(arg), f"Argment '{arg_name}' must be of type 'int' or 'float'."
 
-  x = pd.Series(x)
-  cond = x.between(lower, upper, inclusive = inclusive)
+  arg = pd.Series(arg)
+  cond = arg.between(lower, upper, inclusive = inclusive)
   assert all(cond),\
   f"Argment '{arg_name}' must have value(s) {lower} <= x <= {upper}."
 
