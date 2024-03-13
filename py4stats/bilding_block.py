@@ -71,6 +71,7 @@ def arg_match0(arg, values, arg_name = None):
       else:
         raise ValueError(f"'{arg_name}' must be one of {oxford_comma_or(values)}, not '{arg}'.")
 
+from varname import argname
 def arg_match(arg, values, arg_name = None, multiple = False):
   """
   Simulates the functionality of R's rlang::arg_match() function with partial matching in Python.
@@ -87,17 +88,12 @@ def arg_match(arg, values, arg_name = None, multiple = False):
   if(arg_name is None):
       arg_name = argname('arg')
 
-  if (type(arg) is str):
-    arg = arg_match0(arg, values, arg_name = arg_name)
-    return arg
-
-  # 与えられた引数がリストの場合
-  elif (type(arg) is list) & multiple:
+  arg = pd.Series(arg)
+  if(multiple):
     # 複数選択可の場合
     arg = [arg_match0(val, values = values, arg_name = arg_name) for val in arg]
     return arg
   else:
-    # 複数選択不可の場合 最初の要素を取り出して使います。
     arg = arg_match0(arg[0], values = values, arg_name = arg_name)
     return arg
 
