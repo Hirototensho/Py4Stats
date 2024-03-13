@@ -1,4 +1,4 @@
-# 引数のデータ型によるアサーション `bilding_block.assert_character()`, `bilding_block.assert_numeric()`
+# 引数のデータ型によるアサーション
 
 ## 概要
 
@@ -8,6 +8,30 @@
 assert_character(arg, arg_name = None)
 
 assert_numeric(
+    arg, 
+    lower = -float('inf'), 
+    upper = float('inf'), 
+    inclusive = 'both', 
+    arg_name = None
+    )
+
+assert_integer(
+    arg, 
+    lower = -float('inf'), 
+    upper = float('inf'), 
+    inclusive = 'both', 
+    arg_name = None
+    )
+
+assert_count(
+    arg, 
+    lower = 0, 
+    upper = float('inf'), 
+    inclusive = 'both', 
+    arg_name = None
+    )
+
+assert_float(
     arg, 
     lower = -float('inf'), 
     upper = float('inf'), 
