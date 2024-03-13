@@ -8,7 +8,7 @@
 arg_match(
     arg, 
     values, 
-    arg_name = 'argument', 
+    arg_name = None, 
     multiple = False
     )
 ``` 
@@ -20,7 +20,7 @@ arg_match(
 - `values`（必須）：**list of str**</br>
 　引数 `arg` の適正な値のリスト
 - `arg_name`：**str**</br>
-　エラーメッセージに表示する引数 `arg` の名前
+　エラーメッセージに表示する引数の名前。指定されなかった場合（初期設定）、引数 `arg` に代入されたオブジェクトの名称を表示します。なお、この機能は [`varname.argname()`](https://github.com/pwwang/python-varname?tab=readme-ov-file)関数を使って実装されています。
 - `multiple`：**bool**</br>
 　引数の値として複数の値を許容するかどうかを示すブール値。`arg` にリストが代入された場合、`multiple = False`（初期設定）であれば最初の値のみを出力し、`multiple = True` であればリストの値を全て出力します。
 
@@ -38,7 +38,6 @@ def my_faivarit(fruits):
   fruits = bild.arg_match(
       fruits, 
       values = ['apple', 'orange', 'grape'], 
-      arg_name = 'fruits',
       multiple = False
       )
   return fruits
@@ -66,7 +65,6 @@ def my_faivarit2(fruits):
   fruits = bild.arg_match(
       fruits, 
       values = ['apple', 'orange', 'grape'], 
-      arg_name = 'fruits',
       multiple = True
       )
   return fruits
