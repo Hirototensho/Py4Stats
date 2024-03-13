@@ -202,4 +202,4 @@ compare_tab4 # 上記のコードと同じ結果
 　一般化線形モデルの限界効果を比較する場合は [`regression_tools.compare_mfx()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_ols.md)を利用してください。
 
 ***
-[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/man/reference.md)
+[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
