@@ -3,6 +3,14 @@
 
 ## 概要
 
+　第一引数に代入された array-like オブジェクトの要素が、次の型ではない場合にエラーを出力する関数です。
+
+- `assert_character()`：**str**
+- `assert_numeric()`：**int or float**
+- `assert_integer()`：**int**
+- `assert_count()`：**int**
+- `assert_float()`：**float**
+
 ``` python
 assert_character(arg, arg_name = None)
 
@@ -47,8 +55,12 @@ assert_float(
 　エラーメッセージに表示する引数の名前。指定されなかった場合（初期設定）、引数 `arg` に代入されたオブジェクトの名称を表示します。なお、この機能は [`varname.argname()`](https://github.com/pwwang/python-varname?tab=readme-ov-file)関数を使って実装されています。
 - `lower, upper` **int or float** `assert_numeric()` のみ</br>
 　`arg` に代入されたオブジェクトの要素が取るべき値の最大値と最小値。
-- inclusive **{“both”, “neither”, “left”, “right”}**
-　
+- inclusive **str**
+　'both', 'neither', 'left', 'right' から選択できます。引数 `arg` に代入されたオブジェクトの要素を `x` とするとき、次の条件で値の範囲を判定します。
+    - `'both'`：'lower <= x <= upper'
+    - `'neither'`：'lower < x < upper'
+    - `'left'`：'lower <= x < upper'
+    - `'right'`：'lower < x <= upper'
 
 ## 返り値 Value
 
