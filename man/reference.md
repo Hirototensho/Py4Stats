@@ -25,7 +25,10 @@
 
 ### 論理関数
 
-[`eda_tools.is_number()` `eda_tools.is_ymd()` `eda_tools.is_ymd_like()` `eda_tools.is_dummy()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/is_dummy.md)
+[`eda_tools.is_number()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/is_dummy.md)
+[`eda_tools.is_ymd()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/is_dummy.md)
+[`eda_tools.is_ymd_like()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/is_dummy.md)
+[`eda_tools.is_dummy()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/is_dummy.md)
 
 ## `py4stats.regression_tools`
 
