@@ -118,4 +118,4 @@ print(heckit_helper.heckitmfx_compute(
 - 春山鉄源 (2023) 『Pythonで学ぶ入門計量経済学』. https://py4etrics.github.io/index.html
 - Hoffmann, Rodolfo, and Ana Lucia Kassouf. (2005). Deriving conditional and unconditional marginal effects in log earnings equations estimated by heckman’s procedure. *Applied Economics*, 37(11), 1303–1311.
 ***
-[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/man/reference.md)
+[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
