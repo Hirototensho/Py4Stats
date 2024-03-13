@@ -108,22 +108,71 @@ def is_character(x):
 def is_numeric(x):
   return pandas.api.types.is_numeric_dtype(pd.Series(x))
 
-def assert_character(x, arg_name = None):
+def is_integer(x):
+  return pandas.api.types.is_integer_dtype(pd.Series(x))
+
+def is_float(x):
+  return pandas.api.types.is_float_dtype(pd.Series(x))
+
+def assert_character(arg, arg_name = None):
   if(arg_name is None):
-      arg_name = argname('x')
-  assert is_character(x), f"Argment '{arg_name}' must be of type 'str'."
+      arg_name = argname('arg')
+  assert is_character(arg), f"Argment '{arg_name}' must be of type 'str'."
 
 def assert_numeric(arg, lower = -float('inf'), upper = float('inf'), inclusive = 'both', arg_name = None):
   if(arg_name is None):
       arg_name = argname('arg')
 
-  valid_type = ['float', 'int']
   assert is_numeric(arg), f"Argment '{arg_name}' must be of type 'int' or 'float'."
+
+  assert_interval(arg, lower = lower, upper = upper, inclusive = inclusive, arg_name = arg_name)
+
+def assert_integer(arg, lower = -float('inf'), upper = float('inf'), inclusive = 'both', arg_name = None):
+  if(arg_name is None):
+      arg_name = argname('arg')
+
+  assert is_integer(arg), f"Argment '{arg_name}' must be of type 'int'."
+
+  assert_interval(arg, lower = lower, upper = upper, inclusive = inclusive, arg_name = arg_name)
+
+def assert_count(arg, lower = 0, upper = float('inf'), inclusive = 'both', arg_name = None):
+  if(arg_name is None):
+      arg_name = argname('arg')
+
+  arg = pd.Series(arg)
+
+  assert is_integer(arg) & arg.ge(0).all(), f"Argment '{arg_name}' must be of positive integer."
+
+  assert_interval(arg, lower = lower, upper = upper, inclusive = inclusive, arg_name = arg_name)
+
+def assert_float(arg, lower = -float('inf'), upper = float('inf'), inclusive = 'both', arg_name = None):
+  if(arg_name is None):
+      arg_name = argname('arg')
+
+  assert is_float(arg), f"Argment '{arg_name}' must be of type 'float'."
+
+  assert_interval(arg, lower = lower, upper = upper, inclusive = inclusive, arg_name = arg_name)
+
+def assert_interval(arg, lower = -float('inf'), upper = float('inf'), inclusive = 'both', arg_name = 'argment'):
+  inclusive = arg_match(inclusive, ['both', 'neither', 'left', 'right'])
 
   arg = pd.Series(arg)
   cond = arg.between(lower, upper, inclusive = inclusive)
-  assert all(cond),\
-  f"Argment '{arg_name}' must have value(s) {lower} <= x <= {upper}."
+  not_sutisfy = arg[~cond].index.astype(str).to_list()
+
+  inclusive_dict = {
+    'both':'<= x <=',
+    'neither':'< x <',
+    'left':'<= x <',
+    'right':'< x <='
+  }
+  if(len(arg) > 1):
+    assert cond.all(),\
+    f"""Argment '{arg_name}' must have value {lower} {inclusive_dict[inclusive]} {upper}.
+               element {oxford_comma_and(not_sutisfy)} of '{arg_name}' not sutisfy the condtion."""
+  else:
+    assert cond.all(),\
+    f"Argment '{arg_name}' must have value {lower} {inclusive_dict[inclusive]} {upper}."
 
 """## 数値などのフォーマット"""
 
