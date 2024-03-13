@@ -57,10 +57,10 @@ assert_float(
 　`arg` に代入されたオブジェクトの要素が取るべき値の最大値と最小値。
 - inclusive **str**
 　'both', 'neither', 'left', 'right' から選択できます。引数 `arg` に代入されたオブジェクトの要素を `x` とするとき、次の条件で値の範囲を判定します。
-    - `'both'`：'lower <= x <= upper'
-    - `'neither'`：'lower < x < upper'
-    - `'left'`：'lower <= x < upper'
-    - `'right'`：'lower < x <= upper'
+    - `'both'`：`lower <= x <= upper`
+    - `'neither'`：`lower < x < upper`
+    - `'left'`：`lower <= x < upper`
+    - `'right'`：`lower < x <= upper`
 
 ## 返り値 Value
 
