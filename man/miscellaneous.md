@@ -33,4 +33,4 @@ print(bild.p_stars([0.11, 0.06, 0.05, 0.01]))
 #> ['' ' *' ' **' ' ***']
 ```
 ***
-[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/man/reference.md)
+[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
