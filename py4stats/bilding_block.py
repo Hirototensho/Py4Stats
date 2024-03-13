@@ -205,16 +205,19 @@ oxford_comma_or(choices)
 ```
 """
 
-def oxford_comma_and(lst):
-    if isinstance(lst, str):
-        return f"'{lst}'"
-    elif len(lst) == 1:
-        return f"'{lst[0]}'"
-    return "'"+ "', '".join(lst[:-1]) + "' and '" + lst[-1] + "'"
+def oxford_comma(x, sep_last = 'and', quotation = True):
+    if isinstance(x, str):
+      if(quotation): return f"'{x}'"
+      else: return x
+    else:
+      if(quotation): x = [f"'{s}'" for s in x]
+    if(len(x) == 1):
+      return f"{x[0]}"
+    else:
+      return ", ".join(x[:-1]) + f" {sep_last} " + x[-1]
 
-def oxford_comma_or(lst):
-    if isinstance(lst, str):
-        return f"'{lst}'"
-    elif len(lst) == 1:
-        return f"'{lst[0]}'"
-    return "'"+ "', '".join(lst[:-1]) + "' or '" + lst[-1] + "'"
+def oxford_comma_and(x, quotation = True):
+  return oxford_comma(x, quotation = quotation, sep_last = 'and')
+
+def oxford_comma_or(x, quotation = True):
+  return oxford_comma(x, quotation = quotation, sep_last = 'or')
