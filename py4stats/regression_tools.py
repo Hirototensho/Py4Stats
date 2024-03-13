@@ -55,7 +55,7 @@ def tidy_default(
   to_jp = False,
   **kwargs
   ):
-  bild.assert_numeric(conf_level, lower = 0, upper = 1)
+  bild.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither')
 
   tidied = summary_params_frame(x, alpha = 1 - conf_level, xname = name_of_term)
 
@@ -359,7 +359,7 @@ def coefplot(
     ):
     '''model object から回帰係数のグラフを作成する関数'''
 
-    bild.assert_numeric(conf_level, lower = 0, upper = 1)
+    bild.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither')
     bild.assert_character(palette)
 
     # 回帰係数の表を抽出
@@ -573,7 +573,7 @@ def tidy_mfx(
     conf_level = 0.95,
     **kwargs):
   # 引数に妥当な値が指定されているかを検証
-  bild.assert_numeric(conf_level, lower = 0, upper = 1)
+  bild.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither')
   at = bild.arg_match(at, ['overall', 'mean', 'median', 'zero'], arg_name = 'at')
 
   method = bild.arg_match(
