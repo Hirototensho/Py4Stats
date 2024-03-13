@@ -86,3 +86,5 @@ z = 1
 bild.assert_numeric(z, lower = 0, upper = 1, inclusive = 'left')
 #> AssertionError: Argment 'z' must have value 0 <= x < 1.
 ```
+***
+[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/man/reference.md)
