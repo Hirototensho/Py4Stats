@@ -58,6 +58,7 @@
 ### 引数のアサーション関数
 
 [`bilding_block.arg_match()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/arg_match.md)
+
 [`bilding_block.assert_character()`, `bilding_block.assert_numeric()`, `bilding_block.assert_integer()` `bilding_block.assert_count()` `bilding_block.assert_float()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/assert_dtype.md)
 
 ### 数字のフォーマット
