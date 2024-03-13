@@ -77,4 +77,4 @@ print(eda.tabyl(penguins, 'island', 'species', normalize = 'all'))
 #> All        152 (44.2%)  68 (19.8%)  124 (36.0%)  344 (100.0%)
 ```
 ***
-[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/man/reference.md)
+[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
