@@ -89,6 +89,7 @@ print(heckit_helper.heckitmfx_compute(
 #> nwifeinc        -0.0088       0.0002    -0.0090  0.0000 -0.0120
 ```
 
+被説明変数の `lwage` は対数賃金であるため、`exponentiate = True` として指数関数 $100[\exp(x - 1)]$ を使った変換を行うことで、限界効果を賃金の変化率として解釈できるようになります。
 
 ```python
 print(heckit_helper.heckitmfx_compute(
