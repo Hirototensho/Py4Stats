@@ -1,4 +1,4 @@
-# 引数のデータ型によるアサーション ``bilding_block.assert_character()``
+# 引数のデータ型によるアサーション `bilding_block.assert_character()`, `bilding_block.assert_numeric()`
 
 ## 概要
 
