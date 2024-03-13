@@ -107,5 +107,5 @@ ax[1].set_xlim(-0.2, 0.85);
 ![Unknown](https://github.com/Hirototensho/Py4Stats/assets/55335752/f62e934a-91da-4ca8-9272-3006df2383f0)
 
 ***
-[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/man/reference.md)
+[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
 
