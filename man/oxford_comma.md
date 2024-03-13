@@ -12,8 +12,6 @@ oxford_comma_and(x, quotation = True)
 oxford_comma_or(x, quotation = True)
 ```
 
-なお、`oxford_comma_and(x)` は `oxford_comma(x, 'and')` と、`oxford_comma_or(x)` は `oxford_comma(x, 'or')` と同等です。
-
 ## 引数
 
 - `x`：**str or list of str**</br>
@@ -21,6 +19,8 @@ oxford_comma_or(x, quotation = True)
 　リストの各要素にクオーテーションマーク `’’` を追加するかどうかを表す論理値。True（初期設定）であればクオーテーションマークを追加し、False であれば追加しません。
 - `sep_last`: **str** `oxford_comma()` のみ</br>
 　リストの最後の要素の直前に付加する単語を表す文字列。
+
+なお、`oxford_comma_and(x)` は `oxford_comma(x, 'and')` と、`oxford_comma_or(x)` は `oxford_comma(x, 'or')` と同等です。
 
 ## 使用例
 
