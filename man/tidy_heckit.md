@@ -111,4 +111,4 @@ print(reg.tidy(res_heckit, name_selection = exog_select.columns).round(4))
 #> S: kidsge6      0.0360   0.0435      0.8281   0.4076     -0.0492       0.1212
 ```
 ***
-[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/man/reference.md)
+[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
