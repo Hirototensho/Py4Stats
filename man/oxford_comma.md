@@ -47,3 +47,5 @@ print(bild.oxford_comma_or(['A']))
 print(bild.oxford_comma_or('A'))
 #> 'A'
 ```
+***
+[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/man/reference.md)
