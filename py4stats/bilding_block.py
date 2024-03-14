@@ -105,6 +105,9 @@ import pandas.api.types
 def is_character(x):
   return pandas.api.types.is_string_dtype(pd.Series(x))
 
+def is_logical(x):
+  return pandas.api.types.is_bool_dtype(pd.Series(x))
+
 def is_numeric(x):
   return pandas.api.types.is_numeric_dtype(pd.Series(x))
 
@@ -114,6 +117,20 @@ def is_integer(x):
 def is_float(x):
   return pandas.api.types.is_float_dtype(pd.Series(x))
 
+def make_assert_type(predicate_fun, valid_type):
+
+  def func(arg, arg_name = None):
+    if(arg_name is None):
+      arg_name = argname('arg')
+
+    assert predicate_fun(arg), f"Argment '{arg_name}' must be of" +\
+      f" type {oxford_comma_or(valid_type)}"
+
+  return func
+
+assert_character = make_assert_type(is_character, valid_type = ['str'])
+assert_logical = make_assert_type(is_logical, valid_type = ['bool'])
+
 def assert_character(arg, arg_name = None):
   if(arg_name is None):
       arg_name = argname('arg')
@@ -121,7 +138,7 @@ def assert_character(arg, arg_name = None):
 
 """### 数値用の `assert_*()` 関数"""
 
-def make_assert_fun(predicate_fun, valid_type, lower = -float('inf'), upper = float('inf')):
+def make_assert_numeric(predicate_fun, valid_type, lower = -float('inf'), upper = float('inf')):
 
   def func(arg, lower = lower, upper = upper, inclusive = 'both', arg_name = None):
     if(arg_name is None):
@@ -155,10 +172,10 @@ def make_assert_fun(predicate_fun, valid_type, lower = -float('inf'), upper = fl
         arg_name = argname('arg')
   return func
 
-assert_numeric = make_assert_fun(is_numeric, valid_type = ['int', 'float'])
-assert_integer = make_assert_fun(is_integer, valid_type = ['int'])
-assert_count = make_assert_fun(is_integer, valid_type = ['positive integer'], lower = 0)
-assert_float = make_assert_fun(is_float, valid_type = ['float'])
+assert_numeric = make_assert_numeric(is_numeric, valid_type = ['int', 'float'])
+assert_integer = make_assert_numeric(is_integer, valid_type = ['int'])
+assert_count = make_assert_numeric(is_integer, valid_type = ['positive integer'], lower = 0)
+assert_float = make_assert_numeric(is_float, valid_type = ['float'])
 
 """## 数値などのフォーマット"""
 
