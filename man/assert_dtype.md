@@ -8,6 +8,8 @@
 ``` python
 assert_character(arg, arg_name = None)
 
+assert_logical(arg, arg_name = None)
+
 assert_numeric(
     arg, 
     lower = -float('inf'), 
