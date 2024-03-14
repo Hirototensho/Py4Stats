@@ -1,5 +1,5 @@
 # 引数のデータ型によるアサーション
-## `bilding_block.assert_character()` `bilding_block.assert_numeric()` `bilding_block.assert_integer()` `bilding_block.assert_count()` `bilding_block.assert_float()`
+## `bilding_block.assert_character()` `bilding_block.assert_logical()` `bilding_block.assert_numeric()` `bilding_block.assert_integer()` `bilding_block.assert_count()` `bilding_block.assert_float()`
 
 ## 概要
 
