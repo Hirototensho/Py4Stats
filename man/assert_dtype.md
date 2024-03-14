@@ -55,7 +55,7 @@ assert_float(
 　適正かどうかを判断したい引数　
 - `arg_name`：**str**</br>
 　エラーメッセージに表示する引数の名前。指定されなかった場合（初期設定）、引数 `arg` に代入されたオブジェクトの名称を表示します。なお、この機能は [`varname.argname()`](https://github.com/pwwang/python-varname?tab=readme-ov-file)関数を使って実装されています。
-- `lower, upper` **int or float** `assert_numeric()` のみ</br>
+- `lower, upper` **int or float** `assert_numeric(), assert_integer(), assert_count(), assert_float()` のみ</br>
 　`arg` に代入されたオブジェクトの要素が取るべき値の最大値と最小値。
 - inclusive **str**
 　'both', 'neither', 'left', 'right' から選択できます。引数 `arg` に代入されたオブジェクトの要素を `x` とするとき、次の条件で値の範囲を判定します。
