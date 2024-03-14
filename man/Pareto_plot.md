@@ -30,9 +30,9 @@ Pareto_plot(
 　matplotlib の ax オブジェクト。複数のグラフを並べる場合などに使用します。
 - `fontsize`：**int**</br>
 　軸ラベルなどのフォントサイズ。
-- `xlab_rotation`：**int**</br>
+- `xlab_rotation`：**int or float**</br>
 　横軸ラベルの角度。matplotlib の `ax.xaxis.set_tick_params()` に引数 `rotation` として渡されます。
-- `palette`：**dict of str**</br>
+- `palette`：**list of str**</br>
 　グラフの描画に使用する色コード。1つ目の要素が棒グラフの色に、2つ目の累積値を表す折線グラフの色に対応します。
 
 ## 使用例
