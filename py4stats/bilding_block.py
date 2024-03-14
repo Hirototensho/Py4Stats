@@ -119,60 +119,46 @@ def assert_character(arg, arg_name = None):
       arg_name = argname('arg')
   assert is_character(arg), f"Argment '{arg_name}' must be of type 'str'."
 
-def assert_numeric(arg, lower = -float('inf'), upper = float('inf'), inclusive = 'both', arg_name = None):
-  if(arg_name is None):
+"""### 数値用の `assert_*()` 関数"""
+
+def make_assert_fun(predicate_fun, valid_type, lower = -float('inf'), upper = float('inf')):
+
+  def func(arg, lower = lower, upper = upper, inclusive = 'both', arg_name = None):
+    if(arg_name is None):
       arg_name = argname('arg')
 
-  assert is_numeric(arg), f"Argment '{arg_name}' must be of type 'int' or 'float'."
+    arg = pd.Series(arg)
 
-  assert_interval(arg, lower = lower, upper = upper, inclusive = inclusive, arg_name = arg_name)
+    inclusive_dict = {
+      'both':'<= x <=',
+      'neither':'< x <',
+      'left':'<= x <',
+      'right':'< x <='
+    }
 
-def assert_integer(arg, lower = -float('inf'), upper = float('inf'), inclusive = 'both', arg_name = None):
-  if(arg_name is None):
-      arg_name = argname('arg')
+    assert predicate_fun(arg), f"Argment '{arg_name}' must be of" +\
+      f" type {oxford_comma_or(valid_type)}" + \
+      f" with value(s) {lower} {inclusive_dict[inclusive]} {upper}."
 
-  assert is_integer(arg), f"Argment '{arg_name}' must be of type 'int'."
+    cond = arg.between(lower, upper, inclusive = inclusive)
+    not_sutisfy = arg[~cond].index.astype(str).to_list()
 
-  assert_interval(arg, lower = lower, upper = upper, inclusive = inclusive, arg_name = arg_name)
+    if(len(arg) > 1):
+      assert cond.all(),\
+      f"""Argment '{arg_name}' must have value {lower} {inclusive_dict[inclusive]} {upper}.
+                element {oxford_comma_and(not_sutisfy)} of '{arg_name}' not sutisfy the condtion."""
+    else:
+      assert cond.all(),\
+      f"Argment '{arg_name}' must have value {lower} {inclusive_dict[inclusive]} {upper}."
 
-def assert_count(arg, lower = 0, upper = float('inf'), inclusive = 'both', arg_name = None):
-  if(arg_name is None):
-      arg_name = argname('arg')
+    if(arg_name is None):
+        arg_name = argname('arg')
+  return func
 
-  arg = pd.Series(arg)
-
-  assert is_integer(arg) & arg.ge(0).all(), f"Argment '{arg_name}' must be of positive integer."
-
-  assert_interval(arg, lower = lower, upper = upper, inclusive = inclusive, arg_name = arg_name)
-
-def assert_float(arg, lower = -float('inf'), upper = float('inf'), inclusive = 'both', arg_name = None):
-  if(arg_name is None):
-      arg_name = argname('arg')
-
-  assert is_float(arg), f"Argment '{arg_name}' must be of type 'float'."
-
-  assert_interval(arg, lower = lower, upper = upper, inclusive = inclusive, arg_name = arg_name)
-
-def assert_interval(arg, lower = -float('inf'), upper = float('inf'), inclusive = 'both', arg_name = 'argment'):
-  inclusive = arg_match(inclusive, ['both', 'neither', 'left', 'right'])
-
-  arg = pd.Series(arg)
-  cond = arg.between(lower, upper, inclusive = inclusive)
-  not_sutisfy = arg[~cond].index.astype(str).to_list()
-
-  inclusive_dict = {
-    'both':'<= x <=',
-    'neither':'< x <',
-    'left':'<= x <',
-    'right':'< x <='
-  }
-  if(len(arg) > 1):
-    assert cond.all(),\
-    f"""Argment '{arg_name}' must have value {lower} {inclusive_dict[inclusive]} {upper}.
-               element {oxford_comma_and(not_sutisfy)} of '{arg_name}' not sutisfy the condtion."""
-  else:
-    assert cond.all(),\
-    f"Argment '{arg_name}' must have value {lower} {inclusive_dict[inclusive]} {upper}."
+assert_numeric = make_assert_fun(is_numeric, valid_type = ['int', 'float'])
+assert_integer = make_assert_fun(is_integer, valid_type = ['int'])
+assert_count = make_assert_fun(is_integer, valid_type = ['positive integer'], lower = 0)
+assert_float = make_assert_fun(is_float, valid_type = ['float'])
 
 """## 数値などのフォーマット"""
 
