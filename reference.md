@@ -63,6 +63,7 @@
 [`bilding_block.arg_match()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/arg_match.md)
 
 [`bilding_block.assert_character()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/assert_dtype.md)
+[`bilding_block.assert_logical()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/assert_dtype.md)
 [`bilding_block.assert_numeric()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/assert_dtype.md)
 [`bilding_block.assert_integer()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/assert_dtype.md)
 [`bilding_block.assert_count()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/assert_dtype.md)
