@@ -75,6 +75,14 @@
 [`bilding_block.assert_count()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/assert_dtype.md)
 [`bilding_block.assert_float()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/assert_dtype.md)
 
+### データ型を判定する論理関数
+
+[`bilding_block.is_character()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/is_dtype.md)
+[`bilding_block.is_logical()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/is_dtype.md)
+[`bilding_block.is_numeric()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/is_dtype.md)
+[`bilding_block.is_integer()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/is_dtype.md)
+[`bilding_block.is_float()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/is_dtype.md)
+
 ### 数字のフォーマット
 
 [`bilding_block.pad_zero()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/miscellaneous.md)  [`bilding_block.p_stars()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/miscellaneous.md)
