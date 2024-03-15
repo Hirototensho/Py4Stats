@@ -1,4 +1,4 @@
-# 数値変数の点推定と区間推定：`eda_tools.mean_qi()`, `eda_tools.median_qi()`, `eda_tools.mean_ci()`
+# 数値変数の点推定と区間推定：`eda_tools.mean_qi()` `eda_tools.median_qi()` `eda_tools.mean_ci()`
 
 ## 概要
 
