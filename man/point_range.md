@@ -6,7 +6,9 @@
 
 ```python
 mean_qi(self, width = 0.95)
+
 median_qi(self, width = 0.95)
+
 mean_ci(self, width = 0.95)
 ```
 
