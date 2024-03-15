@@ -10,6 +10,9 @@ Original file is located at
 """
 
 from py4stats import bilding_block as bild # py4stats のプログラミングを補助する関数群
+import functools
+from functools import singledispatch
+import pandas_flavor as pf
 
 import pandas as pd
 import numpy as np
@@ -254,7 +257,6 @@ def tabyl(
 
 """## `diagnose_category()`：カテゴリー変数専用の要約関数"""
 
-from functools import singledispatch
 @pf.register_dataframe_method
 @pf.register_series_method
 @singledispatch
@@ -352,54 +354,148 @@ def Pareto_plot(
     ax = None,
     fontsize = 12,
     xlab_rotation = 0,
-    # palette = {'bar':'#478FCE', 'line':'#252525'}
     palette = ['#478FCE', '#252525']
     ):
+  # 引数のアサーション
+  if(top_n is not None): bild.assert_count(top_n, lower = 1)
+  bild.assert_numeric(xlab_rotation)
+  bild.assert_character(palette)
 
-    # 指定された変数でのランクを表すデータフレームを作成
-    if values is None:
-        shere_rank = freq_table(data, group, dropna = True)
-        cumlative = 'cumfreq'
-    else:
-        shere_rank = make_rank_table(data, group, values, aggfunc = aggfunc)
-        cumlative = 'cumshare'
+  # 指定された変数でのランクを表すデータフレームを作成
+  if values is None:
+      shere_rank = freq_table(data, group, dropna = True)
+      cumlative = 'cumfreq'
+  else:
+      shere_rank = make_rank_table(data, group, values, aggfunc = aggfunc)
+      cumlative = 'cumshare'
 
-    # グラフの描画
-    if ax is None:
-        fig, ax = plt.subplots()
+  # グラフの描画
+  if ax is None:
+      fig, ax = plt.subplots()
 
-    # yで指定された変数の棒グラフ
+  # yで指定された変数の棒グラフ
 
-    # top_n が指定されていた場合、上位 top_n 件を抽出します。
-    if top_n is not None:
-      shere_rank = shere_rank.head(top_n)
+  # top_n が指定されていた場合、上位 top_n 件を抽出します。
+  if top_n is not None:
+    shere_rank = shere_rank.head(top_n)
 
-    if values is None:
-        ax.bar(shere_rank.index, shere_rank['freq'], color = palette[0])
-        ax.set_ylabel('freq', fontsize = fontsize * 1.1)
-    else:
-        # yで指定された変数の棒グラフ
-        ax.bar(shere_rank.index, shere_rank[values], color = palette[0])
-        ax.set_ylabel(values, fontsize = fontsize * 1.1)
+  if values is None:
+      ax.bar(shere_rank.index, shere_rank['freq'], color = palette[0])
+      ax.set_ylabel('freq', fontsize = fontsize * 1.1)
+  else:
+      # yで指定された変数の棒グラフ
+      ax.bar(shere_rank.index, shere_rank[values], color = palette[0])
+      ax.set_ylabel(values, fontsize = fontsize * 1.1)
 
 
-    ax.set_xlabel(group, fontsize = fontsize * 1.1)
+  ax.set_xlabel(group, fontsize = fontsize * 1.1)
 
-    # 累積相対度数の線グラフ
-    ax2 = ax.twinx()
-    ax2.plot(
-        shere_rank.index, shere_rank[cumlative],
-        linestyle = 'dashed', color = palette[1], marker = 'o'
-        )
+  # 累積相対度数の線グラフ
+  ax2 = ax.twinx()
+  ax2.plot(
+      shere_rank.index, shere_rank[cumlative],
+      linestyle = 'dashed', color = palette[1], marker = 'o'
+      )
 
-    ax2.set_xlabel(group, fontsize = fontsize * 1.1)
-    ax2.set_ylabel(cumlative, fontsize = fontsize * 1.1)
+  ax2.set_xlabel(group, fontsize = fontsize * 1.1)
+  ax2.set_ylabel(cumlative, fontsize = fontsize * 1.1)
 
-    # x軸メモリの回転
-    ax.xaxis.set_tick_params(rotation = xlab_rotation, labelsize = fontsize)
-    ax2.xaxis.set_tick_params(rotation = xlab_rotation, labelsize = fontsize);
-    ax.yaxis.set_tick_params(labelsize = fontsize * 0.9)
-    ax2.yaxis.set_tick_params(labelsize = fontsize * 0.9);
+  # x軸メモリの回転
+  ax.xaxis.set_tick_params(rotation = xlab_rotation, labelsize = fontsize)
+  ax2.xaxis.set_tick_params(rotation = xlab_rotation, labelsize = fontsize);
+  ax.yaxis.set_tick_params(labelsize = fontsize * 0.9)
+  ax2.yaxis.set_tick_params(labelsize = fontsize * 0.9);
+
+"""### 代表値 + 区間推定関数
+
+```python
+import pandas as pd
+from palmerpenguins import load_penguins
+penguins = load_penguins() # サンプルデータの読み込み
+
+from py4stats import eda_tools as eda
+
+print(penguins['bill_depth_mm'].mean_qi().round(2))
+#>                 mean  lower  upper
+#> variable                          
+#> bill_depth_mm  17.15   13.9   20.0
+
+print(penguins['bill_depth_mm'].median_qi().round(2))
+#>                median  lower  upper
+#> variable                           
+#> bill_depth_mm    17.3   13.9   20.0
+
+print(penguins['bill_depth_mm'].mean_ci().round(2))
+#>                 mean  lower  upper
+#> variable                          
+#> bill_depth_mm  17.15  16.94  17.36
+```
+"""
+
+@pf.register_dataframe_method
+@pf.register_series_method
+def mean_qi(self, width = 0.975, point_fun = 'mean'):
+
+  bild.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
+  if(isinstance(self, pd.DataFrame)):
+    var_name = self.columns
+  else:
+    var_name = [self.name]
+
+  res = pd.DataFrame({
+      'mean':self.apply('mean'),
+      'lower':self.quantile(1 - width),
+      'upper':self.quantile(width),
+  }, index = var_name
+  )
+
+  res.index.name = 'variable'
+  return res
+
+@pf.register_dataframe_method
+@pf.register_series_method
+def median_qi(self, width = 0.975, point_fun = 'median'):
+
+  bild.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
+  if(isinstance(self, pd.DataFrame)):
+    var_name = self.columns
+  else:
+    var_name = [self.name]
+
+  res = pd.DataFrame({
+      'median':self.apply('median'),
+      'lower':self.quantile(1 - width),
+      'upper':self.quantile(width),
+  }, index = var_name
+  )
+
+  res.index.name = 'variable'
+  return res
+
+from scipy.stats import t
+@pf.register_dataframe_method
+@pf.register_series_method
+def mean_ci(self, width = 0.95):
+
+  bild.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
+  if(isinstance(self, pd.DataFrame)):
+    var_name = self.columns
+  else:
+    var_name = [self.name]
+
+  n = len(self)
+  t_alpha = t.isf((1 - width) / 2, df = n - 1)
+  x_mean = self.mean()
+  x_std = self.std()
+
+  res = pd.DataFrame({
+      'mean':x_mean,
+      'lower':x_mean - t_alpha * x_std / np.sqrt(n),
+      'upper':x_mean + t_alpha * x_std / np.sqrt(n),
+      }, index = var_name
+    )
+  res.index.name = 'variable'
+  return res
 
 """## 正規表現を文字列関連の論理関数"""
 
@@ -457,3 +553,100 @@ def is_ymd_like(self, na_default = True):
   res[self.isna()] = na_default
 
   return res
+
+"""## set missing values in pd.Series"""
+
+def set_n_miss(x, n = 10, method = 'random', random_state = None, na_value = pd.NA):
+  method = bild.arg_match(method, ['random', 'first', 'last'])
+  bild.assert_count(n, upper = len(x))
+
+  x = x.copy()
+  n_miss = x.isna().sum()
+  non_miss = x.dropna().index.to_series()
+
+  if(method == 'random'):
+    index_to_na = non_miss.sample(n = n - n_miss, random_state = random_state)
+  elif(method == 'first'):
+    index_to_na = non_miss.head(n - n_miss)
+  elif(method == 'last'):
+    index_to_na = non_miss.tail(n - n_miss)
+
+  x[index_to_na] = na_value
+
+  return x
+
+def set_prop_miss(x, prop = 0.1, method = 'random', random_state = None, na_value = pd.NA):
+  method = bild.arg_match(method, ['random', 'first', 'last'])
+  bild.assert_numeric(prop, lower = 0, upper = 1)
+
+  x = x.copy()
+  prop_miss = x.isna().mean()
+  non_miss = x.dropna().index.to_series()
+
+  if(method == 'random'):
+    index_to_na = non_miss.sample(frac = prop - prop_miss, random_state = random_state)
+  elif(method == 'first'):
+    n = round(len(non_miss) * (prop - prop_miss))
+    index_to_na = non_miss.head(n)
+  elif(method == 'last'):
+    n = round(len(non_miss) * (prop - prop_miss))
+    index_to_na = non_miss.tail(n)
+
+  x[index_to_na] = na_value
+
+  return x
+
+"""- `eda.set_n_miss()`： `pd.Series` の欠損数が `n` 個になるように欠測値を追加します。
+- `eda.set_prop_miss()`： `pd.Series` の欠損率が約 `prop` になるように欠測値を追加します。
+
+引数
+
+- method：**str**</br>
+    - `'random'`（初期設定）：`x` のランダムな位置を、欠損値に変換します。
+    - `'first'`：`x` 冒頭を欠損値に変換します。
+    - `'last'`：`x` 末尾を欠損値に変換します。
+
+```python
+from py4stats import eda_tools as eda
+from palmerpenguins import load_penguins
+penguins = load_penguins() # サンプルデータの読み込み
+s = penguins['bill_depth_mm'].copy()
+
+print(s.isna().sum()) # 当初の欠測値の数
+#> 2
+
+print(eda.set_n_miss(s, n = 20).isna().sum())
+#> 20
+
+print(eda.set_n_miss(s, method = 'first'))
+#> 0       NaN
+#> 1       NaN
+#> 2       NaN
+#> 3       NaN
+#> 4       NaN
+#>        ...
+#> 339    19.8
+#> 340    18.1
+#> 341    18.2
+#> 342    19.0
+#> 343    18.7
+#> Name: bill_depth_mm, Length: 344, dtype: float64
+
+print(eda.set_n_miss(s, method = 'last'))
+#> 0      18.7
+#> 1      17.4
+#> 2      18.0
+#> 3       NaN
+#> 4      19.3
+#>        ...
+#> 339     NaN
+#> 340     NaN
+#> 341     NaN
+#> 342     NaN
+#> 343     NaN
+#> Name: bill_depth_mm, Length: 344, dtype: float64
+
+print(eda.set_prop_miss(s, prop = 0.2).isna().mean())
+#> 0.19767441860465115
+```
+"""
