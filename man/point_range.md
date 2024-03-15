@@ -2,7 +2,7 @@
 
 ## 概要
 
-数値変数の点推定と区間推定
+　R言語の [`ggdist::mean_qi()`](https://mjskay.github.io/ggdist/reference/point_interval.html) をオマージュした数値変数の点推定と区間推定を行う関数です。
 
 ```python
 mean_qi(self, width = 0.95)
