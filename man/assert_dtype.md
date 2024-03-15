@@ -101,5 +101,10 @@ z = 1
 bild.assert_numeric(z, lower = 0, upper = 1, inclusive = 'left')
 #> AssertionError: Argment 'z' must have value 0 <= x < 1.
 ```
+
+## 参照
+
+　データ型の判定には[こちらの関数](https://github.com/Hirototensho/Py4Stats/blob/main/man/is_dtype.md)を使用しています。
+
 ***
 [Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
