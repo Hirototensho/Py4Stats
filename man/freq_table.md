@@ -12,9 +12,11 @@ freq_table(
     ascending = False,
     dropna = False
 )
-``` 
+```
 
-- `self`：`pandas DataFrame`（必須）
+## 引数 
+
+- `self`：`pd.DataFrame`（必須）
 - `subset`：**str or list of str**</br>
 　集計に使用するデータフレームの列名（必須）。
 - `sort`：**bool**</br>
