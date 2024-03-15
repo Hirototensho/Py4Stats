@@ -52,3 +52,5 @@ print(penguins.groupby('species')[['bill_length_mm']].apply(eda.median_qi).round
 #> Chinstrap bill_length_mm   49.55  42.47  54.72
 #> Gentoo    bill_length_mm   47.30  42.60  54.26
 ```
+***
+[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
