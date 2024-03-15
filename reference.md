@@ -13,6 +13,12 @@
 
 [`eda_tools.Pareto_plot()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/Pareto_plot.md)
 
+### 数値変数の点推定と区間推定
+
+[`eda_tools.mean_qi()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/point_range.md)
+[`eda_tools.median_qi()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/point_range.md)
+[`eda_tools.mean_ci()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/point_range.md)
+
 ### データフレームの列や行の削除
 
 [`eda_tools.remove_empty()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/remove_empty_constant.md)  [`eda_tools.remove_constant()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/remove_empty_constant.md)
