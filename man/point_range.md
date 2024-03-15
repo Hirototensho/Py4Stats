@@ -15,7 +15,7 @@ mean_ci(self, width = 0.95)
 ## 引数 Argument
 
 - `self`：**pd.DataFrame or pd.Series**（必須）
-- `width`：**float**
+- `width`：**float**<br>
 　分位点区間の幅、もしくは信頼区間の計算に用いる信頼係数。
 
 ## 使用例 Examples
