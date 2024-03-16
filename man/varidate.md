@@ -48,12 +48,12 @@ rule_dict =  {
     }
 pd.Series(rule_dict)
 #> to                          turnover > 0
-sc              staff_costs / staff < 50
-cd1       staff_costs > 0 | ~(staff > 0)
-cd2       staff_costs > 0 | ~(staff > 0)
-bs     turnover + other_rev == total_rev
-mn                     profit.mean() > 0
-dtype: object
+#> sc              staff_costs / staff < 50
+#> cd1       staff_costs > 0 | ~(staff > 0)
+#> cd2       staff_costs > 0 | ~(staff > 0)
+#> bs     turnover + other_rev == total_rev
+#> mn                     profit.mean() > 0
+#> dtype: object
 ```
 
 `retailers` と `rule_dict` を `eda.check_that()` に代入すると、`rule_dict` に指定したルールに基づいた検証が実行されます。`item` 列はその検証ルールで生成された論理値の個数（通常はデータセットの列数と一致します）を表し、`passes` 列は検証結果が True となったレコードの数を、`fails` は False となったレコードの数を表します。また、`coutna` はルールの検証に使用した変数（データセットの列）のいずれかが欠測値であったレコードの数です。
