@@ -121,3 +121,5 @@ print(retailers.loc[df_viorate['to'], 'size':'turnover'])
 #> 4  sc3       0.14    NaN       NaN
 #> 6  sc3       0.14    5.0       NaN
 ```
+***
+[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
