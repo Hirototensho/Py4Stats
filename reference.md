@@ -60,7 +60,7 @@
 
 ## `py4stats.heckit_helper`
 
-[`heckit_helper.Heckit_from_formula()`](https://github.com/Hirototensho/Py4Stats/edit/main/man/Heckit_from_formula.md)
+[`heckit_helper.Heckit_from_formula()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/Heckit_from_formula.md)
 
 [`heckit_helper.tidy_heckit()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy_heckit.md)
 
