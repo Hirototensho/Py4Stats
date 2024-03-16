@@ -21,7 +21,7 @@ check_viorate(data, rule_dict, **kwargs)
 - `**kwargs`<br>
 　[`pandas.eval()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.eval.html) に渡す追加の引数。
 
-## 使用例 Examples1
+## 使用例 Examples
 
 　ここでは `eda.check_that()` 関数を使って Loo, Jonge(2022, p. 136)の結果を再現します。まずはR言語の `validate` パッケージに付属する `retailers` データを利用します。`retailers` は60件の小売業者の経営状況についてのデータで、従業員数、売上高とその他の収入、人件費、総費用、および利益がユーロ導入前の通貨単位である1000ギルダー単位で収録されています。
 
