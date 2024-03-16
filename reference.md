@@ -37,6 +37,10 @@
 
 [`eda_tools.is_dummy()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/is_dummy.md)
 
+### 簡易なルールベースのデータ検証ツール
+
+[`eda_tools.check_that()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/varidate.md) [`eda_tools.check_viorate()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/varidate.md)
+
 ## `py4stats.regression_tools`
 
 ### 分析結果の比較
