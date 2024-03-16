@@ -37,17 +37,14 @@ from functools import singledispatch
 # definition of tidy --------------------------------------------------
 @singledispatch
 def tidy(x, name_of_term = None, conf_level = 0.95, **kwargs):
-  raise ValueError(f'tidy mtethod for object {type(x)} is not implemented.')
+  raise NotImplementedError(f'tidy mtethod for object {type(x)} is not implemented.')
 
 from statsmodels.iolib.summary import summary_params_frame
-from statsmodels.discrete.discrete_model import BinaryResultsWrapper
 from statsmodels.regression.linear_model import RegressionResultsWrapper
 from scipy.stats import t
 
-
 @tidy.register(RegressionResultsWrapper)
-@tidy.register(BinaryResultsWrapper)
-def tidy_default(
+def tidy_regression(
   x,
   name_of_term = None,
   conf_level = 0.95,
@@ -100,16 +97,18 @@ def add_one_sided_p_value(x, tidied):
       return tidied
 
 from statsmodels.regression.linear_model import RegressionResultsWrapper
-from statsmodels.discrete.discrete_model import BinaryResultsWrapper
+from statsmodels.discrete.discrete_model import BinaryResultsWrapper, PoissonResultsWrapper, NegativeBinomialResultsWrapper
 from functools import singledispatch
 
 @singledispatch
 def glance(x):
     return x
 
-# ロジスティック回帰などの二項モデル用のメソッド
+# 一般化線型モデル用のメソッド
 @glance.register(BinaryResultsWrapper)
-def _(x):
+@glance.register(PoissonResultsWrapper)
+@glance.register(NegativeBinomialResultsWrapper)
+def glance_glm(x):
   res = pd.DataFrame({
       'prsquared':x.prsquared,
       'LL-Null':x.llnull ,
@@ -126,7 +125,7 @@ def _(x):
 
 # 線形回帰用のメソッド
 @glance.register(RegressionResultsWrapper)
-def _(x):
+def glance_ols(x):
     res = pd.DataFrame({
         'rsquared':x.rsquared,
         'rsquared_adj':x.rsquared_adj,
@@ -421,7 +420,7 @@ def coef_dot(
     ax.scatter(
       x = tidy_ci_high[estimate],
       y = tidy_ci_high.index,
-      c = palette [0],
+      c = palette[0],
       s = 60
     )
     ax.set_ylabel('');
