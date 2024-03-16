@@ -51,7 +51,7 @@
 
 ### 分析結果の可視化
 
-[`regression_tools.coefplot()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/coefplot.md) [`regression_tools.mfxplot()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_mfx.md)
+[`regression_tools.coefplot()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/coefplot.md) [`regression_tools.mfxplot()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/coefplot.md)
 
 ### 分析結果を作表するためのバックエンド関数
 [`regression_tools.tidy()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy.md)[`regression_tools.tidy_mfx()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy.md)
