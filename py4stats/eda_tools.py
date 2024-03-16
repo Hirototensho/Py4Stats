@@ -650,3 +650,73 @@ print(eda.set_prop_miss(s, prop = 0.2).isna().mean())
 #> 0.19767441860465115
 ```
 """
+
+@pf.register_dataframe_method
+def check_that(data, rule_dict, **kwargs):
+  if(isinstance(rule_dict, pd.Series)): rule_dict = rule_dict.to_dict()
+
+  [bild.assert_character(x, arg_name = 'rule_dict') for x in rule_dict.values()]
+
+  result_list = []
+  for i, name in enumerate(rule_dict):
+    condition = data.eval(rule_dict[name], **kwargs)
+    condition = pd.Series(condition)
+    assert bild.is_logical(condition),\
+    f"Result of rule(s) must be of type 'bool'. But result of '{name}' is '{condition.dtype}'."
+
+    if len(condition) == len(data):
+      in_exper = [s in rule_dict[name] for s in data.columns]
+      any_na = data.loc[:, in_exper].isna().any(axis = 'columns')
+      condition[any_na] = pd.NA
+      condition = condition.astype('boolean')
+
+    res_df = pd.DataFrame({
+        'item':len(condition),
+        'passes':condition.sum(skipna = True),
+        'fails':(~condition).sum(skipna = True),
+        'coutna':condition.isna().sum(),
+        'expression':rule_dict[name]
+        }, index = [name])
+
+    result_list.append(res_df)
+
+  result_df = pd.concat(result_list)
+  result_df.index.name = 'name'
+
+  return result_df
+
+@pf.register_dataframe_method
+def check_viorate(data, rule_dict, **kwargs):
+  if(isinstance(rule_dict, pd.Series)): rule_dict = rule_dict.to_dict()
+  [bild.assert_character(x, arg_name = 'rule_dict') for x in rule_dict.values()]
+
+  df_viorate = pd.DataFrame()
+  for i, name in enumerate(rule_dict):
+    condition = data.eval(rule_dict[name], **kwargs)
+    assert bild.is_logical(condition),\
+    f"Result of rule(s) must be of type 'bool'. But result of '{name}' is '{condition.dtype}'."
+
+    df_viorate[name] = ~condition
+
+  df_viorate['any'] = df_viorate.any(axis = 'columns')
+  df_viorate['all'] = df_viorate.all(axis = 'columns')
+
+  return df_viorate
+
+"""### helper function for pandas `DataFrame.eval()`"""
+
+def implies_exper(P, Q):
+  return f"{Q} | ~({P})"
+
+@pf.register_dataframe_method
+@singledispatch
+def is_complet(self): return self.notna().all(axis = 'columns')
+
+@is_complet.register(pd.Series)
+def is_complet(*arg): return pd.concat(arg, axis = 'columns').notna().all(axis = 'columns')
+
+def Sum(*arg): return pd.concat(arg, axis = 'columns').sum(axis = 'columns')
+def Mean(*arg): return pd.concat(arg, axis = 'columns').mean(axis = 'columns')
+def Max(*arg): return pd.concat(arg, axis = 'columns').max(axis = 'columns')
+def Min(*arg): return pd.concat(arg, axis = 'columns').min(axis = 'columns')
+def Median(*arg): return pd.concat(arg, axis = 'columns').median(axis = 'columns')
