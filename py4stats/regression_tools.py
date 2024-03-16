@@ -102,7 +102,7 @@ from functools import singledispatch
 
 @singledispatch
 def glance(x):
-    return x
+    raise NotImplementedError(f'glance mtethod for object {type(x)} is not implemented.')
 
 # 一般化線型モデル用のメソッド
 @glance.register(BinaryResultsWrapper)
