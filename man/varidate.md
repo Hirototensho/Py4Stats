@@ -18,7 +18,7 @@ check_viorate(data, rule_dict, **kwargs)
 - `rule_dict`**dict or pd.Series of str**（必須）<br>
 　`pandas.eval()` メソッドで実行した結果が論理値となるような expression の文字列を値とする辞書オブジェクト。詳細は使用例も参照してください。
 
-- `**kwargs`<\br>
+- `**kwargs`<br>
 　[`pandas.eval()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.eval.html) に渡す追加の引数。
 
 ## 使用例 Examples1
