@@ -93,6 +93,14 @@ ax[1].set_xlim(-900, 1800);
 ![Unknown](https://github.com/Hirototensho/Py4Stats/assets/55335752/4c2dbfda-c67d-45c5-ba28-0f7fc72bd7d3)
 
 ```python
+penguins['female'] = np.where(penguins['sex'] == 'female', 1, 0)
+
+# ロジスティック回帰の実行
+fit_logit1 = smf.logit('female ~ body_mass_g + bill_length_mm + bill_depth_mm', data = penguins).fit()
+fit_logit2 = smf.logit('female ~ body_mass_g + bill_length_mm + bill_depth_mm + species', data = penguins).fit()
+```
+
+```python
 plt.rcParams["figure.autolayout"] = True
 
 fig, ax = plt.subplots(1, 2, figsize = (2.2 * 5, 5), dpi = 100)
