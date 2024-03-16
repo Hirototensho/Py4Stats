@@ -1,4 +1,4 @@
-# 回限界効果の比較：`regression_tools.compare_mfx()`
+# 限界効果の比較：`regression_tools.compare_mfx()`
 
 ## 概要
 
