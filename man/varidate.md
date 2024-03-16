@@ -1,4 +1,4 @@
-# 簡易なデータ検証ツール `eda_tools.check_that()` `eda_tools.check_viorate()`
+# 簡易なルールベースのデータ検証ツール `eda_tools.check_that()` `eda_tools.check_viorate()`
 
 ## 概要
 
@@ -12,10 +12,10 @@ check_viorate(data, rule_dict, **kwargs)
 
 ## 引数 Argument
 
-- `data`**pd.DataFrame**（必須）<\br>
+- `data`**pd.DataFrame**（必須）<br>
 　ルールに基づくデータ検証を行うデータセット。
 
-- `rule_dict`**dict or pd.Series of str**（必須）<\br>
+- `rule_dict`**dict or pd.Series of str**（必須）<br>
 　`pandas.eval()` メソッドで実行した結果が論理値となるような expression の文字列を値とする辞書オブジェクト。詳細は使用例も参照してください。
 
 - `**kwargs`<\br>
