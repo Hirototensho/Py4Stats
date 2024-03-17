@@ -25,9 +25,8 @@ tidy_mfx(
 ## 引数 Argument
 
 - `x`（必須）</br>
-　以下のクラスに該当する分析結果のオブジェクト。
-    - [`sm.ols()`](https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.OLS.html) で作成された、`RegressionResultsWrapper` クラスのオブジェクト
-    - [`sm.glm()`](https://www.statsmodels.org/devel/generated/statsmodels.genmod.generalized_linear_model.GLM.html) で作成された `BinaryResultsWrapper` クラスのオブジェクト。
+　- `x`（必須）</br>
+　[`sm.ols()`](https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.OLS.html)もしくは [`smf.logit()`](https://www.statsmodels.org/stable/generated/statsmodels.formula.api.logit.html) などで作成された分析結果のオブジェクト。
 - `name_of_term`：**list of str**</br>
 　`term` 列（index） として表示する説明変数の名前のリスト。指定しない場合（初期設定）、モデルの推定に使用された説明変数の名前がそのまま表示されます。
 - `conf_level`：**float**</br>
