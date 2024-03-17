@@ -2,7 +2,7 @@
 
 ## 概要
 
-　R言語の [`bloom::glance()`](https://broom.tidymodels.org/reference/glance.lm.html) をオマージュした関数で、[`sm.ols()`](https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.OLS.html) や [`sm.glm()`](https://www.statsmodels.org/devel/generated/statsmodels.genmod.generalized_linear_model.GLM.html) の推定結果をpands.DataFrame に変換します。
+　R言語の [`bloom::glance()`](https://broom.tidymodels.org/reference/glance.lm.html) をオマージュした関数で、[`sm.ols()`](https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.OLS.html) や [`smf.logit()`](https://www.statsmodels.org/stable/generated/statsmodels.formula.api.logit.html) などの推定結果をpands.DataFrame に変換します。
 
 ```python
 glance(x)
@@ -11,7 +11,7 @@ glance(x)
 ## 引数 Argument
 
 - `x`（必須）</br>
-　[`sm.ols()`](https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.OLS.html)もしくは[`sm.glm()`](https://www.statsmodels.org/devel/generated/statsmodels.genmod.generalized_linear_model.GLM.html) で作成された分析結果のオブジェクト。
+　[`sm.ols()`](https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.OLS.html)もしくは [`smf.logit()`](https://www.statsmodels.org/stable/generated/statsmodels.formula.api.logit.html) などで作成された分析結果のオブジェクト。
 
 ## 返り値 Value
 
