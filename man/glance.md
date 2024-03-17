@@ -53,7 +53,12 @@ print(reg.glance(fit_logit1).round(4))
 
 ## 注意点
 
-　参考にしたR言語の [`bloom::tidy()`](https://broom.tidymodels.org/reference/tidy.lm.html) は様々な種類のモデルに対応したジェネリック関数として定義されていますが、現段階では `regression_tools.glance()` は [`sm.ols()`](https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.OLS.html) と [`sm.glm()`](https://www.statsmodels.org/devel/generated/statsmodels.genmod.generalized_linear_model.GLM.html) で推定されたモデルのみにしか対応していません。
+　参考にしたR言語の [`bloom::glance()`](https://broom.tidymodels.org/reference/glance.lm.html) は様々な種類のモデルに対応したジェネリック関数として定義されていますが、`reg.glance()` は現段階では限られたモデルにしか対応していません。`reg.glance()` のメソッドが定義されているオブジェクトのクラスを確認するには次のコードを実行して下さい。
+
+```python
+list(reg.glance.registry.keys())
+```
+
 
 ***
 [Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
