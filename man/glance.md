@@ -2,7 +2,7 @@
 
 ## 概要
 
-　R言語の [`bloom::glance()`](https://broom.tidymodels.org/reference/glance.lm.html) をオマージュした関数で、[`sm.ols()`](https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.OLS.html) や [`smf.logit()`](https://www.statsmodels.org/stable/generated/statsmodels.formula.api.logit.html) などの推定結果をpands.DataFrame に変換します。
+　R言語の [`bloom::glance()`](https://broom.tidymodels.org/reference/glance.lm.html) をオマージュした関数で、[`sm.ols()`](https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.OLS.html) や [`smf.logit()`](https://www.statsmodels.org/stable/generated/statsmodels.formula.api.logit.html) などで推定されたモデルを `pands.DataFrame` に変換します。
 
 ```python
 glance(x)
@@ -15,7 +15,7 @@ glance(x)
 
 ## 返り値 Value
 
-　モデルの当てはまり（goodness of fit）の尺度を各列に持つ pands.DataFrame が出力されます。表示される指標はモデルの種類によって異なります。
+　モデルの当てはまり（goodness of fit）の尺度を各列に持つ `pands.DataFrame` が出力されます。表示される指標はモデルの種類によって異なります。
 
 
 ## 使用例 Examples
