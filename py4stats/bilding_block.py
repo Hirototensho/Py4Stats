@@ -197,23 +197,17 @@ def pad_zero(x, digits = 2):
     return s
 
 @np.vectorize
-def num_comma(x, digits = 2, big_mark = ',', signif = False):
+def num_comma(x, digits = 2, big_mark = ','):
   arg_match(big_mark, [',', '_', ''])
-  if(not signif):
-    return f'{x:{big_mark}.{digits}f}'
-  else:
-    return f'{x:{big_mark}.{digits}g}'
+  return f'{x:{big_mark}.{digits}f}'
 
 @np.vectorize
-def num_currency(x, symbol = '$', digits = 0, big_mark = ',', signif = False):
+def num_currency(x, symbol = '$', digits = 0, big_mark = ','):
   arg_match(big_mark, [',', '_', ''])
-  if(not signif):
-    return f'{symbol}{x:{big_mark}.{digits}f}'
-  else:
-    return f'{symbol}{x:{big_mark}.{digits}g}'
+  return f'{symbol}{x:{big_mark}.{digits}f}'
 
 @np.vectorize
-def num_percent(x, digits = 2): return f'{x:,.{digits}%}'
+def num_percent(x, digits = 2): return f'{x:.{digits}%}'
 
 @np.vectorize
 def add_big_mark(s): return  f'{s:,}'
