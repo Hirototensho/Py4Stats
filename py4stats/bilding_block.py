@@ -182,9 +182,9 @@ assert_float = make_assert_numeric(is_float, valid_type = ['float'])
 # 有意性を表すアスタリスクを作成する関数
 @np.vectorize
 def p_stars(p_value):
-    stars = np.where(p_value <= 0.1, ' *', '')
-    stars = np.where(p_value <= 0.05, ' **', stars)
-    stars = np.where(p_value <= 0.01, ' ***', stars)
+    stars = np.where(p_value <= 0.1, '*', '')
+    stars = np.where(p_value <= 0.05, '**', stars)
+    stars = np.where(p_value <= 0.01, '***', stars)
     return stars
 
 @np.vectorize
