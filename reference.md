@@ -89,7 +89,11 @@
 
 ### 数字のフォーマット
 
-[`bilding_block.pad_zero()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/miscellaneous.md)  [`bilding_block.p_stars()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/miscellaneous.md)
+[`bilding_block.num_comma()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/miscellaneous.md)
+[`bilding_block.num_currency()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/miscellaneous.md)
+[`bilding_block.num_percent()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/miscellaneous.md)
+[`bilding_block.pad_zero()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/miscellaneous.md)
+[`bilding_block.p_stars()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/miscellaneous.md)
 
 ### 並列文の作成
 
