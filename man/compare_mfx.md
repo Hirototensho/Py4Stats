@@ -117,6 +117,7 @@ reg.compare_mfx([fit_logit1, fit_logit2])
 
 
 ```python
+from great_tables import GT, md, html
 compare_tab = reg.compare_mfx(
     [fit_logit1, fit_logit2],
     model_name = ['ベースモデル', 'species 追加'], # モデル名を変更
