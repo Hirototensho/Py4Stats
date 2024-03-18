@@ -4,9 +4,9 @@
 
 
 ``` python
-num_comma(x, digits = 2, big_mark = ',', signif = False)
+num_comma(x, digits = 2, big_mark = ',')
 
-num_currency(x, symbol = '$', digits = 0, big_mark = ',', signif = False)
+num_currency(x, symbol = '$', digits = 0, big_mark = ',')
 
 num_percent(x, digits = 2)
 
