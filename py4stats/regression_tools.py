@@ -197,6 +197,7 @@ def compare_ols(
           tidy_list, model_name = model_name,
           digits = digits, stats = stats,
           add_stars = add_stars, table_style = table_style,
+          subset = subset,
           line_break = line_break,
           **kwargs
       )
@@ -521,43 +522,43 @@ def F_test_lm(restriction, full):
 
 """
 
-def tidy_mfx(x, at = 'overall', method = 'dydx', dummy = False, conf_level = 0.95, **kwargs):
-  # 引数に妥当な値が指定されているかを検証
-  at = bild.arg_match(at, ['overall', 'mean', 'median', 'zero'], arg_name = 'at')
+# def tidy_mfx(x, at = 'overall', method = 'dydx', dummy = False, conf_level = 0.95, **kwargs):
+#   # 引数に妥当な値が指定されているかを検証
+#   at = bild.arg_match(at, ['overall', 'mean', 'median', 'zero'], arg_name = 'at')
 
-  method = bild.arg_match(
-      method,
-      values = ['coef', 'dydx', 'eyex', 'dyex', 'eydx'],
-      arg_name = 'method'
-      )
-  # 限界効果の推定
-  est_margeff = x.get_margeff(dummy = dummy, at = at, method = method, **kwargs)
-  tab = est_margeff.summary_frame()
+#   method = bild.arg_match(
+#       method,
+#       values = ['coef', 'dydx', 'eyex', 'dyex', 'eydx'],
+#       arg_name = 'method'
+#       )
+#   # 限界効果の推定
+#   est_margeff = x.get_margeff(dummy = dummy, at = at, method = method, **kwargs)
+#   tab = est_margeff.summary_frame()
 
-  method_dict = {
-            'coef':'coef',
-            'dydx':'dy/dx',
-            'eyex':'d(lny)/d(lnx)',
-            'dyex':'dy/d(lnx)',
-            'eydx':'d(lny)/dx',
-        }
+#   method_dict = {
+#             'coef':'coef',
+#             'dydx':'dy/dx',
+#             'eyex':'d(lny)/d(lnx)',
+#             'dyex':'dy/d(lnx)',
+#             'eydx':'d(lny)/dx',
+#         }
 
-  tab = tab.rename(columns = {
-            method_dict[method]:method,
-            'Std. Err.':'std_err',
-            'z':'statistics',
-            'Pr(>|z|)':'p_value',
-            'Conf. Int. Low':'conf_lower',
-            'Cont. Int. Hi.':'conf_higher'
-            })
+#   tab = tab.rename(columns = {
+#             method_dict[method]:method,
+#             'Std. Err.':'std_err',
+#             'z':'statistics',
+#             'Pr(>|z|)':'p_value',
+#             'Conf. Int. Low':'conf_lower',
+#             'Cont. Int. Hi.':'conf_higher'
+#             })
 
-  # conf_level に 0.95 以外の値が指定されていた場合は、信頼区間を個別に推定して値を書き換えます。
-  if(conf_level != 0.95):
-    CI = est_margeff.conf_int(alpha = 1 - conf_level)
-    tab['conf_lower'] = CI[:, 0]
-    tab['conf_higher'] = CI[:, 1]
+#   # conf_level に 0.95 以外の値が指定されていた場合は、信頼区間を個別に推定して値を書き換えます。
+#   if(conf_level != 0.95):
+#     CI = est_margeff.conf_int(alpha = 1 - conf_level)
+#     tab['conf_lower'] = CI[:, 0]
+#     tab['conf_higher'] = CI[:, 1]
 
-  return tab
+#   return tab
 
 def tidy_mfx(
     x,
@@ -640,6 +641,7 @@ def compare_mfx(
       tidy_list,
       model_name = model_name,
       digits = digits,
+      subset = subset,
       stats = stats,
       add_stars = add_stars,
       table_style = table_style,
