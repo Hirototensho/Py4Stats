@@ -2,11 +2,27 @@
 
 ## 概要
 
+
 ``` python
+num_comma(x, digits = 2, big_mark = ',', signif = False)
+
+num_currency(x, symbol = '$', digits = 0, big_mark = ',', signif = False)
+
+num_percent(x, digits = 2)
+
 pad_zero(x, digits = 2)
 
 p_stars(p_value)
 ```
+
+## 引数 Argument
+
+- `x`：**scalar or array-like**</br>
+- `digits`：**scalar**</br>
+- `p_value`：**scalar or array-like**</br>
+
+
+## 返り値 Value
 
 　`bilding_block.pad_zero()` はfloat 値に対して少数部分が `digits` で指定された桁数になるまで `0` を追加した文字列を返す関数で、`bilding_block.p_stars()` は `p_value` に与えられた数値を仮説検定の有意性を示すアスタリスク `*` に変換する関数です。アスタリスクはp-値の値に応じて次のように表示されます。
 
@@ -15,22 +31,35 @@ p_stars(p_value)
 - p ≤ 0.01 `***`
 - p > 0.1 表示なし
 
-## 引数
+## 使用例 Examples
 
-- `x`：**scalar or array-like**</br>
-- `digits`：**scalar**</br>
-- `p_value`：**scalar or array-like**</br>
-
-## 使用例
-
-``` python
+```python
 from py4stats import bilding_block as bild
 
-print(bild.pad_zero([0.11, 0.123, 0.5], digits = 3))
-#> ['0.110' '0.123' '0.500']
+x = [2000, 1000, 0.5, 0.11, 0.123]
 
-print(bild.p_stars([0.11, 0.06, 0.05, 0.01]))
-#> ['' ' *' ' **' ' ***']
+print(bild.num_comma(x))
+#> ['2,000.00' '1,000.00' '0.50' '0.11' '0.12']
+
+print(bild.num_comma(x, big_mark = ''))
+#> ['2000.00' '1000.00' '0.50' '0.11' '0.12']
+
+print(bild.num_currency(x))
+#> ['$2,000' '$1,000' '$0' '$0' '$0']
+
+print(bild.pad_zero(x, digits = 3))
+#> ['2000' '1000' '0.500' '0.110' '0.123']
 ```
+
+```python
+pct = [0.11, 0.06, 0.05, 0.01, 0.00234]
+
+print(bild.num_percent(pct))
+#> ['11.00%' '6.00%' '5.00%' '1.00%' '0.23%']
+
+print(bild.p_stars(pct))
+#> ['' '*' '**' '***' '***']
+```
+
 ***
 [Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
