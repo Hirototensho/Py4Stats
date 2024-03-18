@@ -280,7 +280,7 @@ def lineup_models(tidy_list, model_name = None, subset = None, **kwargs):
 # 2024年3月18日変更 数値の体裁を整える処理を bild.num_comma() を使ったものに変更しました。
 def gazer(
     res_tidy, estimate = 'estimate', stats = 'std_err',
-    digits = 4, add_stars = True, style_p = False, p_min = 0.01,
+    digits = 4, add_stars = True,  p_min = 0.01,
     table_style = 'two_line', line_break = '\n',
     **kwargs
     ):
@@ -298,22 +298,13 @@ def gazer(
 
     # --------------------
     res = res_tidy.copy()
+    # 有意性を表すアスタリスクを作成します
+    res['stars'] = ' ' + res['p_value'].apply(bild.p_stars)
 
-
+    # `estimate` と `stats` を見やすいフォーマットに変換します。
     res[[estimate, stats]] = res[[estimate, stats]]\
         .apply(bild.num_comma, digits = digits)
 
-    # 有意性を表すアスタリスクを作成します
-    res['stars'] = bild.p_stars(res['p_value'])
-
-    if (stats == 'p_value') & style_p:
-        res['p_val'] = res['p_value']
-
-        res['p_value'] = np.where(
-            res['p_val'] < p_min,
-            f'p < {p_min}',
-            res['p_value']
-            )
     # table_style に応じて改行とアスタリスクを追加する
 
     if(table_style == 'two_line'):
@@ -431,7 +422,7 @@ def coef_dot(
 
 """## 回帰係数の線型結合に関するに関するt検定"""
 
-def lincomb(model, const_mat, beta_H0 = 0, alpha = 0.05, stars = False, pct_change = False):
+def lincomb(model, const_mat, beta_H0 = 0, alpha = 0.05, add_stars = False, pct_change = False):
     '''回帰係数の線型結合に関するに関するt検定'''
     from scipy.stats import t
 
@@ -466,8 +457,8 @@ def lincomb(model, const_mat, beta_H0 = 0, alpha = 0.05, stars = False, pct_chan
         res['conf_lower'] = log_to_pct(res['conf_lower'])
         res['conf_higher'] = log_to_pct(res['conf_higher'])
 
-    if stars:
-        res['stars'] = bild.p_stars(res['p_value'])
+    if add_stars:
+      res['stars'] = ' ' + res['p_value'].apply(bild.p_stars)
 
     return res
 
