@@ -199,7 +199,9 @@ compare_tab4.loc['島ダミー', :] = ['No', 'No', 'Yes']
 compare_tab4 # 上記のコードと同じ結果
 ```
 
-　**注意**：`table_style = 'two_line'` としたとき、初期設定ではの回帰係数とp-値の間に改行記号 `'\n'`が挿入されます。`そのため、print()` 関数や `display()` 関数を使った出力では、改行記号 `'\n'` がそのまま表示され正しく改行されていないように見えます。この場合でも、[`pd.DataFrame.to_excel()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_excel.html) や [`pd.DataFrame.to_markdown()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_markdown.html) を使って Excel ファイルや markdown の表に変換していただくと、改行として反映されます。
+## 補足
+
+　　`table_style = 'two_line'` としたとき、初期設定ではの回帰係数とp-値の間に改行記号 `'\n'`が挿入されます。`そのため、print()` 関数や `display()` 関数を使った出力では、改行記号 `'\n'` がそのまま表示され正しく改行されていないように見えます。この場合でも、[`pd.DataFrame.to_excel()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_excel.html) や [`pd.DataFrame.to_markdown()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_markdown.html) を使って Excel ファイルや markdown の表に変換していただくと、改行として反映されます。
 
 ## 参照 see also
 
