@@ -116,6 +116,23 @@ reg.compare_mfx([fit_logit1, fit_logit2])
 | df                   | 3           | 5           |
 
 
+```python
+compare_tab = reg.compare_mfx(
+    [fit_logit1, fit_logit2],
+    model_name = ['ベースモデル', 'species 追加'], # モデル名を変更
+    line_break = '<br>'                         # 改行文字の変更
+)
+
+GT(compare_tab.reset_index())\
+  .tab_header(title = 'ロジットモデルの限界効果')\
+  .tab_source_note(
+      source_note= "Signif. codes: 0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’"
+      )\
+  .tab_source_note(source_note = '丸括弧 ( ) の値は標準誤差')
+```
+
+<img width="387" alt="compare_tab_gt2" src="https://github.com/Hirototensho/Py4Stats/assets/55335752/98b4f543-a2f9-46d1-9495-7ebf5737330f">
+
 ## 補足
 
 　　`table_style = 'two_line'` としたとき、初期設定ではの回帰係数とp-値の間に改行記号 `'\n'`が挿入されます。`そのため、print()` 関数や `display()` 関数を使った出力では、改行記号 `'\n'` がそのまま表示されます。この場合でも、[`pd.DataFrame.to_excel()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_excel.html) や [`pd.DataFrame.to_markdown()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_markdown.html) を使って Excel ファイルや markdown の表に変換していただくと、改行として反映されます。
