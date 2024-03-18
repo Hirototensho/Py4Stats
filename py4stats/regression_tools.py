@@ -303,6 +303,9 @@ def gazer(
     res[[estimate, stats]] = res[[estimate, stats]]\
         .apply(bild.num_comma, digits = digits)
 
+    # 有意性を表すアスタリスクを作成します
+    res['stars'] = bild.p_stars(res['p_value'])
+
     if (stats == 'p_value') & style_p:
         res['p_val'] = res['p_value']
 
@@ -312,7 +315,6 @@ def gazer(
             res['p_value']
             )
     # table_style に応じて改行とアスタリスクを追加する
-    res['stars'] = bild.p_stars(res['p_value'])
 
     if(table_style == 'two_line'):
         sep = line_break
