@@ -244,7 +244,7 @@ def make_glance_tab(
 
   res = pd.concat(glance_list)\
     .loc[:, stats_glance]\
-    .apply(bild.num_comma, digits = digits, signif = True)\
+    .round(digits)\
     .apply(bild.pad_zero, digits = digits).T
 
   res.columns = model_name
