@@ -106,11 +106,12 @@ print(reg.tidy_mfx(fit_logit1).round(4))
 
 ## 注意点
 
-　参考にしたR言語の [`broom::tidy()`](https://broom.tidymodels.org/reference/tidy.lm.html) は様々な種類のモデルに対応したジェネリック関数として定義されていますが、`regression_tools.tidy()` と `regression_tools.tidy_mfx()` では対応しているモデルは限定的であることにご注意ださい。
+　参考にしたR言語の [`broom::tidy()`](https://broom.tidymodels.org/reference/tidy.lm.html) は様々な種類のモデルに対応したジェネリック関数として定義されていますが、`regression_tools.tidy()` と `regression_tools.tidy_mfx()` では対応しているモデルは限定的であることにご注意ださい。`reg.tidy()` のメソッドが定義されているオブジェクトのクラスを確認するには次のコードを実行して下さい。
 
-## 補足
+```python
+list(reg.tidy.registry.keys())
 
- 機能は限定的ですが、`functools.singledispatch` を用いたジェネリック関数として実装しています。 [`Py4Etrics`](https://github.com/Py4Etrics/py4etrics) モジュールの `py4etrics.heckit.Heckit()` で作成された `HeckitResults` クラスのオブジェクト用のメソッドについては [`heckit_helper.tidy_heckit()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy_heckit.md) を参照してください。
+ `regression_tools.tidy()` は `functools.singledispatch` を用いたジェネリック関数として実装しています。 [`Py4Etrics`](https://github.com/Py4Etrics/py4etrics) モジュールの `py4etrics.heckit.Heckit()` で作成された `HeckitResults` クラスのオブジェクト用のメソッドについては [`heckit_helper.tidy_heckit()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy_heckit.md) を参照してください。
 
 
 ***
