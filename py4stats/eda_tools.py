@@ -201,7 +201,6 @@ def freq_table(self, subset, sort = True, ascending = False, dropna = False):
       })
   return res
 
-@pf.register_dataframe_method
 def tabyl(
     self,
     index,
@@ -233,7 +232,8 @@ def tabyl(
         dropna = dropna, normalize = False
         )
 
-    c_tab1 = c_tab1.apply(bild.num_comma, digits = 0)
+    return c_tab1
+    c_tab1 = c_tab1.apply(bild.style_number, digits = 0)
 
     if(normalize != False):
 
@@ -246,7 +246,7 @@ def tabyl(
           )
 
       # 2つめのクロス集計表の回答率をdigitsで指定した桁数のパーセントに換算し、文字列化します。
-      c_tab2 = c_tab2.apply(bild.num_percent, digits = digits)
+      c_tab2 = c_tab2.apply(bild.style_percent, digits = digits)
 
       col = c_tab2.columns
       idx = c_tab2.index
