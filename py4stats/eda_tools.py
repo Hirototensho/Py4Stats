@@ -201,6 +201,7 @@ def freq_table(self, subset, sort = True, ascending = False, dropna = False):
       })
   return res
 
+@pf.register_dataframe_method
 def tabyl(
     self,
     index,
