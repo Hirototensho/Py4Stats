@@ -2,7 +2,7 @@
 
 ## 概要
 
-　R言語の [`broom::tidy()`](https://broom.tidymodels.org/reference/tidy.lm.html) をオマージュした [`regression_tools.tidy()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy.md) 関数の、`py4etrics.heckit.HeckitResults` クラス専用のメソッドです。
+　R言語の [`broom::tidy()`](https://broom.tidymodels.org/reference/tidy.lm.html) をオマージュした [`regression_tools.tidy()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy.md) 関数の、`py4etrics.heckit.HeckitResults` クラス専用のメソッドです。[`regression_tools.tidy()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy.md)はジェネリック関数として実装されているため、`reg.tidy(x)` としてご利用いただけます。
 
 ```python
 tidy_heckit(
