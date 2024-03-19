@@ -41,7 +41,6 @@ def tidy(x, name_of_term = None, conf_level = 0.95, **kwargs):
 
 from statsmodels.iolib.summary import summary_params_frame
 from statsmodels.regression.linear_model import RegressionResultsWrapper
-from scipy.stats import t
 
 @tidy.register(RegressionResultsWrapper)
 def tidy_regression(
@@ -77,6 +76,98 @@ def tidy_regression(
 
   return tidied
 
+from statsmodels.stats.contrast import ContrastResults
+
+@tidy.register(ContrastResults)
+def tidy_test(
+  x,
+  conf_level = 0.95,
+  **kwargs
+  ):
+  bild.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither')
+  if(x.distribution == 'F'):
+    tidied = pd.DataFrame({
+    'statistics':x.statistic,
+    'p_value':x.pvalue,
+    'df_denom':int(x.df_denom),
+    'df_num':int(x.df_num)
+  }, index = ['contrast'])
+
+  else:
+    tidied = x.summary_frame(alpha = 1 - conf_level)
+
+    rename_cols = {
+        'coef':'estimate',
+        'std err':'std_err',
+        't':'statistics', 'P>|t|': 'p_value',
+        'Conf. Int. Low': 'conf_lower',
+        'Conf. Int. Upp.': 'conf_higher'
+    }
+
+    tidied = tidied.rename(columns = rename_cols)
+
+  tidied.index.name = 'term'
+  return tidied
+
+"""### 片側t-検定"""
+
+from scipy.stats import t
+from scipy.stats import norm
+
+# definition of tidy --------------------------------------------------
+@singledispatch
+def tidy_one_sided(x, conf_level = 0.95, **kwargs):
+  raise NotImplementedError(f'tidy mtethod for object {type(x)} is not implemented.')
+
+@tidy_one_sided.register(ContrastResults)
+def tidy_one_sided_t_test(x, conf_level = 0.95):
+  bild.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither')
+  tidied = tidy(x)
+
+  # 仮説検定にt分布が用いられている場合
+  if(x.distribution == 't'):
+    tidied['p_value'] = t.sf(abs(tidied['statistics']), x.dist_args[0])
+    t_alpha = t.isf(1 - conf_level, df = x.dist_args[0])
+    tidied['conf_lower'] = tidied['estimate'] - t_alpha * tidied['std_err']
+    tidied['conf_higher'] = tidied['estimate'] + t_alpha * tidied['std_err']
+
+  # 仮説検定に正規分布が用いられている場合
+  elif(x.distribution == 'norm'):
+    tidied['p_value'] = norm.sf(abs(tidied['statistics']))
+    z_alpha = norm.isf(1 - conf_level)
+    tidied['conf_lower'] = tidied['estimate'] - z_alpha * tidied['std_err']
+    tidied['conf_higher'] = tidied['estimate'] + z_alpha * tidied['std_err']
+  else:
+    raise NotImplementedError(f'tidy mtethod for distribution {x.distribution} is not implemented.')
+
+  return tidied
+
+@tidy_one_sided.register(RegressionResultsWrapper)
+def tidy_one_sided_regression(x, conf_level = 0.95, null_hypotheses = 0):
+  bild.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither')
+  bild.assert_numeric(null_hypotheses)
+
+  tidied = tidy(x)
+
+  tidied['H_null'] = null_hypotheses
+
+  tidied['statistics'] = (tidied['estimate'] - tidied['H_null']) / tidied['std_err']
+  # 仮説検定にt分布が用いられている場合
+  if(x.use_t):
+    tidied['p_value'] = t.sf(abs(tidied['statistics']), x.df_resid)
+    t_alpha = t.isf(1 - conf_level, df = x.df_resid)
+    tidied['conf_lower'] = tidied['estimate'] - t_alpha * tidied['std_err']
+    tidied['conf_higher'] = tidied['estimate'] + t_alpha * tidied['std_err']
+  # 仮説検定に正規分布が用いられている場合
+  else:
+    tidied['p_value'] = norm.sf(abs(tidied['statistics']))
+    z_alpha = norm.isf(1 - conf_level)
+    tidied['conf_lower'] = tidied['estimate'] - z_alpha * tidied['std_err']
+    tidied['conf_higher'] = tidied['estimate'] + z_alpha * tidied['std_err']
+
+  return tidied
+
+from scipy.stats import t
 def tidy_to_jp(tidied, conf_level = 0.95):
   tidied = tidied\
       .rename(columns = {
@@ -95,6 +186,8 @@ def tidy_to_jp(tidied, conf_level = 0.95):
 def add_one_sided_p_value(x, tidied):
       tidied['one_sided_p_value'] = t.sf(abs(tidied['statistics']), x.df_resid)
       return tidied
+
+"""`glance()`"""
 
 from statsmodels.regression.linear_model import RegressionResultsWrapper
 from statsmodels.discrete.discrete_model import BinaryResultsWrapper, PoissonResultsWrapper, NegativeBinomialResultsWrapper
