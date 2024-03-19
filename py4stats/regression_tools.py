@@ -371,7 +371,7 @@ def lineup_models(tidy_list, model_name = None, subset = None, **kwargs):
 # 回帰係数と検定統計量を縦に並べる関数
 # 2024年1月30日変更 引数 stats と table_style について
 # 妥当な値が指定されているかを検証する機能を追加しました。
-# 2024年3月18日変更 数値の体裁を整える処理を bild.num_comma() を使ったものに変更しました。
+# 2024年3月18日変更 数値の体裁を整える処理を bild.style_number() を使ったものに変更しました。
 def gazer(
     res_tidy, estimate = 'estimate', stats = 'std_err',
     digits = 4, add_stars = True,  p_min = 0.01,
@@ -393,12 +393,11 @@ def gazer(
     # --------------------
     res = res_tidy.copy()
     # 有意性を表すアスタリスクを作成します
-    # res['stars'] = ' ' + res['p_value'].apply(bild.p_stars)
     res['stars'] = ' ' + bild.p_stars(res['p_value'])
 
     # `estimate` と `stats` を見やすいフォーマットに変換します。
     res[[estimate, stats]] = res[[estimate, stats]]\
-        .apply(bild.num_comma, digits = digits)
+        .apply(bild.style_number, digits = digits)
 
     # table_style に応じて改行とアスタリスクを追加する
 
