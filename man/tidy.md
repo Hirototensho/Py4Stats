@@ -110,6 +110,7 @@ print(reg.tidy_mfx(fit_logit1).round(4))
 
 ```python
 list(reg.tidy.registry.keys())
+```
 
  `regression_tools.tidy()` は `functools.singledispatch` を用いたジェネリック関数として実装しています。 [`Py4Etrics`](https://github.com/Py4Etrics/py4etrics) モジュールの `py4etrics.heckit.Heckit()` で作成された `HeckitResults` クラスのオブジェクト用のメソッドについては [`heckit_helper.tidy_heckit()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy_heckit.md) を参照してください。
 
