@@ -8,8 +8,6 @@ style_number(x, digits = 2, big_mark = ',')
 style_currency(x, symbol = '$', digits = 0, big_mark = ',')
 
 style_percent(x, digits = 2, unit = 100, symbol = '%')
-
-pad_zero(x, digits = 2)
 ```
 
 ## 引数 Argument
@@ -28,8 +26,6 @@ pad_zero(x, digits = 2)
 - `bilding_block.style_number()`： 任意の数値に対して、小数点以下を桁数 `digits` に丸め、3桁区切り記号を通過した値を文字列として返します。f-string によるフォーマット `f'{x:{big_mark}.{digits}f}'` を用いて実装されています。
 - `bilding_block.style_currency()`： `bild.style_number()` と同じく任意の数値に対して、小数点以下を桁数 `digits` に丸め、3桁区切り記号を通過した値を文字列として返しますが、さらに貨幣記号を追加します。f-string によるフォーマット `f'{symbol}{x:{big_mark}.{digits}f}'` を用いて実装されています。
 - `bilding_block.style_percent()`： 任意の数値をパーセンテージ表示に変換した値を文字列として返します。f-string によるフォーマット `f'{x:,.{digits}%}'` を用いて実装されています。
-- `bilding_block.pad_zero()`： float 値に対して少数部分が `digits` で指定された桁数になるまで `0` を末尾に追加した文字列を返す関数です。ただし、`bild.style_number()` とは異なり整数値については `0` の追加は行いません。
-
 
 ## 使用例 Examples
 
@@ -47,9 +43,6 @@ print(bild.style_number(x, big_mark = '').to_list())
 
 print(bild.style_currency(x).to_list())
 #> ['$2,000', '$1,000', '$0', '$0', '$0']
-
-print(bild.pad_zero(x, digits = 3))
-#> ['2000' '1000' '0.500' '0.110' '0.123']
 ```
 
 ```python
