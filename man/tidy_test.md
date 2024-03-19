@@ -2,7 +2,7 @@
 
 ## 概要
 
-　R言語の [`broom::tidy()`](https://broom.tidymodels.org/reference/tidy.lm.html) をオマージュした [`regression_tools.tidy()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy.md) 関数のうち、`statsmodels` ライブラリのメソッド [`RegressionResults.t_test()`](https://www.statsmodels.org/dev/generated/statsmodels.regression.linear_model.RegressionResults.t_test.html#statsmodels.regression.linear_model.RegressionResults.t_test) もしくは [`RegressionResults.f_test()`](https://www.statsmodels.org/dev/generated/statsmodels.regression.linear_model.RegressionResults.f_test.html#statsmodels.regression.linear_model.RegressionResults.f_test) で作成された `statsmodels.stats.contrast.ContrastResults` クラスのオブジェクト専用のメソッドです。
+　R言語の [`broom::tidy()`](https://broom.tidymodels.org/reference/tidy.lm.html) をオマージュした [`regression_tools.tidy()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy.md) 関数のうち、`statsmodels` ライブラリのメソッド [`RegressionResults.t_test()`](https://www.statsmodels.org/dev/generated/statsmodels.regression.linear_model.RegressionResults.t_test.html#statsmodels.regression.linear_model.RegressionResults.t_test) もしくは [`RegressionResults.f_test()`](https://www.statsmodels.org/dev/generated/statsmodels.regression.linear_model.RegressionResults.f_test.html#statsmodels.regression.linear_model.RegressionResults.f_test) で作成された `statsmodels.stats.contrast.ContrastResults` クラスのオブジェクト専用のメソッドです。[`regression_tools.tidy()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy.md)はジェネリック関数として実装されているため、`reg.tidy(x)` としてご利用いただけます。
 
 ```python
 tidy_test(x, conf_level = 0.95, **kwargs)
@@ -27,9 +27,9 @@ tidy_test(x, conf_level = 0.95, **kwargs)
 　仮説検定の標本検定統計量。
 - `p_value`</br>
  　両側検定の標本p-値
-- conf_lower</br>
+- `conf_lower`</br>
 　信頼区間の下側信頼限界
-- conf_higher</br>
+- `conf_higher`</br>
 　信頼区間の上側信頼限界
 
 　一方で引数 `x` に代入されたオブジェクトが `f_test()` の結果である場合、次の列を含む pands.DataFrame が出力されます。
