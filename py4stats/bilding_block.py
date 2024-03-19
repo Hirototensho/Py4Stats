@@ -179,38 +179,56 @@ assert_float = make_assert_numeric(is_float, valid_type = ['float'])
 
 """## 数値などのフォーマット"""
 
-# 有意性を表すアスタリスクを作成する関数
-@np.vectorize
-def p_stars(p_value):
-  assert_numeric(p_value, lower = 0)
+def p_stars(p_value, stars = {'***':0.01, '**':0.05, '*':0.1}):
+  # stars のラベルに上限値を追加
+  stars[''] = float('inf')
 
-  stars = np.where(p_value <= 0.1, '*', '')
-  stars = np.where(p_value <= 0.05, '**', stars)
-  stars = np.where(p_value <= 0.01, '***', stars)
-  return stars
+  # pd.Series に変換した上で、
+  # pd.cut() の bin として使用するときにエラーを生じないよう、昇順にソート
+  stars = pd.Series(stars).sort_values(ascending = True)
 
-@np.vectorize
-def style_pvalue(p_value, digits = 2, prepend_p = False, p_min = 0.01, p_max = 0.9):
   assert_numeric(p_value, lower = 0)
+  assert_numeric(stars, lower = 0)
+
+  # 0 に stars の値を追加したものを bins とします。
+  bins = [0]
+  bins.extend(stars.to_list())
+
+  styled = pd.cut(
+      p_value,
+      bins = bins,
+      labels = stars.index,
+      ordered = True,
+      duplicates = 'drop'
+      ).astype(str)
+
+  return styled
+
+def style_pvalue(p_value, digits = 3, prepend_p = False, p_min = 0.001, p_max = 0.9):
+  assert_numeric(p_value, lower = 0)
+  assert_count(digits, lower = 1)
 
   if(prepend_p): prefix = ['p', 'p=']
   else: prefix = ['', '']
 
-  if(p_value < p_min):
-    res = f'{prefix[0]}<{p_min}'
-  elif(p_value > p_max):
-    res = f'{prefix[0]}>{p_max}'
-  else:
-     res = f'{prefix[1]}{p_value:.{digits}f}'
-  return res
+
+  p_value = pd.Series(p_value)
+  styled = prefix[1] + p_value.copy().round(digits).astype(str)
+
+  styled = styled.mask(p_value < p_min, f'{prefix[0]}<{p_min}')\
+        .mask(p_value > p_max, f'{prefix[0]}>{p_max}')
+
+  return styled
 
 @np.vectorize
 def num_comma(x, digits = 2, big_mark = ','):
+  assert_count(digits)
   arg_match(big_mark, [',', '_', ''])
   return f'{x:{big_mark}.{digits}f}'
 
 @np.vectorize
 def num_currency(x, symbol = '$', digits = 0, big_mark = ','):
+  assert_count(digits)
   arg_match(big_mark, [',', '_', ''])
   return f'{symbol}{x:{big_mark}.{digits}f}'
 
