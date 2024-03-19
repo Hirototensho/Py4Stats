@@ -261,8 +261,8 @@ def style_currency(x, symbol = '$', digits = 0, big_mark = ','):
 def style_percent(x, digits = 2, unit = 100, symbol = '%'):
   x = pd.Series(x)
 
-  bild.assert_numeric(x)
-  bild.assert_count(digits)
+  assert_numeric(x)
+  assert_count(digits)
 
   return x.apply(lambda v: f'{v*unit:.{digits}f}{symbol}')
 
