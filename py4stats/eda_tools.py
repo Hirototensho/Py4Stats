@@ -233,7 +233,6 @@ def tabyl(
         dropna = dropna, normalize = False
         )
 
-    return c_tab1
     c_tab1 = c_tab1.apply(bild.style_number, digits = 0)
 
     if(normalize != False):
