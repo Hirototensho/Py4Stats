@@ -60,9 +60,9 @@ tidy_mfx(
   `estimate = 0` を帰無仮説とする仮説検定の標本検定統計量。`x` に代入されたモデルが `sm.ols()` によって作成されたものであれば $t$ 統計量が表示され、`sm.glm()` によって作成されたものであれば $z$ 統計量が表示されます。
 - `p_value`</br>
   `estimate = 0` を帰無仮説とする両側検定の標本p-値
-- conf_lower</br>
+- `conf_lower`</br>
 　信頼区間の下側信頼限界
-- conf_higher</br>
+- `conf_higher`</br>
 　信頼区間の上側信頼限界
 
 ## 使用例 Examples
