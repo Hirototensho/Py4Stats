@@ -41,7 +41,7 @@ tidy_test(
 - `statistics`</br>
 　仮説検定の標本検定統計量。
 - `p_value`</br>
- 　$F$検定の標本p-値
+ 　F検定の標本p-値
 - `df_denom`</br>
 　モデルの残差自由度
 - `df_denom`</br>
