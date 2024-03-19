@@ -67,3 +67,5 @@ stars_dict = {'***':0.001, '**':0.01, '*': 0.05, '.':0.1}
 print(bild.p_stars(p_value, stars = stars_dict).to_list())
 #> ['', '', '', '', '.', '.', '.', '*', '**', '***']
 ```
+***
+[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
