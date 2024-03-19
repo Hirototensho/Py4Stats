@@ -2,7 +2,7 @@
 
 ## 概要
 
-　R言語の [`broom::tidy()`](https://broom.tidymodels.org/reference/tidy.lm.html) をオマージュした関数で、[`sm.ols()`](https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.OLS.html) や [`smf.logit()`](https://www.statsmodels.org/stable/generated/statsmodels.formula.api.logit.html) などの推定結果を `pands.DataFrame` に変換します。`regression_tools.tidy()` は回帰係数と関連する検定結果を表示し、 `regression_tools.tidy_mfx()` は限界効果と関連する検定結果を表示します。
+　R言語の [`broom::tidy()`](https://broom.tidymodels.org/reference/tidy.lm.html) をオマージュした [`regression_tools.tidy()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy.md) 関数のうち、`statsmodels` ライブラリのメソッド [`RegressionResults.t_test()`](https://www.statsmodels.org/dev/generated/statsmodels.regression.linear_model.RegressionResults.t_test.html#statsmodels.regression.linear_model.RegressionResults.t_test) もしくは [`RegressionResults.f_test()`](https://www.statsmodels.org/dev/generated/statsmodels.regression.linear_model.RegressionResults.f_test.html#statsmodels.regression.linear_model.RegressionResults.f_test) で作成された `statsmodels.stats.contrast.ContrastResults` クラスのオブジェクト専用のメソッドです。
 
 ```python
 tidy_test(
