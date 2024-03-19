@@ -25,7 +25,6 @@ tidy_mfx(
 ## 引数 Argument
 
 - `x`（必須）</br>
-　- `x`（必須）</br>
 　[`sm.ols()`](https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.OLS.html)もしくは [`smf.logit()`](https://www.statsmodels.org/stable/generated/statsmodels.formula.api.logit.html) などで作成された分析結果のオブジェクト。
 - `name_of_term`：**list of str**</br>
 　`term` 列（index） として表示する説明変数の名前のリスト。指定しない場合（初期設定）、モデルの推定に使用された説明変数の名前がそのまま表示されます。
