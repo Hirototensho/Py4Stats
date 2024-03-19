@@ -52,7 +52,7 @@ tidy_mfx(
 
 - `term`（index）</br>
 　説明変数の名称
-- `estimate`）</br>
+- `estimate`</br>
 　回帰係数(`tidy()`の場合)、もしくは限界効果(`tidy_mfx()`の場合)の推定値
 - `std_err`</br>
   推定値 `estimate` の標準誤差
