@@ -202,11 +202,13 @@ def p_stars(p_value, stars = {'***':0.01, '**':0.05, '*':0.1}):
       duplicates = 'drop'
       ).astype(str)
 
-  return styled
+  return pd.Series(styled)
 
 def style_pvalue(p_value, digits = 3, prepend_p = False, p_min = 0.001, p_max = 0.9):
   assert_numeric(p_value, lower = 0)
   assert_count(digits, lower = 1)
+  assert_numeric(p_min, lower = 0, upper = 1)
+  assert_numeric(p_max, lower = 0, upper = 1)
 
   if(prepend_p): prefix = ['p', 'p=']
   else: prefix = ['', '']
@@ -235,6 +237,35 @@ def num_currency(x, symbol = '$', digits = 0, big_mark = ','):
 @np.vectorize
 def num_percent(x, digits = 2): return f'{x:.{digits}%}'
 
+def style_number(x, digits = 2, big_mark = ','):
+  x = pd.Series(x)
+
+  assert_numeric(x)
+  assert_count(digits)
+
+  arg_match(big_mark, [',', '_', ''])
+
+  return x.apply(lambda v: f'{v:{big_mark}.{digits}f}')
+
+
+def style_currency(x, symbol = '$', digits = 0, big_mark = ','):
+  x = pd.Series(x)
+
+  assert_numeric(x)
+  assert_count(digits)
+
+  arg_match(big_mark, [',', '_', ''])
+
+  return x.apply(lambda v: f'{symbol}{v:{big_mark}.{digits}f}')
+
+def style_percent(x, digits = 2, unit = 100, symbol = '%'):
+  x = pd.Series(x)
+
+  bild.assert_numeric(x)
+  bild.assert_count(digits)
+
+  return x.apply(lambda v: f'{v*unit:.{digits}f}{symbol}')
+
 @np.vectorize
 def pad_zero(x, digits = 2):
     s = str(x)
@@ -245,7 +276,7 @@ def pad_zero(x, digits = 2):
     return s
 
 @np.vectorize
-def add_big_mark(s): return  f'{s:,}'
+def add_big_mark(s): return f'{s:,}'
 
 """　文字列のリストを与えると、英文の並列の形に変換する関数です。表記法については[Wikipedia Serial comma](https://en.wikipedia.org/wiki/Serial_comma)を参照し、コードについては[stack overflow:Grammatical List Join in Python [duplicate]](https://stackoverflow.com/questions/19838976/grammatical-list-join-in-python)を参照しました。
 
