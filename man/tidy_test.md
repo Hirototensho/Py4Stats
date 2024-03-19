@@ -1,4 +1,4 @@
-# `regression_tools.tidy_tst()`
+# `regression_tools.tidy_test()`
 
 ## 概要
 
