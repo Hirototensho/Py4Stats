@@ -393,7 +393,8 @@ def gazer(
     # --------------------
     res = res_tidy.copy()
     # 有意性を表すアスタリスクを作成します
-    res['stars'] = ' ' + res['p_value'].apply(bild.p_stars)
+    # res['stars'] = ' ' + res['p_value'].apply(bild.p_stars)
+    res['stars'] = ' ' + bild.p_stars(res['p_value'])
 
     # `estimate` と `stats` を見やすいフォーマットに変換します。
     res[[estimate, stats]] = res[[estimate, stats]]\
@@ -513,103 +514,6 @@ def coef_dot(
       s = 60
     )
     ax.set_ylabel('');
-
-"""## 回帰係数の線型結合に関するに関するt検定"""
-
-def lincomb(model, const_mat, beta_H0 = 0, alpha = 0.05, add_stars = False, pct_change = False):
-    '''回帰係数の線型結合に関するに関するt検定'''
-    from scipy.stats import t
-
-    const_mat = np.array(const_mat)
-
-    beta = model.params
-
-    vcov = model.cov_params()
-
-    t_alpha = t.isf(alpha / 2, df = model.df_resid)
-
-    estimate = pd.Series(np.dot(const_mat, beta)) # 回帰係数の線型結合を計算
-
-    vars = const_mat @ vcov @ const_mat.T # 回帰係数の分散
-
-
-    se_beta = pd.Series(np.sqrt(vars))
-
-    t_value = (estimate - beta_H0) / se_beta
-
-    res = pd.DataFrame({
-        'estimate':estimate,
-        'std_err':se_beta,
-        'statistics':t_value,
-        'p_value': 2 * t.sf(abs(t_value), df = model.df_resid),
-        'conf_lower':estimate - t_alpha * se_beta,
-        'conf_higher':estimate + t_alpha * se_beta
-    }, index = range(len(estimate)))
-
-    if pct_change:
-        res['estimate'] = log_to_pct(res['estimate'])
-        res['conf_lower'] = log_to_pct(res['conf_lower'])
-        res['conf_higher'] = log_to_pct(res['conf_higher'])
-
-    if add_stars:
-      res['stars'] = ' ' + res['p_value'].apply(bild.p_stars)
-
-    return res
-
-def lincomb_test(model, const_mat, beta_H0 = 0, alpha = 0.05, stars = False, pct_change = False):
-    # const_mat がデータフレームとして与えられたときの処理
-    if(isinstance(const_mat, pd.DataFrame)):
-        const_list = const_mat.columns
-
-        res_list = [
-            lincomb(
-                model, const_mat[idx],
-                beta_H0 = beta_H0, alpha = alpha,
-                stars = stars, pct_change = pct_change
-                )
-            for idx in const_list
-            ]
-        res_df = pd.concat(res_list)
-        res_df.index = const_list
-
-    elif(isinstance(const_mat, pd.Series) or isinstance(const_mat, list)):
-        res_df = lincomb(
-                model, const_mat,
-                beta_H0 = beta_H0, alpha = alpha,
-                stars = stars, pct_change = pct_change
-                )
-    else:
-        sys.exit('const_matには pd.DataFrame, pd.Series もしくはリストを指定してください')
-
-
-    return res_df
-
-"""# $F$検定による回帰モデルの比較
-
-- `restriction`：制約モデル。`statsmodels.ols()` などで作成されたモデルオブジェクト
-- `full`：フルモデル。`statsmodels.ols()` などで作成されたモデルオブジェクト
-"""
-
-from scipy.stats import f
-def F_test_lm(restriction, full):
-    q = restriction.df_resid - full.df_resid
-    F_val = ((restriction.ssr - full.ssr) / q) / full.mse_resid
-
-    p_value = f.sf(F_val, dfn = q , dfd = full.df_resid)
-
-    res_df = pd.DataFrame({
-        'df_resid':[restriction.df_resid, full.df_resid],
-        'RSS':[restriction.ssr, full.ssr],
-        'DF':[np.nan, int(q)],
-        'statistics': [np.nan, F_val],
-        'p_value': [np.nan, p_value]
-    }, index = ['restriction', 'full'])
-
-    res_df[['df_resid', 'DF']] = res_df[['df_resid', 'DF']].astype(pd.Int64Dtype())
-
-    res_df.index.name = "model"
-
-    return res_df
 
 """## `reg.compare_mfx()`
 
