@@ -56,7 +56,8 @@
 ### 分析結果を作表するためのバックエンド関数
 [`regression_tools.tidy()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy.md)[`regression_tools.tidy_mfx()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy.md)
 
-[`regression_tools.tidy_tst()`](https://github.com/Hirototensho/Py4Stats/edit/main/man/tidy_test.md)
+[`regression_tools.tidy_test()`](https://github.com/Hirototensho/Py4Stats/edit/main/man/tidy_test.md)
+
 [`regression_tools.glance()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/glance.md)
 
 ## `py4stats.heckit_helper`
