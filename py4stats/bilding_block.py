@@ -247,7 +247,6 @@ def style_number(x, digits = 2, big_mark = ','):
 
   return x.apply(lambda v: f'{v:{big_mark}.{digits}f}')
 
-
 def style_currency(x, symbol = '$', digits = 0, big_mark = ','):
   x = pd.Series(x)
 
