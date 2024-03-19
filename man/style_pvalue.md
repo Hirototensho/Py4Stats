@@ -50,7 +50,8 @@ p_stars(
 
 from py4stats import bilding_block as bild
 p_value = [
-    0.999, 0.5028, 0.2514, 0.197, 0.10, 0.0999, 0.06, 0.03, 0.002, 0.0002
+    0.999, 0.5028, 0.2514, 0.197, 0.10, 
+    0.0999, 0.06, 0.03, 0.002, 0.0002
     ]
 
 print(bild.style_pvalue(p_value).to_list())
