@@ -91,10 +91,9 @@
 
 ### 数字のフォーマット
 
-[`bilding_block.num_comma()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/miscellaneous.md)
-[`bilding_block.num_currency()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/miscellaneous.md)
-[`bilding_block.num_percent()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/miscellaneous.md)
-[`bilding_block.pad_zero()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/miscellaneous.md)
+[`bilding_block.style_number()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/miscellaneous.md)
+[`bilding_block.style_currency()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/miscellaneous.md)
+[`bilding_block.style_percent()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/miscellaneous.md)
 
 [`bilding_block.style_pvalue()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/style_pvalue.md)
 [`bilding_block.p_stars()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/style_pvalue.md)
