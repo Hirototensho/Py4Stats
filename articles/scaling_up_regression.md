@@ -184,7 +184,7 @@ import ptitprince as pt
 fig, ax = plt.subplots(figsize = (np.sqrt(2) * 3, 3), dpi = 150)
 
 pt.RainCloud(
-    data = boot_sample.reset_index()\
+    data = boot_sample.sort_index().reset_index()\
       .query('~term.str.contains("Intercept")'),
     x = 'term',
     y = 'estimate',
@@ -194,7 +194,7 @@ pt.RainCloud(
 
 ax.axvline(0, ls = "--", color = '#969696');
 ```
-![Unknown](https://github.com/Hirototensho/Py4Stats/assets/55335752/d71e6dfb-2bfd-4c8e-862a-da4e25a4c158)
+![Unknown](https://github.com/Hirototensho/Py4Stats/assets/55335752/dd2a0384-4ef9-4a08-898f-fc96cc79a058)
 
 ## 参考文献
 
