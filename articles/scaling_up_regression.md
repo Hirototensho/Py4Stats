@@ -131,3 +131,64 @@ for k, mod in enumerate(list_fitted2):
   ax[k].set_xlabel(f'coefficient (n = {mod.nobs:,.0f})')
 ```
 ![Unknown-1](https://github.com/Hirototensho/Py4Stats/assets/55335752/abb362d3-f0f7-42d0-9dd5-8379e5c05b55)
+
+## ブートストラップ回帰
+
+　前節でグループ別の回帰分析を行なった方法を応用すると、ブートストラップ法を簡単に実装することができます。
+
+```python
+def est_ols(data):
+  fitted = smf.ols(
+      'body_mass_g ~ bill_length_mm + bill_depth_mm + species + sex',
+      data = data).fit()
+  return fitted
+```
+
+```python
+# ブートストラップ法の実装
+B = 1000 # ブートストラップ法の反復回数
+bt2 = [penguins.sample(frac = 1, replace = True) for b in range(B)]
+
+bt2 = pd.Series(bt2).apply(est_ols).apply(reg.tidy)
+
+boot_sample = pd.concat(bt2.to_list())
+
+len(boot_sample)
+#> 6000
+```
+
+```python
+res = boot_sample.groupby(['term'])[['estimate']]\
+    .apply(eda.mean_qi)
+
+print(res.round(4))
+#>                                     mean      lower      upper
+#> term                 variable                                 
+#> Intercept            estimate   854.4587   165.8724  1567.1497
+#> bill_depth_mm        estimate    87.6706    49.5284   126.1586
+#> bill_length_mm       estimate    26.3940    13.6478    39.4585
+#> sex[T.male]          estimate   438.5118   356.5662   526.5931
+#> species[T.Chinstrap] estimate  -244.8668  -402.2351   -86.1057
+#> species[T.Gentoo]    estimate  1442.0847  1237.3338  1657.6980
+```
+
+```python
+import ptitprince as pt
+
+fig, ax = plt.subplots(figsize = (np.sqrt(2) * 4, 4), dpi = 150)
+
+pt.RainCloud(
+    data = boot_sample.reset_index()\
+      .query('~term.str.contains("Intercept")'),
+    x = 'term',
+    y = 'estimate',
+    orient = 'h',
+    ax = ax
+);
+
+ax.axvline(0, ls = "--", color = '#969696');
+```
+## 参考文献
+
+- Efron, Bradley, and Trevor Hastie. (2016). *Computer age statistical inference*. Cambridge University Press.
+- 末石直也(2015)『計量経済学：ミクロデータ分析へのいざない』 日本評論社.
