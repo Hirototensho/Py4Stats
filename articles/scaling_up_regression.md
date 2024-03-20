@@ -144,6 +144,8 @@ def est_ols(data):
   return fitted
 ```
 
+　次にブートストラップ法の実行部分を作成します。ここでは pandas の `df.sample()` メソッドを使い、引数に `frac = 1, replace = True` を指定することで復元抽出を行います。また、ここでは反復回数を Efron, Hastie(2016, p.161)などで推奨されている $B = 1000$ を指定しています。
+
 ```python
 # ブートストラップ法の実装
 B = 1000 # ブートストラップ法の反復回数
@@ -156,6 +158,8 @@ boot_sample = pd.concat(bt2.to_list())
 len(boot_sample)
 #> 6000
 ```
+
+次にブートストラップ統計量を集計して結果を確認しますが、ここではごく簡単に [`eda_tools.mean_qi()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/point_range.md) を使って、説明変数別に回帰係数の平均値と分位点を求めています。
 
 ```python
 res = boot_sample.groupby(['term'])[['estimate']]\
@@ -171,6 +175,8 @@ print(res.round(4))
 #> species[T.Chinstrap] estimate  -244.8668  -402.2351   -86.1057
 #> species[T.Gentoo]    estimate  1442.0847  1237.3338  1657.6980
 ```
+
+ブートストラップ法を使うと、次のような回帰係数の分布のグラフを描くこともできます。
 
 ```python
 import ptitprince as pt
@@ -188,6 +194,8 @@ pt.RainCloud(
 
 ax.axvline(0, ls = "--", color = '#969696');
 ```
+![Unknown](https://github.com/Hirototensho/Py4Stats/assets/55335752/3aad02f3-dbf9-4913-af00-3793fae15799)
+
 ## 参考文献
 
 - Efron, Bradley, and Trevor Hastie. (2016). *Computer age statistical inference*. Cambridge University Press.
