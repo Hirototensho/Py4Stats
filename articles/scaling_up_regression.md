@@ -181,7 +181,7 @@ print(res.round(4))
 ```python
 import ptitprince as pt
 
-fig, ax = plt.subplots(figsize = (np.sqrt(2) * 4, 4), dpi = 150)
+fig, ax = plt.subplots(figsize = (np.sqrt(2) * 3, 3), dpi = 150)
 
 pt.RainCloud(
     data = boot_sample.reset_index()\
@@ -194,7 +194,7 @@ pt.RainCloud(
 
 ax.axvline(0, ls = "--", color = '#969696');
 ```
-![Unknown](https://github.com/Hirototensho/Py4Stats/assets/55335752/3aad02f3-dbf9-4913-af00-3793fae15799)
+![Unknown](https://github.com/Hirototensho/Py4Stats/assets/55335752/d71e6dfb-2bfd-4c8e-862a-da4e25a4c158)
 
 ## 参考文献
 
