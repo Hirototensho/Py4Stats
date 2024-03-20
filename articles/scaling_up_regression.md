@@ -147,6 +147,7 @@ def est_ols(data):
 　次にブートストラップ法の実行部分を作成します。ここでは pandas の `df.sample()` メソッドを使い、引数に `frac = 1, replace = True` を指定することで復元抽出を行います。また、ここでは反復回数を Efron, Hastie(2016, p.161)などで推奨されている $B = 1000$ を指定しています。
 
 ```python
+# 注意！ このコードは実行に時間がかかります。
 # ブートストラップ法の実装
 B = 1000 # ブートストラップ法の反復回数
 bt2 = [penguins.sample(frac = 1, replace = True) for b in range(B)]
