@@ -17,6 +17,8 @@ import pandas_flavor as pf
 import pandas as pd
 import numpy as np
 import scipy as sp
+import polars as pl
+
 import pandas_flavor as pf
 
 def missing_percent(x, axis = 'index', pct = True):
