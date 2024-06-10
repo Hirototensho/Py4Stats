@@ -5,7 +5,7 @@
 　R言語の [`janitor::compare_df_cols()`](https://sfirke.github.io/janitor/reference/compare_df_cols.html) をオマージュした関数で、複数の pandas.DataFrame に含まれる同じ名前を持つ列同士のデータ型 `dtype` を比較します。
 
 ```python
-compare_df_cols(df_list, return_match = 'all', df_name = None)
+compare_df_cols(df_list, return_match = 'all', df_name = None, dropna = False)
 ```
 
 ## 引数 Argument
@@ -19,6 +19,8 @@ compare_df_cols(df_list, return_match = 'all', df_name = None)
     - `’mismatch’`：少なくとも1つのデータフレームで dtype が一致していない列のみを表示。
 - `df_name` **list of str** <br>
 　表頭に表示するデータフレームの名前。`['df1', 'df2']` のように文字列のリストを指定してください。初期設定では、自動的に `df1, df2, df3 …` と連番が割り当てられます。
+- `dropna` **bool**<br>
+　データ型 `dtype` の一致判定に当たり、`NaN` を無視するかどうか。初期設定 `False` の場合、すべてのデータフレームに同名かつ同じデータ型の列を持たない限り、ミスマッチが発生したと判定されます。
 
 ## 使用例 Examples
 
