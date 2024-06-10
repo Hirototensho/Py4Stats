@@ -141,12 +141,12 @@ def compare_df_stats(
    for i, j in itertools.combinations(range(len(res.columns)), 2)
     ]
 
-  res['match'] = pd.concat(pairwise_comparesion, axis = 1).all(axis = 1)
+  res['match_stats'] = pd.concat(pairwise_comparesion, axis = 1).all(axis = 1)
 
-  if(return_match == 'match'):
+  if(return_match == 'match_stats'):
     res = res[res['match']]
   elif(return_match == 'mismatch'):
-    res = res[~res['match']]
+    res = res[~res['match_stats']]
 
   return res
 
