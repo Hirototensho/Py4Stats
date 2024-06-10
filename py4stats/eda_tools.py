@@ -67,7 +67,7 @@ def diagnose_pl(self):
 
 """### 異なるデータフレームの列を比較する関数"""
 
-def compare_df_cols(df_list, return_match = 'all', df_name = None):
+def compare_df_cols(df_list, return_match = 'all', df_name = None, dropna = False):
   """複数の pandas.DataFrame に含まれる同じ名前を持つ列同士のデータ型 `dtype` を比較します。"""
   # 引数のアサーション ----------------------
   assert isinstance(df_list, list) & \
@@ -80,20 +80,73 @@ def compare_df_cols(df_list, return_match = 'all', df_name = None):
       arg_name = 'return_match'
       )
   # --------------------------------------
+  # df_name が指定されていなければ、自動で作成します。
   if df_name is None:
       df_name = [f'df{i + 1}' for i in range(len(df_list))]
 
-  df_list = [v.copy() for v in df_list]
+  df_list = [v.copy() for v in df_list] # コピーを作成
   dtype_list = [v.dtypes for v in df_list]
   res = pd.concat(dtype_list, axis = 1)
   res.columns = df_name
   res.index.name = 'term'
-  res['match_dtype'] = res.nunique(axis = 1) == 1
+  res['match_dtype'] = res.nunique(axis = 1, dropna = dropna) == 1
 
   if(return_match == 'match'):
     res = res[res['match_dtype']]
   elif(return_match == 'mismatch'):
     res = res[~res['match_dtype']]
+
+  return res
+
+"""平均値などの統計値の近接性で比較するバージョン"""
+
+import itertools
+
+def compare_df_stats(
+    df_list, return_match = 'all', df_name = None,
+    stats = 'mean', rtol = 1e-05, atol = 1e-08
+    ):
+  """複数の pandas.DataFrame に含まれる同じ名前を持つ列同士のデータ型 `dtype` を比較します。"""
+  # 引数のアサーション ----------------------
+  assert isinstance(df_list, list) & \
+        all([isinstance(v, pd.DataFrame) for v in df_list]),\
+        "argument 'df_list' is must be a list of pandas.DataFrame."
+
+  return_match = bild.arg_match(
+      return_match,
+       ['all', 'match', 'mismatch'],
+      arg_name = 'return_match'
+      )
+  # --------------------------------------
+  # df_name が指定されていなければ、自動で作成します。
+  if df_name is None:
+      df_name = [f'df{i + 1}' for i in range(len(df_list))]
+
+  df_list = [v.copy() for v in df_list] # コピーを作成
+  stats_list = [
+      v.select_dtypes(include = ['int', 'float', 'bool']).agg(stats)
+      for v in df_list
+      ]
+  res = pd.concat(stats_list, axis = 1)
+  res.columns = df_name
+  res.index.name = 'term'
+
+  # データフレームのペア毎に、統計値が近いかどうかを比較します。
+  pairwise_comparesion = \
+   [pd.Series(
+    np.isclose(
+        res.iloc[:, i], res.iloc[:, j],
+        rtol = rtol, atol = atol
+    ), index = res.index)
+   for i, j in itertools.combinations(range(len(res.columns)), 2)
+    ]
+
+  res['match'] = pd.concat(pairwise_comparesion, axis = 1).all(axis = 1)
+
+  if(return_match == 'match'):
+    res = res[res['match']]
+  elif(return_match == 'mismatch'):
+    res = res[~res['match']]
 
   return res
 
