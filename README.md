@@ -8,10 +8,10 @@
 pip install git+https://github.com/Hirototensho/py4stats.git
 ```
 
-一部の関数は [`pandas-flavor`](https://pypi.org/project/pandas-flavor/)、[`varname`](https://github.com/pwwang/python-varname?tab=readme-ov-file) および [`pure_eval`](https://pypi.org/project/pure-eval/) ライブラリの機能を使って実装しているため、事前のインストールをお願いいたします。
+一部の関数は [`pandas-flavor`](https://pypi.org/project/pandas-flavor/)、[`varname`](https://github.com/pwwang/python-varname?tab=readme-ov-file)、[`pure_eval`](https://pypi.org/project/pure-eval/) および [`tidypolars`](https://github.com/markfairbanks/tidypolars) ライブラリの機能を使って実装しているため、事前のインストールをお願いいたします。
 
 ``` python
-pip install pandas_flavor varname pure_eval
+pip install pandas_flavor varname pure_eval tidypolars
 ```
 ## 使用方法
 
