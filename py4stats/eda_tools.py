@@ -18,6 +18,7 @@ import pandas as pd
 import numpy as np
 import scipy as sp
 import polars as pl
+import tidypolars as tp
 
 import pandas_flavor as pf
 
@@ -64,6 +65,10 @@ def diagnose_pl(self):
   )\
     .select('columns', 'dtype', 'missing_count', 'missing_percent', 'unique_count', 'unique_rate')
   return res
+
+@diagnose.register(tp.tibble.Tibble)
+def diagnose_tp(self):
+  return diagnose_pl(self.to_polars())
 
 """### 異なるデータフレームの列を比較する関数"""
 
@@ -186,6 +191,7 @@ def remove_empty(self, cols = True, rows = True, cutoff = 1, quiet = True):
 """## 定数列の除去"""
 
 @pf.register_dataframe_method
+@singledispatch
 def remove_constant(self, quiet = True, dropna = False):
   df_shape = self.shape
   # データフレーム(self) の行が定数かどうかを判定
@@ -202,6 +208,12 @@ def remove_constant(self, quiet = True, dropna = False):
      )
 
   return self
+
+@remove_constant.register(pl.DataFrame)
+@remove_constant.register(tp.tibble.Tibble)
+def remove_constant_pl(self, quiet = True, dropna = False):
+  res = remove_constant(self.to_pandas(), quiet = quiet, dropna = dropna)
+  return pl.from_pandas(res)
 
 # 列名に特定の文字列を含む列を除外する関数
 @pf.register_dataframe_method
@@ -239,6 +251,8 @@ def filtering_out(self, contains = None, starts_with = None, ends_with = None, a
 
 """## クロス集計表ほか"""
 
+@pf.register_dataframe_method
+@singledispatch
 def crosstab2(
     data, index, columns, values=None, rownames=None, colnames=None,
     aggfunc=None, margins=False, margins_name='All', dropna=True, normalize=False
@@ -251,6 +265,14 @@ def crosstab2(
         dropna = dropna, normalize = normalize
         )
     return res
+
+@crosstab2.register(tp.tibble.Tibble)
+@crosstab2.register(pl.DataFrame)
+def crosstab2_pl(data, index, columns, **kwargs):
+
+  res = crosstab2(data.to_pandas(), index = index, columns = columns, **kwargs)
+
+  return pl.from_pandas(res.reset_index())
 
 @pf.register_dataframe_method
 def freq_table(self, subset, sort = True, ascending = False, dropna = False):
@@ -273,6 +295,7 @@ def freq_table(self, subset, sort = True, ascending = False, dropna = False):
   return res
 
 @pf.register_dataframe_method
+@singledispatch
 def tabyl(
     self,
     index,
@@ -325,6 +348,14 @@ def tabyl(
       c_tab1.loc[idx, col] = c_tab1.astype('str').loc[idx, col] + ' (' + c_tab2 + ')'
 
     return c_tab1
+
+@tabyl.register(tp.tibble.Tibble)
+@tabyl.register(pl.DataFrame)
+def tabyl_pl(data, index, columns, **kwargs):
+
+  res = tabyl(data.to_pandas(), index = index, columns = columns, **kwargs)
+
+  return pl.from_pandas(res.reset_index())
 
 """## `diagnose_category()`：カテゴリー変数専用の要約関数"""
 
