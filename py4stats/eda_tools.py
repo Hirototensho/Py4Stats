@@ -155,6 +155,23 @@ def compare_df_stats(
 
   return res
 
+# レコード毎の近接性（数値の場合）または一致性（数値以外）で評価する関数
+def compare_df_record(df1, df2, rtol = 1e-05, atol = 1e-08):
+  all_columns = df1.columns
+  number_col = df1.select_dtypes(include = 'number').columns
+  nonnum_col = df1.select_dtypes(exclude = 'number').columns
+
+  res_number_col = [np.isclose(df1[v], df2[v]) for v in number_col]
+
+  res_nonnum_col = [(df1[v] == df2[v]) for v in nonnum_col]
+
+  result = pd.concat([
+      pd.DataFrame(res_number_col, index = number_col).T,
+      pd.DataFrame(res_nonnum_col, index = nonnum_col).T
+  ], axis = 'columns').loc[:, all_columns]
+
+  return result
+
 """## 完全な空白列 and / or 行の除去"""
 
 @pf.register_dataframe_method
