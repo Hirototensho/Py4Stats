@@ -372,7 +372,7 @@ def tabyl_pl(data, index, columns, **kwargs):
 
   res = tabyl(data.to_pandas(), index = index, columns = columns, **kwargs)
 
-  return pl.from_pandas(res.reset_index())
+  return res
 
 """## `diagnose_category()`：カテゴリー変数専用の要約関数"""
 
