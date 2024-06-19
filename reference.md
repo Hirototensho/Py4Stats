@@ -33,6 +33,7 @@
 
 [`eda_tools.compare_group_means()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_group_stats.md)
 [`eda_tools.compare_group_median()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_group_stats.md)
+
 [`eda_tools.plot_mean_diff()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_group_stats.md)
 [`eda_tools.plot_median_diff()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_group_stats.md)
 
