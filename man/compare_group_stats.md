@@ -41,7 +41,7 @@ plot_median_diff(
 
 ## 返り値 Value
 
-　`compare_group_means()`, `compare_group_median()` では次の値をもつ `pandas.DataFrame` が出力されます。
+　`compare_group_means()`関数および, `compare_group_median()` 関数では、次の値をもつ `pandas.DataFrame` が出力されます。
 
 - `group1, group2`（初期設定の場合）</br>
 　各グループにおける記述統計統計量の値
@@ -61,6 +61,8 @@ $$
 \delta = \cfrac{\bar{X}_1  - \bar{X}_2}{\cfrac{\bar{X}_1  + \bar{X}_2}{2}}
 = 2 \cdot \frac{\bar{X}_1  - \bar{X}_2}{\bar{X}_1  + \bar{X}_2}
 $$
+
+`plot_mean_diff()` 関数および, `plot_median_diff()` 関数では、グループ別の記述統計両の差をグラフとして可視化します。詳細は使用例を参照して下さい。
 
 ## 使用例 Examples
 
