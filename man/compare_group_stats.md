@@ -7,27 +7,23 @@
 ```python
 compare_group_means(
     group1, group2, 
-    group_names = ['group1', 'group2'],
-    remove_constant_col = True
+    group_names = ['group1', 'group2']
     )
 
 compare_group_median(
     group1, group2, 
-    group_names = ['group1', 'group2'],
-    remove_constant_col = True
+    group_names = ['group1', 'group2']
     )
 
 plot_mean_diff(
     group1, group2, 
-    stats_diff = 'norm_diff', 
-    remove_constant_col = True,
+    stats_diff = 'norm_diff',
     ax = None
     )
 
 plot_median_diff(
     group1, group2, 
     stats_diff = 'norm_diff',
-    remove_constant_col = True,
     ax = None
     )
 ```
