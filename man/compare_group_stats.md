@@ -1,3 +1,46 @@
+# `eda_tools.compare_group_means()`, `eda_tools.compare_group_median()`
+
+## 概要
+
+　グループ別の記述統計量をペア比較するための関数です。
+
+```python
+compare_group_means(
+    group1, group2, 
+    group_names = ['group1', 'group2'],
+    remove_constant_col = True
+    )
+
+compare_group_median(
+    group1, group2, 
+    group_names = ['group1', 'group2'],
+    remove_constant_col = True
+    )
+
+plot_mean_diff(
+    group1, group2, 
+    stats_diff = 'norm_diff', 
+    remove_constant_col = True,
+    ax = None
+    )
+
+plot_median_diff(
+    group1, group2, 
+    stats_diff = 'norm_diff',
+    remove_constant_col = True,
+    ax = None
+    )
+```
+
+## 引数 Argument
+
+- `group1`（必須）**a pandas.DataFrame** <br>
+　数値変数を含む pandas.DataFrame で `group2` との比較対象となるもの
+- `group2`（必須）**a pandas.DataFrame** <br>
+　数値変数を含む pandas.DataFrame で `group1` との比較対象となるもの
+- `group_names` **list of str** <br>
+　表頭に表示するグループの名前。`['group1', 'group2']` のように、2つの要素をもつ文字列のリストとして指定してください。
+
 ## 返り値 Value
 
 　`compare_group_means()`, `compare_group_median()` では次の値をもつ `pandas.DataFrame` が出力されます。
@@ -48,12 +91,42 @@ print(res1.round(3))
 ```python
 res2 = eda.compare_group_median(
     penguins.query('species == "Gentoo"'),
-    penguins.query('species == "Adelie"')
+    penguins.query('species == "Adelie"'),
+    group_names = ['Gentoo', 'Adelie']
 )
 print(res2.round(3))
-#>                    group1  group2  abs_diff  rel_diff
+#>                    Gentoo  Adelie  abs_diff  rel_diff
 #> bill_length_mm       47.3    38.8       8.5     0.197
 #> bill_depth_mm        15.0    18.4       3.4    -0.204
 #> flipper_length_mm   216.0   190.0      26.0     0.128
 #> body_mass_g        5000.0  3700.0    1300.0     0.299
 ```
+
+```python
+eda.plot_mean_diff(
+    penguins.query('species == "Gentoo"'),
+    penguins.query('species == "Adelie"'),
+    stats_diff = 'norm_diff'
+)
+```
+
+![Unknown](https://github.com/Hirototensho/Py4Stats/assets/55335752/696cbbe0-2c0c-435c-bb9c-71a59a3742f9)
+
+```python
+eda.plot_mean_diff(
+    penguins.query('species == "Gentoo"'),
+    penguins.query('species == "Adelie"'),
+    stats_diff = 'abs_diff'
+)
+```
+
+![Unknown-2](https://github.com/Hirototensho/Py4Stats/assets/55335752/735866a9-aed2-4e10-bac1-6fc7004fba8f)
+
+```python
+eda.plot_median_diff(
+    penguins.query('species == "Gentoo"'),
+    penguins.query('species == "Adelie"'),
+    stats_diff = 'rel_diff'
+)
+```
+![Unknown-3](https://github.com/Hirototensho/Py4Stats/assets/55335752/7a496916-e828-44e1-a0e0-d50bb22ecc12)
