@@ -37,7 +37,7 @@ plot_median_diff(
 - `group_names` **list of str** <br>
 　表頭に表示するグループの名前。`['group1', 'group2']` のように、2つの要素をもつ文字列のリストとして指定してください。
 - `stats_diff`（`plot_mean_diff()` および `plot_median_diff()` のみ） **str** <br>
-　グラフの描画に使用するグループ別統計量の差の評価指標。`'norm_diff'`（`plot_mean_diff()` のみ）、`'rel_diff'`、`'abs_diff'` のいずれかから選べます。
+　グラフの描画に使用するグループ別統計量の差の評価指標。`'norm_diff'`（`plot_mean_diff()` のみ）、`'rel_diff'`、`'abs_diff'` のいずれかから選ぶことができます。
 
 ## 返り値 Value
 
