@@ -29,6 +29,13 @@
 
 [`eda_tools.compare_df_cols()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_df_cols.md)
 
+### 簡易なグループ別統計量の比較
+
+[`eda_tools.compare_group_means()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_group_stats.md)
+[`eda_tools.compare_group_median()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_group_stats.md)
+[`eda_tools.plot_mean_diff()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_group_stats.md)
+[`eda_tools.plot_median_diff()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_group_stats.md)
+
 ### 論理関数
 
 [`eda_tools.is_number()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/predicate_str.md)
