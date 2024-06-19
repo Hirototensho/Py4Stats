@@ -1,4 +1,4 @@
-# `eda_tools.compare_group_means()`, `eda_tools.compare_group_median()`
+# `eda_tools.compare_group_means()`, `eda_tools.plot_mean_diff()`, `eda_tools.plot_median_diff()`, `eda_tools.compare_group_median()`
 
 ## 概要
 
@@ -23,7 +23,7 @@ plot_mean_diff(
 
 plot_median_diff(
     group1, group2, 
-    stats_diff = 'norm_diff',
+    stats_diff = 'rel_diff',
     ax = None
     )
 ```
@@ -36,6 +36,8 @@ plot_median_diff(
 　数値変数を含む pandas.DataFrame で `group1` との比較対象となるもの
 - `group_names` **list of str** <br>
 　表頭に表示するグループの名前。`['group1', 'group2']` のように、2つの要素をもつ文字列のリストとして指定してください。
+- `stats_diff`（`plot_mean_diff()` および `plot_median_diff()` のみ） **str** <br>
+　グラフの描画に使用するグループ別統計量の差の評価指標。`'norm_diff'`（`plot_mean_diff()` のみ）、`'rel_diff'`、`'abs_diff'` のいずれかから選べます。
 
 ## 返り値 Value
 
