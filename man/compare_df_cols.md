@@ -1,11 +1,18 @@
-# `eda_tools.compare_df_cols()`
+# `eda_tools.compare_df_cols()`, `eda_tools.compare_df_stats()`
 
 ## 概要
 
-　R言語の [`janitor::compare_df_cols()`](https://sfirke.github.io/janitor/reference/compare_df_cols.html) をオマージュした関数で、複数の pandas.DataFrame に含まれる同じ名前を持つ列同士のデータ型 `dtype` を比較します。
+　R言語の [`janitor::compare_df_cols()`](https://sfirke.github.io/janitor/reference/compare_df_cols.html) をオマージュした関数で、
+`compare_df_cols()` は複数の pandas.DataFrame に含まれる同じ名前を持つ列同士のデータ型 `dtype` を比較し、`compare_df_stats()` は同じ名前を持つ列同士の記述統計量を比較します。
 
 ```python
 compare_df_cols(df_list, return_match = 'all', df_name = None, dropna = False)
+
+compare_df_stats(
+    df_list, return_match = 'all', df_name = None,
+    stats = 'mean', rtol = 1e-05, atol = 1e-08,
+    **kwargs
+)
 ```
 
 ## 引数 Argument
