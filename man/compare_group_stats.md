@@ -17,7 +17,7 @@ $$
  2つのグループの記述統計量の相対差。2つのグループの記述統計量を $\bar{X}_1$, $\bar{X}_2$ とするとき、次式のように定義されます。
 
 $$
-d = \cfrac{\bar{X}_1  - \bar{X}_2}{\cfrac{\bar{X}_1  + \bar{X}_2}{2}}
+\delta = \cfrac{\bar{X}_1  - \bar{X}_2}{\cfrac{\bar{X}_1  + \bar{X}_2}{2}}
 = 2 \cdot \frac{\bar{X}_1  - \bar{X}_2}{\bar{X}_1  + \bar{X}_2}
 $$
 
