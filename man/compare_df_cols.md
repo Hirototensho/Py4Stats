@@ -28,6 +28,8 @@ compare_df_stats(
 　表頭に表示するデータフレームの名前。`['df1', 'df2']` のように文字列のリストを指定してください。初期設定では、自動的に `df1, df2, df3 …` と連番が割り当てられます。
 - `dropna` **bool**<br>
 　データ型 `dtype` の一致判定に当たり、`NaN` を無視するかどうか。初期設定 `False` の場合、すべてのデータフレームに同名かつ同じデータ型の列を持たない限り、ミスマッチが発生したと判定されます。
+- `stats`  **str or function**<br>
+　比較に用いる記述統計量を表す文字列もしくは関数。初期設定は平均値 `'mean'` です。内部で使用している [`pandas.DataFrame.agg()`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.agg.html) メソッドの引数 `func` に受け渡されます。
 
 ## 使用例 Examples
 
@@ -61,6 +63,17 @@ print(eda.compare_df_cols(
 #>         df1     df2     df3  match_dtype
 #> term
 #> 発生月日  int64  object  object        False
+```
+
+　`eda.compare_df_stats()` は数値変数の記述統計量を比較するため、異なる経路で行われたデータ処理の結果が一致しているかを検証する場合に便利です。
+
+```python
+print(eda.compare_df_stats([data_2019, data_2020, data_2021]))
+#                df1        df2        df3  match_stats
+# term                                                 
+# 発生月日  43643.629699        NaN        NaN        False
+# 患者数      12.238722  16.457207  15.413074        False
+# 死者数       0.003759   0.003378   0.002782        False
 ```
 ***
 [Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
