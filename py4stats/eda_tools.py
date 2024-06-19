@@ -109,7 +109,8 @@ import itertools
 
 def compare_df_stats(
     df_list, return_match = 'all', df_name = None,
-    stats = 'mean', rtol = 1e-05, atol = 1e-08
+    stats = 'mean', rtol = 1e-05, atol = 1e-08,
+    **kwargs
     ):
   """複数の pandas.DataFrame に含まれる同じ名前を持つ列同士のデータ型 `dtype` を比較します。"""
   # 引数のアサーション ----------------------
@@ -129,7 +130,8 @@ def compare_df_stats(
 
   df_list = [v.copy() for v in df_list] # コピーを作成
   stats_list = [
-      v.select_dtypes(include = ['int', 'float', 'bool']).agg(stats)
+      v.select_dtypes(include = ['int', 'float', 'bool'])\
+      .dropna(axis = 1, how = 'all').agg(stats, **kwargs)
       for v in df_list
       ]
   res = pd.concat(stats_list, axis = 1)
@@ -171,6 +173,76 @@ def compare_df_record(df1, df2, rtol = 1e-05, atol = 1e-08):
   ], axis = 'columns').loc[:, all_columns]
 
   return result
+
+"""## グループ別平均（中央値）の比較"""
+
+def compare_group_means(group1, group2, group_names = None, remove_constant_col = True):
+  if remove_constant_col:
+    group1 = remove_constant(group1)
+    group2 = remove_constant(group2)
+
+  if group_names is None:
+      group_names = ['group1', 'group2']
+
+
+  res = pd.DataFrame({
+    group_names[0]:group1.mean(numeric_only = True),
+    group_names[1]:group2.mean(numeric_only = True)
+    })
+
+  s2A = group1.var(numeric_only = True)
+  s2B = group2.var(numeric_only = True)
+  nA = group1.shape[0]
+  nB = group2.shape[0]
+
+  s2_pooled = ((nA - 1) * s2A + (nB - 1) * s2B) / (nA + nB - 2)
+  res['norm_diff'] = (res[group_names[0]] - res[group_names[1]]) / s2_pooled
+
+  res['abs_diff'] = (res[group_names[0]] - res[group_names[1]]).abs()
+  res['rel_diff'] = 2 * (res[group_names[0]] - res[group_names[1]]) \
+                    /(res[group_names[0]] + res[group_names[1]])
+  return res
+
+def compare_group_median(group1, group2, group_names = None, remove_constant_col = True):
+  if remove_constant_col:
+    group1 = remove_constant(group1)
+    group2 = remove_constant(group2)
+
+  if group_names is None:
+      group_names = ['group1', 'group2']
+
+
+  res = pd.DataFrame({
+    group_names[0]:group1.median(numeric_only = True),
+    group_names[1]:group2.median(numeric_only = True)
+    })
+
+  res['abs_diff'] = (res[group_names[0]] - res[group_names[1]]).abs()
+  res['rel_diff'] = 2 * (res[group_names[0]] - res[group_names[1]]) \
+                    /(res[group_names[0]] + res[group_names[1]])
+  return res
+
+def plot_mean_diff(group1, group2, stats_diff = 'norm_diff', remove_constant_col = True, ax = None):
+  if ax is None:
+    fig, ax = plt.subplots()
+
+  group_means = compare_group_means(group1, group2, remove_constant_col = remove_constant_col)
+
+  ax.stem(group_means[stats_diff], orientation = 'horizontal', basefmt = 'C7--');
+
+  ax.set_yticks(range(len(group_means.index)), group_means.index)
+
+  ax.invert_yaxis();
+
+def plot_median_diff(group1, group2, stats_diff = 'rel_diff', remove_constant_col = True, ax = None):
+  group_median = compare_group_median(group1, group2, remove_constant_col = remove_constant_col)
+
+  if ax is None:
+    fig, ax = plt.subplots()
+
+  ax.stem(group_median[stats_diff], orientation = 'horizontal', basefmt = 'C7--')
+  ax.set_yticks(range(len(group_median.index)), group_median.index)
+  ax.invert_yaxis();
 
 """## 完全な空白列 and / or 行の除去"""
 
