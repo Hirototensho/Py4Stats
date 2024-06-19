@@ -77,4 +77,3 @@ print(eda.compare_df_stats([data_2019, data_2020, data_2021]))
 ```
 ***
 [Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
-
