@@ -17,8 +17,6 @@ import pandas_flavor as pf
 import pandas as pd
 import numpy as np
 import scipy as sp
-import polars as pl
-import tidypolars as tp
 
 import pandas_flavor as pf
 
@@ -50,25 +48,6 @@ def diagnose(self):
   })
 
   return result
-
-# diagnose の polars 版
-@diagnose.register(pl.DataFrame)
-def diagnose_pl(self):
-  res = pl.DataFrame({
-      'columns':self.columns,
-      'dtype':self.dtypes,
-      'missing_count':self.null_count().row(0),
-      'unique_count':[self[col].n_unique() for col in self.columns]
-  }).with_columns(
-      (100 * pl.col('missing_count') / len(self)).alias('missing_percent'),
-      (100 * pl.col('unique_count') / len(self)).alias('unique_rate')
-  )\
-    .select('columns', 'dtype', 'missing_count', 'missing_percent', 'unique_count', 'unique_rate')
-  return res
-
-@diagnose.register(tp.tibble.Tibble)
-def diagnose_tp(self):
-  return diagnose_pl(self.to_polars())
 
 """### 異なるデータフレームの列を比較する関数"""
 
@@ -176,6 +155,7 @@ def compare_df_record(df1, df2, rtol = 1e-05, atol = 1e-08):
 
 """## グループ別平均（中央値）の比較"""
 
+@singledispatch
 def compare_group_means(group1, group2, group_names = ['group1', 'group2']):
   group1 = remove_constant(group1)
   group2 = remove_constant(group2)
@@ -198,6 +178,7 @@ def compare_group_means(group1, group2, group_names = ['group1', 'group2']):
                     /(res[group_names[0]] + res[group_names[1]])
   return res
 
+@singledispatch
 def compare_group_median(group1, group2, group_names = ['group1', 'group2']):
   group1 = remove_constant(group1)
   group2 = remove_constant(group2)
@@ -288,12 +269,6 @@ def remove_constant(self, quiet = True, dropna = False):
 
   return self
 
-@remove_constant.register(pl.DataFrame)
-@remove_constant.register(tp.tibble.Tibble)
-def remove_constant_pl(self, quiet = True, dropna = False):
-  res = remove_constant(self.to_pandas(), quiet = quiet, dropna = dropna)
-  return pl.from_pandas(res)
-
 # 列名に特定の文字列を含む列を除外する関数
 @pf.register_dataframe_method
 def filtering_out(self, contains = None, starts_with = None, ends_with = None, axis = 1):
@@ -345,15 +320,8 @@ def crosstab2(
         )
     return res
 
-@crosstab2.register(tp.tibble.Tibble)
-@crosstab2.register(pl.DataFrame)
-def crosstab2_pl(data, index, columns, **kwargs):
-
-  res = crosstab2(data.to_pandas(), index = index, columns = columns, **kwargs)
-
-  return pl.from_pandas(res.reset_index())
-
 @pf.register_dataframe_method
+@singledispatch
 def freq_table(self, subset, sort = True, ascending = False, dropna = False):
   count = self.value_counts(
       subset = subset, sort = sort, ascending = ascending,
@@ -427,14 +395,6 @@ def tabyl(
       c_tab1.loc[idx, col] = c_tab1.astype('str').loc[idx, col] + ' (' + c_tab2 + ')'
 
     return c_tab1
-
-@tabyl.register(tp.tibble.Tibble)
-@tabyl.register(pl.DataFrame)
-def tabyl_pl(data, index, columns, **kwargs):
-
-  res = tabyl(data.to_pandas(), index = index, columns = columns, **kwargs)
-
-  return res
 
 """## `diagnose_category()`：カテゴリー変数専用の要約関数"""
 
