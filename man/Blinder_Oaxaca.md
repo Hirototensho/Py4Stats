@@ -29,9 +29,7 @@ $$
 
 $$
 \begin{aligned}
-\bar{Y}^m - \bar{Y}^f
- = (\bar{\boldsymbol{X}}^m - \bar{\boldsymbol{X}}^f)\boldsymbol{\beta}^m
- + \bar{\boldsymbol{X}}^f(\boldsymbol{\beta}^m - \boldsymbol{\beta}^f)
+\bar{Y}^m - \bar{Y}^f = (\bar{\boldsymbol{X}}^m - \bar{\boldsymbol{X}}^f)\boldsymbol{\beta}^m + \bar{\boldsymbol{X}}^f(\boldsymbol{\beta}^m - \boldsymbol{\beta}^f)
 \end{aligned}
 \tag{2}
 $$
