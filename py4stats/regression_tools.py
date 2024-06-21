@@ -769,3 +769,65 @@ def gazer_MNlogit(MNlogit_margeff, endog_categories = None, **kwargs):
 
     return res
 
+
+# # Blinder Oaxaca 分解
+# 
+#  式については朝井(2014, p.9)を参照しました。
+# 
+# - 朝井 友紀子 (2014) 「労働市場における男女差の30年― 就業のサンプルセレクションと男女間賃金格差」『日本労働研究雑誌』, No.648, pp.6–16
+
+# In[ ]:
+
+
+def Blinder_Oaxaca(model1, model2):
+  assert_reg_reuslt(model1)
+  assert_reg_reuslt(model2)
+
+  X_1 = pd.DataFrame(model1.model.exog, columns = model1.model.exog_names)
+  X_2 = pd.DataFrame(model2.model.exog, columns = model2.model.exog_names)
+
+  X_bar_1 = X_1.mean()
+  X_bar_2 = X_2.mean()
+  X_diff = X_bar_2 - X_bar_1
+
+  result = pd.DataFrame({
+      'observed_diff':X_diff * model2.params,
+      'unobserved_diff':X_bar_1 * (model2.params - model1.params)
+  })
+
+  result.index.name = 'terms'
+  return result
+
+
+# In[ ]:
+
+
+def plot_Blinder_Oaxaca(
+    model1, model2,
+    diff_type = ['observed_diff', 'unobserved_diff'],
+    ax = None,
+):
+  diff_type = bild.arg_match(
+      diff_type, ['observed_diff', 'unobserved_diff'],
+      multiple = True
+      )
+  fig = None
+  result = Blinder_Oaxaca(model1, model2)
+  if isinstance(diff_type, list) == False:
+    diff_type = [diff_type]
+
+  if ax is None:
+    fig, ax = plt.subplots(1, len(diff_type), figsize = (1.1 * len(diff_type) * 4, 4), sharey = True)
+
+  if len(diff_type) == 1:
+    ax = [ax]
+
+  for i, t in enumerate(diff_type):
+    ax[i].stem(result[t], orientation = 'horizontal', basefmt = 'C7--')
+    ax[i].set_yticks(range(len(result.index)), result.index)
+    # ax[i].invert_yaxis()
+    ax[i].set_title(t);
+
+  if fig is not None:
+    fig.tight_layout()
+
