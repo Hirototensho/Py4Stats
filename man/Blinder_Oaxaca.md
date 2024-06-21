@@ -114,7 +114,9 @@ reg.plot_Blinder_Oaxaca(
 )
 ```
 
-`diff_type` を指定することで、一方の統計量だけを表示することもできます。
+![Unknown](https://github.com/Hirototensho/Py4Stats/assets/55335752/a0b8e389-5d17-4476-8626-755ad51d0018)
+
+ `diff_type` を指定することで、一方の統計量だけを表示することもできます。
 
 ```python
 reg.plot_Blinder_Oaxaca(
@@ -123,6 +125,9 @@ reg.plot_Blinder_Oaxaca(
     diff_type = 'unobserved_diff'
 )
 ```
+![Unknown-2](https://github.com/Hirototensho/Py4Stats/assets/55335752/36516540-82c0-462b-b122-880959cfd9f1)
+
+ グラフのサイズや解像度を指定するには、次のように行います。
 
 ```python
 fig, ax = plt.subplots(1, 2, figsize = (1.1 * 2 * 4, 4), sharey = True, dpi = 200)
