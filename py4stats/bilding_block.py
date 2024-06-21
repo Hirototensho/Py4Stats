@@ -1,17 +1,23 @@
-# -*- coding: utf-8 -*-
-"""bilding_block.ipynb
+#!/usr/bin/env python
+# coding: utf-8
 
-# `py4stats` のプログラミングを補助する関数群
+# # `py4stats` のプログラミングを補助する関数群
+# 
+# `eda_tools` や `regression_tools` で共通して使う関数をここにまとめておきます。`bilding_block` モジュール自体は外部から呼び出さずに使用することを想定しています。
 
-`eda_tools` や `regression_tools` で共通して使う関数をここにまとめておきます。`bilding_block` モジュール自体は外部から呼び出さずに使用することを想定しています。
-"""
+# In[ ]:
+
 
 import pandas as pd
 import numpy as np
 import scipy as sp
 from varname import argname
 
-"""## 引数のアサーション"""
+
+# ## 引数のアサーション
+
+# In[ ]:
+
 
 import argparse
 
@@ -40,6 +46,10 @@ def match_arg(arg, values, arg_name = 'argument'):
       else:
           raise ValueError(f"'{arg_name}' must be one of {oxford_comma_or(values)}, not '{arg}'.")
 
+
+# In[ ]:
+
+
 def arg_match0(arg, values, arg_name = None):
     """
     Simulates the functionality of R's rlang::arg_match() function with partial matching in Python.
@@ -65,6 +75,10 @@ def arg_match0(arg, values, arg_name = None):
         )
       else:
         raise ValueError(f"'{arg_name}' must be one of {oxford_comma_or(values)}, not '{arg}'.")
+
+
+# In[ ]:
+
 
 from varname import argname
 def arg_match(arg, values, arg_name = None, multiple = False):
@@ -92,7 +106,11 @@ def arg_match(arg, values, arg_name = None, multiple = False):
     arg = arg_match0(arg[0], values = values, arg_name = arg_name)
     return arg
 
-"""## タイプチェックを行う関数"""
+
+# ## タイプチェックを行う関数
+
+# In[ ]:
+
 
 from varname import argname
 import pandas.api.types
@@ -112,6 +130,10 @@ def is_integer(x):
 def is_float(x):
   return pandas.api.types.is_float_dtype(pd.Series(x))
 
+
+# In[ ]:
+
+
 def make_assert_type(predicate_fun, valid_type):
 
   def func(arg, arg_name = None):
@@ -123,15 +145,27 @@ def make_assert_type(predicate_fun, valid_type):
 
   return func
 
+
+# In[ ]:
+
+
 assert_character = make_assert_type(is_character, valid_type = ['str'])
 assert_logical = make_assert_type(is_logical, valid_type = ['bool'])
+
+
+# In[ ]:
+
 
 def assert_character(arg, arg_name = None):
   if(arg_name is None):
       arg_name = argname('arg')
   assert is_character(arg), f"Argment '{arg_name}' must be of type 'str'."
 
-"""### 数値用の `assert_*()` 関数"""
+
+# ### 数値用の `assert_*()` 関数
+
+# In[ ]:
+
 
 def make_assert_numeric(predicate_fun, valid_type, lower = -float('inf'), upper = float('inf')):
 
@@ -167,15 +201,24 @@ def make_assert_numeric(predicate_fun, valid_type, lower = -float('inf'), upper 
         arg_name = argname('arg')
   return func
 
+
+# In[ ]:
+
+
 assert_numeric = make_assert_numeric(is_numeric, valid_type = ['int', 'float'])
 assert_integer = make_assert_numeric(is_integer, valid_type = ['int'])
 assert_count = make_assert_numeric(is_integer, valid_type = ['positive integer'], lower = 0)
 assert_float = make_assert_numeric(is_float, valid_type = ['float'])
 
-"""## 数値などのフォーマット"""
+
+# ## 数値などのフォーマット
+
+# In[ ]:
+
 
 def p_stars(p_value, stars = {'***':0.01, '**':0.05, '*':0.1}):
   # stars のラベルに上限値を追加
+  stars = stars.copy()
   stars[''] = float('inf')
 
   # pd.Series に変換した上で、
@@ -199,6 +242,10 @@ def p_stars(p_value, stars = {'***':0.01, '**':0.05, '*':0.1}):
 
   return pd.Series(styled)
 
+
+# In[ ]:
+
+
 def style_pvalue(p_value, digits = 3, prepend_p = False, p_min = 0.001, p_max = 0.9):
   assert_numeric(p_value, lower = 0)
   assert_count(digits, lower = 1)
@@ -217,6 +264,10 @@ def style_pvalue(p_value, digits = 3, prepend_p = False, p_min = 0.001, p_max = 
 
   return styled
 
+
+# In[ ]:
+
+
 @np.vectorize
 def num_comma(x, digits = 2, big_mark = ','):
   assert_count(digits)
@@ -231,6 +282,10 @@ def num_currency(x, symbol = '$', digits = 0, big_mark = ','):
 
 @np.vectorize
 def num_percent(x, digits = 2): return f'{x:.{digits}%}'
+
+
+# In[ ]:
+
 
 def style_number(x, digits = 2, big_mark = ','):
   x = pd.Series(x)
@@ -260,6 +315,10 @@ def style_percent(x, digits = 2, unit = 100, symbol = '%'):
 
   return x.apply(lambda v: f'{v*unit:.{digits}f}{symbol}')
 
+
+# In[ ]:
+
+
 @np.vectorize
 def pad_zero(x, digits = 2):
     s = str(x)
@@ -269,17 +328,24 @@ def pad_zero(x, digits = 2):
         s = s + '0' * (digits + 1 - s_digits) # 足りない分だけ0を追加
     return s
 
+
+# In[ ]:
+
+
 @np.vectorize
 def add_big_mark(s): return f'{s:,}'
 
-"""　文字列のリストを与えると、英文の並列の形に変換する関数です。表記法については[Wikipedia Serial comma](https://en.wikipedia.org/wiki/Serial_comma)を参照し、コードについては[stack overflow:Grammatical List Join in Python [duplicate]](https://stackoverflow.com/questions/19838976/grammatical-list-join-in-python)を参照しました。
 
-```python
-choices = ['apple', 'orange', 'grape']
-oxford_comma_or(choices)
-#> 'apple, orange or grape'
-```
-"""
+# 　文字列のリストを与えると、英文の並列の形に変換する関数です。表記法については[Wikipedia Serial comma](https://en.wikipedia.org/wiki/Serial_comma)を参照し、コードについては[stack overflow:Grammatical List Join in Python [duplicate]](https://stackoverflow.com/questions/19838976/grammatical-list-join-in-python)を参照しました。
+# 
+# ```python
+# choices = ['apple', 'orange', 'grape']
+# oxford_comma_or(choices)
+# #> 'apple, orange or grape'
+# ```
+
+# In[ ]:
+
 
 def oxford_comma(x, sep_last = 'and', quotation = True):
     if isinstance(x, str):
@@ -297,3 +363,4 @@ def oxford_comma_and(x, quotation = True):
 
 def oxford_comma_or(x, quotation = True):
   return oxford_comma(x, quotation = quotation, sep_last = 'or')
+
