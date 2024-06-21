@@ -219,10 +219,13 @@ def compare_group_median(group1, group2, group_names = ['group1', 'group2']):
 
 
 def plot_mean_diff(group1, group2, stats_diff = 'norm_diff', ax = None):
+  stats_diff = bild.arg_match(
+      stats_diff, ['norm_diff', 'abs_diff', 'rel_diff']
+      )
+  group_means = compare_group_means(group1, group2)
+
   if ax is None:
     fig, ax = plt.subplots()
-
-  group_means = compare_group_means(group1, group2)
 
   ax.stem(group_means[stats_diff], orientation = 'horizontal', basefmt = 'C7--');
 
@@ -235,6 +238,10 @@ def plot_mean_diff(group1, group2, stats_diff = 'norm_diff', ax = None):
 
 
 def plot_median_diff(group1, group2, stats_diff = 'rel_diff', ax = None):
+  stats_diff = bild.arg_match(
+      stats_diff, ['abs_diff', 'rel_diff']
+      )
+
   group_median = compare_group_median(group1, group2)
 
   if ax is None:
