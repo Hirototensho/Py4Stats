@@ -11,7 +11,7 @@ compare_mfx(
     subset = None,
     stats = 'std_err',
     add_stars = True,
-    stats_glance = ['prsquared', 'nobs', 'df_model'],
+    stats_glance = ['prsquared', 'nobs', 'df_resid'],
     at = 'overall',
     method = 'dydx',
     dummy = False,
