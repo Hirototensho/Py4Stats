@@ -130,7 +130,7 @@ from great_tables import GT, md, html
 compare_tab3 = reg.compare_ols(
     list_models = [fit1, fit2, fit3],
     model_name = ['基本モデル', '嘴の高さ追加', '性別追加'], # モデル名を変更
-    line_break = '<br>'                                 # 改行文字の変更
+    line_break = '<br>'                              # 改行文字の変更
     )
 
 GT(compare_tab3.reset_index())\
