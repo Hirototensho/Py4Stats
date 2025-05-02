@@ -262,6 +262,8 @@ ax[1].set_xlim(-900, 1800);
  と [`reg.mfxplot()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_mfx.md) は、それぞれ `reg.compare_ols()` と `reg.coefplot()` の一般化線型モデルバージョンです。`statsmodels` ライブラリの[`.get_margeff()`](https://www.statsmodels.org/dev/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドから得られた限界効果の推定値を表示します。
 
 ```python
+penguins['female'] = np.where(penguins['sex'] == 'female', 1, 0)
+
 # ロジスティック回帰の実行
 fit_logit1 = smf.logit('female ~ body_mass_g + bill_length_mm + bill_depth_mm', data = penguins).fit()
 fit_logit2 = smf.logit('female ~ body_mass_g + bill_length_mm + bill_depth_mm + species', data = penguins).fit()
