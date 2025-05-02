@@ -61,7 +61,7 @@ from py4stats import regression_tools as reg # 回帰分析の要約
 
 mroz = wooldridge.data('mroz') # サンプルデータの読み込み
 
-mod_heckit, exog_outcome, exog_select =   heckit_helper.Heckit_from_formula(
+mod_heckit, exog_outcome, exog_select = heckit_helper.Heckit_from_formula(
     selection = 'lwage ~ educ + exper + expersq + nwifeinc + age + kidslt6 + kidsge6',
     outcome = 'lwage ~ educ + exper + expersq',
     data = mroz
