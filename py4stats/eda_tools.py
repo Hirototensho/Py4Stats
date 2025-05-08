@@ -38,6 +38,7 @@ def diagnose(self):
   - `unique_rate`： サンプルに占めるユニークな値の割合。 `unique_rate = 100 * unique_count / nrow`と計算されます。 `unique_rate = 100` であれば、全ての行に異なる値が入っています。一般的に実数値の列はユニーク率が高くなりますが、年齢の「20代」や価格の「400円代」のように、階級に分けられている場合にはユニーク率が低くなります。
   """
   self = self.copy()
+  assert isinstance(self, pd.DataFrame), '`self` must be a pandas.DataFrame.'
   # 各種集計値の計算 ------------
   result = pd.DataFrame({
     'dtype':self.dtypes,
