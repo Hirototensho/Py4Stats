@@ -3,7 +3,7 @@
 
 ## 概要
 
-　checkmate パッケージの関数群をオマージュした、引数に代入された値が想定されたデータ型ではないときにエラーを出力する関数です。
+　R言語の [`checkmate`](https://mllg.github.io/checkmate/index.html) パッケージの関数群をオマージュした、引数に代入された値が想定されたデータ型ではないときにエラーを出力する関数です。
 
 ``` python
 assert_character(arg, arg_name = None)
