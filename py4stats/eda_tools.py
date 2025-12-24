@@ -1,3 +1,6 @@
+# %%
+from __future__ import annotations
+
 # %% [markdown]
 # # `eda_tools`：データセットを要約する関数群
 
@@ -111,18 +114,49 @@ import pandas as pd
 import numpy as np
 import scipy as sp
 
+# %%
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Mapping,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+    Literal,
+    overload,
+)
+from numpy.typing import ArrayLike
+
+# matplotlib の Axes は遅延インポート/前方参照でもOK
+try:
+    from matplotlib.axes import Axes
+except Exception:  # notebook等で未importでも落ちないように
+    Axes = Any  # type: ignore
+
+DataLike = Union[pd.Series, pd.DataFrame]
+
+
 # %% [markdown]
 # # `diagnose()`
 
 # %%
 import pandas_flavor as pf
 
-def missing_percent(x, axis = 'index', pct = True):
-  return (100**pct) * x.isna().mean(axis = axis)
+def missing_percent(
+    x: DataLike,
+    axis: Union[str, int] = "index",
+    pct: bool = True,
+) -> Union[pd.Series, pd.DataFrame]:
+    return (100 ** pct) * x.isna().mean(axis=axis)
 
+# %%
 @pf.register_dataframe_method
 @singledispatch
-def diagnose(self):
+def diagnose(self: pd.DataFrame) -> pd.DataFrame:
     """Summarize each column of a DataFrame for quick EDA.
 
     This method computes basic diagnostics for each column:
@@ -160,7 +194,14 @@ def diagnose(self):
 # ### 異なるデータフレームの列を比較する関数
 
 # %%
-def compare_df_cols(df_list, return_match = 'all', df_name = None, dropna = False):
+ReturnMatch = Literal["all", "match", "mismatch"]
+
+def compare_df_cols(
+    df_list: List[pd.DataFrame],
+    return_match: ReturnMatch = "all",
+    df_name: Optional[List[str]] = None,
+    dropna: bool = False,
+) -> pd.DataFrame:
   """Compare dtypes of columns with the same names across multiple DataFrames.
 
   Args:
@@ -221,12 +262,17 @@ def compare_df_cols(df_list, return_match = 'all', df_name = None, dropna = Fals
 
 # %%
 import itertools
+StatsLike = Union[str, Callable[..., Any]]
 
 def compare_df_stats(
-    df_list, return_match = 'all', df_name = None,
-    stats = 'mean', rtol = 1e-05, atol = 1e-08,
-    **kwargs
-    ):
+    df_list: List[pd.DataFrame],
+    return_match: ReturnMatch = "all",
+    df_name: Optional[List[str]] = None,
+    stats: StatsLike = "mean",
+    rtol: float = 1e-05,
+    atol: float = 1e-08,
+    **kwargs: Any,
+) -> pd.DataFrame:
   """Compare numeric column statistics across multiple DataFrames.
 
   This function computes a summary statistic (e.g., mean) for numeric columns
@@ -310,7 +356,12 @@ def compare_df_stats(
 
 # %%
 # レコード毎の近接性（数値の場合）または一致性（数値以外）で評価する関数
-def compare_df_record(df1, df2, rtol = 1e-05, atol = 1e-08):
+def compare_df_record(
+    df1: pd.DataFrame,
+    df2: pd.DataFrame,
+    rtol: float = 1e-05,
+    atol: float = 1e-08,
+) -> pd.DataFrame:
   """Compare two DataFrames record-wise (element-wise).
 
   - Numeric columns are compared with `numpy.isclose`.
@@ -355,7 +406,11 @@ def compare_df_record(df1, df2, rtol = 1e-05, atol = 1e-08):
 
 # %%
 @singledispatch
-def compare_group_means(group1, group2, group_names = ['group1', 'group2']):
+def compare_group_means(
+    group1: pd.DataFrame,
+    group2: pd.DataFrame,
+    group_names: Sequence[str] = ("group1", "group2"),
+) -> pd.DataFrame:
   """Compare group-wise means and derived difference metrics.
 
   Args:
@@ -403,7 +458,11 @@ def compare_group_means(group1, group2, group_names = ['group1', 'group2']):
 
 # %%
 @singledispatch
-def compare_group_median(group1, group2, group_names = ['group1', 'group2']):
+def compare_group_median(
+    group1: pd.DataFrame,
+    group2: pd.DataFrame,
+    group_names: Sequence[str] = ("group1", "group2"),
+) -> pd.DataFrame:
   """Compare group-wise medians and derived difference metrics.
 
     Args:
@@ -441,7 +500,12 @@ def compare_group_median(group1, group2, group_names = ['group1', 'group2']):
   return res
 
 # %%
-def plot_mean_diff(group1, group2, stats_diff = 'norm_diff', ax = None):
+def plot_mean_diff(
+    group1: pd.DataFrame,
+    group2: pd.DataFrame,
+    stats_diff: Literal["norm_diff", "abs_diff", "rel_diff"] = "norm_diff",
+    ax: Optional[Axes] = None,
+) -> None:
   """Plot group mean differences for each variable as a stem plot.
 
   Args:
@@ -475,7 +539,12 @@ def plot_mean_diff(group1, group2, stats_diff = 'norm_diff', ax = None):
   ax.invert_yaxis();
 
 # %%
-def plot_median_diff(group1, group2, stats_diff = 'rel_diff', ax = None):
+def plot_median_diff(
+    group1: pd.DataFrame,
+    group2: pd.DataFrame,
+    stats_diff: Literal["abs_diff", "rel_diff"] = "rel_diff",
+    ax: Optional[Axes] = None,
+) -> None:
   """Plot group median differences for each variable as a stem plot.
 
   Args:
@@ -511,7 +580,13 @@ def plot_median_diff(group1, group2, stats_diff = 'rel_diff', ax = None):
 
 # %%
 @pf.register_dataframe_method
-def remove_empty(self, cols = True, rows = True, cutoff = 1, quiet = True):
+def remove_empty(
+    self: pd.DataFrame,
+    cols: bool = True,
+    rows: bool = True,
+    cutoff: float = 1.0,
+    quiet: bool = True,
+) -> pd.DataFrame:
   """Remove fully (or mostly) empty columns and/or rows.
 
   Args:
@@ -567,7 +642,11 @@ def remove_empty(self, cols = True, rows = True, cutoff = 1, quiet = True):
 # %%
 @pf.register_dataframe_method
 @singledispatch
-def remove_constant(self, quiet = True, dropna = False):
+def remove_constant(
+    self: pd.DataFrame,
+    quiet: bool = True,
+    dropna: bool = False,
+) -> pd.DataFrame:
   """Remove constant columns (columns with only one unique value).
 
   Args:
@@ -601,7 +680,13 @@ def remove_constant(self, quiet = True, dropna = False):
 # %%
 # 列名に特定の文字列を含む列を除外する関数
 @pf.register_dataframe_method
-def filtering_out(self, contains = None, starts_with = None, ends_with = None, axis = 1):
+def filtering_out(
+    self: pd.DataFrame,
+    contains: Optional[str] = None,
+    starts_with: Optional[str] = None,
+    ends_with: Optional[str] = None,
+    axis: Union[int, str] = 1,
+) -> pd.DataFrame:
   """Filter out rows/columns whose labels match given string patterns.
 
     Args:
@@ -664,9 +749,18 @@ def filtering_out(self, contains = None, starts_with = None, ends_with = None, a
 @pf.register_dataframe_method
 @singledispatch
 def crosstab2(
-    data, index, columns, values=None, rownames=None, colnames=None,
-    aggfunc=None, margins=False, margins_name='All', dropna=True, normalize=False
-    ):
+    data: pd.DataFrame,
+    index: str,
+    columns: str,
+    values: Optional[str] = None,
+    rownames: Optional[Sequence[str]] = None,
+    colnames: Optional[Sequence[str]] = None,
+    aggfunc: Optional[Callable[..., Any]] = None,
+    margins: bool = False,
+    margins_name: str = "All",
+    dropna: bool = True,
+    normalize: Union[bool, Literal["all", "index", "columns"]] = False,
+) -> pd.DataFrame:
 
     res = pd.crosstab(
         index = data[index], columns = data[columns], values = values,
@@ -679,7 +773,13 @@ def crosstab2(
 # %%
 @pf.register_dataframe_method
 @singledispatch
-def freq_table(self, subset, sort = True, ascending = False, dropna = False):
+def freq_table(
+    self: pd.DataFrame,
+    subset: Union[str, Sequence[str]],
+    sort: bool = True,
+    ascending: bool = False,
+    dropna: bool = False,
+) -> pd.DataFrame:
     """Compute frequency table for one or multiple columns.
 
     Args:
@@ -724,17 +824,17 @@ def freq_table(self, subset, sort = True, ascending = False, dropna = False):
 @pf.register_dataframe_method
 @singledispatch
 def tabyl(
-    self,
-    index,
-    columns,
-    margins = True,
-    margins_name = 'All',
-    normalize = 'index',
-    dropna = False,
-    rownames = None,
-    colnames = None,
-    digits = 1,
-    ):
+    self: pd.DataFrame,
+    index: str,
+    columns: str,
+    margins: bool = True,
+    margins_name: str = "All",
+    normalize: Union[bool, Literal["index", "columns", "all"]] = "index",
+    dropna: bool = False,
+    rownames: Optional[Sequence[str]] = None,
+    colnames: Optional[Sequence[str]] = None,
+    digits: int = 1,
+) -> pd.DataFrame:
     """Create a crosstab with counts and (optionally) percentages in parentheses.
 
     This function produces a table similar to `janitor::tabyl()` (R), where the
@@ -816,7 +916,10 @@ def tabyl(
 @pf.register_dataframe_method
 @pf.register_series_method
 @singledispatch
-def is_dummy(self, cording = [0, 1]): 
+def is_dummy(
+    self: Union[pd.Series, pd.DataFrame],
+    cording: Sequence[Any] = (0, 1),
+) -> Union[bool, pd.Series]:
     """Check whether values consist only of dummy codes.
 
     Args:
@@ -833,27 +936,28 @@ def is_dummy(self, cording = [0, 1]):
     return set(self) == set(cording)
 
 @is_dummy.register(pd.DataFrame)
-def _(self, cording = [0, 1]): return self.apply(is_dummy, cording = cording)
+def _(self: pd.DataFrame, cording: Sequence[Any] = (0, 1)) -> pd.Series:
+    return self.apply(is_dummy, cording = cording)
 
 # %%
 # カテゴリカル変数についての集計関数 --------------
 # 情報エントロピーと、その値を0から1に標準化したもの --------------
-def entropy(X, base = 2, axis = 0):
+def entropy(X: ArrayLike, base: float = 2.0, axis: int = 0) -> float:
     vc = pd.Series(X).value_counts(normalize = True, sort = False)
     res = sp.stats.entropy(pk = vc,  base = base, axis = axis)
     return res
 
-def std_entropy(X, axis = 0):
+def std_entropy(X: ArrayLike, axis: int = 0) -> float:
     K = pd.Series(X).nunique()
     res = entropy(X, base = K) if K > 1 else 0.0
     return res
 
-def freq_mode(x, normalize = False):
+def freq_mode(x: pd.Series, normalize: bool = False) -> Union[int, float]:
     res = x.value_counts(normalize = normalize, dropna = False).iloc[0]
     return res
 
 # カテゴリカル変数についての概要を示す関数
-def diagnose_category(data):
+def diagnose_category(data: pd.DataFrame) -> pd.DataFrame:
     """Summarize categorical variables in a DataFrame.
 
     This function targets object/category/bool columns, converts 0/1 dummy
@@ -905,15 +1009,15 @@ def diagnose_category(data):
 # ## その他の補助関数
 
 # %%
-def weighted_mean(x, w):
+def weighted_mean(x: pd.Series, w: pd.Series) -> float:
   wmean = (x * w).sum() / w.sum()
   return wmean
 
-def scale(x, ddof = 1):
+def scale(x: pd.Series, ddof: int = 1) -> pd.Series:
     z = (x - x.mean()) / x.std(ddof = ddof)
     return z
 
-def min_max(x):
+def min_max(x: pd.Series) -> pd.Series:
   mn = (x - x.min()) / (x.max() - x.min())
   return mn
 
@@ -924,7 +1028,12 @@ def min_max(x):
 import matplotlib.pyplot as plt
 
 # パレート図に使用するランキングを作成する関数
-def make_rank_table(data, group, values, aggfunc = 'sum'):
+def make_rank_table(
+    data: pd.DataFrame,
+    group: str,
+    values: str,
+    aggfunc: Union[str, Callable[..., Any]] = "sum",
+) -> pd.DataFrame:
     # ピボットテーブルを使って、カテゴリー group（例：メーカー）ごとの values （例：販売額）の合計を計算
     p_table = pd.pivot_table(
         data = data,
@@ -944,16 +1053,16 @@ def make_rank_table(data, group, values, aggfunc = 'sum'):
 # %%
 # パレート図を作成する関数
 def Pareto_plot(
-    data,
-    group,
-    values = None,
-    top_n = None,
-    aggfunc = 'sum',
-    ax = None,
-    fontsize = 12,
-    xlab_rotation = 0,
-    palette = ['#478FCE', '#252525']
-    ):
+    data: pd.DataFrame,
+    group: str,
+    values: Optional[str] = None,
+    top_n: Optional[int] = None,
+    aggfunc: Union[str, Callable[..., Any]] = "sum",
+    ax: Optional[Axes] = None,
+    fontsize: int = 12,
+    xlab_rotation: Union[int, float] = 0,
+    palette: Sequence[str] = ("#478FCE", "#252525"),
+) -> None:
     """Plot a Pareto chart.
 
     If `values` is None, the chart is built from frequency counts of `group`.
@@ -1061,7 +1170,11 @@ def Pareto_plot(
 # %%
 @pf.register_dataframe_method
 @pf.register_series_method
-def mean_qi(self, width = 0.975, point_fun = 'mean'):
+def mean_qi(
+    self: Union[pd.Series, pd.DataFrame],
+    width: float = 0.975,
+    point_fun: str = "mean",
+) -> pd.DataFrame:
   """Compute mean and quantile interval (QI).
 
   Args:
@@ -1104,7 +1217,11 @@ def mean_qi(self, width = 0.975, point_fun = 'mean'):
 # %%
 @pf.register_dataframe_method
 @pf.register_series_method
-def median_qi(self, width = 0.975, point_fun = 'median'):
+def median_qi(
+    self: Union[pd.Series, pd.DataFrame],
+    width: float = 0.975,
+    point_fun: str = "median",
+) -> pd.DataFrame:
   """Compute median and quantile interval (QI).
 
   Args:
@@ -1147,7 +1264,10 @@ def median_qi(self, width = 0.975, point_fun = 'median'):
 from scipy.stats import t
 @pf.register_dataframe_method
 @pf.register_series_method
-def mean_ci(self, width = 0.95):
+def mean_ci(
+    self: Union[pd.Series, pd.DataFrame],
+    width: float = 0.95,
+) -> pd.DataFrame:
   """Compute mean and t-based confidence interval (CI).
 
   Args:
@@ -1354,7 +1474,11 @@ def set_prop_miss(x, prop = 0.1, method = 'random', random_state = None, na_valu
 
 # %%
 @pf.register_dataframe_method
-def check_that(data, rule_dict, **kwargs):
+def check_that(
+    data: pd.DataFrame,
+    rule_dict: Union[Mapping[str, str], pd.Series],
+    **kwargs: Any,
+) -> pd.DataFrame:
   """Evaluate validation rules and summarize pass/fail counts.
 
   Each rule is an expression evaluated by `DataFrame.eval(...)` and must return
@@ -1416,7 +1540,11 @@ def check_that(data, rule_dict, **kwargs):
 
 # %%
 @pf.register_dataframe_method
-def check_viorate(data, rule_dict, **kwargs):
+def check_viorate(
+    data: pd.DataFrame,
+    rule_dict: Union[Mapping[str, str], pd.Series],
+    **kwargs: Any,
+) -> pd.DataFrame:
   """Return row-wise rule violation indicators for each rule.
 
   Args:
@@ -1464,10 +1592,12 @@ def implies_exper(P, Q):
 
 @pf.register_dataframe_method
 @singledispatch
-def is_complet(self): return self.notna().all(axis = 'columns')
+def is_complet(self: pd.DataFrame) -> pd.Series:
+  return self.notna().all(axis = 'columns')
 
 @is_complet.register(pd.Series)
-def is_complet(*arg): return pd.concat(arg, axis = 'columns').notna().all(axis = 'columns')
+def _(*arg: pd.Series) -> pd.Series:
+  return pd.concat(arg, axis = 'columns').notna().all(axis = 'columns')
 
 # %%
 def Sum(*arg): return pd.concat(arg, axis = 'columns').sum(axis = 'columns')
