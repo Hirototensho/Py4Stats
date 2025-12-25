@@ -1341,7 +1341,7 @@ def is_number(self, na_default = True):
     & ~ self_str.map(detect_Kanzi)\
     & ~ is_ymd_like(self_str)
 
-  exponent = self_str.str.contains('[0-9]+[E,e]+(?:\+|-)[0-9]+', regex = True)
+  exponent = self_str.str.contains(r'[0-9]+[Ee][+-][0-9]+', regex = True)
   res[exponent] = True
 
   res[self.isna()] = na_default
