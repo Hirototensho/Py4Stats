@@ -761,9 +761,12 @@ def crosstab2(
     dropna: bool = True,
     normalize: Union[bool, Literal["all", "index", "columns"]] = False,
 ) -> pd.DataFrame:
-
+    if values is not None:
+        values_vec = data[values]
+    else:
+        values_vec = None
     res = pd.crosstab(
-        index = data[index], columns = data[columns], values = values,
+        index = data[index], columns = data[columns], values = values_vec,
         rownames = rownames, colnames = colnames,
         aggfunc = aggfunc, margins = margins, margins_name = margins_name,
         dropna = dropna, normalize = normalize
@@ -1605,5 +1608,3 @@ def Mean(*arg): return pd.concat(arg, axis = 'columns').mean(axis = 'columns')
 def Max(*arg): return pd.concat(arg, axis = 'columns').max(axis = 'columns')
 def Min(*arg): return pd.concat(arg, axis = 'columns').min(axis = 'columns')
 def Median(*arg): return pd.concat(arg, axis = 'columns').median(axis = 'columns')
-
-
