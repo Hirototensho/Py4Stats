@@ -1,0 +1,9 @@
+term,value
+Intercept,"153.7397 
+(268.9012)"
+species[T.Chinstrap],"-885.8121 ***
+(88.2502)"
+species[T.Gentoo],"578.6292 ***
+(75.3623)"
+bill_length_mm,"91.4358 ***
+(6.8871)"
