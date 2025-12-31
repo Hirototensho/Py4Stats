@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from setuptools import setup, find_packages
-
 setup(
     name = 'py4stats',  # パッケージ名（pip listで表示される）
     version = "0.0.1",  # バージョン
