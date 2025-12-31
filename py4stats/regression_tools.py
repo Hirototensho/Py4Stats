@@ -60,7 +60,6 @@ from scipy.stats import f
 from functools import singledispatch
 import matplotlib.pyplot as plt
 
-import seaborn as sns
 import matplotlib.pyplot as plt
 
 import statsmodels.api as sm
@@ -958,7 +957,6 @@ def make_glance_tab(
 # 利用するライブラリー
 import pandas as pd
 import numpy as np
-import seaborn as sns
 import matplotlib.pyplot as plt
 from statsmodels.iolib.summary import summary_params_frame
 

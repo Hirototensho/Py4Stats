@@ -2,21 +2,20 @@
 name = 'py4stats'
 version = '0.0.1'
 dependencies = [
-    'matplotlib==3.10.8',
-    'numpy==2.4.0',
-    'palmerpenguins==0.1.4',
-    'pandas==2.3.3',
-    'pandas_flavor==0.8.1',
-    'patsy==1.0.2',
-    'polars==1.36.1',
-    'py4etrics==0.1.9',
-    'pytest==9.0.2',
-    'regex==2025.11.3',
-    'scipy==1.16.3',
-    'seaborn==0.13.2',
-    'setuptools==80.9.0',
-    'statsmodels==0.14.6',
-    'tidypolars==0.3.2',
-    'varname==0.15.1',
-    'wooldridge==0.5.0'
+    'matplotlib>=3.10.8',
+    'numpy>=2.4.0',
+    'palmerpenguins>=0.1.4',
+    'pandas>=2.3.3',
+    'pandas_flavor>=0.8.1',
+    'patsy>=1.0.2',
+    'polars>=1.36.1',
+    'py4etrics>=0.1.9',
+    'pytest>=9.0.2',
+    'regex>=2025.11.3',
+    'scipy>=1.16.3',
+    'setuptools>=80.9.0',
+    'statsmodels>=0.14.6',
+    'tidypolars>=0.3.2',
+    'varname>=0.15.1',
+    'wooldridge>=0.5.0'
 ]
