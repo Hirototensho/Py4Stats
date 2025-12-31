@@ -1,0 +1,9 @@
+term,df1,df2,match_dtype
+species,object,object,True
+island,object,object,True
+bill_length_mm,float64,float64,True
+bill_depth_mm,float64,float64,True
+flipper_length_mm,float64,float64,True
+body_mass_g,float64,float64,True
+sex,object,object,True
+year,int64,int64,True
