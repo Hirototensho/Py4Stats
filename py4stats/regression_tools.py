@@ -1006,65 +1006,6 @@ def coefplot(
   raise NotImplementedError(f'tidy mtethod for object {type(mod)} is not implemented.')
 
 # %%
-# # 回帰分析の結果から回帰係数のグラフを作成する関数 --------
-# def coefplot(
-#     mod: Any,
-#     subset: Optional[Sequence[str]] = None,
-#     conf_level: Sequence[float] = (0.95, 0.99),
-#     palette: Sequence[str] = ("#1b69af", "#629CE7"),
-#     show_Intercept: bool = False,
-#     show_vline: bool = True,
-#     ax: Optional[Axes] = None,
-#     **kwargs: Any,
-# ) -> None:
-#     """Plot regression coefficients with multiple confidence intervals.
-
-#     This function extracts coefficient tables via `tidy` and draws a dot-and-line
-#     plot showing estimates and confidence intervals.
-
-#     Args:
-#         mod:
-#             A fitted model object supported by `tidy`.
-#         subset (Sequence[str] | None):
-#             Terms to include. If None, includes all terms.
-#         conf_level (Sequence[float]):
-#             Two confidence levels, e.g. (0.95, 0.99). The first is drawn thicker.
-#         palette (Sequence[str]):
-#             Two colors used for intervals and points.
-#         show_Intercept (bool):
-#             If False, drop the intercept term ('Intercept') from the plot.
-#         show_vline (bool):
-#             If True, draw a vertical reference line at 0.
-#         ax (matplotlib.axes.Axes | None):
-#             Axes to draw on. If None, a new figure/axes is created.
-#         **kwargs:
-#             Additional args forwarded to the low-level plotting function.
-
-#     Returns:
-#         None
-#     """
-#     bild.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither')
-#     bild.assert_character(palette)
-
-#     # 回帰係数の表を抽出
-#     tidy_ci_high = tidy(mod, conf_level = conf_level[0])
-#     tidy_ci_row = tidy(mod, conf_level = conf_level[1])
-
-#     # subset が指定されていれば、回帰係数の部分集合を抽出する
-#     if subset is not None:
-#         tidy_ci_high = tidy_ci_high.loc[subset, :]
-#         tidy_ci_row = tidy_ci_row.loc[subset, :]
-
-#     # グラフの作成
-#     coef_dot(
-#         tidy_ci_high, tidy_ci_row, palette = palette,
-#         show_Intercept = show_Intercept, show_vline = show_vline,
-#         ax = ax, **kwargs
-#         )
-
-
-
-# %%
 from statsmodels.regression.linear_model import RegressionResultsWrapper
 @coefplot.register(RegressionResultsWrapper)
 def coefplot_regression(
