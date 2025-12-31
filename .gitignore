@@ -4,6 +4,16 @@
 # Python cache
 __pycache__/
 *.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.env
+.env/
+
+# Editor configs
+.vscode/
+.idea/
 
 # packaging/build artifacts
 *.egg-info/
