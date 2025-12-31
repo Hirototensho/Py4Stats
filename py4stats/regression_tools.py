@@ -60,7 +60,6 @@ from scipy.stats import f
 from functools import singledispatch
 import matplotlib.pyplot as plt
 
-import seaborn as sns
 import matplotlib.pyplot as plt
 
 import statsmodels.api as sm
@@ -635,7 +634,7 @@ def log_to_pct(est: Union[float, pd.Series, np.ndarray]) -> Union[float, pd.Seri
 
 # %%
 from statsmodels.regression.linear_model import RegressionResultsWrapper
-from varname import argname
+import varname
 
 def assert_reg_reuslt(x: Any) -> None:
   """Assert that inputs are statsmodels RegressionResultsWrapper objects.
@@ -650,7 +649,7 @@ def assert_reg_reuslt(x: Any) -> None:
   """
   x = pd.Series(x)
   condition =  x.apply(lambda x: isinstance(x, (RegressionResultsWrapper))).all()
-  assert condition, f"Argment '{argname('x')}' must be of type '{RegressionResultsWrapper}'."
+  assert condition, f"Argment '{varname.argname('x')}' must be of type '{RegressionResultsWrapper}'."
 
 # %%
 import pandas.api.types
@@ -958,7 +957,6 @@ def make_glance_tab(
 # 利用するライブラリー
 import pandas as pd
 import numpy as np
-import seaborn as sns
 import matplotlib.pyplot as plt
 from statsmodels.iolib.summary import summary_params_frame
 

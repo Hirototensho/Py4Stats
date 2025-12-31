@@ -76,7 +76,8 @@ from __future__ import annotations
 import pandas as pd
 import numpy as np
 import scipy as sp
-from varname import argname
+# from varname import argname
+import varname
 
 # %% [markdown]
 # ## 型ヒントの準備
@@ -124,22 +125,15 @@ ProbArrayLike = ArrayLike
 import argparse
 
 def match_arg(arg: str, values: Sequence[str], arg_name: str = "argument") -> str:
-    """Partially match an argument against allowed values (R-like match.arg).
-
-    This function performs case-insensitive partial matching similar to R's
-    `match.arg()`. If `arg` is an exact match, it is returned as-is. Otherwise,
-    `arg` is matched as a substring of candidates in `values`.
+    """
+    Simulates the functionality of R's match.arg() function with partial matching in Python.
 
     Args:
-        arg: Argument string to match. Partial matching is allowed.
-        values: Sequence of allowed values.
-        arg_name: Name of the argument used in error messages.
+    - arg: The arg to match against the values (partially).
+    - values: List of valid values.
 
     Returns:
-        The matched value from `values`.
-
-    Raises:
-        ValueError: If `arg` matches multiple candidates (ambiguous) or matches none.
+    - The matched arg if found in values (partially), otherwise raises an ArgumentError.
     """
     if(arg in values):
       return arg
@@ -157,27 +151,18 @@ def match_arg(arg: str, values: Sequence[str], arg_name: str = "argument") -> st
 
 # %%
 def arg_match0(arg: str, values: Sequence[str], arg_name: Optional[str] = None) -> str:
-    """Match a single argument with suggestions (R-like rlang::arg_match).
-
-    If the argument is not exactly in `values`, the function searches for
-    case-insensitive partial matches. If there are suggestions, the error
-    message includes them.
+    """
+    Simulates the functionality of R's rlang::arg_match() function with partial matching in Python.
 
     Args:
-        arg: Argument string to match.
-        values: Sequence of allowed values.
-        arg_name: Name of the argument used in error messages. If None, inferred
-            by `varname.argname("arg")`.
+    - arg: The arg to match against the values.
+    - values: List of valid values.
 
     Returns:
-        The matched value.
-
-    Raises:
-        ValueError: If `arg` is not a valid value. The error message may include
-            suggested candidates.
+    - The matched arg if found in values, otherwise raises an ArgumentError.
     """
     if(arg_name is None):
-      arg_name = argname('arg')
+      arg_name = varname.argname('arg')
 
     if(arg in values):
       return arg
@@ -192,36 +177,27 @@ def arg_match0(arg: str, values: Sequence[str], arg_name: Optional[str] = None) 
         raise ValueError(f"'{arg_name}' must be one of {oxford_comma_or(values)}, not '{arg}'.")
 
 # %%
-from varname import argname
+# from varname import argname
 def arg_match(
     arg: Union[str, Sequence[str], pd.Series, np.ndarray],
     values: Sequence[str],
     arg_name: Optional[str] = None,
     multiple: bool = False,
 ) -> MatchArgReturn:
-  """Match one or more arguments against allowed values.
-
-  This is a user-facing helper that accepts either a single string or a
-  list-like of strings. When `multiple=True`, all elements are matched and
-  returned as a list.
+  """
+  Simulates the functionality of R's rlang::arg_match() function with partial matching in Python.
 
   Args:
-      arg: Argument(s) to match. Accepts a string or list-like of strings.
-      values: Sequence of allowed values.
-      arg_name: Name of the argument used in error messages. If None, inferred
-          by `varname.argname("arg")`.
-      multiple: If True, allow multiple values and return a list of matched
-          strings.
+  - arg: The list or str of arg to match against the values.
+  - values: List of valid values.
+  - arg_name : name of argument.
+  - multiple: Whether multiple values are allowed for the arg.
 
   Returns:
-      If `multiple=False`, returns a single matched value.
-      If `multiple=True`, returns a list of matched values.
-
-  Raises:
-      ValueError: If any element is invalid or ambiguous.
+  - The matched arg if found in values, otherwise raises an ArgumentError.
   """
   if(arg_name is None):
-      arg_name = argname('arg')
+      arg_name = varname.argname('arg')
 
   arg = pd.Series(arg)
   if(multiple):
@@ -236,62 +212,21 @@ def arg_match(
 # ## タイプチェックを行う関数
 
 # %%
-from varname import argname
 import pandas.api.types
 
 def is_character(x: Any) -> bool:
-  """Return True if `x` is string-like according to pandas dtype rules.
-
-  Args:
-      x: Any value or array-like object.
-
-  Returns:
-      True if `pd.Series(x)` is interpreted as string dtype.
-  """
   return pandas.api.types.is_string_dtype(pd.Series(x))
 
 def is_logical(x: Any) -> bool:
-  """Return True if `x` is boolean-like according to pandas dtype rules.
-
-  Args:
-      x: Any value or array-like object.
-
-  Returns:
-      True if `pd.Series(x)` is interpreted as boolean dtype.
-  """
   return pandas.api.types.is_bool_dtype(pd.Series(x))
 
 def is_numeric(x: Any) -> bool:
-  """Return True if `x` is numeric-like according to pandas dtype rules.
-
-  Args:
-      x: Any value or array-like object.
-
-  Returns:
-      True if `pd.Series(x)` is interpreted as numeric dtype.
-  """
   return pandas.api.types.is_numeric_dtype(pd.Series(x))
 
 def is_integer(x: Any) -> bool:
-  """Return True if `x` is integer-like according to pandas dtype rules.
-
-  Args:
-      x: Any value or array-like object.
-
-  Returns:
-      True if `pd.Series(x)` is interpreted as integer dtype.
-  """
   return pandas.api.types.is_integer_dtype(pd.Series(x))
 
 def is_float(x: Any) -> bool:
-  """Return True if `x` is float-like according to pandas dtype rules.
-
-  Args:
-      x: Any value or array-like object.
-
-  Returns:
-      True if `pd.Series(x)` is interpreted as float dtype.
-  """
   return pandas.api.types.is_float_dtype(pd.Series(x))
 
 # %%
@@ -299,23 +234,20 @@ def make_assert_type(
     predicate_fun: Callable[[Any], bool],
     valid_type: Sequence[str],
 ) -> Callable[..., None]:
-  """Create an assertion function for a given type predicate.
-
-  The returned function asserts that the given argument satisfies
-  `predicate_fun`. The error message uses `valid_type` for readability.
+  """
+  Factory to build assertion functions.
 
   Args:
-      predicate_fun: Predicate that returns True if the argument has the expected type.
-      valid_type: Human-readable type label(s) used in error messages.
+      predicate_fun: A predicate that returns True if arg has the expected type.
+      valid_type: Human-readable type name(s) used in error messages.
 
   Returns:
-      A function `(arg, arg_name=None) -> None` that raises AssertionError if
-      the predicate fails.
+      A function that asserts the type condition.
   """
 
   def func(arg, arg_name = None):
     if(arg_name is None):
-      arg_name = argname('arg')
+      arg_name = varname.argname('arg')
 
     assert predicate_fun(arg), f"Argment '{arg_name}' must be of" +\
       f" type {oxford_comma_or(valid_type)}"
@@ -336,22 +268,19 @@ def make_assert_numeric(
     lower: float = -float("inf"),
     upper: float = float("inf"),
 ) -> Callable[..., None]:
-  """Create a numeric assertion function with optional range checks.
-
-  The returned function checks:
-      1) Numeric dtype via `predicate_fun`.
-      2) Range constraint using pandas `.between(...)`.
+  """
+  Factory to build numeric assertion functions with range checks.
 
   Args:
-      predicate_fun: Predicate that checks numeric dtype.
-      valid_type: Human-readable type label(s) used in error messages.
+      predicate_fun: Predicate for numeric dtype check.
+      valid_type: Human-readable type label(s) used in messages.
       lower: Default lower bound.
       upper: Default upper bound.
 
   Returns:
-      A function `(arg, lower=..., upper=..., inclusive=..., arg_name=None) -> None`
-      that raises AssertionError when checks fail.
+      A function that asserts: numeric dtype and range condition.
   """
+  # def func(arg, lower = lower, upper = upper, inclusive = 'both', arg_name = None):
   def func(
       arg: Any,
       lower: float = lower,
@@ -360,7 +289,7 @@ def make_assert_numeric(
       arg_name: Optional[str] = None,
   ) -> None:
     if(arg_name is None):
-      arg_name = argname('arg')
+      arg_name = varname.argname('arg')
 
     arg = pd.Series(arg)
 
@@ -387,7 +316,7 @@ def make_assert_numeric(
       f"Argment '{arg_name}' must have value {lower} {inclusive_dict[inclusive]} {upper}."
 
     if(arg_name is None):
-        arg_name = argname('arg')
+        arg_name = varname.argname('arg')
   return func
 
 # %%
@@ -406,28 +335,16 @@ def p_stars(
     # stars: Optional[Mapping[str, float]] = None,
     stars = {'***':0.01, '**':0.05, '*':0.1}
 ) -> pd.Series:
-    """Convert p-values to significance stars.
-
-    This function maps p-values into categorical star labels by binning.
-    By default, the mapping is:
-        - '***' for p <= 0.01
-        - '**'  for p <= 0.05
-        - '*'   for p <= 0.10
-        - ''    otherwise
+    """
+    Map p-values to significance stars.
 
     Args:
         p_value: Scalar or array-like of p-values.
-        stars: Mapping from star label to cutoff value. If None, defaults to
-            `{'***': 0.01, '**': 0.05, '*': 0.1}`. An empty label '' is
-            automatically appended with `inf` as an upper bound.
+        stars: Mapping from star label to cutoff (upper bound). Defaults to
+            {'***': 0.01, '**': 0.05, '*': 0.1}.
 
     Returns:
-        pandas.Series:
-            Series of star labels (strings), aligned to the input length.
-
-    Raises:
-        AssertionError:
-            If `p_value` or `stars` contains non-numeric values or invalid ranges.
+        pandas.Series: Star labels for each p-value.
     """
     # stars のラベルに上限値を追加
     #   stars = stars.copy()
@@ -457,6 +374,7 @@ def p_stars(
     return pd.Series(styled)
 
 # %%
+# def style_pvalue(p_value, digits = 3, prepend_p = False, p_min = 0.001, p_max = 0.9):
 def style_pvalue(
     p_value: ProbArrayLike,
     digits: int = 3,
@@ -464,94 +382,55 @@ def style_pvalue(
     p_min: float = 0.001,
     p_max: float = 0.9,
 ) -> pd.Series:
-    """Format p-values as readable strings with optional clipping.
-
-    Args:
+  """
+  Format p-values into strings with optional clipping and prefix.
+  
+  Args:
         p_value: Scalar or array-like of p-values.
-        digits: Number of decimal places for rounding.
+        digits: Number of decimals.
         prepend_p: If True, prepend 'p' or 'p='.
-        p_min: Values smaller than this threshold are shown as `<p_min`.
-        p_max: Values larger than this threshold are shown as `>p_max`.
-
-    Returns:
+        p_min: Lower clipping threshold.
+        p_max: Upper clipping threshold.
+  
+  Returns:
         pandas.Series: Formatted p-values as strings.
+  """
+  assert_numeric(p_value, lower = 0)
+  assert_count(digits, lower = 1)
+  assert_numeric(p_min, lower = 0, upper = 1)
+  assert_numeric(p_max, lower = 0, upper = 1)
 
-    Raises:
-        AssertionError: If inputs are out of expected ranges.
-    """
-    assert_numeric(p_value, lower = 0)
-    assert_count(digits, lower = 1)
-    assert_numeric(p_min, lower = 0, upper = 1)
-    assert_numeric(p_max, lower = 0, upper = 1)
-    
-    if(prepend_p): prefix = ['p', 'p=']
-    else: prefix = ['', '']
-    
-    p_value = pd.Series(p_value)
-    styled = prefix[1] + p_value.copy().round(digits).astype(str)
-    styled = styled.mask(p_value < p_min, f'{prefix[0]}<{p_min}')\
-      .mask(p_value > p_max, f'{prefix[0]}>{p_max}')
-    return styled
+  if(prepend_p): prefix = ['p', 'p=']
+  else: prefix = ['', '']
+
+
+  p_value = pd.Series(p_value)
+  styled = prefix[1] + p_value.copy().round(digits).astype(str)
+
+  styled = styled.mask(p_value < p_min, f'{prefix[0]}<{p_min}')\
+        .mask(p_value > p_max, f'{prefix[0]}>{p_max}')
+
+  return styled
 
 # %%
 @np.vectorize
 def num_comma(x: NumberLike, digits: int = 2, big_mark: str = ",") -> str:
-  """Format a number with thousands separators and fixed decimals.
-
-  Args:
-      x: Numeric value.
-      digits: Number of decimal places.
-      big_mark: Thousands separator style. One of ',', '_' or ''.
-
-  Returns:
-      Formatted number as a string.
-  """
   assert_count(digits)
   arg_match(big_mark, [',', '_', ''])
   return f'{x:{big_mark}.{digits}f}'
 
 @np.vectorize
 def num_currency(x: NumberLike, symbol: str = "$", digits: int = 0, big_mark: str = ",") -> str:
-  """Format a number as currency.
-
-  Args:
-      x: Numeric value.
-      symbol: Currency symbol to prepend.
-      digits: Number of decimal places.
-      big_mark: Thousands separator style. One of ',', '_' or ''.
-
-  Returns:
-      Formatted currency string.
-  """  
   assert_count(digits)
   arg_match(big_mark, [',', '_', ''])
   return f'{symbol}{x:{big_mark}.{digits}f}'
 
 @np.vectorize
 def num_percent(x: NumberLike, digits: int = 2) -> str:
-  """Format a number as percentage using Python's percent format.
-
-  Args:
-      x: Numeric value interpreted as a fraction (e.g., 0.12 -> 12%).
-      digits: Number of decimal places.
-
-  Returns:
-      Percentage string.
-  """
   return f'{x:.{digits}%}'
 
 # %%
 def style_number(x: ArrayLike, digits: int = 2, big_mark: str = ",") -> pd.Series:
-  """Format numeric values into fixed-decimal strings.
-
-  Args:
-      x: Numeric scalar or array-like.
-      digits: Number of decimal places.
-      big_mark: Thousands separator style. One of ',', '_' or ''.
-
-  Returns:
-      pandas.Series: Formatted numbers as strings.
-  """
   x = pd.Series(x)
 
   assert_numeric(x)
@@ -562,17 +441,6 @@ def style_number(x: ArrayLike, digits: int = 2, big_mark: str = ",") -> pd.Serie
   return x.apply(lambda v: f'{v:{big_mark}.{digits}f}')
 
 def style_currency(x: ArrayLike, symbol: str = "$", digits: int = 0, big_mark: str = ",") -> pd.Series:
-  """Format numeric values as currency strings.
-
-  Args:
-      x: Numeric scalar or array-like.
-      symbol: Currency symbol to prepend.
-      digits: Number of decimal places.
-      big_mark: Thousands separator style. One of ',', '_' or ''.
-
-  Returns:
-      pandas.Series: Formatted currency strings.
-  """
   x = pd.Series(x)
 
   assert_numeric(x)
@@ -583,17 +451,6 @@ def style_currency(x: ArrayLike, symbol: str = "$", digits: int = 0, big_mark: s
   return x.apply(lambda v: f'{symbol}{v:{big_mark}.{digits}f}')
 
 def style_percent(x: ArrayLike, digits: int = 2, unit: float = 100, symbol: str = "%") -> pd.Series:
-  """Format numeric values as percent strings.
-
-  Args:
-      x: Numeric scalar or array-like.
-      digits: Number of decimal places.
-      unit: Scale factor applied before formatting (default 100).
-      symbol: Suffix symbol (default '%').
-
-  Returns:
-      pandas.Series: Formatted percent strings.
-  """
   x = pd.Series(x)
 
   assert_numeric(x)
@@ -604,18 +461,6 @@ def style_percent(x: ArrayLike, digits: int = 2, unit: float = 100, symbol: str 
 # %%
 @np.vectorize
 def pad_zero(x: Any, digits: int = 2) -> str:
-    """Pad trailing zeros for decimal representation.
-
-    This function is useful when numeric values are stringified with varying
-    decimal lengths and you want a consistent number of decimal places.
-
-    Args:
-        x: Value to format (typically numeric or numeric-like string).
-        digits: Desired number of digits after the decimal point.
-
-    Returns:
-        String with padded zeros when needed.
-    """
     s = str(x)
     # もし s が整数値なら、何もしない。
     if s.find('.') != -1:
@@ -626,14 +471,6 @@ def pad_zero(x: Any, digits: int = 2) -> str:
 # %%
 @np.vectorize
 def add_big_mark(s: Any) -> str:
-    """Insert thousands separators into an integer-like string.
-
-    Args:
-        s: Value convertible to string.
-
-    Returns:
-        Formatted string with commas as thousands separators.
-    """
     return f'{s:,}'
 
 # %% [markdown]
@@ -647,20 +484,6 @@ def add_big_mark(s: Any) -> str:
 
 # %%
 def oxford_comma(x: Union[str, Sequence[str]], sep_last: str = "and", quotation: bool = True) -> str:
-    """Join items into an English list with an Oxford comma.
-
-    Examples:
-        >>> oxford_comma_or(["apple", "orange", "grape"])
-        " 'apple', 'orange' or 'grape' "
-
-    Args:
-        x: A single string or a sequence of strings.
-        sep_last: The conjunction used before the final item ('and' or 'or').
-        quotation: If True, wrap each item with single quotes.
-
-    Returns:
-        A grammatically joined string.
-    """
     if isinstance(x, str):
       if(quotation): return f"'{x}'"
       else: return x
@@ -672,27 +495,9 @@ def oxford_comma(x: Union[str, Sequence[str]], sep_last: str = "and", quotation:
       return ", ".join(x[:-1]) + f" {sep_last} " + x[-1]
 
 def oxford_comma_and(x: Union[str, Sequence[str]], quotation: bool = True) -> str:
-  """Join items with Oxford comma using 'and' before the last item.
-
-  Args:
-      x: A single string or sequence of strings.
-      quotation: If True, wrap each item with single quotes.
-
-  Returns:
-      Joined string using 'and'.
-  """
   return oxford_comma(x, quotation = quotation, sep_last = 'and')
 
 def oxford_comma_or(x: Union[str, Sequence[str]], quotation: bool = True) -> str:
-  """Join items with Oxford comma using 'or' before the last item.
-
-  Args:
-      x: A single string or sequence of strings.
-      quotation: If True, wrap each item with single quotes.
-
-  Returns:
-      Joined string using 'or'.
-  """
   return oxford_comma(x, quotation = quotation, sep_last = 'or')
 
 
