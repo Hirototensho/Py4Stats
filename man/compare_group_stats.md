@@ -1,4 +1,4 @@
-# `eda_tools.compare_group_means()`, `eda_tools.plot_mean_diff()`, `eda_tools.plot_median_diff()`, `eda_tools.compare_group_median()`
+# `py4stats.compare_group_means()`, `py4stats.plot_mean_diff()`, `py4stats.plot_median_diff()`, `py4stats.compare_group_median()`
 
 ## 概要
 
@@ -68,7 +68,7 @@ $$
 
 ```python
 import pandas as pd
-from py4stats import regression_tools as reg # 回帰分析の要約
+import py4stats as py4st
 from palmerpenguins import load_penguins
 
 
@@ -76,7 +76,7 @@ penguins = load_penguins().drop('year', axis = 1) # サンプルデータの読�
 ```
 
 ```python
-res1 = eda.compare_group_means(
+res1 = py4st.compare_group_means(
     penguins.query('species == "Gentoo"'),
     penguins.query('species == "Adelie"')
 )
@@ -89,7 +89,7 @@ print(res1.round(3))
 ```
 
 ```python
-res2 = eda.compare_group_median(
+res2 = py4st.compare_group_median(
     penguins.query('species == "Gentoo"'),
     penguins.query('species == "Adelie"'),
     group_names = ['Gentoo', 'Adelie']
@@ -103,7 +103,7 @@ print(res2.round(3))
 ```
 
 ```python
-eda.plot_mean_diff(
+py4st.plot_mean_diff(
     penguins.query('species == "Gentoo"'),
     penguins.query('species == "Adelie"'),
     stats_diff = 'norm_diff'
@@ -113,7 +113,7 @@ eda.plot_mean_diff(
 ![Unknown](https://github.com/Hirototensho/Py4Stats/assets/55335752/696cbbe0-2c0c-435c-bb9c-71a59a3742f9)
 
 ```python
-eda.plot_mean_diff(
+py4st.plot_mean_diff(
     penguins.query('species == "Gentoo"'),
     penguins.query('species == "Adelie"'),
     stats_diff = 'abs_diff'
@@ -123,7 +123,7 @@ eda.plot_mean_diff(
 ![Unknown-2](https://github.com/Hirototensho/Py4Stats/assets/55335752/735866a9-aed2-4e10-bac1-6fc7004fba8f)
 
 ```python
-eda.plot_median_diff(
+py4st.plot_median_diff(
     penguins.query('species == "Gentoo"'),
     penguins.query('species == "Adelie"'),
     stats_diff = 'rel_diff'

@@ -1,4 +1,4 @@
-# 数値変数の点推定と区間推定：`eda_tools.mean_qi()` `eda_tools.median_qi()` `eda_tools.mean_ci()`
+# 数値変数の点推定と区間推定：`py4stats.mean_qi()` `py4stats.median_qi()` `py4stats.mean_ci()`
 
 ## 概要
 
@@ -21,7 +21,7 @@ mean_ci(self, width = 0.95)
 ## 使用例 Examples
 
 ```python
-from py4stats import eda_tools as eda
+import py4stats as py4st
 import pandas as pd
 from palmerpenguins import load_penguins
 penguins = load_penguins() # サンプルデータの読み込み

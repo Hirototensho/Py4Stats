@@ -1,4 +1,4 @@
-# `eda_tools.is_dummy()`
+# `py4stats.is_dummy()`
 
 ## 概要
 
@@ -16,12 +16,12 @@ is_dummy(self, cording = [0, 1])
 
 ## 返り値 Value
 
-`eda_tools.is_dummy()` は `self` が `cording`  と集合として等しければ True を、そうでなければ False を返します。
+`py4stats.is_dummy()` は `self` が `cording`  と集合として等しければ True を、そうでなければ False を返します。
 
 ## 使用例 Examples
 
 ```python
-from py4stats import eda_tools as eda        # 基本統計量やデータの要約など
+import py4stats as py4st
 import pandas as pd
 from palmerpenguins import load_penguins
 

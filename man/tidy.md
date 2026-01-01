@@ -1,8 +1,8 @@
-# `regression_tools.tidy()`, `regression_tools.tidy_mfx()`
+# `py4stats.tidy()`, `py4stats.tidy_mfx()`
 
 ## 概要
 
-　R言語の [`broom::tidy()`](https://broom.tidymodels.org/reference/tidy.lm.html) をオマージュした関数で、[`sm.ols()`](https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.OLS.html) や [`smf.logit()`](https://www.statsmodels.org/stable/generated/statsmodels.formula.api.logit.html) などの推定結果を `pands.DataFrame` に変換します。`regression_tools.tidy()` は回帰係数と関連する検定結果を表示し、 `regression_tools.tidy_mfx()` は限界効果と関連する検定結果を表示します。
+　R言語の [`broom::tidy()`](https://broom.tidymodels.org/reference/tidy.lm.html) をオマージュした関数で、[`sm.ols()`](https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.OLS.html) や [`smf.logit()`](https://www.statsmodels.org/stable/generated/statsmodels.formula.api.logit.html) などの推定結果を `pands.DataFrame` に変換します。`py4stats.tidy()` は回帰係数と関連する検定結果を表示し、 `py4stats.tidy_mfx()` は限界効果と関連する検定結果を表示します。
 
 ```python
 tidy(
@@ -81,7 +81,7 @@ penguins = load_penguins() # サンプルデータの読み込み
 # 回帰分析の実行
 fit1 = smf.ols('body_mass_g ~ bill_length_mm + species', data = penguins).fit()
 
-print(reg.tidy(fit1).round(4))
+print(py4st.tidy(fit1).round(4))
 #>                       estimate   std_err  statistics  p_value  conf_lower  conf_higher
 #> term                                                                                  
 #> Intercept             153.7397  268.9012      0.5717   0.5679   -375.1910     682.6704
@@ -97,7 +97,7 @@ penguins['female'] = np.where(penguins['sex'] == 'female', 1, 0)
 # ロジスティック回帰の実行
 fit_logit1 = smf.logit('female ~ body_mass_g + bill_length_mm + bill_depth_mm', data = penguins).fit()
 
-print(reg.tidy_mfx(fit_logit1).round(4))
+print(py4st.tidy_mfx(fit_logit1).round(4))
 #>                 estimate  std_err  statistics  p_value  conf_lower  conf_higher
 #> body_mass_g      -0.0004   0.0000    -17.6561   0.0000     -0.0004      -0.0003
 #> bill_length_mm   -0.0053   0.0036     -1.4628   0.1435     -0.0123       0.0018
@@ -106,13 +106,13 @@ print(reg.tidy_mfx(fit_logit1).round(4))
 
 ## 注意点
 
-　参考にしたR言語の [`broom::tidy()`](https://broom.tidymodels.org/reference/tidy.lm.html) は様々な種類のモデルに対応したジェネリック関数として定義されていますが、`regression_tools.tidy()` と `regression_tools.tidy_mfx()` では対応しているモデルは限定的であることにご注意ださい。`reg.tidy()` のメソッドが定義されているオブジェクトのクラスを確認するには次のコードを実行して下さい。
+　参考にしたR言語の [`broom::tidy()`](https://broom.tidymodels.org/reference/tidy.lm.html) は様々な種類のモデルに対応したジェネリック関数として定義されていますが、`py4stats.tidy()` と `py4stats.tidy_mfx()` では対応しているモデルは限定的であることにご注意ださい。`py4st.tidy()` のメソッドが定義されているオブジェクトのクラスを確認するには次のコードを実行して下さい。
 
 ```python
-list(reg.tidy.registry.keys())
+list(py4st.tidy.registry.keys())
 ```
 
- `regression_tools.tidy()` は `functools.singledispatch` を用いたジェネリック関数として実装しています。 [`Py4Etrics`](https://github.com/Py4Etrics/py4etrics) モジュールの `py4etrics.heckit.Heckit()` で作成された `HeckitResults` クラスのオブジェクト用のメソッドについては [`heckit_helper.tidy_heckit()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy_heckit.md) を参照してください。
+ `py4stats.tidy()` は `functools.singledispatch` を用いたジェネリック関数として実装しています。 [`Py4Etrics`](https://github.com/Py4Etrics/py4etrics) モジュールの `py4etrics.heckit.Heckit()` で作成された `HeckitResults` クラスのオブジェクト用のメソッドについては [`heckit_helper.tidy_heckit()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy_heckit.md) を参照してください。
 
 
 ***

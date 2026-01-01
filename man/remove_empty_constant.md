@@ -1,8 +1,8 @@
-# 空白列, 定数列の削除：`eda_tools.remove_empty()`, `eda_tools.remove_constant()`
+# 空白列, 定数列の削除：`py4stats.remove_empty()`, `py4stats.remove_constant()`
 
 ## 概要
 
-　`eda_tools.remove_empty()`はR言語の [`janitor:remove_empty()`](https://sfirke.github.io/janitor/reference/remove_empty.html) をオマージュした関数で、全ての要素が `NaN` である列や行をデータフレームから除外します`eda_tools.remove_constant()`はR言語の [`janitor:remove_constant()`](https://sfirke.github.io/janitor/reference/remove_constant.html) をオマージュした関数で、1種類だけの要素からなる列をデータフレームから除外します。
+　`py4stats.remove_empty()`はR言語の [`janitor:remove_empty()`](https://sfirke.github.io/janitor/reference/remove_empty.html) をオマージュした関数で、全ての要素が `NaN` である列や行をデータフレームから除外します`py4stats.remove_constant()`はR言語の [`janitor:remove_constant()`](https://sfirke.github.io/janitor/reference/remove_constant.html) をオマージュした関数で、1種類だけの要素からなる列をデータフレームから除外します。
 
 ``` python
 remove_empty(
@@ -37,9 +37,10 @@ remove_constant(
 
 ## 使用例
 
-`eda_tools.remove_empty()` の使用例。
+`py4stats.remove_empty()` の使用例。
 
 ``` python
+import py4stats as py4st
 import pandas as pd
 import numpy as np
 from palmerpenguins import load_penguins
@@ -93,7 +94,7 @@ print(penguins2.remove_empty().tail(3))
 #> 343  Chinstrap       3775.0
 ```
 
-`eda_tools.remove_constant()` の使用例。
+`py4stats.remove_constant()` の使用例。
 
 ``` python
 penguins2 = penguins.loc[:, ['species', 'body_mass_g']].copy()

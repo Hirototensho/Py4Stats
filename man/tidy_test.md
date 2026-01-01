@@ -1,8 +1,8 @@
-# `regression_tools.tidy_test()`
+# `py4stats.tidy_test()`
 
 ## 概要
 
-　R言語の [`broom::tidy()`](https://broom.tidymodels.org/reference/tidy.lm.html) をオマージュした [`regression_tools.tidy()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy.md) 関数のうち、`statsmodels` ライブラリのメソッド [`RegressionResults.t_test()`](https://www.statsmodels.org/dev/generated/statsmodels.regression.linear_model.RegressionResults.t_test.html#statsmodels.regression.linear_model.RegressionResults.t_test) もしくは [`RegressionResults.f_test()`](https://www.statsmodels.org/dev/generated/statsmodels.regression.linear_model.RegressionResults.f_test.html#statsmodels.regression.linear_model.RegressionResults.f_test) で作成された `statsmodels.stats.contrast.ContrastResults` クラスのオブジェクト専用のメソッドです。[`regression_tools.tidy()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy.md)はジェネリック関数として実装されているため、`reg.tidy(x)` としてご利用いただけます。
+　R言語の [`broom::tidy()`](https://broom.tidymodels.org/reference/tidy.lm.html) をオマージュした [`py4stats.tidy()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy.md) 関数のうち、`statsmodels` ライブラリのメソッド [`RegressionResults.t_test()`](https://www.statsmodels.org/dev/generated/statsmodels.regression.linear_model.RegressionResults.t_test.html#statsmodels.regression.linear_model.RegressionResults.t_test) もしくは [`RegressionResults.f_test()`](https://www.statsmodels.org/dev/generated/statsmodels.regression.linear_model.RegressionResults.f_test.html#statsmodels.regression.linear_model.RegressionResults.f_test) で作成された `statsmodels.stats.contrast.ContrastResults` クラスのオブジェクト専用のメソッドです。[`py4stats.tidy()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy.md)はジェネリック関数として実装されているため、`py4st.tidy(x)` としてご利用いただけます。
 
 ```python
 tidy_test(x, conf_level = 0.95, **kwargs)
@@ -46,12 +46,13 @@ tidy_test(x, conf_level = 0.95, **kwargs)
 ## 使用例 Examples
 
 ```python
+import py4stats as py4st
+
 import pandas as pd
 import numpy as np
 from palmerpenguins import load_penguins
 import statsmodels.formula.api as smf
 
-from py4stats import regression_tools as reg # 回帰分析の要約
 penguins = load_penguins() # サンプルデータの読み込み
 
 fit3 = smf.ols('body_mass_g ~ bill_length_mm + bill_depth_mm + species + sex', data = penguins).fit()
@@ -59,7 +60,7 @@ fit3 = smf.ols('body_mass_g ~ bill_length_mm + bill_depth_mm + species + sex', d
 
 ```python
 hypotheses = 'bill_length_mm = 20'
-print(reg.tidy(fit3.t_test(hypotheses)).round(4))
+print(py4st.tidy(fit3.t_test(hypotheses)).round(4))
 #>       estimate  std_err  statistics  p_value  conf_lower  conf_higher
 #> term                                                                 
 #> c0     26.5366   7.2436      0.9024   0.3675     12.2867      40.7866
@@ -67,7 +68,7 @@ print(reg.tidy(fit3.t_test(hypotheses)).round(4))
 
 ```python
 hypotheses = 'species[T.Chinstrap] = 0, species[T.Gentoo] = 0'
-print(reg.tidy(fit3.f_test(hypotheses)).round(4))
+print(py4st.tidy(fit3.f_test(hypotheses)).round(4))
 #>           statistics  p_value  df_denom  df_num
 #> term                                           
 #> contrast    210.9432      0.0       327       2
