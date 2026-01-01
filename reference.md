@@ -116,3 +116,7 @@
 [`bilding_block.oxford_comma()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/oxford_comma.md)
 [`bilding_block.oxford_comma_and()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/oxford_comma.md)
 [`bilding_block.oxford_comma_or()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/oxford_comma.md)
+
+***
+[Jump to **Function Get started**.](https://github.com/Hirototensho/Py4Stats/blob/main/INTRODUCTION.md)  
+[Jump to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
