@@ -51,17 +51,17 @@
 
 ## `py4stats.regression_tools`
 
-### 分析結果の比較
+### 線形モデルの比較
 
 [`py4stats.compare_ols()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_ols.md)
 
 [`py4stats.compare_mfx()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_mfx.md)
 
-### 分析結果の可視化
+### 線形モデルの可視化
 
 [`py4stats.coefplot()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/coefplot.md) [`py4stats.mfxplot()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/coefplot.md)
 
-### 分析結果を作表するためのバックエンド関数
+### 線形モデルを作表するためのバックエンド関数
 [`py4stats.tidy()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy.md)[`py4stats.tidy_mfx()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy.md)
 
 [`py4stats.tidy_test()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy_test.md)
