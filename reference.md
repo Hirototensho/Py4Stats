@@ -3,75 +3,75 @@
 ## `py4stats.eda_tools`
 
 ### データフレームの概要
-[`eda_tools.diagnose()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/diagnose.md)
+[`py4stats.diagnose()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/diagnose.md)
 
 ### クロス集計
 
-[`eda_tools.tabyl()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tabyl.md)
+[`py4stats.tabyl()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tabyl.md)
 
-[`eda_tools.freq_table()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/freq_table.md)
+[`py4stats.freq_table()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/freq_table.md)
 
-[`eda_tools.Pareto_plot()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/Pareto_plot.md)
+[`py4stats.Pareto_plot()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/Pareto_plot.md)
 
 ### 数値変数の点推定と区間推定
 
-[`eda_tools.mean_qi()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/point_range.md)
-[`eda_tools.median_qi()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/point_range.md)
-[`eda_tools.mean_ci()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/point_range.md)
+[`py4stats.mean_qi()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/point_range.md)
+[`py4stats.median_qi()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/point_range.md)
+[`py4stats.mean_ci()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/point_range.md)
 
 ### データフレームの列や行の削除
 
-[`eda_tools.remove_empty()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/remove_empty_constant.md)  [`eda_tools.remove_constant()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/remove_empty_constant.md)
+[`py4stats.remove_empty()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/remove_empty_constant.md)  [`py4stats.remove_constant()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/remove_empty_constant.md)
 
-[`eda_tools.filtering_out()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/filtering_out.md)
+[`py4stats.filtering_out()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/filtering_out.md)
 
 ### 複数のデータフレームの比較
 
-[`eda_tools.compare_df_cols()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_df_cols.md)
+[`py4stats.compare_df_cols()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_df_cols.md)
 
 ### 簡易なグループ別統計量の比較
 
-[`eda_tools.compare_group_means()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_group_stats.md)
-[`eda_tools.compare_group_median()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_group_stats.md)
+[`py4stats.compare_group_means()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_group_stats.md)
+[`py4stats.compare_group_median()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_group_stats.md)
 
-[`eda_tools.plot_mean_diff()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_group_stats.md)
-[`eda_tools.plot_median_diff()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_group_stats.md)
+[`py4stats.plot_mean_diff()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_group_stats.md)
+[`py4stats.plot_median_diff()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_group_stats.md)
 
 ### 論理関数
 
-[`eda_tools.is_number()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/predicate_str.md)
-[`eda_tools.is_ymd()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/predicate_str.md)
-[`eda_tools.is_ymd_like()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/predicate_str.md)
+[`py4stats.is_number()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/predicate_str.md)
+[`py4stats.is_ymd()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/predicate_str.md)
+[`py4stats.is_ymd_like()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/predicate_str.md)
 
-[`eda_tools.is_dummy()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/is_dummy.md)
+[`py4stats.is_dummy()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/is_dummy.md)
 
 ### 簡易なルールベースのデータ検証ツール
 
-[`eda_tools.check_that()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/varidate.md) [`eda_tools.check_viorate()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/varidate.md)
+[`py4stats.check_that()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/varidate.md) [`py4stats.check_viorate()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/varidate.md)
 
 ## `py4stats.regression_tools`
 
 ### 分析結果の比較
 
-[`regression_tools.compare_ols()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_ols.md)
+[`py4stats.compare_ols()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_ols.md)
 
-[`regression_tools.compare_mfx()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_mfx.md)
+[`py4stats.compare_mfx()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_mfx.md)
 
 ### 分析結果の可視化
 
-[`regression_tools.coefplot()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/coefplot.md) [`regression_tools.mfxplot()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/coefplot.md)
+[`py4stats.coefplot()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/coefplot.md) [`py4stats.mfxplot()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/coefplot.md)
 
 ### 分析結果を作表するためのバックエンド関数
-[`regression_tools.tidy()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy.md)[`regression_tools.tidy_mfx()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy.md)
+[`py4stats.tidy()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy.md)[`py4stats.tidy_mfx()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy.md)
 
-[`regression_tools.tidy_test()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy_test.md)
+[`py4stats.tidy_test()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy_test.md)
 
-[`regression_tools.glance()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/glance.md)
+[`py4stats.glance()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/glance.md)
 
 ### Blinder-Oaxaca分解
 
-[`regression_tools.Blinder_Oaxaca()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/Blinder_Oaxaca.md)
-[`regression_tools.plot_Blinder_Oaxaca()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/Blinder_Oaxaca.md)
+[`py4stats.Blinder_Oaxaca()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/Blinder_Oaxaca.md)
+[`py4stats.plot_Blinder_Oaxaca()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/Blinder_Oaxaca.md)
 
 ## `py4stats.heckit_helper`
 

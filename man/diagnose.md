@@ -1,11 +1,11 @@
-# `eda_tools.diagnose()`
+# `py4stats.diagnose()`
 
 ## 概要
 
 　R言語の[`dlookr::diagnose()`](https://choonghyunryu.github.io/dlookr/reference/diagnose.data.frame.html)を再現した関数で、データの全般的な状態についての要約を提供します。
 
 ``` python
-eda.diagnose(self)
+diagnose(self)
 ```
 
 ## 引数
@@ -23,8 +23,8 @@ eda.diagnose(self)
 ## 使用例 Examples
 
 ``` python
+import py4stats as py4st
 import pandas as pd
-import numpy as np
 from palmerpenguins import load_penguins
 penguins = load_penguins() # サンプルデータの読み込み
 

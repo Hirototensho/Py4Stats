@@ -1,4 +1,4 @@
-# `eda_tools.freq_table()`
+# `py4stats.freq_table()`
 
 ## 概要
 
@@ -31,7 +31,7 @@ freq_table(
 ## 使用例
 
 ``` python
-from py4stats import eda_tools as eda
+import py4stats as py4st
 import pandas as pd
 from palmerpenguins import load_penguins
 penguins = load_penguins() # サンプルデータの読み込

@@ -1,4 +1,4 @@
-# `eda_tools.tabyl()`
+# `py4stats.tabyl()`
 
 ## 概要
 
@@ -44,13 +44,13 @@ tabyl(
 ## 使用例
 
 ```python
-from py4stats import eda_tools as eda
+import py4stats as py4st
 import pandas as pd
 from palmerpenguins import load_penguins
 penguins = load_penguins() # サンプルデータの読み込
 
 # 横方向の和を100%として計算（初期設定）
-print(eda.tabyl(penguins, 'island', 'species', normalize = 'index'))
+print(py4st.tabyl(penguins, 'island', 'species', normalize = 'index'))
 #> species         Adelie   Chinstrap       Gentoo  All
 #> island                                              
 #> Biscoe      44 (26.2%)    0 (0.0%)  124 (73.8%)  168
@@ -59,7 +59,7 @@ print(eda.tabyl(penguins, 'island', 'species', normalize = 'index'))
 #> All        152 (44.2%)  68 (19.8%)  124 (36.0%)  344
 
 # 縦方向の和を100%として計算
-print(eda.tabyl(penguins, 'island', 'species', normalize = 'columns'))
+print(py4st.tabyl(penguins, 'island', 'species', normalize = 'columns'))
 #> species        Adelie    Chinstrap        Gentoo          All
 #> island                                                       
 #> Biscoe     44 (28.9%)     0 (0.0%)  124 (100.0%)  168 (48.8%)
@@ -68,7 +68,7 @@ print(eda.tabyl(penguins, 'island', 'species', normalize = 'columns'))
 #> All               152           68           124          344
 
 # 全体の和を100%として計算
-print(eda.tabyl(penguins, 'island', 'species', normalize = 'all'))
+print(py4st.tabyl(penguins, 'island', 'species', normalize = 'all'))
 #> species         Adelie   Chinstrap       Gentoo           All
 #> island                                                       
 #> Biscoe      44 (12.8%)    0 (0.0%)  124 (36.0%)   168 (48.8%)

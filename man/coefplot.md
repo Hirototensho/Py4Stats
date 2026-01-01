@@ -1,4 +1,4 @@
-# 回帰分析による推定値の視覚化：`regression_tools.coefplot()`, `regression_tools.mfxplot()`
+# 回帰分析による推定値の視覚化：`py4stats.coefplot()`, `py4stats.mfxplot()`
 
 ## 概要
 
@@ -59,8 +59,7 @@ mfxplot(
 ## 使用例
 
 ```python
-from py4stats import eda_tools as eda        # 基本統計量やデータの要約など
-from py4stats import regression_tools as reg # 回帰分析の要約
+import py4stats as py4st
 import statsmodels.formula.api as smf
 import pandas as pd
 import numpy as np
@@ -74,7 +73,7 @@ penguins = load_penguins() # サンプルデータの読み込み
 fit2 = smf.ols('body_mass_g ~ bill_length_mm + bill_depth_mm + species', data = penguins).fit()
 fit3 = smf.ols('body_mass_g ~ bill_length_mm + bill_depth_mm + species + sex', data = penguins).fit()
 
-reg.coefplot(fit3)
+py4st.coefplot(fit3)
 ```
 ![Unknown](https://github.com/Hirototensho/Py4Stats/assets/55335752/637437c3-f943-4817-a1ad-21bbd538e97d)
 
@@ -83,10 +82,10 @@ plt.rcParams["figure.autolayout"] = True
 
 fig, ax = plt.subplots(1, 2, figsize = (2.2 * 5, 5), dpi = 100)
 
-reg.coefplot(fit2, ax = ax[0])
+py4st.coefplot(fit2, ax = ax[0])
 ax[0].set_xlim(-900, 1800)
 
-reg.coefplot(fit3, ax = ax[1], palette = ['#FF6F91', '#F2E5EB'])
+py4st.coefplot(fit3, ax = ax[1], palette = ['#FF6F91', '#F2E5EB'])
 ax[1].set_xlim(-900, 1800);
 ```
 
@@ -105,10 +104,10 @@ plt.rcParams["figure.autolayout"] = True
 
 fig, ax = plt.subplots(1, 2, figsize = (2.2 * 5, 5), dpi = 100)
 
-reg.mfxplot(fit_logit1, ax = ax[0])
+py4st.mfxplot(fit_logit1, ax = ax[0])
 ax[0].set_xlim(-0.2, 0.85)
 
-reg.mfxplot(fit_logit2, ax = ax[1], palette = ['#FF6F91', '#F2E5EB'])
+py4st.mfxplot(fit_logit2, ax = ax[1], palette = ['#FF6F91', '#F2E5EB'])
 ax[1].set_xlim(-0.2, 0.85);
 ```
 

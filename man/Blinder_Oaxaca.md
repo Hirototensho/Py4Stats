@@ -1,4 +1,4 @@
-# `regression_tools.Blinder_Oaxaca()`, `regression_tools.plot_Blinder_Oaxaca()`
+# `py4stats.Blinder_Oaxaca()`, `py4stats.plot_Blinder_Oaxaca()`
 
 ## 概要
 
@@ -54,7 +54,7 @@ $$
 ```python
 import pandas as pd
 import statsmodels.formula.api as smf
-from py4stats import regression_tools as reg # 回帰分析の要約
+import py4stats as py4st
 
 wage1 = wooldridge.data('wage1')
 
@@ -71,7 +71,7 @@ fit_male = smf.ols(
 
 
 ```python
-reg.compare_ols(
+py4st.compare_ols(
     list_models = [fit_female, fit_male],
     model_name = ['female', 'male']
     )
@@ -91,7 +91,7 @@ reg.compare_ols(
 
 
 ```python
-wage_decomp = reg.Blinder_Oaxaca(
+wage_decomp = py4st.Blinder_Oaxaca(
     model1 = fit_female,
     model2 = fit_male
 )
@@ -108,7 +108,7 @@ wage_decomp
 | married   |       0.0278806 |         0.118657  |
 
 ```python
-reg.plot_Blinder_Oaxaca(
+py4st.plot_Blinder_Oaxaca(
     model1 = fit_female,
     model2 = fit_male
 )
@@ -119,7 +119,7 @@ reg.plot_Blinder_Oaxaca(
  `diff_type` を指定することで、一方の統計量だけを表示することもできます。
 
 ```python
-reg.plot_Blinder_Oaxaca(
+py4st.plot_Blinder_Oaxaca(
     model1 = fit_female,
     model2 = fit_male,
     diff_type = 'unobserved_diff'
@@ -132,7 +132,7 @@ reg.plot_Blinder_Oaxaca(
 ```python
 fig, ax = plt.subplots(1, 2, figsize = (1.1 * 2 * 4, 4), sharey = True, dpi = 200)
 
-reg.plot_Blinder_Oaxaca(
+py4st.plot_Blinder_Oaxaca(
     model1 = fit_female,
     model2 = fit_male,
     ax = ax

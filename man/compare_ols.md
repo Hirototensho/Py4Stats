@@ -1,4 +1,4 @@
-# 回帰分析の比較：`regression_tools.compare_ols()`
+# 回帰分析の比較：`py4stats.compare_ols()`
 
 ## 概要
 
@@ -60,7 +60,7 @@ compare_ols(
 ## 使用例 Examples
 
 ``` python
-from py4stats import regression_tools as reg # 回帰分析の要約
+import py4stats as py4st
 import statsmodels.formula.api as smf
 
 import pandas as pd
@@ -73,7 +73,7 @@ fit1 = smf.ols('body_mass_g ~ bill_length_mm + species', data = penguins).fit()
 fit2 = smf.ols('body_mass_g ~ bill_length_mm + bill_depth_mm + species', data = penguins).fit()
 fit3 = smf.ols('body_mass_g ~ bill_length_mm + bill_depth_mm + species + sex', data = penguins).fit()
 
-compare_tab1 = reg.compare_ols(list_models = [fit1, fit2, fit3]) # 表の作成
+compare_tab1 = py4st.compare_ols(list_models = [fit1, fit2, fit3]) # 表の作成
 compare_tab1
 ```
 
@@ -96,10 +96,10 @@ compare_tab1
 | df                   | 3              | 4                | 5               |
 
  
-  `reg.compare_ols()` の実行結果は `Pandas` の `DataFrame` として出力されるため、`.xlsx`. ファイルなどに変換することができます。また、用途に応じて表の体裁を調整できるようにしています。
+  `py4st.compare_ols()` の実行結果は `Pandas` の `DataFrame` として出力されるため、`.xlsx`. ファイルなどに変換することができます。また、用途に応じて表の体裁を調整できるようにしています。
 
 ``` python
-compare_tab2 = reg.compare_ols(
+compare_tab2 = py4st.compare_ols(
     list_models = [fit1, fit2, fit3],
     model_name = ['基本モデル', '嘴の高さ追加', '性別追加'], # モデル名を変更
     stats = 'p_value',        # () 内の値をP-値に変更する
@@ -127,7 +127,7 @@ compare_tab2
 ``` python
 from great_tables import GT, md, html
 
-compare_tab3 = reg.compare_ols(
+compare_tab3 = py4st.compare_ols(
     list_models = [fit1, fit2, fit3],
     model_name = ['基本モデル', '嘴の高さ追加', '性別追加'], # モデル名を変更
     line_break = '<br>'                              # 改行文字の変更
@@ -158,7 +158,7 @@ var_list = [
     ]
 
 # 全ての回帰係数を表示すると表が長すぎるので、一部を省略します
-compare_tab4 = reg.compare_ols(
+compare_tab4 = py4st.compare_ols(
     list_models = [fit2, fit3, fit4],
     subset = var_list
     )
@@ -187,7 +187,7 @@ compare_tab4
 pandas の [`pandas.DataFrame.query`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.query.html) メソッドを使って、次のように説明変数を除外することもできます。
 
 ``` python
-compare_tab4 = reg.compare_ols(
+compare_tab4 = py4st.compare_ols(
     list_models = [fit2, fit3, fit4]
     )
 
@@ -205,7 +205,7 @@ compare_tab4 # 上記のコードと同じ結果
 
 ## 参照 see also
 
-　一般化線形モデルの限界効果を比較する場合は [`regression_tools.compare_mfx()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_mfx.md)をご利用ください。
+　一般化線形モデルの限界効果を比較する場合は [`py4stats.compare_mfx()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_mfx.md)をご利用ください。
 
 ***
 [Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)

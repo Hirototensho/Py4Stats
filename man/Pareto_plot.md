@@ -1,4 +1,4 @@
-# `eda_tools.Pareto_plot()`
+# `py4stats.Pareto_plot()`
 
 ## 概要
 
@@ -38,20 +38,20 @@ Pareto_plot(
 ## 使用例
 
 ``` python
-from py4stats import eda_tools as eda
+import py4stats as py4st
 import pandas as pd
 from palmerpenguins import load_penguins
 penguins = load_penguins() # サンプルデータの読み込
 
 penguins['group'] = penguins['species'] + '\n' + penguins['island']
 
-eda.Pareto_plot(penguins, group = 'group')
+py4st.Pareto_plot(penguins, group = 'group')
 ```
 
 ![Unknown](https://github.com/Hirototensho/Py4Stats/assets/55335752/46fca5f5-bde9-480d-b6bf-1957ac1035b5)
 
 ``` python
-eda.Pareto_plot(
+py4st.Pareto_plot(
     penguins, group = 'group', 
     values = 'bill_length_mm',
     aggfunc = 'mean',

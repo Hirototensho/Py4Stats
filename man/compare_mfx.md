@@ -1,4 +1,4 @@
-# 限界効果の比較：`regression_tools.compare_mfx()`
+# 限界効果の比較：`py4stats.compare_mfx()`
 
 ## 概要
 
@@ -79,7 +79,7 @@ compare_mfx(
 ## 使用例
 
 ``` python
-from py4stats import regression_tools as reg # 回帰分析の要約
+import py4stats as py4st
 import statsmodels.formula.api as smf
 
 import pandas as pd
@@ -88,7 +88,7 @@ from palmerpenguins import load_penguins
 penguins = load_penguins() # サンプルデータの読み込み
 ```
 
-　`reg.compare_mfx()` は [`reg.compare_ols()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_ols.md) の一般化線型モデルバージョンで、初期設定では `statsmodels` ライブラリの[`.get_margeff()`](https://www.statsmodels.org/dev/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドから得られた限界効果の推定値を表示します。
+　`py4st.compare_mfx()` は [`py4st.compare_ols()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_ols.md) の一般化線型モデルバージョンで、初期設定では `statsmodels` ライブラリの[`.get_margeff()`](https://www.statsmodels.org/dev/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドから得られた限界効果の推定値を表示します。
 
 ```python
 penguins['female'] = np.where(penguins['sex'] == 'female', 1, 0)
@@ -97,7 +97,7 @@ penguins['female'] = np.where(penguins['sex'] == 'female', 1, 0)
 fit_logit1 = smf.logit('female ~ body_mass_g + bill_length_mm + bill_depth_mm', data = penguins).fit()
 fit_logit2 = smf.logit('female ~ body_mass_g + bill_length_mm + bill_depth_mm + species', data = penguins).fit()
 
-reg.compare_mfx([fit_logit1, fit_logit2])
+py4st.compare_mfx([fit_logit1, fit_logit2])
 ```
 | term                 | model 1     | model 2     |
 |:---------------------|:------------|:------------|
@@ -118,7 +118,7 @@ reg.compare_mfx([fit_logit1, fit_logit2])
 
 ```python
 from great_tables import GT, md, html
-compare_tab = reg.compare_mfx(
+compare_tab = py4st.compare_mfx(
     [fit_logit1, fit_logit2],
     model_name = ['ベースモデル', 'species 追加'], # モデル名を変更
     line_break = '<br>'                         # 改行文字の変更

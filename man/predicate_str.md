@@ -1,4 +1,4 @@
-# 文字列のフォーマットについての論理関数</br> `eda.is_number()`, `eda.is_ymd()`,  `eda.is_ymd_like()`
+# 文字列のフォーマットについての論理関数</br> `py4stats.is_number()`, `py4stats.is_ymd()`,  `py4stats.is_ymd_like()`
 
 ## 概要
 
@@ -10,9 +10,9 @@ is_ymd(self, na_default = True)
 is_ymd_like(self, na_default = True)
 ```
 
-- `eda.is_number()`：与えられた文字列が数字かどうかを判定します。
-- `eda.is_ymd()`：与えられた文字列が `yyyy-mm-dd` フォーマットにそった値かどうかを判定します。
-- `eda.is_ymd_like()`：与えられた文字列が `yyyy-mm-dd` に近いフォーマットの値かどうかを判定します。
+- `py4stats.is_number()`：与えられた文字列が数字かどうかを判定します。
+- `py4stats.is_ymd()`：与えられた文字列が `yyyy-mm-dd` フォーマットにそった値かどうかを判定します。
+- `py4stats.is_ymd_like()`：与えられた文字列が `yyyy-mm-dd` に近いフォーマットの値かどうかを判定します。
 
 ## 引数
 
@@ -23,9 +23,9 @@ is_ymd_like(self, na_default = True)
 ## 使用例
 
 ```python
+import py4stats as py4st
 import pandas as pd
 import numpy as np
-from py4stats import eda_tools as eda
 
 s = pd.Series([
     '123', "0.12", "1e+07", '-31', '2個', '1A',

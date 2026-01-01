@@ -1,4 +1,4 @@
-# `eda_tools.compare_df_cols()`, `eda_tools.compare_df_stats()`
+# `py4stats.compare_df_cols()`, `py4stats.compare_df_stats()`
 
 ## 概要
 
@@ -35,7 +35,7 @@ compare_df_stats(
 
 ```python
 import pandas as pd
-from py4stats import eda_tools as eda        # 基本統計量やデータの要約など
+import py4stats as py4st
 
 # 厚生労働省：食中毒統計資料より
 data_2019 = pd.read_excel('https://www.mhlw.go.jp/content/R1itiran.xlsx', header = 1)
@@ -44,7 +44,7 @@ data_2021 = pd.read_excel('https://www.mhlw.go.jp/content/000948376.xlsx', heade
 ```
 
 ```python
-print(eda.compare_df_cols([data_2019, data_2020, data_2021]).head())
+print(py4st.compare_df_cols([data_2019, data_2020, data_2021]).head())
 #>                 df1      df2      df3  match_dtype
 #> term
 #> Unnamed: 0  float64  float64  float64         True
@@ -56,7 +56,7 @@ print(eda.compare_df_cols([data_2019, data_2020, data_2021]).head())
 `return_match = 'mismatch'` を指定すると、3つのデータフレームの中で、`dtype` が一致していないものがある列を返します。
 
 ```python
-print(eda.compare_df_cols(
+print(py4st.compare_df_cols(
     [data_2019, data_2020, data_2021], 
     return_match = 'mismatch'
     ))
@@ -65,10 +65,10 @@ print(eda.compare_df_cols(
 #> 発生月日  int64  object  object        False
 ```
 
-　`eda.compare_df_stats()` は数値変数の記述統計量を比較するため、異なる経路で行われたデータ処理の結果が一致しているかを検証する場合に便利です。
+　`py4st.compare_df_stats()` は数値変数の記述統計量を比較するため、異なる経路で行われたデータ処理の結果が一致しているかを検証する場合に便利です。
 
 ```python
-print(eda.compare_df_stats([data_2019, data_2020, data_2021]))
+print(py4st.compare_df_stats([data_2019, data_2020, data_2021]))
 #                df1        df2        df3  match_stats
 # term                                                 
 # 発生月日  43643.629699        NaN        NaN        False
