@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from py4stats import bilding_block as bild # py4stats のプログラミングを補助する関数群
 from py4stats import eda_tools as eda        # 基本統計量やデータの要約など
+import matplotlib.pyplot as plt
 import functools
 from functools import singledispatch
 import pandas_flavor as pf
@@ -205,7 +206,7 @@ def compare_df_stats_nw(
     stats: Callable[..., Any] = nw.mean,
     rtol: float = 1e-05,
     atol: float = 1e-08,
-    # **kwargs: Any,
+    **kwargs: Any,
 ) -> pd.DataFrame:
     """Compare numeric column statistics across multiple DataFrames.
 
@@ -302,6 +303,8 @@ def crosstab_nw(
         margins_name: str = 'All',
         sort_index: bool = True,
         normalize: Union[bool, Literal["all", "index", "columns"]] = False,
+        to_native: bool = True,
+        **kwargs: Any
         ) -> IntoFrameT:
     df = nw.from_native(df_native)
 
@@ -352,10 +355,11 @@ def crosstab_nw(
         if not normalize:
             out = out.with_columns(ncs.numeric().cast(nw.Int64))
 
-    # return out    
+    if not to_native:
+        return out
+
     if out.implementation.is_pandas_like():
         result = nw.to_native(out).set_index(index)
-        # .astype(int)
     else:
         result = out.to_native()
     return result
@@ -363,13 +367,14 @@ def crosstab_nw(
 
 
 
-# @pf.register_dataframe_method
+@pf.register_dataframe_method
 def freq_table_nw(
     self: FrameT,
     subset: Union[str, Sequence[str]],
     sort: bool = True,
     descending: bool = False,
     dropna: bool = False,
+    to_native: bool = True,
 ) -> FrameT:
     """Compute frequency table for one or multiple columns.
 
@@ -412,48 +417,26 @@ def freq_table_nw(
             (nw.col('cumfreq') / nw.col('freq').sum()).alias('cumperc'),
         )
 
-    return result.to_native()
+    if to_native:
+        return result.to_native()
+    else:
+        return result
 
 
 
 
-@singledispatch
 def tabyl_nw(
     self: IntoFrameT,
     index: str,
     columns: str,
     margins: bool = True,
-    margins_name: str = "All",
+    margins_name: str = 'All',
     normalize: Union[bool, Literal["index", "columns", "all"]] = "index",
     dropna: bool = False,
-    rownames: Optional[Sequence[str]] = None,
-    colnames: Optional[Sequence[str]] = None,
+    # rownames: Optional[Sequence[str]] = None,
+    # colnames: Optional[Sequence[str]] = None,
     digits: int = 1,
-) -> pd.DataFrame:
-    df = nw.from_native(self)
-    res = tabyl_nw(
-        df.to_pandas(), index = index, columns = columns,
-        margins = margins, margins_name = margins_name, normalize = normalize,
-        dropna = dropna, rownames = rownames, colnames = colnames, digits = digits
-        )
-    return res
-
-
-
-
-@pf.register_dataframe_method
-@tabyl_nw.register(pd.DataFrame)
-def tabyl_pandas(
-    self: pd.DataFrame,
-    index: str,
-    columns: str,
-    margins: bool = True,
-    margins_name: str = "All",
-    normalize: Union[bool, Literal["index", "columns", "all"]] = "index",
-    dropna: bool = False,
-    rownames: Optional[Sequence[str]] = None,
-    colnames: Optional[Sequence[str]] = None,
-    digits: int = 1,
+    **kwargs: Any
 ) -> pd.DataFrame:
     """Create a crosstab with counts and (optionally) percentages in parentheses.
 
@@ -461,7 +444,7 @@ def tabyl_pandas(
     main cell is a count and percentages can be appended like: `count (xx.x%)`.
 
     Args:
-        self (pandas.DataFrame):
+        self (IntoFrameT):
             Input DataFrame.
         index (str):
             Column name used for row categories.
@@ -500,32 +483,312 @@ def tabyl_pandas(
         self[columns] = self[columns].astype(str)
 
     # 度数クロス集計表（最終的な表では左側の数字）
-    c_tab1 = pd.crosstab(
-        index = self[index], columns = self[columns], values = None,
-        rownames = rownames, colnames = colnames,
-        aggfunc = None, margins = margins, margins_name = margins_name,
-        dropna = dropna, normalize = False
-        )
+    args_dict = locals()
+    args_dict.pop('normalize')
+    c_tab1 = crosstab_nw(
+       df_native = self,
+       normalize = False,
+       **args_dict
+       )
 
     c_tab1 = c_tab1.apply(bild.style_number, digits = 0)
 
     if(normalize != False):
+        # 回答率クロス集計表（最終的な表では括弧内の数字）
+        c_tab2 = crosstab_nw(
+           df_native = self, 
+           normalize = normalize, 
+           **args_dict
+           )
 
-      # 回答率クロス集計表（最終的な表では括弧内の数字）
-      c_tab2 = pd.crosstab(
-          index = self[index], columns = self[columns], values = None,
-          rownames = rownames, colnames = colnames,
-          aggfunc = None, margins = margins, margins_name = margins_name,
-          dropna = dropna, normalize = normalize
-          )
+        # 2つめのクロス集計表の回答率をdigitsで指定した桁数のパーセントに換算し、文字列化します。
+        c_tab2 = c_tab2.apply(bild.style_percent, digits = digits)
 
-      # 2つめのクロス集計表の回答率をdigitsで指定した桁数のパーセントに換算し、文字列化します。
-      c_tab2 = c_tab2.apply(bild.style_percent, digits = digits)
-
-      col = c_tab2.columns
-      idx = c_tab2.index
-      # 1つめのクロス集計表も文字列化して、↑で計算したパーセントに丸括弧と%記号を追加したものを文字列として結合します。
-      c_tab1.loc[idx, col] = c_tab1.astype('str').loc[idx, col] + ' (' + c_tab2 + ')'
+        col = c_tab2.columns
+        idx = c_tab2.index
+        c_tab1 = c_tab1.astype('str')
+        # 1つめのクロス集計表も文字列化して、↑で計算したパーセントに丸括弧と%記号を追加したものを文字列として結合します。
+        c_tab1.loc[idx, col] = c_tab1.astype('str').loc[idx, col] + ' (' + c_tab2 + ')'
 
     return c_tab1
+
+
+# ## 完全な空白列 and / or 行の除去
+
+
+
+def missing_percent_nw(
+        data: FrameT,
+        axis: str = 'index',
+        pct: bool = True
+        ):
+    data_nw = nw.from_native(data)
+    n = data_nw.shape[0]
+
+    if axis == 'index':
+        miss_count = pd.Series(data_nw.null_count().row(0), index = data_nw.columns)
+    else:
+        miss_count = data_nw.with_columns(
+            nw.all().is_null().cast(nw.Int32)
+            )\
+            .select(
+                nw.sum_horizontal(nw.all()).alias('miss_count')
+            )['miss_count']
+
+        if data_nw.implementation.is_pandas_like():
+            miss_count = pd.Series(miss_count, index = data.index)
+        else:
+            miss_count = pd.Series(miss_count)
+
+    miss_pct = (100 ** pct) * miss_count / n
+    return miss_pct
+
+
+
+
+@pf.register_dataframe_method
+def remove_empty_nw(
+    self: IntoFrameT,
+    cols: bool = True,
+    rows: bool = True,
+    cutoff: float = 1.0,
+    quiet: bool = True,
+    to_native: bool = True,
+    **kwargs: Any
+) -> IntoFrameT:
+  """Remove fully (or mostly) empty columns and/or rows.
+
+  Args:
+      self (pandas.DataFrame):
+          Input DataFrame.
+      cols (bool):
+          If True, remove empty columns.
+      rows (bool):
+          If True, remove empty rows.
+      cutoff (float):
+          Threshold on missing proportion (0-1). A column/row is removed if
+          missing proportion is >= cutoff.
+          - cutoff=1 removes only completely empty columns/rows.
+      quiet (bool):
+          If False, print removal summary.
+
+  Returns:
+      pandas.DataFrame:
+          DataFrame after removing empty columns/rows.
+  """
+  df_shape = self.shape
+  data_nw = nw.from_native(self)
+  # 空白列の除去 ------------------------------
+  if cols :
+    empty_col = missing_percent_nw(self, axis = 'index', pct = False) >= cutoff
+    data_nw = data_nw[:, (~empty_col).to_list()]
+
+    if not(quiet) :
+      ncol_removed = empty_col.sum()
+      col_removed = empty_col[empty_col].index.to_series().astype('str').to_list()
+      print(
+            f"Removing {ncol_removed} empty column(s) out of {df_shape[1]} columns" +
+            f"(Removed: {','.join(col_removed)}). "
+            )
+  # 空白行の除去 ------------------------------
+  if rows :
+    empty_rows = missing_percent_nw(self, axis = 'columns', pct = False) >= cutoff
+
+    data_nw = data_nw.filter((~empty_rows).to_list())
+
+    if not(quiet) :
+        nrow_removed = empty_rows.sum()
+        row_removed = empty_rows[empty_rows].index.to_series().astype('str').to_list()
+        print(
+              f"Removing {nrow_removed} empty row(s) out of {df_shape[0]} rows" +
+              f"(Removed: {','.join(row_removed)}). "
+          )
+
+    if to_native: return data_nw.to_native()
+    else: return data_nw
+
+
+
+
+@pf.register_dataframe_method
+def remove_constant_nw(
+    self: IntoFrameT,
+    quiet: bool = True,
+    to_native: bool = True,
+    **kwargs: Any
+) -> IntoFrameT:
+    """Remove constant columns (columns with only one unique value).
+
+    Args:
+        self (pandas.DataFrame):
+            Input DataFrame.
+        quiet (bool):
+            If False, print removal summary.
+        dropna (bool):
+            Passed to `nunique(dropna=...)`. If False, NaN is counted as a value.
+
+    Returns:
+        pandas.DataFrame:
+            DataFrame after removing constant columns.
+    """
+    data_nw = nw.from_native(self)
+    df_shape = data_nw.shape
+
+    # データフレーム(data_nw) の行が定数かどうかを判定
+    unique_count = pd.Series(data_nw.select(nw.all().n_unique()).row(0), index = data_nw.columns)
+    constant_col = unique_count == 1
+    data_nw = data_nw[:, (~constant_col).to_list()]
+
+    if not(quiet) :
+        ncol_removed = constant_col.sum()
+        col_removed = constant_col[constant_col].index.to_series().astype('str').to_list()
+
+        print(
+            f"Removing {ncol_removed} constant column(s) out of {df_shape[1]} columns" +
+            f"(Removed: {','.join(col_removed)}). "
+        )
+    if to_native: return data_nw.to_native()
+    else: return data_nw
+
+
+# # パレート図を作図する関数
+
+
+
+# パレート図を作成する関数
+def Pareto_plot_nw(
+    data: IntoFrameT,
+    group: str,
+    values: Optional[str] = None,
+    top_n: Optional[int] = None,
+    aggfunc:  Callable[..., Any] = nw.mean,
+    ax: Optional[Axes] = None,
+    fontsize: int = 12,
+    xlab_rotation: Union[int, float] = 0,
+    palette: Sequence[str] = ("#478FCE", "#252525"),
+) -> None:
+    """Plot a Pareto chart.
+
+    If `values` is None, the chart is built from frequency counts of `group`.
+    Otherwise, it aggregates `values` by `group` using `aggfunc`.
+
+    Args:
+        data (pandas.DataFrame):
+            Input data.
+        group (str):
+            Grouping column (x-axis categories).
+        values (str or None):
+            Value column to aggregate. If None, uses counts.
+        top_n (int or None):
+            If specified, plot only top-N categories.
+        aggfunc (str or callable):
+            Aggregation function used when `values` is provided.
+        ax (matplotlib.axes.Axes or None):
+            Axes to draw the bar chart on. If None, a new figure/axes is created.
+        fontsize (int):
+            Base font size.
+        xlab_rotation (float or int):
+            Rotation angle for x tick labels.
+        palette (list[str]):
+            Colors for bar and line. (Note: this function explicitly uses colors.)
+
+    Returns:
+        None
+    """
+    # 引数のアサーション
+    if(top_n is not None): bild.assert_count(top_n, lower = 1)
+    bild.assert_numeric(xlab_rotation)
+    bild.assert_character(palette)
+
+    # 指定された変数でのランクを表すデータフレームを作成
+    data_nw = nw.from_native(data)
+    if values is None:
+        shere_rank = freq_table_nw(data_nw, group, dropna = True,  descending = True, to_native = False)
+        cumlative = 'cumfreq'
+    else:
+        shere_rank = make_rank_table_nw(
+            data_nw.to_pandas(), 
+            group, values, aggfunc = aggfunc,
+            to_native = False
+            )
+        cumlative = 'cumshare'
+
+    shere_rank = shere_rank.to_pandas().set_index(group)
+    # 作図
+    args_dict = locals()
+    make_Pareto_plot(**args_dict)
+
+
+
+
+def make_rank_table_nw(
+    data: pd.DataFrame,
+    group: str,
+    values: str,
+    aggfunc:  Callable[..., Any] = nw.mean,
+    to_native: bool = True,
+) -> pd.DataFrame:
+    data_nw = nw.from_native(data)
+
+    rank_table = data_nw\
+        .group_by(group)\
+        .agg(aggfunc(values))\
+        .sort(values, descending = True)\
+        .with_columns(share = nw.col(values) / nw.col(values).sum())\
+        .with_columns(cumshare = nw.col('share').cum_sum())
+
+    if to_native:
+        return rank_table.to_native()
+    else:
+        return rank_table
+
+
+
+
+def make_Pareto_plot(
+    shere_rank: pd.DataFrame,
+    group: str,
+    cumlative: str,
+    values: Optional[str] = None,
+    top_n: Optional[int] = None,
+    ax: Optional[Axes] = None,
+    fontsize: int = 12,
+    xlab_rotation: Union[int, float] = 0,
+    palette: Sequence[str] = ("#478FCE", "#252525"),
+    **kwargs: Any
+):
+    # グラフの描画
+    if ax is None:
+        fig, ax = plt.subplots()
+
+    # yで指定された変数の棒グラフ
+    # top_n が指定されていた場合、上位 top_n 件を抽出します。
+    if top_n is not None:
+        shere_rank = shere_rank.head(top_n)
+
+    if values is None:
+        ax.bar(shere_rank.index, shere_rank['freq'], color = palette[0])
+        ax.set_ylabel('freq', fontsize = fontsize * 1.1)
+    else:
+        # yで指定された変数の棒グラフ
+        ax.bar(shere_rank.index, shere_rank[values], color = palette[0])
+        ax.set_ylabel(values, fontsize = fontsize * 1.1)
+
+    ax.set_xlabel(group, fontsize = fontsize * 1.1)
+
+    # 累積相対度数（シェア率）の線グラフ
+    ax2 = ax.twinx()
+    ax2.plot(
+        shere_rank.index, shere_rank[cumlative],
+        linestyle = 'dashed', color = palette[1], marker = 'o'
+        )
+
+    ax2.set_xlabel(group, fontsize = fontsize * 1.1)
+    ax2.set_ylabel(cumlative, fontsize = fontsize * 1.1)
+
+    # x軸メモリの回転
+    ax.xaxis.set_tick_params(rotation = xlab_rotation, labelsize = fontsize)
+    ax2.xaxis.set_tick_params(rotation = xlab_rotation, labelsize = fontsize);
+    ax.yaxis.set_tick_params(labelsize = fontsize * 0.9)
+    ax2.yaxis.set_tick_params(labelsize = fontsize * 0.9);
 
