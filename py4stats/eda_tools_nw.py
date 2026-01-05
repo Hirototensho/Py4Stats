@@ -23,7 +23,7 @@ import scipy as sp
 import itertools
 import narwhals as nw
 import narwhals.selectors as ncs
-from narwhals.typing import FrameT, IntoFrameT
+from narwhals.typing import FrameT, IntoFrameT, SeriesT, IntoSeriesT
 
 import pandas_flavor as pf
 
@@ -65,7 +65,7 @@ def get_dtypes(data: FrameT) -> pd.Series:
         list_dtypes = data.dtypes
     else:
         list_dtypes = [str(data_nw.schema[col]) for col in data_nw.columns]
-
+    
     s_dtypes = pd.Series(list_dtypes, index = data_nw.columns).astype(str)
     return s_dtypes
 
@@ -94,6 +94,7 @@ def diagnose_nw(self: FrameT, to_native: bool = True) -> FrameT:
         AssertionError:
             If `self` is not a pandas.DataFrame.
     """
+    bild.assert_logical(to_native, arg_name = 'to_native')
     self_nw = nw.from_native(self)
 
     n = self_nw.shape[0]
@@ -110,9 +111,78 @@ def diagnose_nw(self: FrameT, to_native: bool = True) -> FrameT:
         (100 * nw.col('unique_count') / n).alias('unique_rate')
     )\
     .select('columns', 'dtype', 'missing_count', 'missing_percent', 'unique_count', 'unique_rate')
-
+    
     if to_native: return result.to_native()
     return result
+
+
+
+
+def plot_miss_var_nw(
+        data: IntoFrameT,
+        values: Literal['missing_percent', 'missing_count'] = 'missing_percent', 
+        sort: bool = True, 
+        fontsize: int = 12,
+        ax: Optional[Axes] = None,
+        color: str = '#478FCE'
+        ) -> None:
+    """Plot missing-value diagnostics for each variable in a DataFrame.
+
+    This function visualizes the amount of missing data per column as a
+    horizontal bar chart. It supports multiple DataFrame backends via
+    narwhals and relies on `diagnose_nw` to compute missing-value statistics.
+
+    Args:
+        data (IntoFrameT):
+            Input DataFrame. Any DataFrame type supported by narwhals
+            (e.g. pandas, polars, pyarrow) can be used.
+        values (Literal['missing_percent', 'missing_count'], optional):
+            Metric to plot on the horizontal axis.
+            - 'missing_percent': percentage of missing values per column.
+            - 'missing_count': absolute number of missing values per column.
+            Defaults to 'missing_percent'.
+        sort (bool, optional):
+            Whether to sort columns by the selected metric before plotting.
+            Defaults to True.
+        fontsize (int, optional):
+            Base font size used for axis labels. Defaults to 12.
+        ax (matplotlib.axes.Axes or None, optional):
+            Matplotlib Axes object to draw the plot on. If None, a new
+            figure and axes are created. Defaults to None.
+        color (str, optional):
+            Color of the bars in the plot. Defaults to '#478FCE'.
+
+    Returns:
+        None:
+            This function draws a plot and does not return a value.
+
+    Raises:
+        ValueError:
+            If `values` is not one of the supported options
+            ('missing_percent' or 'missing_count').
+    """
+    values = bild.arg_match(
+        values, ['missing_percent', 'missing_count'],
+        arg_name = 'values'
+    )
+    bild.assert_logical(sort, arg_name = 'sort')
+    
+    diagnose_tab = diagnose_nw(data, to_native = False)
+    if sort: diagnose_tab = diagnose_tab.sort(values)
+    
+    # グラフの描画
+    if ax is None:
+        fig, ax = plt.subplots()
+
+    ax.barh(
+        y = diagnose_tab['columns'],
+        width = diagnose_tab[values],
+        color = color
+    )
+    if values == 'missing_percent':
+        ax.set_xlabel('percentage of missing recode(%)', fontsize = fontsize * 1.1);
+    if values == 'missing_count':
+        ax.set_xlabel('number of missing recode', fontsize = fontsize * 1.1);
 
 
 # ### 異なるデータフレームの列を比較する関数
@@ -172,6 +242,7 @@ def compare_df_cols_nw(
       return_match, ['all', 'match', 'mismatch'],
       arg_name = 'return_match'
       )
+  bild.assert_logical(dropna, arg_name = 'dropna')
   # --------------------------------------
   # df_name が指定されていなければ、自動で作成します。
   if df_name is None:
@@ -260,7 +331,7 @@ def compare_df_stats_nw(
         df_name = [f'df{i + 1}' for i in range(len(df_list))]
 
     df_list_nw = [nw.from_native(v) for v in df_list]
-
+   
     stats_list = [_compute_stats(df, stats) for df in df_list_nw]
     res = pd.concat(stats_list, axis = 1)
     res.columns = df_name
@@ -290,6 +361,197 @@ def _compute_stats(df, func):
     return df.select(func(numeric_vars)).to_pandas().loc[0, :]
 
 
+# ## グループ別平均（中央値）の比較
+
+
+
+def compare_group_means_nw(
+    group1: IntoFrameT,
+    group2: IntoFrameT,
+    group_names: Sequence[str] = ('group1', 'group2'),
+) -> pd.DataFrame:
+    """Compare group-wise means and derived difference metrics.
+
+    Args:
+        group1 (pandas.DataFrame):
+            Data for group 1.
+        group2 (pandas.DataFrame):
+            Data for group 2.
+        group_names (list[str]):
+            Names used for output columns. Must be length 2.
+
+    Returns:
+        pandas.DataFrame:
+            DataFrame indexed by variable names with columns:
+            - {group_names[0]}: mean of group 1
+            - {group_names[1]}: mean of group 2
+            - norm_diff: normalized difference using pooled variance
+            - abs_diff: absolute difference
+            - rel_diff: relative difference defined as
+            2*(A-B)/(A+B)
+
+    Notes:
+        Constant columns are removed using `remove_constant` before comparison.
+        Means/variances use `numeric_only=True`.
+    """
+    # 引数のアサーション ==============================================
+    bild.assert_character(group_names, arg_name = 'group_names')
+    # ==============================================================
+    group1 = nw.from_native(group1)
+    group2 = nw.from_native(group2)
+    group1 = remove_constant_nw(group1, to_native = False)
+    group2 = remove_constant_nw(group2, to_native = False)
+
+    res = pd.DataFrame({
+        group_names[0]:group1.select(ncs.numeric().mean()).to_pandas().loc[0, :],
+        group_names[1]:group2.select(ncs.numeric().mean()).to_pandas().loc[0, :]
+    })
+
+    s2A = group1.select(ncs.numeric().var()).to_pandas().loc[0, :]
+    s2B = group2.select(ncs.numeric().var()).to_pandas().loc[0, :]
+    nA = group1.shape[0]
+    nB = group2.shape[0]
+
+    s2_pooled = ((nA - 1) * s2A + (nB - 1) * s2B) / (nA + nB - 2)
+    res['norm_diff'] = (res[group_names[0]] - res[group_names[1]]) / np.sqrt(s2_pooled)
+
+    res['abs_diff'] = (res[group_names[0]] - res[group_names[1]]).abs()
+    res['rel_diff'] = 2 * (res[group_names[0]] - res[group_names[1]]) \
+                    /(res[group_names[0]] + res[group_names[1]])
+    return res
+
+
+
+
+
+def compare_group_median_nw(
+    group1: IntoFrameT,
+    group2: IntoFrameT,
+    group_names: Sequence[str] = ("group1", "group2"),
+) -> pd.DataFrame:
+    """Compare group-wise medians and derived difference metrics.
+
+    Args:
+        group1 (IntoFrameT):
+            Data for group 1.
+        group2 (IntoFrameT):
+            Data for group 2.
+        group_names (list[str]):
+            Names used for output columns. Must be length 2.
+
+    Returns:
+        pandas.DataFrame:
+            DataFrame indexed by variable names with columns:
+            - {group_names[0]}: median of group 1
+            - {group_names[1]}: median of group 2
+            - abs_diff: absolute difference
+            - rel_diff: relative difference defined as
+            2*(A-B)/(A+B)
+
+    Notes:
+        Constant columns are removed using `remove_constant` before comparison.
+        Medians use `numeric_only=True`.
+    """
+    # 引数のアサーション ==============================================
+    bild.assert_character(group_names, arg_name = 'group_names')
+    # ==============================================================
+    group1 = nw.from_native(group1)
+    group2 = nw.from_native(group2)
+    group1 = remove_constant_nw(group1, to_native = False)
+    group2 = remove_constant_nw(group2, to_native = False)
+
+    res = pd.DataFrame({
+        group_names[0]:group1.select(ncs.numeric().median()).to_pandas().loc[0, :],
+        group_names[1]:group2.select(ncs.numeric().median()).to_pandas().loc[0, :]
+    })
+
+    res['abs_diff'] = (res[group_names[0]] - res[group_names[1]]).abs()
+    res['rel_diff'] = 2 * (res[group_names[0]] - res[group_names[1]]) \
+                    /(res[group_names[0]] + res[group_names[1]])
+    return res
+
+
+
+
+def plot_mean_diff_nw(
+    group1: IntoFrameT,
+    group2: IntoFrameT,
+    stats_diff: Literal["norm_diff", "abs_diff", "rel_diff"] = "norm_diff",
+    ax: Optional[Axes] = None,
+) -> None:
+  """Plot group mean differences for each variable as a stem plot.
+
+  Args:
+      group1 (IntoFrameT):
+          Data for group 1.
+      group2 (IntoFrameT):
+          Data for group 2.
+      stats_diff (str):
+          Which difference metric to plot.
+          - 'norm_diff': normalized difference using pooled variance
+          - 'abs_diff': absolute difference
+          - 'rel_diff': relative difference
+      ax (matplotlib.axes.Axes or None):
+          Axes to draw on. If None, a new figure/axes is created.
+
+  Returns:
+      None
+  """
+  stats_diff = bild.arg_match(
+      stats_diff, ['norm_diff', 'abs_diff', 'rel_diff'],
+      arg_name = 'stats_diff'
+      )
+  group_means = compare_group_means_nw(group1, group2)
+
+  if ax is None:
+    fig, ax = plt.subplots()
+
+  ax.stem(group_means[stats_diff], orientation = 'horizontal', basefmt = 'C7--');
+
+  ax.set_yticks(range(len(group_means.index)), group_means.index)
+
+  ax.invert_yaxis();
+
+
+
+
+def plot_median_diff_nw(
+    group1: IntoFrameT,
+    group2: IntoFrameT,
+    stats_diff: Literal["abs_diff", "rel_diff"] = "rel_diff",
+    ax: Optional[Axes] = None,
+) -> None:
+  """Plot group median differences for each variable as a stem plot.
+
+  Args:
+      group1 (IntoFrameT):
+          Data for group 1.
+      group2 (IntoFrameT):
+          Data for group 2.
+      stats_diff (str):
+          Which difference metric to plot.
+          - 'abs_diff': absolute difference
+          - 'rel_diff': relative difference
+      ax (matplotlib.axes.Axes or None):
+          Axes to draw on. If None, a new figure/axes is created.
+
+  Returns:
+      None
+  """
+  stats_diff = bild.arg_match(
+      stats_diff, ['abs_diff', 'rel_diff']
+      )
+
+  group_median = compare_group_median_nw(group1, group2)
+
+  if ax is None:
+    fig, ax = plt.subplots()
+
+  ax.stem(group_median[stats_diff], orientation = 'horizontal', basefmt = 'C7--')
+  ax.set_yticks(range(len(group_median.index)), group_median.index)
+  ax.invert_yaxis();
+
+
 # ## クロス集計表ほか
 
 
@@ -301,10 +563,20 @@ def crosstab_nw(
         margins: bool = False,
         margins_name: str = 'All',
         sort_index: bool = True,
-        normalize: Union[bool, Literal["all", "index", "columns"]] = False,
+        normalize: Union[bool, Literal['all', 'index', 'columns']] = False,
         to_native: bool = True,
         **kwargs: Any
         ) -> IntoFrameT:
+    
+    bild.assert_logical(to_native, arg_name = 'to_native')
+    bild.assert_logical(margins, arg_name = 'margins')
+    
+    if not isinstance(normalize, bool):
+        normalize = bild.arg_match(
+            normalize,
+            ['all', 'index', 'columns'],
+            arg_name = 'normalize'
+        )
     df = nw.from_native(df_native)
 
     out = (
@@ -341,21 +613,21 @@ def crosstab_nw(
                     ], 
                     how = 'vertical'
                     )
-
+        
         if normalize == 'index':
             out = out.with_columns(
                 ncs.numeric() / nw.col(margins_name)
                 ).drop(margins_name, strict = False)
-
+        
         if normalize == 'all':
             total_val = out[margins_name].tail(1).item(0)
             out = out.with_columns(ncs.numeric()/total_val)
-
+        
         if not normalize:
             out = out.with_columns(ncs.numeric().cast(nw.Int64))
-
+    
     if not to_native: return out
-
+    
     if out.implementation.is_pandas_like():
         result = nw.to_native(out).set_index(index)
     else:
@@ -396,6 +668,11 @@ def freq_table_nw(
             - cumfreq: cumulative counts
             - cumperc: cumulative proportions
     """
+    bild.assert_logical(sort, arg_name = 'sort')
+    bild.assert_logical(descending, arg_name = 'descending')
+    bild.assert_logical(dropna, arg_name = 'dropna')
+    bild.assert_logical(to_native, arg_name = 'to_native')
+    
     df = nw.from_native(self)
     if dropna:
         df = df.drop_nulls(subset)
@@ -406,7 +683,7 @@ def freq_table_nw(
             )
     if sort:
         result = result.sort(subset, descending = descending)
-
+    
     result = result.with_columns(
             (nw.col('freq') / nw.col('freq').sum()).alias('perc'),
             nw.col('freq').cum_sum().alias('cumfreq')
@@ -466,6 +743,11 @@ def tabyl_nw(
             Crosstab table. If `normalize` is not False, cells contain strings like
             `"count (xx.x%)"`. Otherwise counts (as strings after formatting).
     """
+    bild.assert_logical(margins, arg_name = 'margins')
+    bild.assert_character(margins_name, arg_name = 'margins_name')
+    bild.assert_logical(dropna, arg_name = 'dropna')
+    bild.assert_count(digits, arg_name = 'digits')
+    
     if(not isinstance(normalize, bool)):
       normalize = bild.arg_match(
           normalize, ['index', 'columns', 'all'],
@@ -485,7 +767,7 @@ def tabyl_nw(
        normalize = False,
        **args_dict
        )
-
+  
     c_tab1 = c_tab1.apply(bild.style_number, digits = 0)
 
     if(normalize != False):
@@ -529,7 +811,7 @@ def missing_percent_nw(
             .select(
                 nw.sum_horizontal(nw.all()).alias('miss_count')
             )['miss_count']
-
+        
         if data_nw.implementation.is_pandas_like():
             miss_count = pd.Series(miss_count, index = data.index)
         else:
@@ -551,53 +833,60 @@ def remove_empty_nw(
     to_native: bool = True,
     **kwargs: Any
 ) -> IntoFrameT:
-  """Remove fully (or mostly) empty columns and/or rows.
+    """Remove fully (or mostly) empty columns and/or rows.
 
-  Args:
-      self (pandas.DataFrame):
-          Input DataFrame.
-      cols (bool):
-          If True, remove empty columns.
-      rows (bool):
-          If True, remove empty rows.
-      cutoff (float):
-          Threshold on missing proportion (0-1). A column/row is removed if
-          missing proportion is >= cutoff.
-          - cutoff=1 removes only completely empty columns/rows.
-      quiet (bool):
-          If False, print removal summary.
+    Args:
+        self (pandas.DataFrame):
+            Input DataFrame.
+        cols (bool):
+            If True, remove empty columns.
+        rows (bool):
+            If True, remove empty rows.
+        cutoff (float):
+            Threshold on missing proportion (0-1). A column/row is removed if
+            missing proportion is >= cutoff.
+            - cutoff=1 removes only completely empty columns/rows.
+        quiet (bool):
+            If False, print removal summary.
 
-  Returns:
-      pandas.DataFrame:
-          DataFrame after removing empty columns/rows.
-  """
-  df_shape = self.shape
-  data_nw = nw.from_native(self)
-  # 空白列の除去 ------------------------------
-  if cols :
-    empty_col = missing_percent_nw(self, axis = 'index', pct = False) >= cutoff
-    data_nw = data_nw[:, (~empty_col).to_list()]
+    Returns:
+        pandas.DataFrame:
+            DataFrame after removing empty columns/rows.
+    """
+    # 引数のアサーション ==============================================
+    bild.assert_logical(cols, arg_name = 'cols')
+    bild.assert_logical(rows, arg_name = 'rows')
+    bild.assert_numeric(cutoff, lower = 0, upper = 1)
+    bild.assert_logical(quiet, arg_name = 'quiet')
+    bild.assert_logical(to_native, arg_name = 'to_native')
+    # ==============================================================
+    
+    df_shape = self.shape
+    data_nw = nw.from_native(self)
+    # 空白列の除去 ------------------------------
+    if cols :
+        empty_col = missing_percent_nw(self, axis = 'index', pct = False) >= cutoff
+        data_nw = data_nw[:, (~empty_col).to_list()]
 
-    if not(quiet) :
-      ncol_removed = empty_col.sum()
-      col_removed = empty_col[empty_col].index.to_series().astype('str').to_list()
-      print(
-            f"Removing {ncol_removed} empty column(s) out of {df_shape[1]} columns" +
-            f"(Removed: {','.join(col_removed)}). "
-            )
-  # 空白行の除去 ------------------------------
-  if rows :
-    empty_rows = missing_percent_nw(self, axis = 'columns', pct = False) >= cutoff
+        if not(quiet) :
+            ncol_removed = empty_col.sum()
+            col_removed = empty_col[empty_col].index.to_series().astype('str').to_list()
+            print(
+                f"Removing {ncol_removed} empty column(s) out of {df_shape[1]} columns" +
+                f"(Removed: {','.join(col_removed)}). "
+                )
+    # 空白行の除去 ------------------------------
+    if rows :
+        empty_rows = missing_percent_nw(self, axis = 'columns', pct = False) >= cutoff
+        data_nw = data_nw.filter((~empty_rows).to_list())
 
-    data_nw = data_nw.filter((~empty_rows).to_list())
-
-    if not(quiet) :
-        nrow_removed = empty_rows.sum()
-        row_removed = empty_rows[empty_rows].index.to_series().astype('str').to_list()
-        print(
-              f"Removing {nrow_removed} empty row(s) out of {df_shape[0]} rows" +
-              f"(Removed: {','.join(row_removed)}). "
-          )
+        if not(quiet) :
+            nrow_removed = empty_rows.sum()
+            row_removed = empty_rows[empty_rows].index.to_series().astype('str').to_list()
+            print(
+                    f"Removing {nrow_removed} empty row(s) out of {df_shape[0]} rows" +
+                    f"(Removed: {','.join(row_removed)}). "
+                )
 
     if to_native: return data_nw.to_native()
     return data_nw
@@ -626,9 +915,13 @@ def remove_constant_nw(
         pandas.DataFrame:
             DataFrame after removing constant columns.
     """
+    # 引数のアサーション ==============================================
+    bild.assert_logical(quiet, arg_name = 'quiet')
+    bild.assert_logical(to_native, arg_name = 'to_native')
+    # ==============================================================
     data_nw = nw.from_native(self)
     df_shape = data_nw.shape
-
+    
     # データフレーム(data_nw) の行が定数かどうかを判定
     unique_count = pd.Series(data_nw.select(nw.all().n_unique()).row(0), index = data_nw.columns)
     constant_col = unique_count == 1
@@ -691,10 +984,13 @@ def filtering_out_nw(
 
     Notes:
         Row-wise filtering via axis='index' relies on the presence of an explicit index. Therefore, this option is not available for DataFrame backends that do not expose row labels (e.g. some Arrow-based tables).
-
+    
     """
+    # 引数のアサーション ==============================================
     axis = str(axis)
     axis = bild.arg_match(axis, ['1', 'columns', '0', 'index'], arg_name = 'axis')
+    bild.assert_logical(to_native, arg_name = 'to_native')
+    # ==============================================================
     data_nw = nw.from_native(self)
     drop_table = pd.DataFrame()
 
@@ -709,30 +1005,33 @@ def filtering_out_nw(
     if((axis == '1') | (axis == 'columns')):
         s_columns = pd.Series(data_nw.columns)
         if contains is not None:
-            assert isinstance(contains, str), "'contains' must be a string."
+            # assert isinstance(contains, str), "'contains' must be a string."
+            bild.assert_character(contains, arg_name = 'contains')
             drop_table['contains'] = s_columns.str.contains(contains)
 
         if starts_with is not None:
-            assert isinstance(starts_with, str), "'starts_with' must be a string."
+            # assert isinstance(starts_with, str), "'starts_with' must be a string."
+            bild.assert_character(starts_with, arg_name = 'starts_with')
             drop_table['starts_with'] = s_columns.str.startswith(starts_with)
 
         if ends_with is not None:
-            assert isinstance(ends_with, str), "'ends_with' must be a string."
+            # assert isinstance(ends_with, str), "'ends_with' must be a string."
+            bild.assert_character(ends_with, arg_name = 'ends_with')
             drop_table['ends_with'] = s_columns.str.endswith(ends_with)
         drop_list = s_columns[drop_table.any(axis = 'columns')].to_list()
         data_nw = data_nw.drop(drop_list)
-
+    
     elif hasattr(self, 'index'):
         if contains is not None: 
-            assert isinstance(contains, str), "'contains' must be a string."
+            bild.assert_character(contains, arg_name = 'contains')
             drop_table['contains'] = self.index.to_series().str.contains(contains)
 
         if starts_with is not None: 
-            assert isinstance(starts_with, str), "'starts_with' must be a string."
+            bild.assert_character(starts_with, arg_name = 'starts_with')
             drop_table['starts_with'] = self.index.to_series().str.startswith(starts_with)
 
         if ends_with is not None:
-            assert isinstance(ends_with, str), "'ends_with' must be a string."
+            bild.assert_character(ends_with, arg_name = 'ends_with')
             drop_table['ends_with'] = self.index.to_series().str.endswith(ends_with)
 
         keep_list = (~drop_table.any(axis = 'columns')).to_list()
@@ -752,7 +1051,7 @@ def Pareto_plot_nw(
     group: str,
     values: Optional[str] = None,
     top_n: Optional[int] = None,
-    aggfunc:  Callable[..., Any] = nw.mean,
+    aggfunc: Callable[..., Any] = nw.mean,
     ax: Optional[Axes] = None,
     fontsize: int = 12,
     xlab_rotation: Union[int, float] = 0,
@@ -786,10 +1085,11 @@ def Pareto_plot_nw(
     Returns:
         None
     """
-    # 引数のアサーション
-    if(top_n is not None): bild.assert_count(top_n, lower = 1)
-    bild.assert_numeric(xlab_rotation)
-    bild.assert_character(palette)
+    # 引数のアサーション ===================================================================
+    bild.assert_numeric(fontsize, arg_name = 'fontsize', lower = 0, inclusive = 'right')
+    bild.assert_numeric(xlab_rotation, arg_name = 'xlab_rotation')
+    bild.assert_character(palette, arg_name = 'palette')
+    # ===================================================================================
 
     # 指定された変数でのランクを表すデータフレームを作成
     data_nw = nw.from_native(data)
@@ -803,8 +1103,9 @@ def Pareto_plot_nw(
             to_native = False
             )
         cumlative = 'cumshare'
-
+    
     shere_rank = shere_rank.to_pandas().set_index(group)
+
     # 作図
     args_dict = locals()
     make_Pareto_plot(**args_dict)
@@ -816,18 +1117,23 @@ def make_rank_table_nw(
     data: pd.DataFrame,
     group: str,
     values: str,
-    aggfunc:  Callable[..., Any] = nw.mean,
+    aggfunc: Callable[..., Any] = nw.mean,
     to_native: bool = True,
 ) -> pd.DataFrame:
     data_nw = nw.from_native(data)
 
+    # 引数のアサーション ===================================================================
+    col_names = data_nw.columns
+    group = bild.arg_match(group, values = col_names, arg_name = 'group', multiple = True)
+    values = bild.arg_match(values, values = col_names, arg_name = 'values')
+    # ===================================================================================
     rank_table = data_nw\
         .group_by(group)\
         .agg(aggfunc(values))\
         .sort(values, descending = True)\
         .with_columns(share = nw.col(values) / nw.col(values).sum())\
         .with_columns(cumshare = nw.col('share').cum_sum())
-
+    
     if to_native:
         return rank_table.to_native()
     else:
@@ -855,6 +1161,7 @@ def make_Pareto_plot(
     # yで指定された変数の棒グラフ
     # top_n が指定されていた場合、上位 top_n 件を抽出します。
     if top_n is not None:
+        bild.assert_count(top_n, lower = 1, arg_name = 'top_n')
         shere_rank = shere_rank.head(top_n)
 
     if values is None:
@@ -882,4 +1189,119 @@ def make_Pareto_plot(
     ax2.xaxis.set_tick_params(rotation = xlab_rotation, labelsize = fontsize);
     ax.yaxis.set_tick_params(labelsize = fontsize * 0.9)
     ax2.yaxis.set_tick_params(labelsize = fontsize * 0.9);
+
+
+# ### 代表値 + 区間推定関数
+# 
+# ```python
+# import pandas as pd
+# from palmerpenguins import load_penguins
+# penguins = load_penguins() # サンプルデータの読み込み
+# 
+# from py4stats import eda_tools as eda
+# 
+# print(penguins['bill_depth_mm'].mean_qi().round(2))
+# #>                 mean  lower  upper
+# #> variable                          
+# #> bill_depth_mm  17.15   13.9   20.0
+# 
+# print(penguins['bill_depth_mm'].median_qi().round(2))
+# #>                median  lower  upper
+# #> variable                           
+# #> bill_depth_mm    17.3   13.9   20.0
+# 
+# print(penguins['bill_depth_mm'].mean_ci().round(2))
+# #>                 mean  lower  upper
+# #> variable                          
+# #> bill_depth_mm  17.15  16.94  17.36
+# ```
+
+
+
+@pf.register_dataframe_method
+@pf.register_series_method
+def mean_qi_nw(
+    self: FrameT,
+    width: float = 0.975,
+    to_native: bool = True
+) -> pd.DataFrame:
+    """Compute mean and quantile interval (QI).
+
+    Args:
+        self (pandas.Series or pandas.DataFrame):
+            Input data.
+        width (float):
+            Upper quantile to use (must be in (0, 1)).
+            Lower quantile is computed as `1 - width`.
+        point_fun (str):
+            Currently kept for API compatibility. (Not used in computation.)
+
+    Returns:
+        pandas.DataFrame:
+            Table indexed by variable names with columns:
+            - mean: mean value
+            - lower: quantile at `1 - width`
+            - upper: quantile at `width`
+
+    Raises:
+        AssertionError:
+            If `width` is not in (0, 1).
+    """
+    # 引数のアサーション =======================================================
+    bild.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
+    bild.assert_logical(to_native, arg_name = 'to_native')
+    # =======================================================================
+    
+    self_nw = nw.from_native(self, allow_series = True)
+
+    if type(self_nw).__name__ == 'DataFrame':
+        return mean_qi_nw_data_frame(self_nw, width = width, to_native = to_native)
+    if type(self_nw).__name__ == 'Series':
+        return mean_qi_nw_series(self_nw, width = width, to_native = to_native)
+    
+    raise NotImplementedError(f'mean_qi_nw mtethod for object {type(self)} is not implemented.')
+
+def mean_qi_nw_data_frame(
+    self: Union[pd.Series, pd.DataFrame],
+    width: float = 0.975,
+    to_native: bool = True
+) -> pd.DataFrame:
+    # 引数のアサーション =======================================================
+    bild.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
+    bild.assert_logical(to_native, arg_name = 'to_native')
+    # =======================================================================
+    
+    df_numeric = nw.from_native(self).select(ncs.numeric())
+
+    result = nw.from_dict({
+        'variable': df_numeric.columns,
+        'mean': df_numeric.select(ncs.numeric().mean()).row(0),
+        'lower': df_numeric.select(
+            ncs.numeric().quantile(1 - width, interpolation = 'midpoint')
+            ).row(0),
+        'upper': df_numeric.select(
+            ncs.numeric().quantile(width, interpolation = 'midpoint')
+            ).row(0)
+        }, backend = df_numeric.implementation
+        )
+    if to_native: return result.to_native()
+    return result
+
+def mean_qi_nw_series(self, width: float = 0.975, to_native: bool = True):
+    # 引数のアサーション =======================================================
+    bild.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
+    bild.assert_logical(to_native, arg_name = 'to_native')
+    # =======================================================================
+    
+    self_nw = nw.from_native(self, allow_series=True)
+    
+    result = nw.from_dict({
+    'variable': [self_nw.name],
+    'mean': [self_nw.mean()],
+    'lower': [self_nw.quantile(1 - width, interpolation = 'midpoint')],
+    'upper': [self_nw.quantile(width, interpolation = 'midpoint')]
+    }, backend = self_nw.implementation
+    )
+    if to_native: return result.to_native()
+    return result
 
