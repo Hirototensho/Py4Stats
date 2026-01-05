@@ -63,7 +63,6 @@ def get_dtypes(data: FrameT) -> pd.Series:
     data_nw = nw.from_native(data)
     if hasattr(data, 'dtypes'):
         list_dtypes = data.dtypes
-        # if hasattr(list_dtypes, 'to_list'): list_dtypes = list_dtypes.to_list()
     else:
         list_dtypes = [str(data_nw.schema[col]) for col in data_nw.columns]
 
@@ -74,7 +73,7 @@ def get_dtypes(data: FrameT) -> pd.Series:
 
 
 @pf.register_dataframe_method
-def diagnose_nw(self: FrameT) -> FrameT:
+def diagnose_nw(self: FrameT, to_native: bool = True) -> FrameT:
     """Summarize each column of a DataFrame for quick EDA.
 
     This method computes basic diagnostics for each column:
@@ -110,8 +109,9 @@ def diagnose_nw(self: FrameT) -> FrameT:
         (100 * nw.col('missing_count') / n).alias('missing_percent'),
         (100 * nw.col('unique_count') / n).alias('unique_rate')
     )\
-    .select('columns', 'dtype', 'missing_count', 'missing_percent', 'unique_count', 'unique_rate')\
-    .to_native()
+    .select('columns', 'dtype', 'missing_count', 'missing_percent', 'unique_count', 'unique_rate')
+
+    if to_native: return result.to_native()
     return result
 
 
@@ -177,7 +177,6 @@ def compare_df_cols_nw(
   if df_name is None:
       df_name = [f'df{i + 1}' for i in range(len(df_list))]
 
-  # df_list = [v.copy() for v in df_list] # コピーを作成
   df_list = [nw.from_native(v) for v in df_list]
   dtype_list = [get_dtypes(v) for v in df_list]
   res = pd.concat(dtype_list, axis = 1)
@@ -355,8 +354,7 @@ def crosstab_nw(
         if not normalize:
             out = out.with_columns(ncs.numeric().cast(nw.Int64))
 
-    if not to_native:
-        return out
+    if not to_native: return out
 
     if out.implementation.is_pandas_like():
         result = nw.to_native(out).set_index(index)
@@ -416,11 +414,8 @@ def freq_table_nw(
         .with_columns(
             (nw.col('cumfreq') / nw.col('freq').sum()).alias('cumperc'),
         )
-
-    if to_native:
-        return result.to_native()
-    else:
-        return result
+    if to_native: return result.to_native()
+    return result
 
 
 
@@ -605,7 +600,7 @@ def remove_empty_nw(
           )
 
     if to_native: return data_nw.to_native()
-    else: return data_nw
+    return data_nw
 
 
 
@@ -648,7 +643,103 @@ def remove_constant_nw(
             f"(Removed: {','.join(col_removed)}). "
         )
     if to_native: return data_nw.to_native()
-    else: return data_nw
+    return data_nw
+
+
+
+
+# 列名や行名に特定の文字列を含む列や行を除外する関数
+@pf.register_dataframe_method
+def filtering_out_nw(
+    self: IntoFrameT,
+    contains: Optional[str] = None,
+    starts_with: Optional[str] = None,
+    ends_with: Optional[str] = None,
+    axis: Union[int, str] = 'columns',
+    to_native: bool = True,
+) -> FrameT:
+    """Filter out rows/columns whose labels match given string patterns.
+
+    Args:
+        self (IntoFrameT):
+            Input DataFrame.
+        contains (str or None):
+            Exclude labels that contain this substring.
+        starts_with (str or None):
+            Exclude labels that start with this substring.
+        ends_with (str or None):
+            Exclude labels that end with this substring.
+        axis (int or str):
+            Axis to filter.
+            - 1 or 'columns': filter columns by column labels.
+            Supported for all DataFrame backends handled by narwhals.
+            - 0 or 'index': filter rows by index (row labels).
+            This option is only supported when the input DataFrame has
+            an explicit index attribute (e.g. pandas.DataFrame).
+
+
+    Returns:
+        FrameT:
+            Filtered DataFrame.
+
+    Raises:
+        AssertionError:
+            If `contains`/`starts_with`/`ends_with` is provided but not a string.
+        TypeError:
+            If axis is set to 'index' (or 0) but the input DataFrame
+            does not support row labels (i.e. has no 'index' attribute).
+
+    Notes:
+        Row-wise filtering via axis='index' relies on the presence of an explicit index. Therefore, this option is not available for DataFrame backends that do not expose row labels (e.g. some Arrow-based tables).
+
+    """
+    axis = str(axis)
+    axis = bild.arg_match(axis, ['1', 'columns', '0', 'index'], arg_name = 'axis')
+    data_nw = nw.from_native(self)
+    drop_table = pd.DataFrame()
+
+    if axis in ("0", "index"):
+        if not hasattr(self, "index"):
+            raise TypeError(
+                f"filtering_out_nw(..., axis='{axis}') requires an input that has"
+                "an 'index' (row labels), e.g. pandas.DataFrame.\n"
+                f"Got: {type(self)}."
+            )
+
+    if((axis == '1') | (axis == 'columns')):
+        s_columns = pd.Series(data_nw.columns)
+        if contains is not None:
+            assert isinstance(contains, str), "'contains' must be a string."
+            drop_table['contains'] = s_columns.str.contains(contains)
+
+        if starts_with is not None:
+            assert isinstance(starts_with, str), "'starts_with' must be a string."
+            drop_table['starts_with'] = s_columns.str.startswith(starts_with)
+
+        if ends_with is not None:
+            assert isinstance(ends_with, str), "'ends_with' must be a string."
+            drop_table['ends_with'] = s_columns.str.endswith(ends_with)
+        drop_list = s_columns[drop_table.any(axis = 'columns')].to_list()
+        data_nw = data_nw.drop(drop_list)
+
+    elif hasattr(self, 'index'):
+        if contains is not None: 
+            assert isinstance(contains, str), "'contains' must be a string."
+            drop_table['contains'] = self.index.to_series().str.contains(contains)
+
+        if starts_with is not None: 
+            assert isinstance(starts_with, str), "'starts_with' must be a string."
+            drop_table['starts_with'] = self.index.to_series().str.startswith(starts_with)
+
+        if ends_with is not None:
+            assert isinstance(ends_with, str), "'ends_with' must be a string."
+            drop_table['ends_with'] = self.index.to_series().str.endswith(ends_with)
+
+        keep_list = (~drop_table.any(axis = 'columns')).to_list()
+        data_nw = data_nw.filter(keep_list)
+
+    if to_native: return data_nw.to_native()
+    return data_nw
 
 
 # # パレート図を作図する関数
