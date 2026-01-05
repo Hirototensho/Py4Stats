@@ -122,15 +122,18 @@ def plot_miss_var_nw(
         data: IntoFrameT,
         values: Literal['missing_percent', 'missing_count'] = 'missing_percent', 
         sort: bool = True, 
+        miss_only: bool = False, 
         fontsize: int = 12,
         ax: Optional[Axes] = None,
-        color: str = '#478FCE'
+        color: str = '#478FCE',
+        **kwargs: Any
         ) -> None:
     """Plot missing-value diagnostics for each variable in a DataFrame.
 
-    This function visualizes the amount of missing data per column as a
-    horizontal bar chart. It supports multiple DataFrame backends via
-    narwhals and relies on `diagnose_nw` to compute missing-value statistics.
+    This function visualizes the amount of missing data for each column
+    as a horizontal bar chart. It supports multiple DataFrame backends
+    via narwhals and relies on ``diagnose_nw`` to compute missing-value
+    statistics.
 
     Args:
         data (IntoFrameT):
@@ -138,19 +141,26 @@ def plot_miss_var_nw(
             (e.g. pandas, polars, pyarrow) can be used.
         values (Literal['missing_percent', 'missing_count'], optional):
             Metric to plot on the horizontal axis.
-            - 'missing_percent': percentage of missing values per column.
-            - 'missing_count': absolute number of missing values per column.
-            Defaults to 'missing_percent'.
+            - ``'missing_percent'``: percentage of missing values per column.
+            - ``'missing_count'``: absolute number of missing values per column.
+            Defaults to ``'missing_percent'``.
         sort (bool, optional):
             Whether to sort columns by the selected metric before plotting.
-            Defaults to True.
+            Defaults to ``True``.
+        miss_only (bool, optional):
+            Whether to include only columns that contain at least one
+            missing value. If ``True``, columns with no missing values
+            are excluded from the plot. Defaults to ``False``.
         fontsize (int, optional):
-            Base font size used for axis labels. Defaults to 12.
-        ax (matplotlib.axes.Axes or None, optional):
-            Matplotlib Axes object to draw the plot on. If None, a new
-            figure and axes are created. Defaults to None.
+            Base font size used for axis labels. Defaults to ``12``.
+        ax (matplotlib.axes.Axes, optional):
+            Matplotlib Axes object to draw the plot on. If ``None``,
+            a new figure and axes are created. Defaults to ``None``.
         color (str, optional):
-            Color of the bars in the plot. Defaults to '#478FCE'.
+            Color of the bars in the plot. Defaults to ``'#478FCE'``.
+        **kwargs:
+            Additional keyword arguments passed to
+            ``matplotlib.axes.Axes.barh``.
 
     Returns:
         None:
@@ -158,17 +168,24 @@ def plot_miss_var_nw(
 
     Raises:
         ValueError:
-            If `values` is not one of the supported options
-            ('missing_percent' or 'missing_count').
+            If ``values`` is not one of the supported options
+            (``'missing_percent'`` or ``'missing_count'``).
+
+    Notes:
+        This function is intended for exploratory data analysis.
+        The underlying missing-value statistics are computed by
+        ``diagnose_nw``, and the resulting plot reflects its output.
     """
     values = bild.arg_match(
         values, ['missing_percent', 'missing_count'],
         arg_name = 'values'
     )
     bild.assert_logical(sort, arg_name = 'sort')
+    bild.assert_logical(miss_only, arg_name = 'miss_only')
     
     diagnose_tab = diagnose_nw(data, to_native = False)
     if sort: diagnose_tab = diagnose_tab.sort(values)
+    if miss_only: diagnose_tab = diagnose_tab.filter(nw.col('missing_percent') > 0)
     
     # グラフの描画
     if ax is None:
@@ -177,7 +194,8 @@ def plot_miss_var_nw(
     ax.barh(
         y = diagnose_tab['columns'],
         width = diagnose_tab[values],
-        color = color
+        color = color,
+        **kwargs
     )
     if values == 'missing_percent':
         ax.set_xlabel('percentage of missing recode(%)', fontsize = fontsize * 1.1);
@@ -1218,11 +1236,29 @@ def make_Pareto_plot(
 
 
 
+Interpolation = Literal[
+    'inverted_cdf', 'averaged_inverted_cdf', 'closest_observation', 
+    'interpolated_inverted_cdf', 'hazen', 'weibull', 'linear', 
+    'median_unbiased', 'normal_unbiased', 'lower', 'higher', 
+    'midpoint', 'nearest'
+    ]
+
+interpolation_values = [
+    'inverted_cdf', 'averaged_inverted_cdf', 'closest_observation', 
+    'interpolated_inverted_cdf', 'hazen', 'weibull', 'linear', 
+    'median_unbiased', 'normal_unbiased', 'lower', 'higher', 
+    'midpoint', 'nearest'
+    ]
+
+
+
+
 @pf.register_dataframe_method
 @pf.register_series_method
 def mean_qi_nw(
     self: FrameT,
     width: float = 0.975,
+    interpolation: Interpolation = 'midpoint',
     to_native: bool = True
 ) -> pd.DataFrame:
     """Compute mean and quantile interval (QI).
@@ -1250,26 +1286,33 @@ def mean_qi_nw(
     # 引数のアサーション =======================================================
     bild.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
     bild.assert_logical(to_native, arg_name = 'to_native')
+    interpolation = bild.arg_match(
+        interpolation, interpolation_values,
+        arg_name = 'interpolation'
+        )
     # =======================================================================
     
     self_nw = nw.from_native(self, allow_series = True)
 
     if type(self_nw).__name__ == 'DataFrame':
-        return mean_qi_nw_data_frame(self_nw, width = width, to_native = to_native)
+        return mean_qi_nw_data_frame(
+            self_nw, interpolation = interpolation, 
+            width = width, to_native = to_native
+            )
     if type(self_nw).__name__ == 'Series':
-        return mean_qi_nw_series(self_nw, width = width, to_native = to_native)
+        return mean_qi_nw_series(
+            self_nw, interpolation = interpolation, 
+            width = width, to_native = to_native
+        )
     
     raise NotImplementedError(f'mean_qi_nw mtethod for object {type(self)} is not implemented.')
 
 def mean_qi_nw_data_frame(
     self: Union[pd.Series, pd.DataFrame],
     width: float = 0.975,
+    interpolation: Interpolation = 'midpoint',
     to_native: bool = True
 ) -> pd.DataFrame:
-    # 引数のアサーション =======================================================
-    bild.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
-    bild.assert_logical(to_native, arg_name = 'to_native')
-    # =======================================================================
     
     df_numeric = nw.from_native(self).select(ncs.numeric())
 
@@ -1277,29 +1320,129 @@ def mean_qi_nw_data_frame(
         'variable': df_numeric.columns,
         'mean': df_numeric.select(ncs.numeric().mean()).row(0),
         'lower': df_numeric.select(
-            ncs.numeric().quantile(1 - width, interpolation = 'midpoint')
+            ncs.numeric().quantile(1 - width, interpolation = interpolation)
             ).row(0),
         'upper': df_numeric.select(
-            ncs.numeric().quantile(width, interpolation = 'midpoint')
+            ncs.numeric().quantile(width, interpolation = interpolation)
             ).row(0)
         }, backend = df_numeric.implementation
         )
     if to_native: return result.to_native()
     return result
 
-def mean_qi_nw_series(self, width: float = 0.975, to_native: bool = True):
-    # 引数のアサーション =======================================================
-    bild.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
-    bild.assert_logical(to_native, arg_name = 'to_native')
-    # =======================================================================
+def mean_qi_nw_series(
+    self: Union[pd.Series, pd.DataFrame],
+    width: float = 0.975,
+    interpolation: Interpolation = 'midpoint',
+    to_native: bool = True
+):
     
     self_nw = nw.from_native(self, allow_series=True)
     
     result = nw.from_dict({
     'variable': [self_nw.name],
     'mean': [self_nw.mean()],
-    'lower': [self_nw.quantile(1 - width, interpolation = 'midpoint')],
-    'upper': [self_nw.quantile(width, interpolation = 'midpoint')]
+    'lower': [self_nw.quantile(1 - width, interpolation = interpolation)],
+    'upper': [self_nw.quantile(width, interpolation = interpolation)]
+    }, backend = self_nw.implementation
+    )
+    if to_native: return result.to_native()
+    return result
+
+
+
+
+@pf.register_dataframe_method
+@pf.register_series_method
+def median_qi_nw(
+    self: FrameT,
+    width: float = 0.975,
+    interpolation: Interpolation = 'midpoint',
+    to_native: bool = True
+) -> pd.DataFrame:
+    """Compute median and quantile interval (QI).
+
+    Args:
+        self (pandas.Series or pandas.DataFrame):
+            Input data.
+        width (float):
+            Upper quantile to use (must be in (0, 1)).
+            Lower quantile is computed as `1 - width`.
+        point_fun (str):
+            Currently kept for API compatibility. (Not used in computation.)
+
+    Returns:
+        pandas.DataFrame:
+            Table indexed by variable names with columns:
+            - median: median value
+            - lower: quantile at `1 - width`
+            - upper: quantile at `width`
+
+    Raises:
+        AssertionError:
+            If `width` is not in (0, 1).
+    """
+    # 引数のアサーション =======================================================
+    bild.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
+    bild.assert_logical(to_native, arg_name = 'to_native')
+    interpolation = bild.arg_match(
+        interpolation, interpolation_values,
+        arg_name = 'interpolation'
+        )
+    # =======================================================================
+    
+    self_nw = nw.from_native(self, allow_series = True)
+
+    if type(self_nw).__name__ == 'DataFrame':
+        return median_qi_nw_data_frame(
+            self_nw, interpolation = interpolation, 
+            width = width, to_native = to_native
+            )
+    if type(self_nw).__name__ == 'Series':
+        return median_qi_nw_series(
+            self_nw, interpolation = interpolation, 
+            width = width, to_native = to_native
+        )
+    
+    raise NotImplementedError(f'median_qi_nw mtethod for object {type(self)} is not implemented.')
+
+def median_qi_nw_data_frame(
+    self: Union[pd.Series, pd.DataFrame],
+    width: float = 0.975,
+    interpolation: Interpolation = 'midpoint',
+    to_native: bool = True
+) -> pd.DataFrame:
+    
+    df_numeric = nw.from_native(self).select(ncs.numeric())
+
+    result = nw.from_dict({
+        'variable': df_numeric.columns,
+        'median': df_numeric.select(ncs.numeric().median()).row(0),
+        'lower': df_numeric.select(
+            ncs.numeric().quantile(1 - width, interpolation = interpolation)
+            ).row(0),
+        'upper': df_numeric.select(
+            ncs.numeric().quantile(width, interpolation = interpolation)
+            ).row(0)
+        }, backend = df_numeric.implementation
+        )
+    if to_native: return result.to_native()
+    return result
+
+def median_qi_nw_series(
+    self: Union[pd.Series, pd.DataFrame],
+    width: float = 0.975,
+    interpolation: Interpolation = 'midpoint',
+    to_native: bool = True
+):
+    
+    self_nw = nw.from_native(self, allow_series=True)
+    
+    result = nw.from_dict({
+    'variable': [self_nw.name],
+    'median': [self_nw.median()],
+    'lower': [self_nw.quantile(1 - width, interpolation = interpolation)],
+    'upper': [self_nw.quantile(width, interpolation = interpolation)]
     }, backend = self_nw.implementation
     )
     if to_native: return result.to_native()

@@ -204,35 +204,43 @@ def plot_miss_var(
         data: pd.DataFrame,
         values: Literal['missing_percent', 'missing_count'] = 'missing_percent', 
         sort: bool = True, 
+        miss_only: bool = False, 
         fontsize: int = 12,
         ax: Optional[Axes] = None,
-        color: str = '#478FCE'
+        color: str = '#478FCE',
+        **kwargs: Any
         ) -> None:
     """Plot missing-value diagnostics for each variable in a DataFrame.
 
-    This function visualizes the amount of missing data per column as a
-    horizontal bar chart. It supports multiple DataFrame backends via
-    narwhals and relies on `diagnose_nw` to compute missing-value statistics.
+    This function visualizes the amount of missing data for each column
+    as a horizontal bar chart. It relies on ``diagnose`` to compute missing-value
+    statistics.
 
     Args:
         data (pd.DataFrame):
-            Input DataFrame. Any DataFrame type supported by narwhals
-            (e.g. pandas, polars, pyarrow) can be used.
+            Input DataFrame.
         values (Literal['missing_percent', 'missing_count'], optional):
             Metric to plot on the horizontal axis.
-            - 'missing_percent': percentage of missing values per column.
-            - 'missing_count': absolute number of missing values per column.
-            Defaults to 'missing_percent'.
+            - ``'missing_percent'``: percentage of missing values per column.
+            - ``'missing_count'``: absolute number of missing values per column.
+            Defaults to ``'missing_percent'``.
         sort (bool, optional):
             Whether to sort columns by the selected metric before plotting.
-            Defaults to True.
+            Defaults to ``True``.
+        miss_only (bool, optional):
+            Whether to include only columns that contain at least one
+            missing value. If ``True``, columns with no missing values
+            are excluded from the plot. Defaults to ``False``.
         fontsize (int, optional):
-            Base font size used for axis labels. Defaults to 12.
-        ax (matplotlib.axes.Axes or None, optional):
-            Matplotlib Axes object to draw the plot on. If None, a new
-            figure and axes are created. Defaults to None.
+            Base font size used for axis labels. Defaults to ``12``.
+        ax (matplotlib.axes.Axes, optional):
+            Matplotlib Axes object to draw the plot on. If ``None``,
+            a new figure and axes are created. Defaults to ``None``.
         color (str, optional):
-            Color of the bars in the plot. Defaults to '#478FCE'.
+            Color of the bars in the plot. Defaults to ``'#478FCE'``.
+        **kwargs:
+            Additional keyword arguments passed to
+            ``matplotlib.axes.Axes.barh``.
 
     Returns:
         None:
@@ -240,17 +248,24 @@ def plot_miss_var(
 
     Raises:
         ValueError:
-            If `values` is not one of the supported options
-            ('missing_percent' or 'missing_count').
+            If ``values`` is not one of the supported options
+            (``'missing_percent'`` or ``'missing_count'``).
+
+    Notes:
+        This function is intended for exploratory data analysis.
+        The underlying missing-value statistics are computed by
+        ``diagnose``, and the resulting plot reflects its output.
     """
     values = bild.arg_match(
         values, ['missing_percent', 'missing_count'],
         arg_name = 'values'
     )
     bild.assert_logical(sort, arg_name = 'sort')
+    bild.assert_logical(miss_only, arg_name = 'miss_only')
     
     diagnose_tab = diagnose(data)
     if sort: diagnose_tab = diagnose_tab.sort_values(values)
+    if miss_only: diagnose_tab = diagnose_tab.query('missing_percent > 0')
     
     # グラフの描画
     if ax is None:
@@ -259,7 +274,8 @@ def plot_miss_var(
     ax.barh(
         y = diagnose_tab.index,
         width = diagnose_tab[values],
-        color = color
+        color = color,
+        **kwargs
     )
     if values == 'missing_percent':
         ax.set_xlabel('percentage of missing recode(%)', fontsize = fontsize * 1.1);
@@ -1280,7 +1296,6 @@ def Pareto_plot(
 def mean_qi(
     self: Union[pd.Series, pd.DataFrame],
     width: float = 0.975,
-    point_fun: str = "mean",
 ) -> pd.DataFrame:
   """Compute mean and quantile interval (QI).
 
@@ -1307,12 +1322,13 @@ def mean_qi(
 
   bild.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
   if(isinstance(self, pd.DataFrame)):
+    self = self.select_dtypes([int, float])
     var_name = self.columns
   else:
     var_name = [self.name]
 
   res = pd.DataFrame({
-      'mean':self.apply('mean'),
+      'mean':self.mean(),
       'lower':self.quantile(1 - width),
       'upper':self.quantile(width),
   }, index = var_name
@@ -1355,12 +1371,13 @@ def median_qi(
   """
   bild.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
   if(isinstance(self, pd.DataFrame)):
+    self = self.select_dtypes([int, float])
     var_name = self.columns
   else:
     var_name = [self.name]
 
   res = pd.DataFrame({
-      'median':self.apply('median'),
+      'median':self.median(),
       'lower':self.quantile(1 - width),
       'upper':self.quantile(width),
   }, index = var_name
@@ -1404,6 +1421,7 @@ def mean_ci(
   """
   bild.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
   if(isinstance(self, pd.DataFrame)):
+    self = self.select_dtypes([int, float])
     var_name = self.columns
   else:
     var_name = [self.name]
