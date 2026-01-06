@@ -262,11 +262,11 @@ def plot_miss_var(
     )
     bild.assert_logical(sort, arg_name = 'sort')
     bild.assert_logical(miss_only, arg_name = 'miss_only')
-    
+
     diagnose_tab = diagnose(data)
     if sort: diagnose_tab = diagnose_tab.sort_values(values)
     if miss_only: diagnose_tab = diagnose_tab.query('missing_percent > 0')
-    
+
     # グラフの描画
     if ax is None:
         fig, ax = plt.subplots()
@@ -1608,6 +1608,8 @@ def set_prop_miss(x, prop = 0.1, method = 'random', random_state = None, na_valu
 # print(eda.set_prop_miss(s, prop = 0.2).isna().mean())
 # #> 0.19767441860465115
 # ```
+
+# # 簡易なデータバリデーションツール
 
 
 

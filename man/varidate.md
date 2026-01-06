@@ -26,8 +26,8 @@ check_viorate(data, rule_dict, **kwargs)
 　ここでは `py4st.check_that()` 関数を使って Loo, Jonge(2022, p. 136)の結果を再現します。まずはR言語の `validate` パッケージに付属する `retailers` データを利用します。`retailers` は60件の小売業者の経営状況についてのデータで、従業員数、売上高とその他の収入、人件費、総費用、および利益がユーロ導入前の通貨単位である1000ギルダー単位で収録されています。
 
 ```python
+import py4stats as py4st
 import pandas as pd
-from py4stats import eda_tools as eda        # 基本統計量やデータの要約など
 
 URL = 'https://raw.githubusercontent.com/data-cleaning/validate/master/pkg/data/retailers.csv'
 retailers = pd.read_csv(URL, sep = ';')
