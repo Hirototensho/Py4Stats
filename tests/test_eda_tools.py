@@ -45,7 +45,7 @@ def test_crosstab2():
         aggfunc = 'mean'
     )
     output_df.round(1)
-    # output_df.to_csv(f'{tests_path}/fixtures/crosstab2.csv')
+    output_df.to_csv(f'{tests_path}/fixtures/crosstab2.csv')
     expected_df = pd.read_csv(f'{tests_path}/fixtures/crosstab2.csv', index_col = 0)
 
     test_result = eda.compare_df_record(output_df, expected_df).all().all()

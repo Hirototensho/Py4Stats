@@ -503,22 +503,29 @@ def compare_df_record_nw(
             df1[v], df2[v], rtol = rtol, atol = atol
         ) for v in numeric_col
     ]
-
-    res_number_col_df = nw.from_numpy(
+    if res_number_col:
+        res_number_col_df = nw.from_numpy(
             np.vstack(res_number_col).T, 
             backend = df1.implementation
         )
-    res_number_col_df = res_number_col_df.rename(
-        dict(zip(res_number_col_df.columns, numeric_col))
+        res_number_col_df = res_number_col_df.rename(
+            dict(zip(res_number_col_df.columns, numeric_col))
         )
-
+    else:
+        res_number_col_df = None
 
     res_nonnum_col = [(df1[v] == df2[v]).to_frame() for v in nonnum_col]
-    res_nonnum_col_df = nw.concat(res_nonnum_col, how = 'horizontal')
-    # return res_number_col_df
+
+    if res_nonnum_col:
+        res_nonnum_col_df = nw.concat(res_nonnum_col, how = 'horizontal')
+    else:
+        res_nonnum_col_df = None
+
+    res_list = [res_number_col_df, res_nonnum_col_df]
+    res_list = list(filter(None, res_list))
 
     result = nw.concat(
-        [res_number_col_df, res_nonnum_col_df], 
+        res_list, 
         how = 'horizontal'
         )\
         .select(all_columns)
@@ -872,8 +879,6 @@ def tabyl_nw(
     margins_name: str = 'All',
     normalize: Union[bool, Literal["index", "columns", "all"]] = "index",
     dropna: bool = False,
-    # rownames: Optional[Sequence[str]] = None,
-    # colnames: Optional[Sequence[str]] = None,
     digits: int = 1,
     **kwargs: Any
 ) -> pd.DataFrame:
@@ -1891,7 +1896,7 @@ def check_viorate_pandas(
 def implies_exper(P, Q):
   return f"{Q} | ~({P})"
 
-@pf.register_dataframe_method
+# @pf.register_dataframe_method
 @singledispatch
 def is_complet(self: pd.DataFrame) -> pd.Series:
   return self.notna().all(axis = 'columns')
