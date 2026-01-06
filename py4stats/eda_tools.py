@@ -108,6 +108,7 @@ from __future__ import annotations
 from py4stats import bilding_block as bild # py4stats のプログラミングを補助する関数群
 import functools
 from functools import singledispatch
+import matplotlib.pyplot as plt
 import pandas_flavor as pf
 
 import pandas as pd
@@ -144,8 +145,6 @@ DataLike = Union[pd.Series, pd.DataFrame]
 # # `diagnose()`
 
 # %%
-import pandas_flavor as pf
-
 def missing_percent(
     x: DataLike,
     axis: Union[str, int] = "index",
@@ -189,6 +188,90 @@ def diagnose(self: pd.DataFrame) -> pd.DataFrame:
     })
 
     return result
+
+# %%
+def plot_miss_var(
+        data: pd.DataFrame,
+        values: Literal['missing_percent', 'missing_count'] = 'missing_percent', 
+        sort: bool = True, 
+        miss_only: bool = False, 
+        fontsize: int = 12,
+        ax: Optional[Axes] = None,
+        color: str = '#478FCE',
+        **kwargs: Any
+        ) -> None:
+    """Plot missing-value diagnostics for each variable in a DataFrame.
+
+    This function visualizes the amount of missing data for each column
+    as a horizontal bar chart. It relies on ``diagnose`` to compute missing-value
+    statistics.
+
+    Args:
+        data (pd.DataFrame):
+            Input DataFrame.
+        values (Literal['missing_percent', 'missing_count'], optional):
+            Metric to plot on the horizontal axis.
+            - ``'missing_percent'``: percentage of missing values per column.
+            - ``'missing_count'``: absolute number of missing values per column.
+            Defaults to ``'missing_percent'``.
+        sort (bool, optional):
+            Whether to sort columns by the selected metric before plotting.
+            Defaults to ``True``.
+        miss_only (bool, optional):
+            Whether to include only columns that contain at least one
+            missing value. If ``True``, columns with no missing values
+            are excluded from the plot. Defaults to ``False``.
+        fontsize (int, optional):
+            Base font size used for axis labels. Defaults to ``12``.
+        ax (matplotlib.axes.Axes, optional):
+            Matplotlib Axes object to draw the plot on. If ``None``,
+            a new figure and axes are created. Defaults to ``None``.
+        color (str, optional):
+            Color of the bars in the plot. Defaults to ``'#478FCE'``.
+        **kwargs:
+            Additional keyword arguments passed to
+            ``matplotlib.axes.Axes.barh``.
+
+    Returns:
+        None:
+            This function draws a plot and does not return a value.
+
+    Raises:
+        ValueError:
+            If ``values`` is not one of the supported options
+            (``'missing_percent'`` or ``'missing_count'``).
+
+    Notes:
+        This function is intended for exploratory data analysis.
+        The underlying missing-value statistics are computed by
+        ``diagnose``, and the resulting plot reflects its output.
+    """
+    values = bild.arg_match(
+        values, ['missing_percent', 'missing_count'],
+        arg_name = 'values'
+    )
+    bild.assert_logical(sort, arg_name = 'sort')
+    bild.assert_logical(miss_only, arg_name = 'miss_only')
+    
+    diagnose_tab = diagnose(data)
+    if sort: diagnose_tab = diagnose_tab.sort_values(values)
+    if miss_only: diagnose_tab = diagnose_tab.query('missing_percent > 0')
+    
+    # グラフの描画
+    if ax is None:
+        fig, ax = plt.subplots()
+
+    ax.barh(
+        y = diagnose_tab.index,
+        width = diagnose_tab[values],
+        color = color,
+        **kwargs
+    )
+    if values == 'missing_percent':
+        ax.set_xlabel('percentage of missing recode(%)', fontsize = fontsize * 1.1);
+    if values == 'missing_count':
+        ax.set_xlabel('number of missing recode', fontsize = fontsize * 1.1);
+
 
 # %% [markdown]
 # ### 異なるデータフレームの列を比較する関数
@@ -258,7 +341,7 @@ def compare_df_cols(
   return res
 
 # %% [markdown]
-# 平均値などの統計値の近接性で比較するバージョン
+# ### 平均値などの統計値の近接性で比較するバージョン
 
 # %%
 import itertools
@@ -409,7 +492,7 @@ def compare_df_record(
 def compare_group_means(
     group1: pd.DataFrame,
     group2: pd.DataFrame,
-    group_names: Sequence[str] = ("group1", "group2"),
+    group_names: Sequence[str] = ('group1', 'group2'),
 ) -> pd.DataFrame:
   """Compare group-wise means and derived difference metrics.
 
@@ -1176,7 +1259,6 @@ def Pareto_plot(
 def mean_qi(
     self: Union[pd.Series, pd.DataFrame],
     width: float = 0.975,
-    point_fun: str = "mean",
 ) -> pd.DataFrame:
   """Compute mean and quantile interval (QI).
 
@@ -1203,12 +1285,13 @@ def mean_qi(
 
   bild.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
   if(isinstance(self, pd.DataFrame)):
+    self = self.select_dtypes([int, float])
     var_name = self.columns
   else:
     var_name = [self.name]
 
   res = pd.DataFrame({
-      'mean':self.apply('mean'),
+      'mean':self.mean(),
       'lower':self.quantile(1 - width),
       'upper':self.quantile(width),
   }, index = var_name
@@ -1249,12 +1332,13 @@ def median_qi(
   """
   bild.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
   if(isinstance(self, pd.DataFrame)):
+    self = self.select_dtypes([int, float])
     var_name = self.columns
   else:
     var_name = [self.name]
 
   res = pd.DataFrame({
-      'median':self.apply('median'),
+      'median':self.median(),
       'lower':self.quantile(1 - width),
       'upper':self.quantile(width),
   }, index = var_name
@@ -1296,6 +1380,7 @@ def mean_ci(
   """
   bild.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
   if(isinstance(self, pd.DataFrame)):
+    self = self.select_dtypes([int, float])
     var_name = self.columns
   else:
     var_name = [self.name]
@@ -1341,7 +1426,7 @@ def is_number(self, na_default = True):
     & ~ self_str.map(detect_Kanzi)\
     & ~ is_ymd_like(self_str)
 
-  exponent = self_str.str.contains(r'[0-9]+[Ee][+-][0-9]+', regex = True)
+  exponent = self_str.str.contains('[0-9]+[E,e]+(?:\+|-)[0-9]+', regex = True)
   res[exponent] = True
 
   res[self.isna()] = na_default
@@ -1474,6 +1559,9 @@ def set_prop_miss(x, prop = 0.1, method = 'random', random_state = None, na_valu
 # print(eda.set_prop_miss(s, prop = 0.2).isna().mean())
 # #> 0.19767441860465115
 # ```
+
+# %% [markdown]
+# # 簡易なデータバリデーションツール
 
 # %%
 @pf.register_dataframe_method
@@ -1608,3 +1696,5 @@ def Mean(*arg): return pd.concat(arg, axis = 'columns').mean(axis = 'columns')
 def Max(*arg): return pd.concat(arg, axis = 'columns').max(axis = 'columns')
 def Min(*arg): return pd.concat(arg, axis = 'columns').min(axis = 'columns')
 def Median(*arg): return pd.concat(arg, axis = 'columns').median(axis = 'columns')
+
+
