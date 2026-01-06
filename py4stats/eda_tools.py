@@ -351,7 +351,7 @@ def compare_df_cols(
   return res
 
 
-# 平均値などの統計値の近接性で比較するバージョン
+# ### 平均値などの統計値の近接性で比較するバージョン
 
 
 
@@ -1455,32 +1455,6 @@ def detect_Kanzi(s):
 
 
 @pf.register_series_method
-def is_number(self, na_default = True):
-  """文字列が数字であるかどうかを判定する関数"""
-  rex_phone = '[0-9]{0,4}(?: |-)[0-9]{0,4}(?: |-)[0-9]{0,4}'
-  rex_han = '[Script=Han]+'
-
-  self_str = self.copy().astype(str)
-
-  res = self_str.str.contains('[0-9]+', regex = True)\
-    & ~ self_str.str.contains(rex_phone, regex = True)\
-    & ~ self_str.str.contains('[\u3041-\u309F]+', regex = True)\
-    & ~ self_str.str.contains('[\u30A1-\u30FF]+', regex = True)\
-    & ~ self_str.str.contains('[A-z]+', regex = True)\
-    & ~ self_str.map(detect_Kanzi)\
-    & ~ is_ymd_like(self_str)
-
-  exponent = self_str.str.contains('[0-9]+[E,e]+(?:\+|-)[0-9]+', regex = True)
-  res[exponent] = True
-
-  res[self.isna()] = na_default
-
-  return res
-
-
-
-
-@pf.register_series_method
 def is_ymd(self, na_default = True):
   """与えられた文字列が ymd 形式の日付かどうかを判定する関数"""
   rex_ymd = '[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}'
@@ -1501,6 +1475,35 @@ def is_ymd_like(self, na_default = True):
   self_str = self.copy().astype(str)
 
   res = self_str.str.contains(rex_ymd_like, regex = True)
+
+  res[self.isna()] = na_default
+
+  return res
+
+
+
+
+@pf.register_series_method
+def is_number(self, na_default = True):
+  """文字列が数字であるかどうかを判定する関数"""
+  rex_phone = '[0-9]{0,4}(?: |-)[0-9]{0,4}(?: |-)[0-9]{0,4}'
+  rex_exponent = r'[0-9]+[Ee][+-][0-9]+'
+
+  self_str = self.copy().astype(str)
+
+  res = (
+    self_str.str.contains('[0-9]+', regex = True) & 
+    ~ self_str.str.contains(rex_phone, regex = True) &
+    ~ self_str.str.contains('[\u3041-\u309F]+', regex = True) & # ひらがな
+    ~ self_str.str.contains('[\u30A1-\u30FF]+', regex = True) & # カタカナ
+    ~ self_str.str.contains('[\uFF61-\uFF9F]+', regex = True) & # 半角カタカナ
+    ~ self_str.str.contains('[\u4E00-\u9FFF]+', regex = True) & # 漢字
+    ~ self_str.str.contains('[A-z]+', regex = True) &
+    ~ is_ymd_like(self_str)
+  )
+
+  exponent = self_str.str.contains(rex_exponent, regex = True)
+  res[exponent] = True
 
   res[self.isna()] = na_default
 

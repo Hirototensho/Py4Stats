@@ -1702,6 +1702,93 @@ def mean_ci_nw_series(
     return result
 
 
+# ## 正規表現を文字列関連の論理関数
+
+
+
+def is_kanzi(s):
+  s = nw.from_native(s, allow_series = True)
+  return s.str.contains('[\u4E00-\u9FFF]+')
+
+
+
+
+@pf.register_series_method
+def is_ymd_nw(self:IntoSeriesT, na_default:bool = True, to_native: bool = True) -> IntoSeriesT:
+    """与えられた文字列が ymd 形式の日付かどうかを判定する関数"""
+    bild.assert_logical(to_native, arg_name = 'to_native')
+    bild.assert_logical(na_default, arg_name = 'na_default')
+
+    rex_ymd = '[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}'
+
+    self_nw = nw.from_native(self, allow_series = True)
+
+    result = self_nw.str.contains(rex_ymd)
+
+    result = result.fill_null(na_default)
+    if to_native: return result.to_native()
+    return result
+
+@pf.register_series_method
+def is_ymd_like_nw(self:IntoSeriesT, na_default:bool = True, to_native: bool = True) -> IntoSeriesT:
+    """与えられた文字列が ymd 形式っぽい日付かどうかを判定する関数"""
+    bild.assert_logical(to_native, arg_name = 'to_native')
+    bild.assert_logical(na_default, arg_name = 'na_default')
+
+    rex_ymd_like = '[Script=Han]{0,2}[0-9]{1,4}(?:年|-)[0-9]{1,2}(?:月|-)[0-9]{1,2}(?:日)?'
+
+    self_nw = nw.from_native(self, allow_series = True)
+
+    result = self_nw.str.contains(rex_ymd_like)
+
+    result = result.fill_null(na_default)
+    if to_native: return result.to_native()
+    return result
+
+
+
+
+@pf.register_series_method
+def is_number_nw(self:IntoSeriesT, na_default:bool = True, to_native: bool = True) -> IntoSeriesT:
+    """文字列が数字であるかどうかを判定する関数"""
+    bild.assert_logical(to_native, arg_name = 'to_native')
+    bild.assert_logical(na_default, arg_name = 'na_default')
+
+    rex_phone = '[0-9]{0,4}(?: |-)[0-9]{0,4}(?: |-)[0-9]{0,4}'
+    rex_exponent = r'[0-9]+[Ee][+-][0-9]+'
+    self_nw = nw.from_native(self, allow_series = True)
+
+    result_dict = {
+        'numeric': ~self_nw.str.contains('[0-9]+').fill_null(na_default).cast(nw.Boolean),
+        'phone': self_nw.str.contains(rex_phone).fill_null(na_default),
+        'alpha': self_nw.str.contains('[A-z]+').fill_null(na_default),
+        'ひらがな': self_nw.str.contains('[\u3041-\u309F]+').fill_null(na_default), 
+        'カタカナ':  self_nw.str.contains('[\u30A1-\u30FF]+').fill_null(na_default), 
+        '半角カタカナ': self_nw.str.contains('[\uFF61-\uFF9F]+').fill_null(na_default), 
+        '漢字': self_nw.str.contains('[\u4E00-\u9FFF]+').fill_null(na_default),
+        'ymd_like': is_ymd_like_nw(self_nw),
+        # 'exponent': self_nw.str.contains(rex_exponent).fill_null(na_default)
+    }
+
+    result = nw.from_dict(
+        result_dict, 
+        backend = self_nw.implementation
+        )\
+        .with_columns(
+            ~(nw.all().cast(nw.Boolean))
+        )\
+        .with_columns(
+           res1 = nw.all_horizontal(nw.all(), ignore_nulls = True),
+           exponent = self_nw.str.contains(rex_exponent).fill_null(na_default) 
+        )\
+        .with_columns(
+            result = nw.col('res1') | nw.col('exponent')
+        )['result']
+
+    if to_native: return result.to_native()
+    return result
+
+
 # ## 簡易なデータバリデーションツール
 
 
