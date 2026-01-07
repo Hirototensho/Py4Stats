@@ -50,7 +50,7 @@ print(penguins2.is_dummy())
 #> species_Gentoo        True
 #> Intercept            False
 #> female                True
-#> dtype: bool
+#> Name: 0, dtype: bool
 ```
 ***
 [Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)

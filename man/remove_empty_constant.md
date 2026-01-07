@@ -115,15 +115,15 @@ print(penguins2.remove_constant(quiet = False).head(3))
 ```
 
 ``` python
-penguins2.loc[:, 'almost_empty'] = np.nan
+penguins2.loc[:, 'almost_empty'] = pd.NA
 penguins2.loc[1, 'almost_empty'] = 'c'
 
 # dropna = False なら、almost_empty は削除されません。
 print(penguins2.remove_constant().head(3))
 #>   species  body_mass_g almost_empty
-#> 0  Adelie       3750.0          NaN
+#> 0  Adelie       3750.0         <NA>
 #> 1  Adelie       3800.0            c
-#> 2  Adelie       3250.0          NaN
+#> 2  Adelie       3250.0         <NA>
 
 print(penguins2.remove_constant(dropna = True).head(3))
 #>   species  body_mass_g

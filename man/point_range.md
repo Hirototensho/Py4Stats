@@ -27,32 +27,29 @@ from palmerpenguins import load_penguins
 penguins = load_penguins() # サンプルデータの読み込み
 
 print(penguins['bill_length_mm'].mean_qi().round(2))
-#>                  mean  lower  upper
-#> variable                           
-#> bill_length_mm  43.92  34.81  53.08
+#>          variable   mean  lower  upper
+#> 0  bill_length_mm  43.92   34.8   53.1
+
 
 print(penguins['bill_length_mm'].median_qi().round(2))
-#>                 median  lower  upper
-#> variable                            
-#> bill_length_mm   44.45  34.81  53.08
+#>          variable  median  lower  upper
+#> 0  bill_length_mm   44.45   34.8   53.1
 
 print(penguins['bill_length_mm'].mean_ci().round(2))
-#>                  mean  lower  upper
-#> variable                           
-#> bill_length_mm  43.92  43.34   44.5
+#>          variable   mean  lower  upper
+#> 0  bill_length_mm  43.92  43.26  44.58
 
 print(penguins[['bill_length_mm', 'bill_depth_mm']].mean_ci().round(2))
-#>                  mean  lower  upper
-#> variable                           
-#> bill_length_mm  43.92  43.34  44.50
-#> bill_depth_mm   17.15  16.94  17.36
+#>          variable   mean  lower  upper
+#> 0  bill_length_mm  43.92  43.26  44.58
+#> 1   bill_depth_mm  17.15  16.91  17.39
 
-print(penguins.groupby('species')[['bill_length_mm']].apply(eda.median_qi).round(2))
-#>                           median  lower  upper
-#> species   variable                            
-#> Adelie    bill_length_mm   38.80  34.08  44.10
-#> Chinstrap bill_length_mm   49.55  42.47  54.72
-#> Gentoo    bill_length_mm   47.30  42.60  54.26
+print(penguins.groupby('species')[['bill_length_mm']].apply(py4st.median_qi).round(2))
+#>                    variable  median  lower  upper
+#> species                                          
+#> Adelie    0  bill_length_mm   38.80  34.05  44.10
+#> Chinstrap 0  bill_length_mm   49.55  42.45  55.00
+#> Gentoo    0  bill_length_mm   47.30  42.65  53.85
 ```
 ***
 [Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)

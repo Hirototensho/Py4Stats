@@ -31,6 +31,7 @@ from ._nw import (
     plot_median_diff,
     plot_miss_var,
     remove_constant,
+    remove_empty,
     tabyl,
     weighted_mean
 )
@@ -73,8 +74,8 @@ from ._pandas import (
     plot_median_diff, 
     remove_constant, 
     remove_empty, 
-    # set_n_miss, 
-    # set_prop_miss, 
+    set_n_miss, 
+    set_prop_miss, 
     singledispatch, 
     std_entropy, 
     tabyl , 

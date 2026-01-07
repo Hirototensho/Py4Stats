@@ -1083,7 +1083,10 @@ def missing_percent(
     n = data_nw.shape[0]
 
     if axis == 'index':
+        n = data_nw.shape[0]
         miss_count = pd.Series(data_nw.null_count().row(0), index = data_nw.columns)
+        miss_pct = (100 ** pct) * miss_count / n
+        return miss_pct
     else:
         miss_count = data_nw.with_columns(
             nw.all().is_null().cast(nw.Int32)
@@ -1097,8 +1100,9 @@ def missing_percent(
         else:
             miss_count = pd.Series(miss_count)
 
-    miss_pct = (100 ** pct) * miss_count / n
-    return miss_pct
+        k = data_nw.shape[1]
+        miss_pct = (100 ** pct) * miss_count / k
+        return miss_pct
 
 
 # In[ ]:
@@ -1181,6 +1185,7 @@ def remove_constant(
     self: IntoFrameT,
     quiet: bool = True,
     to_native: bool = True,
+    dropna = False,
     **kwargs: Any
 ) -> IntoFrameT:
     """Remove constant columns (columns with only one unique value).
@@ -1203,9 +1208,16 @@ def remove_constant(
     # ==============================================================
     data_nw = nw.from_native(self)
     df_shape = data_nw.shape
+    col_name = data_nw.columns
 
     # データフレーム(data_nw) の行が定数かどうかを判定
-    unique_count = pd.Series(data_nw.select(nw.all().n_unique()).row(0), index = data_nw.columns)
+    def foo (col, dropna):
+        if dropna: 
+            return data_nw[col].drop_nulls().n_unique() 
+        else:
+            return data_nw[col].n_unique()
+    # unique_count = pd.Series(data_nw.select(nw.all().n_unique()).row(0), index = data_nw.columns)
+    unique_count = pd.Series([foo(col, dropna) for col in col_name])
     constant_col = unique_count == 1
     data_nw = data_nw[:, (~constant_col).to_list()]
 
