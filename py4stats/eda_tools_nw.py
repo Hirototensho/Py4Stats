@@ -962,6 +962,92 @@ def tabyl_nw(
     return c_tab1
 
 
+# ## `diagnose_category()`：カテゴリー変数専用の要約関数
+
+
+
+@pf.register_dataframe_method
+@pf.register_series_method
+@singledispatch
+def is_dummy_nw(
+    self: Union[IntoFrameT, SeriesT],
+    cording: Sequence[Any] = (0, 1),
+    to_pd_Series = True,
+    **kwargs
+) -> Union[bool, IntoSeriesT, IntoFrameT]:
+    """Check whether values consist only of dummy codes.
+
+    Args:
+        self (pandas.Series or pandas.DataFrame):
+            Input data.
+        cording (list):
+            Allowed set of dummy codes (default: [0, 1]).
+
+    Returns:
+        bool or pandas.Series:
+            - If Series input: returns bool.
+            - If DataFrame input: returns a boolean Series per column.
+    """
+    bild.assert_logical(to_pd_Series, arg_name = 'to_pd_Series')
+
+    self_nw = nw.from_native(self, allow_series = True)
+    return is_dummy_nw(self_nw, cording, to_pd_Series)
+
+
+
+
+@is_dummy_nw.register(nw.Series)
+def is_dummy_nw_series(
+    self: IntoSeriesT,
+    cording: Sequence[Any] = (0, 1),
+    to_pd_Series = True,
+    **kwargs
+) -> bool:
+    return set(self) == set(cording)
+
+
+
+
+@is_dummy_nw.register(nw.DataFrame)
+def is_dummy_nw_data_frame(
+        self: IntoFrameT, 
+        cording: Sequence[Any] = (0, 1),
+        to_pd_Series = True,
+        **kwargs
+        ) -> Union[IntoFrameT, pd.Series]:
+
+    self_nw = nw.from_native(self)
+
+    result = self_nw.select(
+        nw.all().map_batches(
+            lambda x: is_dummy_nw_series(x, cording), 
+            return_dtype = nw.Boolean,
+            returns_scalar = True
+            )
+    )
+
+    if to_pd_Series: 
+        return result.to_pandas().loc[0, :]
+    return result
+
+
+# ## その他の補助関数
+
+
+
+def weighted_mean(x: SeriesT, w: SeriesT) -> float:
+  wmean = (x * w).sum() / w.sum()
+  return wmean
+
+def scale(x: SeriesT, ddof: int = 1) -> SeriesT:
+    z = (x - x.mean()) / x.std(ddof = ddof)
+    return z
+
+def min_max(x: SeriesT) -> SeriesT:
+  mn = (x - x.min()) / (x.max() - x.min())
+  return mn
+
+
 # ## 完全な空白列 and / or 行の除去
 
 
