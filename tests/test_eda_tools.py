@@ -197,6 +197,21 @@ def test_is_number_basic() -> None:
     assert not out.iloc[3]
     assert not out.iloc[4]
 
+def test_is_number_extend() -> None:
+    s = pd.Series([
+        '123', "0.12", "1e+07", '-31', '2個', '1A',
+        "2024-03-03", "2024年3月3日", "24年3月3日", '令和6年3月3日',
+        '0120-123-456', '15ｹ', "apple", "不明", None, np.nan
+        ])
+
+    expect = pd.Series([
+        True, True, True, True, False, False, 
+        False, False, False, False, False, False,
+        False, False, True, True
+    ])
+
+    assert (eda.is_number(s) == expect).all()
+
 # =========================================================
 # check_that / check_viorate
 # =========================================================
