@@ -29,15 +29,15 @@ from palmerpenguins import load_penguins
 penguins = load_penguins() # サンプルデータの読み込み
 
 print(penguins.diagnose().round(4))
-#>                      dtype  missing_count  missing_percent  unique_count  unique_rate
-#> species             object              0           0.0000             3       0.8721
-#> island              object              0           0.0000             3       0.8721
-#> bill_length_mm     float64              2           0.5814           164      47.6744
-#> bill_depth_mm      float64              2           0.5814            80      23.2558
-#> flipper_length_mm  float64              2           0.5814            55      15.9884
-#> body_mass_g        float64              2           0.5814            94      27.3256
-#> sex                 object             11           3.1977             2       0.5814
-#> year                 int64              0           0.0000             3       0.8721
+#>              columns    dtype  missing_count  missing_percent  unique_count  unique_rate
+#> 0            species   object              0           0.0000             3       0.8721
+#> 1             island   object              0           0.0000             3       0.8721
+#> 2     bill_length_mm  float64              2           0.5814           165      47.9651
+#> 3      bill_depth_mm  float64              2           0.5814            81      23.5465
+#> 4  flipper_length_mm  float64              2           0.5814            56      16.2791
+#> 5        body_mass_g  float64              2           0.5814            95      27.6163
+#> 6                sex   object             11           3.1977             3       0.8721
+#> 7               year    int64              0           0.0000             3       0.8721
 ```
 
 ***

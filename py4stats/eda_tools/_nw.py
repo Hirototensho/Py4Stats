@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# In[ ]:
 
 
 from __future__ import annotations
@@ -8,10 +9,11 @@ from __future__ import annotations
 
 # # `eda_tools_nw`： `narwhals` ライブラリを使った実験的実装
 
+# In[ ]:
 
 
 from py4stats import bilding_block as bild # py4stats のプログラミングを補助する関数群
-from py4stats import eda_tools as eda        # 基本統計量やデータの要約など
+# from py4stats import eda_tools as eda        # 基本統計量やデータの要約など
 import matplotlib.pyplot as plt
 import functools
 from functools import singledispatch
@@ -28,6 +30,7 @@ from narwhals.typing import FrameT, IntoFrameT, SeriesT, IntoSeriesT
 import pandas_flavor as pf
 
 
+# In[ ]:
 
 
 from typing import (
@@ -57,6 +60,7 @@ DataLike = Union[pd.Series, pd.DataFrame]
 
 # # `diagnose()`
 
+# In[ ]:
 
 
 def get_dtypes(data: IntoFrameT) -> pd.Series:
@@ -70,10 +74,11 @@ def get_dtypes(data: IntoFrameT) -> pd.Series:
     return s_dtypes
 
 
+# In[ ]:
 
 
 @pf.register_dataframe_method
-def diagnose_nw(self: IntoFrameT, to_native: bool = True) -> IntoFrameT:
+def diagnose(self: IntoFrameT, to_native: bool = True) -> IntoFrameT:
     """Summarize each column of a DataFrame for quick EDA.
 
     This method computes basic diagnostics for each column:
@@ -116,9 +121,10 @@ def diagnose_nw(self: IntoFrameT, to_native: bool = True) -> IntoFrameT:
     return result
 
 
+# In[ ]:
 
 
-def plot_miss_var_nw(
+def plot_miss_var(
         data: IntoFrameT,
         values: Literal['missing_percent', 'missing_count'] = 'missing_percent', 
         sort: bool = True, 
@@ -183,7 +189,7 @@ def plot_miss_var_nw(
     bild.assert_logical(sort, arg_name = 'sort')
     bild.assert_logical(miss_only, arg_name = 'miss_only')
 
-    diagnose_tab = diagnose_nw(data, to_native = False)
+    diagnose_tab = diagnose(data, to_native = False)
     if sort: diagnose_tab = diagnose_tab.sort(values)
     if miss_only: diagnose_tab = diagnose_tab.filter(nw.col('missing_percent') > 0)
 
@@ -205,6 +211,7 @@ def plot_miss_var_nw(
 
 # ### 異なるデータフレームの列を比較する関数
 
+# In[ ]:
 
 
 def is_FrameT(obj: object) -> bool:
@@ -215,11 +222,12 @@ def is_FrameT(obj: object) -> bool:
         return False
 
 
+# In[ ]:
 
 
 ReturnMatch = Literal["all", "match", "mismatch"]
 
-def compare_df_cols_nw(
+def compare_df_cols(
     df_list: List[FrameT],
     return_match: Literal["all", "match", "mismatch"] = 'all',
     df_name = None,
@@ -283,13 +291,14 @@ def compare_df_cols_nw(
 
 # ### 平均値などの統計値の近接性で比較するバージョン
 
+# In[ ]:
 
 
 # import narwhals.selectors as ncs
 # import itertools
 # StatsLike = Union[str, Callable[..., Any]]
 
-def compare_df_stats_nw(
+def compare_df_stats(
     df_list: List[FrameT],
     return_match: ReturnMatch = "all",
     df_name: Optional[List[str]] = None,
@@ -381,10 +390,11 @@ def _compute_stats(df, func):
     return df.select(func(numeric_vars)).to_pandas().loc[0, :]
 
 
+# In[ ]:
 
 
 # レコード毎の近接性（数値の場合）または一致性（数値以外）で評価する関数
-def compare_df_record_nw(
+def compare_df_record(
     df1: IntoFrameT,
     df2: IntoFrameT,
     rtol: float = 1e-05,
@@ -441,8 +451,8 @@ def compare_df_record_nw(
             column sets.
 
     Examples:
-        >>> compare_df_record_nw(df1, df2, columns="all")
-        >>> compare_df_record_nw(df1, df2, rtol=1e-4, columns="common")
+        >>> compare_df_record(df1, df2, columns="all")
+        >>> compare_df_record(df1, df2, rtol=1e-4, columns="common")
     """
     df1 = nw.from_native(df1)
     df2 = nw.from_native(df2)
@@ -537,9 +547,10 @@ def compare_df_record_nw(
 
 # ## グループ別平均（中央値）の比較
 
+# In[ ]:
 
 
-def compare_group_means_nw(
+def compare_group_means(
     group1: IntoFrameT,
     group2: IntoFrameT,
     group_names: Sequence[str] = ('group1', 'group2'),
@@ -573,8 +584,8 @@ def compare_group_means_nw(
     # ==============================================================
     group1 = nw.from_native(group1)
     group2 = nw.from_native(group2)
-    group1 = remove_constant_nw(group1, to_native = False)
-    group2 = remove_constant_nw(group2, to_native = False)
+    group1 = remove_constant(group1, to_native = False)
+    group2 = remove_constant(group2, to_native = False)
 
     res = pd.DataFrame({
         group_names[0]:group1.select(ncs.numeric().mean()).to_pandas().loc[0, :],
@@ -596,9 +607,10 @@ def compare_group_means_nw(
 
 
 
+# In[ ]:
 
 
-def compare_group_median_nw(
+def compare_group_median(
     group1: IntoFrameT,
     group2: IntoFrameT,
     group_names: Sequence[str] = ("group1", "group2"),
@@ -631,8 +643,8 @@ def compare_group_median_nw(
     # ==============================================================
     group1 = nw.from_native(group1)
     group2 = nw.from_native(group2)
-    group1 = remove_constant_nw(group1, to_native = False)
-    group2 = remove_constant_nw(group2, to_native = False)
+    group1 = remove_constant(group1, to_native = False)
+    group2 = remove_constant(group2, to_native = False)
 
     res = pd.DataFrame({
         group_names[0]:group1.select(ncs.numeric().median()).to_pandas().loc[0, :],
@@ -645,9 +657,10 @@ def compare_group_median_nw(
     return res
 
 
+# In[ ]:
 
 
-def plot_mean_diff_nw(
+def plot_mean_diff(
     group1: IntoFrameT,
     group2: IntoFrameT,
     stats_diff: Literal["norm_diff", "abs_diff", "rel_diff"] = "norm_diff",
@@ -675,7 +688,7 @@ def plot_mean_diff_nw(
       stats_diff, ['norm_diff', 'abs_diff', 'rel_diff'],
       arg_name = 'stats_diff'
       )
-  group_means = compare_group_means_nw(group1, group2)
+  group_means = compare_group_means(group1, group2)
 
   if ax is None:
     fig, ax = plt.subplots()
@@ -687,9 +700,10 @@ def plot_mean_diff_nw(
   ax.invert_yaxis();
 
 
+# In[ ]:
 
 
-def plot_median_diff_nw(
+def plot_median_diff(
     group1: IntoFrameT,
     group2: IntoFrameT,
     stats_diff: Literal["abs_diff", "rel_diff"] = "rel_diff",
@@ -716,7 +730,7 @@ def plot_median_diff_nw(
       stats_diff, ['abs_diff', 'rel_diff']
       )
 
-  group_median = compare_group_median_nw(group1, group2)
+  group_median = compare_group_median(group1, group2)
 
   if ax is None:
     fig, ax = plt.subplots()
@@ -728,10 +742,11 @@ def plot_median_diff_nw(
 
 # ## クロス集計表ほか
 
+# In[ ]:
 
 
 @pf.register_dataframe_method
-def crosstab_nw(
+def crosstab(
         df_native: IntoFrameT, 
         index: str, columns: str, 
         margins: bool = False,
@@ -809,10 +824,11 @@ def crosstab_nw(
     return result
 
 
+# In[ ]:
 
 
 @pf.register_dataframe_method
-def freq_table_nw(
+def freq_table(
     self: IntoFrameT,
     subset: Union[str, Sequence[str]],
     sort: bool = True,
@@ -869,9 +885,10 @@ def freq_table_nw(
     return result
 
 
+# In[ ]:
 
 
-def tabyl_nw(
+def tabyl(
     self: IntoFrameT,
     index: str,
     columns: str,
@@ -934,7 +951,7 @@ def tabyl_nw(
     # 度数クロス集計表（最終的な表では左側の数字）
     args_dict = locals()
     args_dict.pop('normalize')
-    c_tab1 = crosstab_nw(
+    c_tab1 = crosstab(
        df_native = self,
        normalize = False,
        **args_dict
@@ -944,7 +961,7 @@ def tabyl_nw(
 
     if(normalize != False):
         # 回答率クロス集計表（最終的な表では括弧内の数字）
-        c_tab2 = crosstab_nw(
+        c_tab2 = crosstab(
            df_native = self, 
            normalize = normalize, 
            **args_dict
@@ -964,12 +981,13 @@ def tabyl_nw(
 
 # ## `diagnose_category()`：カテゴリー変数専用の要約関数
 
+# In[ ]:
 
 
 @pf.register_dataframe_method
 @pf.register_series_method
 @singledispatch
-def is_dummy_nw(
+def is_dummy(
     self: Union[IntoFrameT, SeriesT],
     cording: Sequence[Any] = (0, 1),
     to_pd_Series = True,
@@ -991,13 +1009,14 @@ def is_dummy_nw(
     bild.assert_logical(to_pd_Series, arg_name = 'to_pd_Series')
 
     self_nw = nw.from_native(self, allow_series = True)
-    return is_dummy_nw(self_nw, cording, to_pd_Series)
+    return is_dummy(self_nw, cording, to_pd_Series)
 
 
+# In[ ]:
 
 
-@is_dummy_nw.register(nw.Series)
-def is_dummy_nw_series(
+@is_dummy.register(nw.Series)
+def is_dummy_series(
     self: IntoSeriesT,
     cording: Sequence[Any] = (0, 1),
     to_pd_Series = True,
@@ -1006,10 +1025,11 @@ def is_dummy_nw_series(
     return set(self) == set(cording)
 
 
+# In[ ]:
 
 
-@is_dummy_nw.register(nw.DataFrame)
-def is_dummy_nw_data_frame(
+@is_dummy.register(nw.DataFrame)
+def is_dummy_data_frame(
         self: IntoFrameT, 
         cording: Sequence[Any] = (0, 1),
         to_pd_Series = True,
@@ -1020,7 +1040,7 @@ def is_dummy_nw_data_frame(
 
     result = self_nw.select(
         nw.all().map_batches(
-            lambda x: is_dummy_nw_series(x, cording), 
+            lambda x: is_dummy_series(x, cording), 
             return_dtype = nw.Boolean,
             returns_scalar = True
             )
@@ -1033,6 +1053,7 @@ def is_dummy_nw_data_frame(
 
 # ## その他の補助関数
 
+# In[ ]:
 
 
 def weighted_mean(x: SeriesT, w: SeriesT) -> float:
@@ -1050,9 +1071,10 @@ def min_max(x: SeriesT) -> SeriesT:
 
 # ## 完全な空白列 and / or 行の除去
 
+# In[ ]:
 
 
-def missing_percent_nw(
+def missing_percent(
         data: IntoFrameT,
         axis: str = 'index',
         pct: bool = True
@@ -1079,10 +1101,11 @@ def missing_percent_nw(
     return miss_pct
 
 
+# In[ ]:
 
 
 @pf.register_dataframe_method
-def remove_empty_nw(
+def remove_empty(
     self: IntoFrameT,
     cols: bool = True,
     rows: bool = True,
@@ -1123,7 +1146,7 @@ def remove_empty_nw(
     data_nw = nw.from_native(self)
     # 空白列の除去 ------------------------------
     if cols :
-        empty_col = missing_percent_nw(self, axis = 'index', pct = False) >= cutoff
+        empty_col = missing_percent(self, axis = 'index', pct = False) >= cutoff
         data_nw = data_nw[:, (~empty_col).to_list()]
 
         if not(quiet) :
@@ -1135,7 +1158,7 @@ def remove_empty_nw(
                 )
     # 空白行の除去 ------------------------------
     if rows :
-        empty_rows = missing_percent_nw(self, axis = 'columns', pct = False) >= cutoff
+        empty_rows = missing_percent(self, axis = 'columns', pct = False) >= cutoff
         data_nw = data_nw.filter((~empty_rows).to_list())
 
         if not(quiet) :
@@ -1150,10 +1173,11 @@ def remove_empty_nw(
     return data_nw
 
 
+# In[ ]:
 
 
 @pf.register_dataframe_method
-def remove_constant_nw(
+def remove_constant(
     self: IntoFrameT,
     quiet: bool = True,
     to_native: bool = True,
@@ -1197,11 +1221,12 @@ def remove_constant_nw(
     return data_nw
 
 
+# In[ ]:
 
 
 # 列名や行名に特定の文字列を含む列や行を除外する関数
 @pf.register_dataframe_method
-def filtering_out_nw(
+def filtering_out(
     self: IntoFrameT,
     contains: Optional[str] = None,
     starts_with: Optional[str] = None,
@@ -1255,7 +1280,7 @@ def filtering_out_nw(
     if axis in ("0", "index"):
         if not hasattr(self, "index"):
             raise TypeError(
-                f"filtering_out_nw(..., axis='{axis}') requires an input that has"
+                f"filtering_out(..., axis='{axis}') requires an input that has"
                 "an 'index' (row labels), e.g. pandas.DataFrame.\n"
                 f"Got: {type(self)}."
             )
@@ -1301,10 +1326,11 @@ def filtering_out_nw(
 
 # # パレート図を作図する関数
 
+# In[ ]:
 
 
 # パレート図を作成する関数
-def Pareto_plot_nw(
+def Pareto_plot(
     data: IntoFrameT,
     group: str,
     values: Optional[str] = None,
@@ -1352,10 +1378,10 @@ def Pareto_plot_nw(
     # 指定された変数でのランクを表すデータフレームを作成
     data_nw = nw.from_native(data)
     if values is None:
-        shere_rank = freq_table_nw(data_nw, group, dropna = True,  descending = True, to_native = False)
+        shere_rank = freq_table(data_nw, group, dropna = True,  descending = True, to_native = False)
         cumlative = 'cumfreq'
     else:
-        shere_rank = make_rank_table_nw(
+        shere_rank = make_rank_table(
             data_nw.to_pandas(), 
             group, values, aggfunc = aggfunc,
             to_native = False
@@ -1369,9 +1395,10 @@ def Pareto_plot_nw(
     make_Pareto_plot(**args_dict)
 
 
+# In[ ]:
 
 
-def make_rank_table_nw(
+def make_rank_table(
     data: pd.DataFrame,
     group: str,
     values: str,
@@ -1398,6 +1425,7 @@ def make_rank_table_nw(
         return rank_table
 
 
+# In[ ]:
 
 
 def make_Pareto_plot(
@@ -1474,6 +1502,7 @@ def make_Pareto_plot(
 # #> bill_depth_mm  17.15  16.94  17.36
 # ```
 
+# In[ ]:
 
 
 Interpolation = Literal[
@@ -1491,11 +1520,12 @@ interpolation_values = [
     ]
 
 
+# In[ ]:
 
 
 @pf.register_dataframe_method
 @pf.register_series_method
-def mean_qi_nw(
+def mean_qi(
     self: Union[IntoFrameT, SeriesT],
     width: float = 0.975,
     interpolation: Interpolation = 'midpoint',
@@ -1590,11 +1620,12 @@ def mean_qi_nw_series(
     return result
 
 
+# In[ ]:
 
 
 @pf.register_dataframe_method
 @pf.register_series_method
-def median_qi_nw(
+def median_qi(
     self: Union[FrameT, SeriesT],
     width: float = 0.975,
     interpolation: Interpolation = 'midpoint',
@@ -1689,12 +1720,13 @@ def median_qi_nw_series(
     return result
 
 
+# In[ ]:
 
 
 from scipy.stats import t
 @pf.register_dataframe_method
 @pf.register_series_method
-def mean_ci_nw(
+def mean_ci(
     self: Union[FrameT, SeriesT],
     width: float = 0.975,
     to_native: bool = True
@@ -1790,17 +1822,28 @@ def mean_ci_nw_series(
 
 # ## 正規表現を文字列関連の論理関数
 
-
-
-def is_kanzi(s):
-  s = nw.from_native(s, allow_series = True)
-  return s.str.contains('[\u4E00-\u9FFF]+')
-
-
+# In[ ]:
 
 
 @pf.register_series_method
-def is_ymd_nw(self:IntoSeriesT, na_default:bool = True, to_native: bool = True) -> IntoSeriesT:
+def is_kanzi(self:IntoSeriesT, na_default:bool = True, to_native: bool = True) -> IntoSeriesT:
+    """与えられた文字列が ymd 形式の日付かどうかを判定する関数"""
+    bild.assert_logical(to_native, arg_name = 'to_native')
+    bild.assert_logical(na_default, arg_name = 'na_default')
+
+    self_nw = nw.from_native(self, allow_series = True)
+
+    result = self_nw.str.contains('[\u4E00-\u9FFF]+').fill_null(na_default)
+
+    if to_native: return result.to_native()
+    return result
+
+
+# In[ ]:
+
+
+@pf.register_series_method
+def is_ymd(self:IntoSeriesT, na_default:bool = True, to_native: bool = True) -> IntoSeriesT:
     """与えられた文字列が ymd 形式の日付かどうかを判定する関数"""
     bild.assert_logical(to_native, arg_name = 'to_native')
     bild.assert_logical(na_default, arg_name = 'na_default')
@@ -1816,7 +1859,7 @@ def is_ymd_nw(self:IntoSeriesT, na_default:bool = True, to_native: bool = True) 
     return result
 
 @pf.register_series_method
-def is_ymd_like_nw(self:IntoSeriesT, na_default:bool = True, to_native: bool = True) -> IntoSeriesT:
+def is_ymd_like(self:IntoSeriesT, na_default:bool = True, to_native: bool = True) -> IntoSeriesT:
     """与えられた文字列が ymd 形式っぽい日付かどうかを判定する関数"""
     bild.assert_logical(to_native, arg_name = 'to_native')
     bild.assert_logical(na_default, arg_name = 'na_default')
@@ -1832,10 +1875,11 @@ def is_ymd_like_nw(self:IntoSeriesT, na_default:bool = True, to_native: bool = T
     return result
 
 
+# In[ ]:
 
 
 @pf.register_series_method
-def is_number_nw(self:IntoSeriesT, na_default:bool = True, to_native: bool = True) -> IntoSeriesT:
+def is_number(self:IntoSeriesT, na_default:bool = True, to_native: bool = True) -> IntoSeriesT:
     """文字列が数字であるかどうかを判定する関数"""
     bild.assert_logical(to_native, arg_name = 'to_native')
     bild.assert_logical(na_default, arg_name = 'na_default')
@@ -1879,10 +1923,11 @@ def is_number_nw(self:IntoSeriesT, na_default:bool = True, to_native: bool = Tru
 
 # ## 簡易なデータバリデーションツール
 
+# In[ ]:
 
 
 @pf.register_dataframe_method
-def check_that_nw(
+def check_that(
     data: IntoFrameT,
     rule_dict: Union[Mapping[str, str], pd.Series],
     **kwargs: Any,
@@ -1918,6 +1963,7 @@ def check_that_nw(
     return check_that_pandas(data_pd, rule_dict = rule_dict, **kwargs)
 
 
+# In[ ]:
 
 
 def check_that_pandas(
@@ -1985,9 +2031,10 @@ def check_that_pandas(
   return result_df
 
 
+# In[ ]:
 
 
-def check_viorate_nw(
+def check_viorate(
     data: IntoFrameT,
     rule_dict: Union[Mapping[str, str], pd.Series],
     **kwargs: Any,
@@ -2018,6 +2065,7 @@ def check_viorate_nw(
     return check_viorate_pandas(data_pd, rule_dict = rule_dict, **kwargs)
 
 
+# In[ ]:
 
 
 def check_viorate_pandas(
@@ -2066,12 +2114,12 @@ def check_viorate_pandas(
 
 # ### helper function for pandas `DataFrame.eval()`
 
+# In[ ]:
 
 
 def implies_exper(P, Q):
   return f"{Q} | ~({P})"
 
-# @pf.register_dataframe_method
 @singledispatch
 def is_complet(self: pd.DataFrame) -> pd.Series:
   return self.notna().all(axis = 'columns')
@@ -2081,6 +2129,7 @@ def _(*arg: pd.Series) -> pd.Series:
   return pd.concat(arg, axis = 'columns').notna().all(axis = 'columns')
 
 
+# In[ ]:
 
 
 def Sum(*arg): return pd.concat(arg, axis = 'columns').sum(axis = 'columns')

@@ -7,7 +7,8 @@ from pandas.testing import assert_frame_equal
 from palmerpenguins import load_penguins
 import matplotlib.pyplot as plt
 
-from py4stats import eda_tools as eda
+# from py4stats.eda_tools import _pandas as eda
+from py4stats.eda_tools import _pandas as eda_pd
 
 import pathlib
 tests_path = pathlib.Path(__file__).parent
@@ -22,7 +23,7 @@ gentoo = penguins.query("species == 'Gentoo'")
 # test_diagnose
 # =========================================================
 def test_diagnose():
-    output_df = penguins.diagnose()
+    output_df = eda_pd.diagnose(penguins)
     # expected_df = pd.read_csv(f'{tests_path}/fixtures/diagnose.csv', index_col = 0)
     expected_df = pd.read_csv(f'{tests_path}/fixtures/diagnose.csv', index_col = 0)
     assert_frame_equal(output_df, expected_df)
@@ -32,13 +33,14 @@ def test_diagnose():
 # freq_tabl/ crosstab2 / tabyl
 # =========================================================
 def test_freq_table():
-    output_df = penguins.freq_table('species')
+    output_df = eda_pd.freq_table(penguins, 'species')
     # output_df.to_csv(f'{tests_path}/fixtures/freq_table.csv')
     expected_df = pd.read_csv(f'{tests_path}/fixtures/freq_table.csv', index_col = 0)
     assert_frame_equal(output_df, expected_df)
 
 def test_crosstab2():
-    output_df = penguins.crosstab2(
+    output_df = eda_pd.crosstab2(
+        penguins,
         index = 'sex',
         columns = 'species', 
         values = 'body_mass_g',
@@ -48,16 +50,16 @@ def test_crosstab2():
     output_df.to_csv(f'{tests_path}/fixtures/crosstab2.csv')
     expected_df = pd.read_csv(f'{tests_path}/fixtures/crosstab2.csv', index_col = 0)
 
-    test_result = eda.compare_df_record(output_df, expected_df).all().all()
+    test_result = eda_pd.compare_df_record(output_df, expected_df).all().all()
 
     assert test_result
 
 def test_tabyl():
-    output_df = penguins.tabyl('island', 'species')
+    output_df = eda_pd.tabyl(penguins, 'island', 'species')
     # output_df.to_csv(f'{tests_path}/fixtures/tabyl.csv')
     expected_df = pd.read_csv(f'{tests_path}/fixtures/tabyl.csv', index_col = 0)
 
-    test_result = eda.compare_df_record(
+    test_result = eda_pd.compare_df_record(
         output_df.astype(str), 
         expected_df.astype(str)
         )\
@@ -67,7 +69,7 @@ def test_tabyl():
 # compare_df
 # =========================================================
 def test_compare_df_cols():
-    output_df = eda.compare_df_cols(
+    output_df = eda_pd.compare_df_cols(
         [adelie, gentoo],
         return_match = 'match'
     )
@@ -80,9 +82,9 @@ def test_compare_df_cols():
 def test_compare_df_stats():
     penguins_modify = penguins.copy()
     penguins_modify['body_mass_g'] = penguins_modify['body_mass_g'] / 1000
-    penguins_modify['bill_length_mm'] = eda.scale(penguins_modify['bill_length_mm'])
+    penguins_modify['bill_length_mm'] = eda_pd.scale(penguins_modify['bill_length_mm'])
 
-    output_df = eda.compare_df_stats(
+    output_df = eda_pd.compare_df_stats(
         [penguins, penguins_modify]
         )
 
@@ -91,7 +93,7 @@ def test_compare_df_stats():
     assert_frame_equal(output_df, expected_df)
 
 def test_compare_df_stats():
-    output_df = eda.compare_group_median(
+    output_df = eda_pd.compare_group_median(
         adelie, gentoo,
         group_names = ['Adelie', 'Gentoo']
     )
@@ -105,7 +107,7 @@ def test_compare_df_record():
     penguins_copy.loc[200:250, 'flipper_length_mm'] = \
         2 * penguins_copy.loc[200:250, 'flipper_length_mm'] 
 
-    output_df = eda.compare_df_record(penguins, penguins_copy)
+    output_df = eda_pd.compare_df_record(penguins, penguins_copy)
 
     # output_df.to_csv(f'{tests_path}/fixtures/compare_df_record.csv')
     expected_df = pd.read_csv(f'{tests_path}/fixtures/compare_df_record.csv', index_col = 0)
@@ -117,14 +119,14 @@ def test_compare_df_record():
 def test_remove_empty():
     penguins_empty = penguins.copy()
     penguins_empty['na_col'] = pd.NA
-    penguins_empty = eda.remove_empty(penguins_empty)
+    penguins_empty = eda_pd.remove_empty(penguins_empty)
     assert_frame_equal(penguins_empty, penguins)
 
 def test_remove_constant():
     penguins_constant = penguins.copy()
     penguins_constant['one'] = 1
     penguins_constant['two'] = 2
-    penguins_constant = eda.remove_constant(penguins_constant, quiet = False)
+    penguins_constant = eda_pd.remove_constant(penguins_constant, quiet = False)
     assert_frame_equal(penguins_constant, penguins)
 
 # =========================================================
@@ -147,11 +149,11 @@ def test_filtering_out_index() -> None:
 
 def test_is_dummy_series() -> None:
     s = pd.Series([0, 1, 1, 0])
-    assert eda.is_dummy(s) is True
+    assert eda_pd.is_dummy(s) is True
 
 def test_is_dummy_dataframe() -> None:
     df = pd.DataFrame({"d1": [0, 1], "d2": [0, 0], "d3": [2, 3]})
-    out = eda.is_dummy(df)
+    out = eda_pd.is_dummy(df)
     assert isinstance(out, pd.Series)
     assert out.loc["d1"]
     assert not out.loc["d2"]
@@ -166,7 +168,7 @@ def test_Pareto_plot() -> None:
     penguins_modify = penguins.copy()
     penguins_modify['group'] = penguins_modify['species'] + '\n' + penguins_modify['island']
     fig, ax = plt.subplots()
-    eda.Pareto_plot(penguins_modify, group = 'group', ax = ax)
+    eda_pd.Pareto_plot(penguins_modify, group = 'group', ax = ax)
     assert len(ax.patches) > 0
 
 # =======================================================================
@@ -174,8 +176,8 @@ def test_Pareto_plot() -> None:
 # =======================================================================
 
 def test_detect_kanzi() -> None:
-    assert eda.detect_Kanzi("漢字") is True
-    assert eda.detect_Kanzi("abc") is False
+    assert eda_pd.detect_Kanzi("漢字") is True
+    assert eda_pd.detect_Kanzi("abc") is False
 
 def test_is_ymd_and_like() -> None:
     s = pd.Series(["2025-12-30", "2025-1-2", "abc", None])
@@ -210,7 +212,7 @@ def test_is_number_extend() -> None:
         False, False, True, True
     ])
 
-    assert (eda.is_number(s) == expect).all()
+    assert (eda_pd.is_number(s) == expect).all()
 
 # =========================================================
 # check_that / check_viorate
@@ -227,7 +229,7 @@ def test_check_that_basic() -> None:
 def test_check_viorate_flags_rows() -> None:
     d = pd.DataFrame({"x": [1, -1, 2]})
     rules = {"x_pos": "x > 0"}
-    out = d.check_viorate(rules)
+    out = eda_pd.check_viorate(d, rules)
     assert out["x_pos"].tolist() == [False, True, False]
     assert out["any"].tolist() == [False, True, False]
     assert out["all"].tolist() == [False, True, False]
@@ -241,18 +243,18 @@ rule_dict =  {
     'to':'turnover > 0',                                     # 売上高は厳密に正である
     'sc':'staff_costs / staff < 50',                         # 従業員1人当たりの人件費は50,000ギルダー未満である
     'cd1':'staff_costs > 0 | ~(staff > 0)',                  # 従業員がいる場合、人件費は厳密に正である
-    'cd2':eda.implies_exper('staff > 0', 'staff_costs > 0'), # 従業員がいる場合、人件費は厳密に正である
+    'cd2':eda_pd.implies_exper('staff > 0', 'staff_costs > 0'), # 従業員がいる場合、人件費は厳密に正である
     'bs':'turnover + other_rev == total_rev',                # 売上高とその他の収入の合計は総収入に等しい
     'mn':'profit.mean() > 0'                                 # セクター全体の平均的な利益はゼロよりも大きい
     }
 def test_check_that_basic() -> None:
-    output_df = eda.check_that(retailers, rule_dict)
+    output_df = eda_pd.check_that(retailers, rule_dict)
     # output_df.to_csv(f'{tests_path}/fixtures/check_that.csv')
     expected_df = pd.read_csv(f'{tests_path}/fixtures/check_that.csv', index_col = 0)
     assert_frame_equal(output_df, expected_df)
 
 def test_check_viorate() -> None:
-    output_df = eda.check_viorate(retailers, rule_dict)
+    output_df = eda_pd.check_viorate(retailers, rule_dict)
     # output_df.to_csv(f'{tests_path}/fixtures/check_viorate.csv')
     expected_df = pd.read_csv(f'{tests_path}/fixtures/check_viorate.csv', index_col = 0)
     assert_frame_equal(output_df, expected_df)
@@ -262,23 +264,23 @@ def test_check_viorate() -> None:
 # ================================================================
 
 def test_implies_exper_string() -> None:
-    assert eda.implies_exper("A", "B") == "B | ~(A)"
+    assert eda_pd.implies_exper("A", "B") == "B | ~(A)"
 
 def test_is_complet_dataframe_and_series() -> None:
     df = pd.DataFrame({"a": [1, None], "b": [2, 3]})
-    out_df = df.is_complet()
+    out_df = eda_pd.is_complet(df)
     assert out_df.tolist() == [True, False]
 
     s1 = pd.Series([1, None])
     s2 = pd.Series([2, 3])
-    out_s = eda.is_complet(s1, s2)
+    out_s = eda_pd.is_complet(s1, s2)
     assert out_s.tolist() == [True, False]
 
 def test_reducers() -> None:
     a = pd.Series([1, 2, np.nan])
     b = pd.Series([10, 20, 30])
-    assert eda.Sum(a, b).tolist() == [11, 22, 30]
-    assert eda.Mean(a, b).iloc[0] == pytest.approx(5.5)
-    assert eda.Max(a, b).tolist() == [10, 20, 30]
-    assert eda.Min(a, b).tolist() == [1, 2, 30]  # nan は無視される
-    assert eda.Median(a, b).iloc[0] == pytest.approx(5.5)
+    assert eda_pd.Sum(a, b).tolist() == [11, 22, 30]
+    assert eda_pd.Mean(a, b).iloc[0] == pytest.approx(5.5)
+    assert eda_pd.Max(a, b).tolist() == [10, 20, 30]
+    assert eda_pd.Min(a, b).tolist() == [1, 2, 30]  # nan は無視される
+    assert eda_pd.Median(a, b).iloc[0] == pytest.approx(5.5)
