@@ -3,7 +3,7 @@
 　ここでは実証分析の場面で便利な回帰分析の実装例を紹介します。
 
 ``` python
-from py4stats import regression_tools as reg # 回帰分析の要約
+import py4stats as py4st
 import statsmodels.formula.api as smf
 from palmerpenguins import load_penguins
 penguins = load_penguins() # サンプルデータの読み込み
@@ -34,10 +34,10 @@ list_fml = [
 list_fitted1 = [fit_ols(fml, penguins) for fml in list_fml]
 ```
 
-このとき `list_fitted1` は回帰分析の推定結果を要素に持つリストであるため、[`reg.compare_ols()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_ols.md) にそのまま代入することができます。
+このとき `list_fitted1` は回帰分析の推定結果を要素に持つリストであるため、[`py4st.compare_ols()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_ols.md) にそのまま代入することができます。
 
 ``` python
-reg.compare_ols(list_models = list_fitted1) # 表の作成
+py4st.compare_ols(list_models = list_fitted1) # 表の作成
 ```
 
 | term                 | model 1       | model 2        | model 3       |
@@ -67,7 +67,7 @@ plt.rcParams["figure.autolayout"] = True
 fig, ax = plt.subplots(1, 3, figsize = (3.2 * 5, 5), dpi = 100)
 
 for k, mod in enumerate(list_fitted1):
-  reg.coefplot(mod, ax = ax[k])
+  py4st.coefplot(mod, ax = ax[k])
   ax[k].set_xlim(-1200, 1800)
   ax[k].set_title(f'model {k + 1}')
   ax[k].set_xlabel(f'coefficient (n = {mod.nobs:,.0f})')
@@ -95,12 +95,12 @@ penguins2 = penguins.groupby('species')
 list_fitted2 = penguins2.apply(group_ols).to_list()
 ``` 
 
-[`reg.compare_ols()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_ols.md) で分析結果を比較できます。
+[`py4st.compare_ols()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_ols.md) で分析結果を比較できます。
 
 ``` python
 list_groups = list(penguins2.groups.keys())
 
-reg.compare_ols(
+py4st.compare_ols(
     list_models = list_fitted2,
     model_name = list_groups
     )
@@ -125,7 +125,7 @@ plt.rcParams["figure.autolayout"] = True
 fig, ax = plt.subplots(1, 3, figsize = (3.2 * 5, 5), dpi = 100)
 
 for k, mod in enumerate(list_fitted2):
-  reg.coefplot(mod, ax = ax[k])
+  py4st.coefplot(mod, ax = ax[k])
   ax[k].set_xlim(-500, 1000)
   ax[k].set_title(list_groups[k])
   ax[k].set_xlabel(f'coefficient (n = {mod.nobs:,.0f})')
@@ -152,7 +152,7 @@ def est_ols(data):
 B = 1000 # ブートストラップ法の反復回数
 bt2 = [penguins.sample(frac = 1, replace = True) for b in range(B)]
 
-bt2 = pd.Series(bt2).apply(est_ols).apply(reg.tidy)
+bt2 = pd.Series(bt2).apply(est_ols).apply(py4st.tidy)
 
 boot_sample = pd.concat(bt2.to_list())
 
