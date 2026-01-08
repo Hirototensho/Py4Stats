@@ -1182,7 +1182,7 @@ def diagnose_category(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
         'count':df.select(nw.all().count()).row(0),
         'miss_pct':df.select(nw.all().null_count() * nw.lit(100 / N)).row(0),
         'unique':df.select(nw.all().n_unique()).row(0),
-        'mode':df.select(nw.all().mode()).row(0),
+        'mode':df.select(nw.all().mode(keep = 'any')).row(0),
         'mode_freq':[df[v].value_counts().row(0)[1] for v in var_name],
         'std_entropy':df.select(
             nw.all().map_batches(std_entropy, returns_scalar = True)

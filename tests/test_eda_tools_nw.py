@@ -161,6 +161,25 @@ def test_is_dummy_nw_dataframe() -> None:
     assert result == expected 
 
 # =========================================================
+# diagnose_category
+# =========================================================
+
+def test_diagnose_category():
+    pm2 = penguins.copy()
+    pm2['species'] = pd.Categorical(pm2['species'])
+
+    pm2 = pd.get_dummies(pm2,  columns = ['sex'])
+
+    pm2['heavy'] = np.where(
+        pm2['body_mass_g'] >= pm2['body_mass_g'].quantile(0.75), 
+        1, 0
+    )
+    output_df = eda_nw.diagnose_category(pm2)
+    # output_df.to_csv(f'{tests_path}/fixtures/diagnose_category_nw.csv')
+    expected_df = pd.read_csv(f'{tests_path}/fixtures/diagnose_category_nw.csv', index_col = 0)
+    assert_frame_equal(output_df, expected_df)
+
+# =========================================================
 # Pareto_plot_nw
 # (plot は「落ちないこと」と最低限の構造だけ確認)
 # =========================================================
