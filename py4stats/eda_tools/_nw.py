@@ -228,7 +228,7 @@ def is_FrameT(obj: object) -> bool:
 ReturnMatch = Literal["all", "match", "mismatch"]
 
 def compare_df_cols(
-    df_list: List[FrameT],
+    df_list: List[IntoFrameT],
     return_match: Literal["all", "match", "mismatch"] = 'all',
     df_name = None,
     dropna = False,
@@ -299,7 +299,7 @@ def compare_df_cols(
 # StatsLike = Union[str, Callable[..., Any]]
 
 def compare_df_stats(
-    df_list: List[FrameT],
+    df_list: List[IntoFrameT],
     return_match: ReturnMatch = "all",
     df_name: Optional[List[str]] = None,
     stats: Callable[..., Any] = nw.mean,
@@ -314,7 +314,7 @@ def compare_df_stats(
     DataFrames using `numpy.isclose`.
 
     Args:
-        df_list (list[FrameT]):
+        df_list (List[IntoFrameT]):
             List of DataFrames to compare.
         return_match (str):
             Which rows to return.
@@ -888,6 +888,7 @@ def freq_table(
 # In[ ]:
 
 
+@pf.register_dataframe_method
 def tabyl(
     self: IntoFrameT,
     index: str,
@@ -937,39 +938,47 @@ def tabyl(
     bild.assert_logical(dropna, arg_name = 'dropna')
     bild.assert_count(digits, arg_name = 'digits')
 
+    df = nw.from_native(self)
+
     if(not isinstance(normalize, bool)):
       normalize = bild.arg_match(
           normalize, ['index', 'columns', 'all'],
           arg_name = 'normalize'
           )
 
-    if self[index].dtype == "bool":
-        self[index] = self[index].astype(str)
-    if self[columns].dtype == "bool":
-        self[columns] = self[columns].astype(str)
+    # index または columns に bool 値が指定されていると後続処理でエラーが生じるので、
+    # 文字列型に cast します。
+    df = df[[index, columns]].with_columns(
+       ncs.boolean().cast(nw.String)
+    )
 
     # 度数クロス集計表（最終的な表では左側の数字）
     args_dict = locals()
     args_dict.pop('normalize')
     c_tab1 = crosstab(
-       df_native = self,
-       normalize = False,
-       **args_dict
-       )
+        df_native = df,
+        normalize = False,
+        to_native = False,
+        **args_dict
+       ).to_pandas().set_index(index)
 
     c_tab1 = c_tab1.apply(bild.style_number, digits = 0)
+    # return c_tab1
+
 
     if(normalize != False):
         # 回答率クロス集計表（最終的な表では括弧内の数字）
         c_tab2 = crosstab(
-           df_native = self, 
-           normalize = normalize, 
-           **args_dict
-           )
+            df_native = df, 
+            normalize = normalize, 
+            to_native = False,
+            **args_dict
+           ).to_pandas().set_index(index)
 
         # 2つめのクロス集計表の回答率をdigitsで指定した桁数のパーセントに換算し、文字列化します。
         c_tab2 = c_tab2.apply(bild.style_percent, digits = digits)
 
+        # return c_tab2
         col = c_tab2.columns
         idx = c_tab2.index
         c_tab1 = c_tab1.astype('str')
@@ -1693,6 +1702,7 @@ interpolation_values = [
 
 @pf.register_dataframe_method
 @pf.register_series_method
+@singledispatch
 def mean_qi(
     self: Union[IntoFrameT, SeriesT],
     width: float = 0.975,
@@ -1702,7 +1712,7 @@ def mean_qi(
     """Compute mean and quantile interval (QI).
 
     Args:
-        self (pandas.Series or pandas.DataFrame):
+        self (IntoFrameT, IntoSeriesT):
             Input data.
         width (float):
             Upper quantile to use (must be in (0, 1)).
@@ -1711,7 +1721,7 @@ def mean_qi(
             Currently kept for API compatibility. (Not used in computation.)
 
     Returns:
-        pandas.DataFrame:
+        IntoFrameT:
             Table indexed by variable names with columns:
             - mean: mean value
             - lower: quantile at `1 - width`
@@ -1731,26 +1741,18 @@ def mean_qi(
     # =======================================================================
 
     self_nw = nw.from_native(self, allow_series = True)
-
-    if type(self_nw).__name__ == 'DataFrame':
-        return mean_qi_nw_data_frame(
-            self_nw, interpolation = interpolation, 
-            width = width, to_native = to_native
-            )
-    if type(self_nw).__name__ == 'Series':
-        return mean_qi_nw_series(
-            self_nw, interpolation = interpolation, 
-            width = width, to_native = to_native
+    return mean_qi(
+        self_nw, interpolation = interpolation, 
+        width = width, to_native = to_native
         )
 
-    raise NotImplementedError(f'mean_qi_nw mtethod for object {type(self)} is not implemented.')
-
-def mean_qi_nw_data_frame(
+@mean_qi.register(nw.DataFrame)
+def mean_qi_data_frame(
     self: IntoFrameT,
     width: float = 0.975,
     interpolation: Interpolation = 'midpoint',
     to_native: bool = True
-) -> pd.DataFrame:
+    ) -> pd.DataFrame:
 
     df_numeric = nw.from_native(self).select(ncs.numeric())
 
@@ -1768,12 +1770,13 @@ def mean_qi_nw_data_frame(
     if to_native: return result.to_native()
     return result
 
-def mean_qi_nw_series(
+@mean_qi.register(nw.Series)
+def mean_qi_series(
     self: SeriesT,
     width: float = 0.975,
     interpolation: Interpolation = 'midpoint',
     to_native: bool = True
-):
+    ):
 
     self_nw = nw.from_native(self, allow_series=True)
 
@@ -1793,8 +1796,9 @@ def mean_qi_nw_series(
 
 @pf.register_dataframe_method
 @pf.register_series_method
+@singledispatch
 def median_qi(
-    self: Union[FrameT, SeriesT],
+    self: Union[IntoFrameT, IntoSeriesT],
     width: float = 0.975,
     interpolation: Interpolation = 'midpoint',
     to_native: bool = True
@@ -1802,7 +1806,7 @@ def median_qi(
     """Compute median and quantile interval (QI).
 
     Args:
-        self (pandas.Series or pandas.DataFrame):
+        self (IntoFrameT, IntoSeriesT):
             Input data.
         width (float):
             Upper quantile to use (must be in (0, 1)).
@@ -1811,7 +1815,7 @@ def median_qi(
             Currently kept for API compatibility. (Not used in computation.)
 
     Returns:
-        pandas.DataFrame:
+        IntoFrameT:
             Table indexed by variable names with columns:
             - median: median value
             - lower: quantile at `1 - width`
@@ -1831,21 +1835,13 @@ def median_qi(
     # =======================================================================
 
     self_nw = nw.from_native(self, allow_series = True)
-
-    if type(self_nw).__name__ == 'DataFrame':
-        return median_qi_nw_data_frame(
-            self_nw, interpolation = interpolation, 
-            width = width, to_native = to_native
-            )
-    if type(self_nw).__name__ == 'Series':
-        return median_qi_nw_series(
-            self_nw, interpolation = interpolation, 
-            width = width, to_native = to_native
+    return median_qi(
+        self_nw, interpolation = interpolation, 
+        width = width, to_native = to_native
         )
 
-    raise NotImplementedError(f'median_qi_nw mtethod for object {type(self)} is not implemented.')
-
-def median_qi_nw_data_frame(
+@median_qi.register(nw.DataFrame)
+def median_qi_data_frame(
     self: IntoFrameT,
     width: float = 0.975,
     interpolation: Interpolation = 'midpoint',
@@ -1868,13 +1864,13 @@ def median_qi_nw_data_frame(
     if to_native: return result.to_native()
     return result
 
-def median_qi_nw_series(
+@median_qi.register(nw.Series)
+def median_qi_series(
     self: SeriesT,
     width: float = 0.975,
     interpolation: Interpolation = 'midpoint',
     to_native: bool = True
 ):
-
     self_nw = nw.from_native(self, allow_series=True)
 
     result = nw.from_dict({
@@ -1894,21 +1890,22 @@ def median_qi_nw_series(
 from scipy.stats import t
 @pf.register_dataframe_method
 @pf.register_series_method
+@singledispatch
 def mean_ci(
-    self: Union[FrameT, SeriesT],
+    self: Union[IntoFrameT, IntoSeriesT],
     width: float = 0.975,
     to_native: bool = True
 ) -> pd.DataFrame:
     """Compute mean and t-based confidence interval (CI).
 
     Args:
-        self (pandas.Series or pandas.DataFrame):
+        self (IntoFrameT, IntoSeriesT):
             Input data.
         width (float):
             Confidence level in (0, 1) (e.g., 0.95).
 
     Returns:
-        pandas.DataFrame:
+        IntoFrameT:
             Table indexed by variable names with columns:
             - mean: sample mean
             - lower: lower bound of CI
@@ -1929,19 +1926,12 @@ def mean_ci(
 
     self_nw = nw.from_native(self, allow_series = True)
 
-    if type(self_nw).__name__ == 'DataFrame':
-        return mean_ci_nw_data_frame(
-            self_nw, width = width, to_native = to_native
-            )
-    if type(self_nw).__name__ == 'Series':
-        return mean_ci_nw_series(
-            self_nw, width = width, to_native = to_native
-        )
+    return mean_ci(
+        self_nw, width = width, to_native = to_native
+    )
 
-    raise NotImplementedError(f'mean_ci_nw mtethod for object {type(self)} is not implemented.')
-
-
-def mean_ci_nw_data_frame(
+@mean_ci.register(nw.DataFrame)
+def mean_ci_data_frame(
     self: IntoFrameT,
     width: float = 0.975,
     to_native: bool = True
@@ -1965,7 +1955,8 @@ def mean_ci_nw_data_frame(
     if to_native: return result.to_native()
     return result
 
-def mean_ci_nw_series(
+@mean_ci.register(nw.Series)
+def mean_ci_series(
     self: SeriesT,
     width: float = 0.975,
     to_native: bool = True

@@ -62,10 +62,13 @@ def test_crosstab():
     assert test_result1 and test_result2 and test_result3
 
 
-def test_tabyl():
-    output_df = eda_nw.tabyl(penguins, 'island', 'species')
-    # output_df.to_csv(f'{tests_path}/fixtures/tabyl_nw.csv')
-    expected_df = pd.read_csv(f'{tests_path}/fixtures/tabyl_nw.csv', index_col = 0)
+def test_tabyl_with_boolen_col():
+    pm2 = penguins.copy()
+    pm2['heavy'] = pm2['body_mass_g'] >= pm2['body_mass_g'].quantile(0.50)
+
+    output_df = eda_nw.tabyl(pm2, 'heavy', 'species', normalize = 'columns')
+    # output_df.to_csv(f'{tests_path}/fixtures/tabyl_nw_with_boolen.csv')
+    expected_df = pd.read_csv(f'{tests_path}/fixtures/tabyl_nw_with_boolen.csv', index_col = 0)
 
     test_result = eda_nw.compare_df_record(
         output_df.astype(str), 
@@ -73,6 +76,7 @@ def test_tabyl():
         )\
             .all().all()
     assert test_result
+
 # =========================================================
 # compare_df
 # =========================================================
@@ -225,7 +229,7 @@ def test_compare_group_median() -> None:
     assert_frame_equal(output_df, expected_df)
 
 # ================================================================
-# mean_qi_nw / median_qi_nw / mean_ci_nw
+# mean_qi / median_qi / mean_ci
 # ================================================================
 def test_mean_qi() -> None:
     output_df = eda_nw.mean_qi(penguins)
