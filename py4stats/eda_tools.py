@@ -1,10 +1,13 @@
-# %%
+#!/usr/bin/env python
+# coding: utf-8
+
+
+
 from __future__ import annotations
 
-# %% [markdown]
+
 # # `eda_tools`：データセットを要約する関数群
 
-# %% [markdown]
 # `eda_tools` モジュールに実装された主要な関数の依存関係
 # 
 # ``` python
@@ -104,7 +107,8 @@ from __future__ import annotations
 # └─ pd.concat(...).sum() など
 # ```
 
-# %%
+
+
 from py4stats import bilding_block as bild # py4stats のプログラミングを補助する関数群
 import functools
 from functools import singledispatch
@@ -115,7 +119,9 @@ import pandas as pd
 import numpy as np
 import scipy as sp
 
-# %%
+
+
+
 from typing import (
     Any,
     Callable,
@@ -141,10 +147,10 @@ except Exception:  # notebook等で未importでも落ちないように
 DataLike = Union[pd.Series, pd.DataFrame]
 
 
-# %% [markdown]
 # # `diagnose()`
 
-# %%
+
+
 def missing_percent(
     x: DataLike,
     axis: Union[str, int] = "index",
@@ -152,7 +158,9 @@ def missing_percent(
 ) -> Union[pd.Series, pd.DataFrame]:
     return (100 ** pct) * x.isna().mean(axis=axis)
 
-# %%
+
+
+
 @pf.register_dataframe_method
 @singledispatch
 def diagnose(self: pd.DataFrame) -> pd.DataFrame:
@@ -189,7 +197,9 @@ def diagnose(self: pd.DataFrame) -> pd.DataFrame:
 
     return result
 
-# %%
+
+
+
 def plot_miss_var(
         data: pd.DataFrame,
         values: Literal['missing_percent', 'missing_count'] = 'missing_percent', 
@@ -252,11 +262,11 @@ def plot_miss_var(
     )
     bild.assert_logical(sort, arg_name = 'sort')
     bild.assert_logical(miss_only, arg_name = 'miss_only')
-    
+
     diagnose_tab = diagnose(data)
     if sort: diagnose_tab = diagnose_tab.sort_values(values)
     if miss_only: diagnose_tab = diagnose_tab.query('missing_percent > 0')
-    
+
     # グラフの描画
     if ax is None:
         fig, ax = plt.subplots()
@@ -273,10 +283,10 @@ def plot_miss_var(
         ax.set_xlabel('number of missing recode', fontsize = fontsize * 1.1);
 
 
-# %% [markdown]
 # ### 異なるデータフレームの列を比較する関数
 
-# %%
+
+
 ReturnMatch = Literal["all", "match", "mismatch"]
 
 def compare_df_cols(
@@ -340,10 +350,11 @@ def compare_df_cols(
 
   return res
 
-# %% [markdown]
+
 # ### 平均値などの統計値の近接性で比較するバージョン
 
-# %%
+
+
 import itertools
 StatsLike = Union[str, Callable[..., Any]]
 
@@ -437,7 +448,9 @@ def compare_df_stats(
 
   return res
 
-# %%
+
+
+
 # レコード毎の近接性（数値の場合）または一致性（数値以外）で評価する関数
 def compare_df_record(
     df1: pd.DataFrame,
@@ -484,10 +497,11 @@ def compare_df_record(
 
   return result
 
-# %% [markdown]
+
 # ## グループ別平均（中央値）の比較
 
-# %%
+
+
 @singledispatch
 def compare_group_means(
     group1: pd.DataFrame,
@@ -539,7 +553,9 @@ def compare_group_means(
                     /(res[group_names[0]] + res[group_names[1]])
   return res
 
-# %%
+
+
+
 @singledispatch
 def compare_group_median(
     group1: pd.DataFrame,
@@ -582,7 +598,9 @@ def compare_group_median(
                     /(res[group_names[0]] + res[group_names[1]])
   return res
 
-# %%
+
+
+
 def plot_mean_diff(
     group1: pd.DataFrame,
     group2: pd.DataFrame,
@@ -621,7 +639,9 @@ def plot_mean_diff(
 
   ax.invert_yaxis();
 
-# %%
+
+
+
 def plot_median_diff(
     group1: pd.DataFrame,
     group2: pd.DataFrame,
@@ -658,10 +678,11 @@ def plot_median_diff(
   ax.set_yticks(range(len(group_median.index)), group_median.index)
   ax.invert_yaxis();
 
-# %% [markdown]
+
 # ## 完全な空白列 and / or 行の除去
 
-# %%
+
+
 @pf.register_dataframe_method
 def remove_empty(
     self: pd.DataFrame,
@@ -719,10 +740,11 @@ def remove_empty(
 
   return self
 
-# %% [markdown]
+
 # ## 定数列の除去
 
-# %%
+
+
 @pf.register_dataframe_method
 @singledispatch
 def remove_constant(
@@ -760,7 +782,9 @@ def remove_constant(
 
   return self
 
-# %%
+
+
+
 # 列名に特定の文字列を含む列を除外する関数
 @pf.register_dataframe_method
 def filtering_out(
@@ -825,10 +849,11 @@ def filtering_out(
 
   return self
 
-# %% [markdown]
+
 # ## クロス集計表ほか
 
-# %%
+
+
 @pf.register_dataframe_method
 @singledispatch
 def crosstab2(
@@ -856,7 +881,9 @@ def crosstab2(
         )
     return res
 
-# %%
+
+
+
 @pf.register_dataframe_method
 @singledispatch
 def freq_table(
@@ -906,7 +933,9 @@ def freq_table(
         })
     return res
 
-# %%
+
+
+
 @pf.register_dataframe_method
 @singledispatch
 def tabyl(
@@ -995,10 +1024,11 @@ def tabyl(
 
     return c_tab1
 
-# %% [markdown]
+
 # ## `diagnose_category()`：カテゴリー変数専用の要約関数
 
-# %%
+
+
 @pf.register_dataframe_method
 @pf.register_series_method
 @singledispatch
@@ -1025,7 +1055,9 @@ def is_dummy(
 def _(self: pd.DataFrame, cording: Sequence[Any] = (0, 1)) -> pd.Series:
     return self.apply(is_dummy, cording = cording)
 
-# %%
+
+
+
 # カテゴリカル変数についての集計関数 --------------
 # 情報エントロピーと、その値を0から1に標準化したもの --------------
 def entropy(X: ArrayLike, base: float = 2.0, axis: int = 0) -> float:
@@ -1091,10 +1123,11 @@ def diagnose_category(data: pd.DataFrame) -> pd.DataFrame:
 
     return res
 
-# %% [markdown]
+
 # ## その他の補助関数
 
-# %%
+
+
 def weighted_mean(x: pd.Series, w: pd.Series) -> float:
   wmean = (x * w).sum() / w.sum()
   return wmean
@@ -1107,10 +1140,11 @@ def min_max(x: pd.Series) -> pd.Series:
   mn = (x - x.min()) / (x.max() - x.min())
   return mn
 
-# %% [markdown]
+
 # # パレート図を作図する関数
 
-# %%
+
+
 import matplotlib.pyplot as plt
 
 # パレート図に使用するランキングを作成する関数
@@ -1136,7 +1170,9 @@ def make_rank_table(
     rank_table['cumshare'] = rank_table['share'].cumsum()
     return rank_table
 
-# %%
+
+
+
 # パレート図を作成する関数
 def Pareto_plot(
     data: pd.DataFrame,
@@ -1227,7 +1263,7 @@ def Pareto_plot(
     ax.yaxis.set_tick_params(labelsize = fontsize * 0.9)
     ax2.yaxis.set_tick_params(labelsize = fontsize * 0.9);
 
-# %% [markdown]
+
 # ### 代表値 + 区間推定関数
 # 
 # ```python
@@ -1253,7 +1289,8 @@ def Pareto_plot(
 # #> bill_depth_mm  17.15  16.94  17.36
 # ```
 
-# %%
+
+
 @pf.register_dataframe_method
 @pf.register_series_method
 def mean_qi(
@@ -1300,7 +1337,9 @@ def mean_qi(
   res.index.name = 'variable'
   return res
 
-# %%
+
+
+
 @pf.register_dataframe_method
 @pf.register_series_method
 def median_qi(
@@ -1347,7 +1386,9 @@ def median_qi(
   res.index.name = 'variable'
   return res
 
-# %%
+
+
+
 from scipy.stats import t
 @pf.register_dataframe_method
 @pf.register_series_method
@@ -1399,41 +1440,20 @@ def mean_ci(
   res.index.name = 'variable'
   return res
 
-# %% [markdown]
+
 # ## 正規表現を文字列関連の論理関数
 
-# %%
+
+
 import regex
 def detect_Kanzi(s):
   p = regex.compile(r'.*\p{Script=Han}+.*')
   res = p.fullmatch(s)
   return res is not None
 
-# %%
-@pf.register_series_method
-def is_number(self, na_default = True):
-  """文字列が数字であるかどうかを判定する関数"""
-  rex_phone = '[0-9]{0,4}(?: |-)[0-9]{0,4}(?: |-)[0-9]{0,4}'
-  rex_han = '[Script=Han]+'
 
-  self_str = self.copy().astype(str)
 
-  res = self_str.str.contains('[0-9]+', regex = True)\
-    & ~ self_str.str.contains(rex_phone, regex = True)\
-    & ~ self_str.str.contains('[\u3041-\u309F]+', regex = True)\
-    & ~ self_str.str.contains('[\u30A1-\u30FF]+', regex = True)\
-    & ~ self_str.str.contains('[A-z]+', regex = True)\
-    & ~ self_str.map(detect_Kanzi)\
-    & ~ is_ymd_like(self_str)
 
-  exponent = self_str.str.contains('[0-9]+[E,e]+(?:\+|-)[0-9]+', regex = True)
-  res[exponent] = True
-
-  res[self.isna()] = na_default
-
-  return res
-
-# %%
 @pf.register_series_method
 def is_ymd(self, na_default = True):
   """与えられた文字列が ymd 形式の日付かどうかを判定する関数"""
@@ -1460,10 +1480,40 @@ def is_ymd_like(self, na_default = True):
 
   return res
 
-# %% [markdown]
+
+
+
+@pf.register_series_method
+def is_number(self, na_default = True):
+  """文字列が数字であるかどうかを判定する関数"""
+  rex_phone = '[0-9]{0,4}(?: |-)[0-9]{0,4}(?: |-)[0-9]{0,4}'
+  rex_exponent = r'[0-9]+[Ee][+-][0-9]+'
+
+  self_str = self.copy().astype(str)
+
+  res = (
+    self_str.str.contains('[0-9]+', regex = True) & 
+    ~ self_str.str.contains(rex_phone, regex = True) &
+    ~ self_str.str.contains('[\u3041-\u309F]+', regex = True) & # ひらがな
+    ~ self_str.str.contains('[\u30A1-\u30FF]+', regex = True) & # カタカナ
+    ~ self_str.str.contains('[\uFF61-\uFF9F]+', regex = True) & # 半角カタカナ
+    ~ self_str.str.contains('[\u4E00-\u9FFF]+', regex = True) & # 漢字
+    ~ self_str.str.contains('[A-z]+', regex = True) &
+    ~ is_ymd_like(self_str)
+  )
+
+  exponent = self_str.str.contains(rex_exponent, regex = True)
+  res[exponent] = True
+
+  res[self.isna()] = na_default
+
+  return res
+
+
 # ## set missing values in pd.Series
 
-# %%
+
+
 def set_n_miss(x, n = 10, method = 'random', random_state = None, na_value = pd.NA):
   method = bild.arg_match(method, ['random', 'first', 'last'])
   bild.assert_count(n, upper = len(x))
@@ -1483,7 +1533,9 @@ def set_n_miss(x, n = 10, method = 'random', random_state = None, na_value = pd.
 
   return x
 
-# %%
+
+
+
 def set_prop_miss(x, prop = 0.1, method = 'random', random_state = None, na_value = pd.NA):
   method = bild.arg_match(method, ['random', 'first', 'last'])
   bild.assert_numeric(prop, lower = 0, upper = 1)
@@ -1505,7 +1557,7 @@ def set_prop_miss(x, prop = 0.1, method = 'random', random_state = None, na_valu
 
   return x
 
-# %% [markdown]
+
 # - `eda.set_n_miss()`： `pd.Series` の欠損数が `n` 個になるように欠測値を追加します。
 # - `eda.set_prop_miss()`： `pd.Series` の欠損率が約 `prop` になるように欠測値を追加します。
 # 
@@ -1560,10 +1612,10 @@ def set_prop_miss(x, prop = 0.1, method = 'random', random_state = None, na_valu
 # #> 0.19767441860465115
 # ```
 
-# %% [markdown]
 # # 簡易なデータバリデーションツール
 
-# %%
+
+
 @pf.register_dataframe_method
 def check_that(
     data: pd.DataFrame,
@@ -1629,7 +1681,9 @@ def check_that(
 
   return result_df
 
-# %%
+
+
+
 @pf.register_dataframe_method
 def check_viorate(
     data: pd.DataFrame,
@@ -1674,10 +1728,11 @@ def check_viorate(
 
   return df_viorate
 
-# %% [markdown]
+
 # ### helper function for pandas `DataFrame.eval()`
 
-# %%
+
+
 def implies_exper(P, Q):
   return f"{Q} | ~({P})"
 
@@ -1690,11 +1745,12 @@ def is_complet(self: pd.DataFrame) -> pd.Series:
 def _(*arg: pd.Series) -> pd.Series:
   return pd.concat(arg, axis = 'columns').notna().all(axis = 'columns')
 
-# %%
+
+
+
 def Sum(*arg): return pd.concat(arg, axis = 'columns').sum(axis = 'columns')
 def Mean(*arg): return pd.concat(arg, axis = 'columns').mean(axis = 'columns')
 def Max(*arg): return pd.concat(arg, axis = 'columns').max(axis = 'columns')
 def Min(*arg): return pd.concat(arg, axis = 'columns').min(axis = 'columns')
 def Median(*arg): return pd.concat(arg, axis = 'columns').median(axis = 'columns')
-
 
