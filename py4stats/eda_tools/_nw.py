@@ -180,7 +180,7 @@ def plot_miss_var(
     Notes:
         This function is intended for exploratory data analysis.
         The underlying missing-value statistics are computed by
-        ``diagnose_nw``, and the resulting plot reflects its output.
+        ``diagnose``, and the resulting plot reflects its output.
     """
     values = bild.arg_match(
         values, ['missing_percent', 'missing_count'],
@@ -1048,6 +1048,162 @@ def is_dummy_data_frame(
 
     if to_pd_Series: 
         return result.to_pandas().loc[0, :]
+    return result
+
+
+# In[ ]:
+
+
+import scipy as sp
+
+def entropy(x: IntoSeriesT, base: float = 2.0, dropna: bool = False) -> float:
+    bild.assert_numeric(base, arg_name = 'base', lower = 0, inclusive = 'right')
+    bild.assert_logical(dropna, arg_name = 'dropna')
+
+    x_nw = nw.from_native(x, series_only = True)
+
+    if dropna: x_nw = x_nw.drop_nulls()
+
+    prop = x_nw.value_counts(normalize = True, sort = False)['proportion']
+    result = sp.stats.entropy(pk = prop,  base = base, axis = 0)
+    return result
+
+def std_entropy(x: IntoSeriesT, dropna: bool = False) -> float:
+    bild.assert_logical(dropna, arg_name = 'dropna')
+
+    x_nw = nw.from_native(x, series_only = True)
+
+    if dropna: x_nw = x_nw.drop_nulls()
+
+    K = x.n_unique()
+    result = entropy(x_nw, base = K) if K > 1 else 0.0
+
+    return result
+
+
+# In[ ]:
+
+
+def diagnose_category(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
+    """Summarize categorical variables in a DataFrame.
+
+    This function summarizes columns that represent categorical information,
+    including categorical/string/boolean columns and 0/1 dummy columns
+    (integer-valued columns restricted to {0, 1}). Dummy columns are cast to
+    string before summarization.
+
+    The summary includes missing percentage, number/percentage of unique
+    values, mode and its frequency/share, and standardized entropy.
+
+    The implementation is backend-agnostic via narwhals.
+
+    Args:
+        data (IntoFrameT):
+            Input DataFrame. Any DataFrame type supported by narwhals can be
+            used (e.g., pandas, polars, pyarrow).
+        to_native (bool, optional):
+            If True, convert the result to the native DataFrame type of the
+            selected backend. If False, return a narwhals DataFrame.
+            Defaults to True.
+
+    Returns:
+        IntoFrameT:
+            A summary table with one row per selected variable and the
+            following columns:
+
+            - variables: variable (column) name
+            - count: non-missing count
+            - miss_pct: missing percentage
+            - unique: number of unique values
+            - unique_pct: percentage of unique values (unique / N * 100)
+            - mode: most frequent value
+            - mode_freq: frequency of the mode value
+            - mode_pct: percentage of the mode value (mode_freq / N * 100)
+            - std_entropy: standardized entropy in [0, 1]
+
+    Raises:
+        TypeError:
+            If ``data`` is not a DataFrame/Series type supported by narwhals.
+        ValueError:
+            If no columns are selected for summarization (i.e., ``data`` has
+            no categorical/string/boolean columns and no 0/1 dummy columns).
+
+    Notes:
+        - ``N`` denotes the number of rows of the selected DataFrame.
+        - ``miss_pct`` is computed as ``null_count / N * 100``.
+        - ``unique_pct`` and ``mode_pct`` use ``N`` in the denominator (not
+          the non-missing count).
+        - Standardized entropy is computed per column via ``std_entropy`` and
+          is expected to return a scalar in the range [0, 1].
+
+    Examples:
+        Basic usage:
+
+        >>> summary = diagnose_category(df)
+        >>> summary.head()
+
+        Keep narwhals output (do not convert back to native):
+
+        >>> summary_nw = diagnose_category(df, to_native=False)
+
+        Dummy columns are included automatically if they are 0/1-valued
+        integer columns:
+
+        >>> df = df.assign(dummy=(df["x"] > 0).astype(int))
+        >>> diagnose_category(df)
+    """
+    bild.assert_logical(to_native, arg_name = 'to_native')
+
+    data_nw = nw.from_native(data, allow_series = True)
+    res_is_dummy = is_dummy(data_nw)
+    dummy_col = res_is_dummy[res_is_dummy].index.to_list()
+
+    df = (
+        data_nw
+        .with_columns(nw.col(dummy_col).cast(nw.String))\
+        .select(
+        ncs.categorical(),
+        ncs.by_dtype(nw.String), 
+        ncs.boolean(), 
+        ))
+    N = df.shape[0]
+
+    var_name = df.columns
+
+    if not var_name:
+        raise ValueError(
+            "`data` has no columns to summarize.\n"
+            "Expected at least one categorical, string, or boolean column,\n"
+            "or a 0/1 dummy column (integer values restricted to {0, 1})."
+        )
+
+    result  = nw.from_dict({
+        'variables': var_name,
+        'count':df.select(nw.all().count()).row(0),
+        'miss_pct':df.select(nw.all().null_count() * nw.lit(100 / N)).row(0),
+        'unique':df.select(nw.all().n_unique()).row(0),
+        'mode':df.select(nw.all().mode()).row(0),
+        'mode_freq':[df[v].value_counts().row(0)[1] for v in var_name],
+        'std_entropy':df.select(
+            nw.all().map_batches(std_entropy, returns_scalar = True)
+            ).row(0)
+        },
+        backend = df.implementation
+        )\
+        .with_columns(
+        unique_pct = 100 * nw.col('unique') / N,
+        mode_pct = 100 * nw.col('mode_freq') / N
+        )\
+        .select(
+            nw.col([
+                'variables', 'count',  'miss_pct', 
+                'unique', 'unique_pct',
+                'mode', 'mode_freq', 'mode_pct', 
+                'std_entropy'
+            ])
+            )
+
+    if to_native: return result.to_native()
     return result
 
 

@@ -87,10 +87,10 @@ rule_dict2 =  {
 print(py4st.check_that(
     retailers, rule_dict2, local_dict = locals()
     ))
-#>              item  passes  fails  coutna                                   expression
-#> name                                                                                 
-#> to_num          1       1      0       0                  @is_numeric_dtype(turnover)
-#> rev_complet    60      23      0      37  @is_complet(turnover, total_rev, other_rev)
+#>              item  passes  fails  coutna                                    expression
+#> name                                                                                  
+#> to_num          1       1      0       0                   @is_numeric_dtype(turnover)
+#> rev_complet    60      23      0      37  @is_complete(turnover, total_rev, other_rev)
 ```
 
 `py4st.check_viorate()` の使い方も `py4st.check_that()` と同様ですが、`py4st.check_that()` がデータセット全体での検証結果を出力するのに対し、`py4st.check_viorate()` ではレコード別の検証結果を表示します。`py4st.check_viorate()` から出力されるデータフレームでは、各列が検証ルールに、各行が元データの観測値に対応し、当該ルールが満たされていない場合、True と表示されます。また、`any` 列は複数あるルールのいずれか1つでも満たされていないことを、`all` 列は全てのルールが満たされていないことを示します。
