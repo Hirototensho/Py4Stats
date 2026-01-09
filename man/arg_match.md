@@ -1,4 +1,4 @@
-# 引数のアサーション `bilding_block.arg_match()`
+# 引数のアサーション `building_block.arg_match()`
 
 ## 概要
 
@@ -32,10 +32,10 @@ arg_match(
 ## 使用例 Examples
 
 ```python
-from py4stats import bilding_block as bild
+from py4stats import building_block as build
 
 def my_faivarit(fruits):
-  fruits = bild.arg_match(
+  fruits = build.arg_match(
       fruits, 
       values = ['apple', 'orange', 'grape'], 
       multiple = False
@@ -62,7 +62,7 @@ my_faivarit(['apple', 'orange'])
 
 # multiple = True として再度関数を定義
 def my_faivarit2(fruits):
-  fruits = bild.arg_match(
+  fruits = build.arg_match(
       fruits, 
       values = ['apple', 'orange', 'grape'], 
       multiple = True
@@ -77,7 +77,7 @@ my_faivarit2(['apple', 'orang'])
 #>              Did you mean 'orange'?
 ```
 
-　`Py4Stats` では [`eda_tools.tabyl()`](./tabyl.md)や [`regression_tools.compare_ols()`](./compare_ols.md) など、文字列で指定する引数をもつ関数で、引数のアサーションに `bild.arg_match()` を使用しています。
+　`Py4Stats` では [`eda_tools.tabyl()`](./tabyl.md)や [`regression_tools.compare_ols()`](./compare_ols.md) など、文字列で指定する引数をもつ関数で、引数のアサーションに `build.arg_match()` を使用しています。
 
 ```python
 from py4stats import eda_tools as eda

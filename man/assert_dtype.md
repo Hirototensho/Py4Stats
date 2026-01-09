@@ -1,5 +1,5 @@
 # 引数のデータ型によるアサーション
-## `bilding_block.assert_character()` `bilding_block.assert_logical()` `bilding_block.assert_numeric()` `bilding_block.assert_integer()` `bilding_block.assert_count()` `bilding_block.assert_float()`
+## `building_block.assert_character()` `building_block.assert_logical()` `building_block.assert_numeric()` `building_block.assert_integer()` `building_block.assert_count()` `building_block.assert_float()`
 
 ## 概要
 
@@ -73,32 +73,32 @@ assert_float(
 ## 使用例 Examples
 
 ```python
-from py4stats import bilding_block as bild
+from py4stats import building_block as build
 x = [1, 2, 3]
 y = ['A', 'B', 'C']
 
-bild.assert_character(x)
+build.assert_character(x)
 #> ValueError: Argment 'x' must be of type 'str'.
 
-bild.assert_character(y)
+build.assert_character(y)
 ```
 
 ```python
-bild.assert_numeric(x)
+build.assert_numeric(x)
 
-bild.assert_numeric(y)
+build.assert_numeric(y)
 #> ValueError: Argment 'y' must be of type 'int' or 'float' with value(s) -inf <= x <= inf.
 
 z = [0.1, 0.3, 0.6]
-bild.assert_numeric(z, lower = 0, upper = 1)
+build.assert_numeric(z, lower = 0, upper = 1)
 
 z.extend([2, 3])
-bild.assert_numeric(z, lower = 0, upper = 1)
+build.assert_numeric(z, lower = 0, upper = 1)
 #> ValueError: Argment 'z' must have value 0 <= x <= 1
 #> element '3' and '4' of 'z' not sutisfy the condtion.
 
 z = 1
-bild.assert_numeric(z, lower = 0, upper = 1, inclusive = 'left')
+build.assert_numeric(z, lower = 0, upper = 1, inclusive = 'left')
 #> ValueError: Argment 'z' must have value 0 <= x < 1.
 ```
 

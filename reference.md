@@ -94,7 +94,7 @@
 
 [`heckit_helper.heckitmfx_compute()`](man/heckitmfx_compute.md)
 
-### `py4stats.bilding_block`
+### `py4stats.building_block`
 ***
 
 `py4stats.regression_tools` の関数を [`py4etrics.heckit`](https://github.com/Py4Etrics/py4etrics) で実装された Heckit
@@ -102,37 +102,37 @@
 
 ### 引数のアサーション関数
 
-[`bilding_block.arg_match()`](man/arg_match.md)
+[`building_block.arg_match()`](man/arg_match.md)
 
-[`bilding_block.assert_character()`](man/assert_dtype.md)
-[`bilding_block.assert_logical()`](man/assert_dtype.md)
-[`bilding_block.assert_numeric()`](man/assert_dtype.md)
-[`bilding_block.assert_integer()`](man/assert_dtype.md)
-[`bilding_block.assert_count()`](man/assert_dtype.md)
-[`bilding_block.assert_float()`](man/assert_dtype.md)
+[`building_block.assert_character()`](man/assert_dtype.md)
+[`building_block.assert_logical()`](man/assert_dtype.md)
+[`building_block.assert_numeric()`](man/assert_dtype.md)
+[`building_block.assert_integer()`](man/assert_dtype.md)
+[`building_block.assert_count()`](man/assert_dtype.md)
+[`building_block.assert_float()`](man/assert_dtype.md)
 
 ### データ型を判定する論理関数
 
-[`bilding_block.is_character()`](man/is_dtype.md)
-[`bilding_block.is_logical()`](man/is_dtype.md)
-[`bilding_block.is_numeric()`](man/is_dtype.md)
-[`bilding_block.is_integer()`](man/is_dtype.md)
-[`bilding_block.is_float()`](man/is_dtype.md)
+[`building_block.is_character()`](man/is_dtype.md)
+[`building_block.is_logical()`](man/is_dtype.md)
+[`building_block.is_numeric()`](man/is_dtype.md)
+[`building_block.is_integer()`](man/is_dtype.md)
+[`building_block.is_float()`](man/is_dtype.md)
 
 ### 数字のフォーマット
 
-[`bilding_block.style_number()`](man/miscellaneous.md)
-[`bilding_block.style_currency()`](man/miscellaneous.md)
-[`bilding_block.style_percent()`](man/miscellaneous.md)
+[`building_block.style_number()`](man/miscellaneous.md)
+[`building_block.style_currency()`](man/miscellaneous.md)
+[`building_block.style_percent()`](man/miscellaneous.md)
 
-[`bilding_block.style_pvalue()`](man/style_pvalue.md)
-[`bilding_block.p_stars()`](man/style_pvalue.md)
+[`building_block.style_pvalue()`](man/style_pvalue.md)
+[`building_block.p_stars()`](man/style_pvalue.md)
 
 ### 並列文の作成
 
-[`bilding_block.oxford_comma()`](man/oxford_comma.md)
-[`bilding_block.oxford_comma_and()`](man/oxford_comma.md)
-[`bilding_block.oxford_comma_or()`](man/oxford_comma.md)
+[`building_block.oxford_comma()`](man/oxford_comma.md)
+[`building_block.oxford_comma_and()`](man/oxford_comma.md)
+[`building_block.oxford_comma_or()`](man/oxford_comma.md)
 
 ***
 [Jump to **Function Get started**.](..//INTRODUCTION.md)  

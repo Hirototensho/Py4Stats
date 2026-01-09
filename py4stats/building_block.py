@@ -8,9 +8,9 @@ from __future__ import annotations
 
 # # `py4stats` のプログラミングを補助する関数群
 # 
-# `eda_tools` や `regression_tools` で共通して使う関数をここにまとめておきます。`bilding_block` モジュール自体は外部から呼び出さずに使用することを想定しています。
+# `eda_tools` や `regression_tools` で共通して使う関数をここにまとめておきます。`building_block` モジュール自体は外部から呼び出さずに使用することを想定しています。
 
-# `bilding_block` モジュールに実装された主要な関数の依存関係
+# `building_block` モジュールに実装された主要な関数の依存関係
 # 
 # ```python
 # arg_match()                       # 文字列やリストの引数を有効値と突き合わせてチェック
@@ -348,7 +348,7 @@ def make_assert_numeric(
       if not cond.all():
        message =  f"Argment '{arg_name}' must have value {lower} {inclusive_dict[inclusive]} {upper}."
        raise ValueError(message)
-    
+
     if(arg_name is None):
         arg_name = varname.argname('arg')
   return func
@@ -423,14 +423,14 @@ def style_pvalue(
 ) -> pd.Series:
   """
   Format p-values into strings with optional clipping and prefix.
-  
+
   Args:
         p_value: Scalar or array-like of p-values.
         digits: Number of decimals.
         prepend_p: If True, prepend 'p' or 'p='.
         p_min: Lower clipping threshold.
         p_max: Upper clipping threshold.
-  
+
   Returns:
         pandas.Series: Formatted p-values as strings.
   """

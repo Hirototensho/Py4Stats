@@ -1,10 +1,13 @@
-# %%
+#!/usr/bin/env python
+# coding: utf-8
+
+
+
 from __future__ import annotations
 
-# %% [markdown]
+
 # # `reg_tools`：回帰分析の結果を要約する関数群
 
-# %% [markdown]
 # `regression_tools` モジュールに実装された主要な関数の依存関係
 # 
 # ``` python
@@ -16,19 +19,19 @@ from __future__ import annotations
 # 
 # compare_mfx()                     # 複数のロジット系モデルの限界効果を比較
 # ├─ tidy_mfx()                   # モデルから限界効果（dydxなど）を抽出
-# │  └─ bild.arg_match()         # 引数検証（method, at など）
+# │  └─ build.arg_match()         # 引数検証（method, at など）
 # ├─ gazer()                      # 結果の整形
 # ├─ lineup_models()             # モデル名を列にして整形
 # └─ make_glance_tab()           # モデル当てはまり指標を整形（上と共通）
 # 
 # gazer()                           # tidyデータを人間が読みやすい文字列形式に整形
-# ├─ bild.arg_match()             # 統計量・表形式の引数検証
-# ├─ bild.p_stars()              # 有意性を表すアスタリスク付与
-# └─ bild.style_number()         # 数値整形
+# ├─ build.arg_match()             # 統計量・表形式の引数検証
+# ├─ build.p_stars()              # 有意性を表すアスタリスク付与
+# └─ build.style_number()         # 数値整形
 # 
 # make_glance_tab()                 # glance情報（rsq, AICなど）を縦表に整形
 # ├─ glance()                     # モデルごとの指標を抽出（singledispatch）
-# └─ bild.arg_match()            # stats_glance の妥当性チェック
+# └─ build.arg_match()            # stats_glance の妥当性チェック
 # 
 # lineup_models()                   # モデル比較表の列統合
 # （依存なし）
@@ -47,10 +50,11 @@ from __future__ import annotations
 # 
 # plot_Blinder_Oaxaca()             # Oaxaca 分解の結果をプロット
 # ├─ Blinder_Oaxaca()
-# └─ bild.arg_match()
+# └─ build.arg_match()
 # ```
 
-# %%
+
+
 # 依存するライブラリーの読込
 import pandas as pd
 import numpy as np
@@ -67,14 +71,15 @@ import statsmodels.formula.api as smf
 
 import sys
 
-from py4stats import bilding_block as bild # py4stats のプログラミングを補助する関数群
+from py4stats import building_block as build # py4stats のプログラミングを補助する関数群
 
 from functools import singledispatch
 
-# %% [markdown]
+
 # ## 型ヒントの準備
 
-# %%
+
+
 from typing import (
     Any,
     Callable,
@@ -115,10 +120,10 @@ class _HasMargEff(Protocol):
     def get_margeff(self, *args: Any, **kwargs: Any) -> Any: ...
 
 
-# %% [markdown]
 # ## 回帰分析の結果をデータフレームに変換する関数
 
-# %%
+
+
 from functools import singledispatch
 
 # definition of tidy --------------------------------------------------
@@ -162,7 +167,9 @@ def tidy(
   """
   raise NotImplementedError(f'tidy mtethod for object {type(x)} is not implemented.')
 
-# %%
+
+
+
 from statsmodels.iolib.summary import summary_params_frame
 from statsmodels.regression.linear_model import RegressionResultsWrapper
 
@@ -213,7 +220,7 @@ def tidy_regression(
         AssertionError:
             If `conf_level` is not in (0, 1).
     """
-    bild.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither')
+    build.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither')
     tidied = summary_params_frame(x, alpha = 1 - conf_level, xname = name_of_term)
 
     tidied.index.name = 'term'
@@ -237,7 +244,9 @@ def tidy_regression(
 
     return tidied
 
-# %%
+
+
+
 from statsmodels.stats.contrast import ContrastResults
 
 @tidy.register(ContrastResults)
@@ -279,7 +288,7 @@ def tidy_test(
       AssertionError:
           If `conf_level` is not in (0, 1).
   """
-  bild.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither')
+  build.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither')
   if(x.distribution == 'F'):
     tidied = pd.DataFrame({
     'statistics':x.statistic,
@@ -304,10 +313,11 @@ def tidy_test(
   tidied.index.name = 'term'
   return tidied
 
-# %% [markdown]
+
 # ### 片側t-検定
 
-# %%
+
+
 from scipy.stats import t
 from scipy.stats import norm
 
@@ -342,7 +352,8 @@ def tidy_one_sided(x: Any, conf_level: ConfLevel = 0.95, **kwargs: Any) -> pd.Da
   """
   raise NotImplementedError(f'tidy mtethod for object {type(x)} is not implemented.')
 
-# %%
+
+
 
 @tidy_one_sided.register(ContrastResults)
 def tidy_one_sided_t_test(x: ContrastResults, conf_level: ConfLevel = 0.95) -> pd.DataFrame:
@@ -371,7 +382,7 @@ def tidy_one_sided_t_test(x: ContrastResults, conf_level: ConfLevel = 0.95) -> p
       NotImplementedError:
           If `x.distribution` is not supported (not 't' or 'norm').
   """
-  bild.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither')
+  build.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither')
   tidied = tidy(x)
 
   # 仮説検定にt分布が用いられている場合
@@ -393,7 +404,7 @@ def tidy_one_sided_t_test(x: ContrastResults, conf_level: ConfLevel = 0.95) -> p
   return tidied
 
 
-# %%
+
 
 @tidy_one_sided.register(RegressionResultsWrapper)
 def tidy_one_sided_regression(
@@ -426,8 +437,8 @@ def tidy_one_sided_regression(
           If `conf_level` is not in (0, 1) or `null_hypotheses` is not numeric.
   """
 
-  bild.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither')
-  bild.assert_numeric(null_hypotheses)
+  build.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither')
+  build.assert_numeric(null_hypotheses)
 
   tidied = tidy(x)
 
@@ -449,7 +460,9 @@ def tidy_one_sided_regression(
 
   return tidied
 
-# %%
+
+
+
 from scipy.stats import t
 def tidy_to_jp(tidied: pd.DataFrame, conf_level: ConfLevel = 0.95) -> pd.DataFrame:
   """Rename tidy regression columns to Japanese labels.
@@ -495,10 +508,11 @@ def add_one_sided_p_value(x: RegressionResultsWrapper, tidied: pd.DataFrame) -> 
       tidied['one_sided_p_value'] = t.sf(abs(tidied['statistics']), x.df_resid)
       return tidied
 
-# %% [markdown]
+
 # `glance()`
 
-# %%
+
+
 from statsmodels.regression.linear_model import RegressionResultsWrapper
 from statsmodels.discrete.discrete_model import BinaryResultsWrapper, PoissonResultsWrapper, NegativeBinomialResultsWrapper
 from functools import singledispatch
@@ -529,7 +543,7 @@ def glance(x: Any) -> pd.DataFrame:
     raise NotImplementedError(f'glance mtethod for object {type(x)} is not implemented.')
 
 
-# %%
+
 
 # 一般化線型モデル用のメソッド
 @glance.register(BinaryResultsWrapper)
@@ -570,7 +584,7 @@ def glance_glm(
   return res
 
 
-# %%
+
 
 # 線形回帰用のメソッド
 @glance.register(RegressionResultsWrapper)
@@ -599,7 +613,9 @@ def glance_ols(x: RegressionResultsWrapper) -> pd.DataFrame:
     }, index = [0])
     return res
 
-# %%
+
+
+
 def log_to_pct(est: Union[float, pd.Series, np.ndarray]) -> Union[float, pd.Series, np.ndarray]:
     """Convert log-scale estimates to percent change.
 
@@ -613,7 +629,7 @@ def log_to_pct(est: Union[float, pd.Series, np.ndarray]) -> Union[float, pd.Seri
     """
     return 100 * (np.exp(est) - 1)
 
-# %% [markdown]
+
 # ## `reg.compare_ols()`
 # 
 # ### 概要
@@ -632,7 +648,8 @@ def log_to_pct(est: Union[float, pd.Series, np.ndarray]) -> Union[float, pd.Seri
 # compare_tab1
 # ```
 
-# %%
+
+
 from statsmodels.regression.linear_model import RegressionResultsWrapper
 import varname
 
@@ -651,7 +668,9 @@ def assert_reg_reuslt(x: Any) -> None:
   condition =  x.apply(lambda x: isinstance(x, (RegressionResultsWrapper))).all()
   assert condition, f"Argment '{varname.argname('x')}' must be of type '{RegressionResultsWrapper}'."
 
-# %%
+
+
+
 import pandas.api.types
 
 def compare_ols(
@@ -742,7 +761,9 @@ def compare_ols(
 
     return res
 
-# %%
+
+
+
 # 複数のモデルを比較する表を作成する関数 対象を sm.ols() に限定しないバージョン
 def lineup_models(
     gazer_list: Sequence[pd.DataFrame],
@@ -784,11 +805,13 @@ def lineup_models(
 
     return res
 
-# %%
+
+
+
 # 回帰係数と検定統計量を縦に並べる関数
 # 2024年1月30日変更 引数 stats と table_style について
 # 妥当な値が指定されているかを検証する機能を追加しました。
-# 2024年3月18日変更 数値の体裁を整える処理を bild.style_number() を使ったものに変更しました。
+# 2024年3月18日変更 数値の体裁を整える処理を build.style_number() を使ったものに変更しました。
 def gazer(
     res_tidy: pd.DataFrame,
     estimate: str = "estimate",
@@ -825,7 +848,7 @@ def gazer(
             Minimum p-value threshold used in star assignment logic.
             (Forwarded to internal star utilities where applicable.)
         table_style (str):
-            Formatting style. Partial matching may be allowed by `bild.match_arg`.
+            Formatting style. Partial matching may be allowed by `build.match_arg`.
         line_break (str):
             Line break to insert when `table_style='two_line'`.
         **kwargs:
@@ -836,12 +859,12 @@ def gazer(
             A one-column DataFrame with formatted strings, column name `value`.
     """
     # 引数に妥当な値が指定されているかを検証
-    stats = bild.arg_match(
+    stats = build.arg_match(
         stats, ['std_err', 'statistics', 'p_value', 'conf_int'],
         arg_name = 'stats'
         )
     # こちらは部分一致可としています。
-    table_style = bild.match_arg(
+    table_style = build.match_arg(
         table_style, ['two_line', 'one_line'],
         arg_name = 'table_style'
         )
@@ -849,11 +872,11 @@ def gazer(
     # --------------------
     res = res_tidy.copy()
     # 有意性を表すアスタリスクを作成します
-    res['stars'] = ' ' + bild.p_stars(res['p_value'])
+    res['stars'] = ' ' + build.p_stars(res['p_value'])
 
     # # `estimate` と `stats` を見やすいフォーマットに変換します。
     # res[[estimate, stats]] = res[[estimate, stats]]\
-    #     .apply(bild.style_number, digits = digits)
+    #     .apply(build.style_number, digits = digits)
 
     # table_style に応じて改行とアスタリスクを追加する
 
@@ -873,7 +896,7 @@ def gazer(
     if(stats == 'conf_int'):
       res[[estimate, 'conf_lower', 'conf_higher']] \
         = res[[estimate, 'conf_lower', 'conf_higher']]\
-          .apply(bild.style_number, digits = digits)
+          .apply(build.style_number, digits = digits)
 
       res['value'] =  res[estimate] + sep\
        + '[' + res['conf_lower'] + ', ' + res['conf_higher'] + ']'\
@@ -881,7 +904,7 @@ def gazer(
     else:
       # `estimate` と `stats` を見やすいフォーマットに変換します。
       res[[estimate, stats]] = res[[estimate, stats]]\
-        .apply(bild.style_number, digits = digits)
+        .apply(build.style_number, digits = digits)
       res['value'] = res[estimate] + sep + '(' + res[stats] + ')' + sufix
 
     # モデルで使用されていない変数について NaN が発生するので、空白で置き換えます。
@@ -889,7 +912,9 @@ def gazer(
 
     return res[['value']]
 
-# %%
+
+
+
 def make_glance_tab(
     list_models: Sequence[Any],
     model_name: Optional[Sequence[str]] = None,
@@ -929,7 +954,7 @@ def make_glance_tab(
     union_set = union_set.union(glance_list[i].columns)
 
   # 引数に妥当な値が指定されているかを検証
-  stats_glance = bild.arg_match(
+  stats_glance = build.arg_match(
               stats_glance,
               values = union_set.to_list(),
               arg_name = 'stats_glance',
@@ -939,21 +964,21 @@ def make_glance_tab(
   res = pd.concat(glance_list)\
     .loc[:, stats_glance]\
     .round(digits)\
-    .apply(bild.pad_zero, digits = digits).T
+    .apply(build.pad_zero, digits = digits).T
 
   res.columns = model_name
   res[res == 'nan'] = ''
   res.index.name = 'term'
   return res
 
-# %% [markdown]
+
 # ### `gazer()` 関数の多項ロジットモデルバージョン
 
-# %% [markdown]
 # ## 回帰係数の視覚化関数
 # 
 
-# %%
+
+
 # 利用するライブラリー
 import pandas as pd
 import numpy as np
@@ -1003,7 +1028,9 @@ def coefplot(
   """
   raise NotImplementedError(f'tidy mtethod for object {type(mod)} is not implemented.')
 
-# %%
+
+
+
 from statsmodels.regression.linear_model import RegressionResultsWrapper
 @coefplot.register(RegressionResultsWrapper)
 def coefplot_regression(
@@ -1042,8 +1069,8 @@ def coefplot_regression(
     Returns:
         None
     """
-    bild.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither')
-    bild.assert_character(palette)
+    build.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither')
+    build.assert_character(palette)
 
     # 回帰係数の表を抽出
     tidy_ci_high = tidy(mod, conf_level = conf_level[0])
@@ -1062,7 +1089,7 @@ def coefplot_regression(
         )
 
 
-# %%
+
 
 def coef_dot(
     tidy_ci_high: pd.DataFrame,
@@ -1138,11 +1165,12 @@ def coef_dot(
     )
     ax.set_ylabel('');
 
-# %% [markdown]
+
 # ## `reg.compare_mfx()`
 # 
 
-# %%
+
+
 def tidy_mfx(
     x: _HasMargEff,
     at: MfxAt = "overall",
@@ -1182,10 +1210,10 @@ def tidy_mfx(
           If `conf_level` is not in (0, 1).
   """
   # 引数に妥当な値が指定されているかを検証
-  bild.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither')
-  at = bild.arg_match(at, ['overall', 'mean', 'median', 'zero'], arg_name = 'at')
+  build.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither')
+  at = build.arg_match(at, ['overall', 'mean', 'median', 'zero'], arg_name = 'at')
 
-  method = bild.arg_match(
+  method = build.arg_match(
       method,
       values = ['coef', 'dydx', 'eyex', 'dyex', 'eydx'],
       arg_name = 'method'
@@ -1219,7 +1247,9 @@ def tidy_mfx(
 
   return tab
 
-# %%
+
+
+
 # 複数のロジットモデルを比較する表を作成する関数
 def compare_mfx(
     list_models: Sequence[RegressionResultsWrapper],
@@ -1319,7 +1349,9 @@ def compare_mfx(
 
         return result
 
-# %%
+
+
+
 # 回帰分析の結果から回帰係数のグラフを作成する関数 --------
 def mfxplot(
     mod: _HasMargEff,
@@ -1384,10 +1416,11 @@ def mfxplot(
         ax = ax, **kwargs
         )
 
-# %% [markdown]
+
 # ### 多項ロジスティック回帰用
 
-# %%
+
+
 def gazer_MNlogit(
     MNlogit_margeff: pd.DataFrame,
     endog_categories: Optional[Sequence[str]] = None,
@@ -1444,14 +1477,15 @@ def gazer_MNlogit(
 
     return res
 
-# %% [markdown]
+
 # # Blinder Oaxaca 分解
 # 
 #  式については朝井(2014, p.9)を参照しました。
 # 
 # - 朝井 友紀子 (2014) 「労働市場における男女差の30年― 就業のサンプルセレクションと男女間賃金格差」『日本労働研究雑誌』, No.648, pp.6–16
 
-# %%
+
+
 def Blinder_Oaxaca(
     model1: RegressionResultsWrapper,
     model2: RegressionResultsWrapper,
@@ -1492,7 +1526,9 @@ def Blinder_Oaxaca(
     result.index.name = 'terms'
     return result
 
-# %%
+
+
+
 def plot_Blinder_Oaxaca(
     model1: RegressionResultsWrapper,
     model2: RegressionResultsWrapper,
@@ -1517,7 +1553,7 @@ def plot_Blinder_Oaxaca(
   Returns:
       None
   """
-  diff_type = bild.arg_match(
+  diff_type = build.arg_match(
       diff_type, ['observed_diff', 'unobserved_diff'],
       multiple = True
       )
@@ -1540,5 +1576,4 @@ def plot_Blinder_Oaxaca(
 
   if fig is not None:
     fig.tight_layout()
-
 
