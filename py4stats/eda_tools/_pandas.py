@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# In[ ]:
 
 
 from __future__ import annotations
@@ -107,6 +108,7 @@ from __future__ import annotations
 # └─ pd.concat(...).sum() など
 # ```
 
+# In[ ]:
 
 
 from py4stats import bilding_block as bild # py4stats のプログラミングを補助する関数群
@@ -120,6 +122,7 @@ import numpy as np
 import scipy as sp
 
 
+# In[ ]:
 
 
 from typing import (
@@ -149,6 +152,7 @@ DataLike = Union[pd.Series, pd.DataFrame]
 
 # # `diagnose()`
 
+# In[ ]:
 
 
 def missing_percent(
@@ -159,9 +163,10 @@ def missing_percent(
     return (100 ** pct) * x.isna().mean(axis=axis)
 
 
+# In[ ]:
 
 
-@pf.register_dataframe_method
+# @pf.register_dataframe_method
 @singledispatch
 def diagnose(self: pd.DataFrame) -> pd.DataFrame:
     """Summarize each column of a DataFrame for quick EDA.
@@ -198,9 +203,10 @@ def diagnose(self: pd.DataFrame) -> pd.DataFrame:
     return result
 
 
+# In[ ]:
 
 
-def plot_miss_var(
+def plot_miss_var_pd(
         data: pd.DataFrame,
         values: Literal['missing_percent', 'missing_count'] = 'missing_percent', 
         sort: bool = True, 
@@ -285,6 +291,7 @@ def plot_miss_var(
 
 # ### 異なるデータフレームの列を比較する関数
 
+# In[ ]:
 
 
 ReturnMatch = Literal["all", "match", "mismatch"]
@@ -353,6 +360,7 @@ def compare_df_cols(
 
 # ### 平均値などの統計値の近接性で比較するバージョン
 
+# In[ ]:
 
 
 import itertools
@@ -449,6 +457,7 @@ def compare_df_stats(
   return res
 
 
+# In[ ]:
 
 
 # レコード毎の近接性（数値の場合）または一致性（数値以外）で評価する関数
@@ -500,6 +509,7 @@ def compare_df_record(
 
 # ## グループ別平均（中央値）の比較
 
+# In[ ]:
 
 
 @singledispatch
@@ -554,6 +564,7 @@ def compare_group_means(
   return res
 
 
+# In[ ]:
 
 
 @singledispatch
@@ -599,6 +610,7 @@ def compare_group_median(
   return res
 
 
+# In[ ]:
 
 
 def plot_mean_diff(
@@ -640,6 +652,7 @@ def plot_mean_diff(
   ax.invert_yaxis();
 
 
+# In[ ]:
 
 
 def plot_median_diff(
@@ -681,9 +694,10 @@ def plot_median_diff(
 
 # ## 完全な空白列 and / or 行の除去
 
+# In[ ]:
 
 
-@pf.register_dataframe_method
+# @pf.register_dataframe_method
 def remove_empty(
     self: pd.DataFrame,
     cols: bool = True,
@@ -743,9 +757,10 @@ def remove_empty(
 
 # ## 定数列の除去
 
+# In[ ]:
 
 
-@pf.register_dataframe_method
+# @pf.register_dataframe_method
 @singledispatch
 def remove_constant(
     self: pd.DataFrame,
@@ -783,10 +798,11 @@ def remove_constant(
   return self
 
 
+# In[ ]:
 
 
 # 列名に特定の文字列を含む列を除外する関数
-@pf.register_dataframe_method
+# @pf.register_dataframe_method
 def filtering_out(
     self: pd.DataFrame,
     contains: Optional[str] = None,
@@ -852,9 +868,10 @@ def filtering_out(
 
 # ## クロス集計表ほか
 
+# In[ ]:
 
 
-@pf.register_dataframe_method
+# @pf.register_dataframe_method
 @singledispatch
 def crosstab2(
     data: pd.DataFrame,
@@ -882,9 +899,10 @@ def crosstab2(
     return res
 
 
+# In[ ]:
 
 
-@pf.register_dataframe_method
+# @pf.register_dataframe_method
 @singledispatch
 def freq_table(
     self: pd.DataFrame,
@@ -934,9 +952,10 @@ def freq_table(
     return res
 
 
+# In[ ]:
 
 
-@pf.register_dataframe_method
+# @pf.register_dataframe_method
 @singledispatch
 def tabyl(
     self: pd.DataFrame,
@@ -1027,10 +1046,11 @@ def tabyl(
 
 # ## `diagnose_category()`：カテゴリー変数専用の要約関数
 
+# In[ ]:
 
 
-@pf.register_dataframe_method
-@pf.register_series_method
+# @pf.register_dataframe_method
+# @pf.register_series_method
 @singledispatch
 def is_dummy(
     self: Union[pd.Series, pd.DataFrame],
@@ -1056,6 +1076,7 @@ def _(self: pd.DataFrame, cording: Sequence[Any] = (0, 1)) -> pd.Series:
     return self.apply(is_dummy, cording = cording)
 
 
+# In[ ]:
 
 
 # カテゴリカル変数についての集計関数 --------------
@@ -1126,6 +1147,7 @@ def diagnose_category(data: pd.DataFrame) -> pd.DataFrame:
 
 # ## その他の補助関数
 
+# In[ ]:
 
 
 def weighted_mean(x: pd.Series, w: pd.Series) -> float:
@@ -1143,6 +1165,7 @@ def min_max(x: pd.Series) -> pd.Series:
 
 # # パレート図を作図する関数
 
+# In[ ]:
 
 
 import matplotlib.pyplot as plt
@@ -1171,6 +1194,7 @@ def make_rank_table(
     return rank_table
 
 
+# In[ ]:
 
 
 # パレート図を作成する関数
@@ -1289,10 +1313,11 @@ def Pareto_plot(
 # #> bill_depth_mm  17.15  16.94  17.36
 # ```
 
+# In[ ]:
 
 
-@pf.register_dataframe_method
-@pf.register_series_method
+# @pf.register_dataframe_method
+# @pf.register_series_method
 def mean_qi(
     self: Union[pd.Series, pd.DataFrame],
     width: float = 0.975,
@@ -1338,10 +1363,11 @@ def mean_qi(
   return res
 
 
+# In[ ]:
 
 
-@pf.register_dataframe_method
-@pf.register_series_method
+# @pf.register_dataframe_method
+# @pf.register_series_method
 def median_qi(
     self: Union[pd.Series, pd.DataFrame],
     width: float = 0.975,
@@ -1387,11 +1413,12 @@ def median_qi(
   return res
 
 
+# In[ ]:
 
 
 from scipy.stats import t
-@pf.register_dataframe_method
-@pf.register_series_method
+# @pf.register_dataframe_method
+# @pf.register_series_method
 def mean_ci(
     self: Union[pd.Series, pd.DataFrame],
     width: float = 0.95,
@@ -1443,6 +1470,7 @@ def mean_ci(
 
 # ## 正規表現を文字列関連の論理関数
 
+# In[ ]:
 
 
 import regex
@@ -1452,9 +1480,10 @@ def detect_Kanzi(s):
   return res is not None
 
 
+# In[ ]:
 
 
-@pf.register_series_method
+# @pf.register_series_method
 def is_ymd(self, na_default = True):
   """与えられた文字列が ymd 形式の日付かどうかを判定する関数"""
   rex_ymd = '[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}'
@@ -1467,7 +1496,7 @@ def is_ymd(self, na_default = True):
 
   return res
 
-@pf.register_series_method
+# @pf.register_series_method
 def is_ymd_like(self, na_default = True):
   """与えられた文字列が ymd 形式っぽい日付かどうかを判定する関数"""
   rex_ymd_like = '[Script=Han]{0,2}[0-9]{1,4}(?:年|-)[0-9]{1,2}(?:月|-)[0-9]{1,2}(?:日)?'
@@ -1481,9 +1510,10 @@ def is_ymd_like(self, na_default = True):
   return res
 
 
+# In[ ]:
 
 
-@pf.register_series_method
+# @pf.register_series_method
 def is_number(self, na_default = True):
   """文字列が数字であるかどうかを判定する関数"""
   rex_phone = '[0-9]{0,4}(?: |-)[0-9]{0,4}(?: |-)[0-9]{0,4}'
@@ -1512,6 +1542,7 @@ def is_number(self, na_default = True):
 
 # ## set missing values in pd.Series
 
+# In[ ]:
 
 
 def set_n_miss(x, n = 10, method = 'random', random_state = None, na_value = pd.NA):
@@ -1534,6 +1565,7 @@ def set_n_miss(x, n = 10, method = 'random', random_state = None, na_value = pd.
   return x
 
 
+# In[ ]:
 
 
 def set_prop_miss(x, prop = 0.1, method = 'random', random_state = None, na_value = pd.NA):
@@ -1614,9 +1646,10 @@ def set_prop_miss(x, prop = 0.1, method = 'random', random_state = None, na_valu
 
 # # 簡易なデータバリデーションツール
 
+# In[ ]:
 
 
-@pf.register_dataframe_method
+# @pf.register_dataframe_method
 def check_that(
     data: pd.DataFrame,
     rule_dict: Union[Mapping[str, str], pd.Series],
@@ -1682,9 +1715,10 @@ def check_that(
   return result_df
 
 
+# In[ ]:
 
 
-@pf.register_dataframe_method
+# @pf.register_dataframe_method
 def check_viorate(
     data: pd.DataFrame,
     rule_dict: Union[Mapping[str, str], pd.Series],
@@ -1731,12 +1765,13 @@ def check_viorate(
 
 # ### helper function for pandas `DataFrame.eval()`
 
+# In[ ]:
 
 
 def implies_exper(P, Q):
   return f"{Q} | ~({P})"
 
-@pf.register_dataframe_method
+# @pf.register_dataframe_method
 @singledispatch
 def is_complet(self: pd.DataFrame) -> pd.Series:
   return self.notna().all(axis = 'columns')
@@ -1746,6 +1781,7 @@ def _(*arg: pd.Series) -> pd.Series:
   return pd.concat(arg, axis = 'columns').notna().all(axis = 'columns')
 
 
+# In[ ]:
 
 
 def Sum(*arg): return pd.concat(arg, axis = 'columns').sum(axis = 'columns')
