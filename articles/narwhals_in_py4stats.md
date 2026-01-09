@@ -1,4 +1,4 @@
-# Technical Notes: py4stats.eda_tools における narwhals ベース実装について
+# Technical Notes: py4stats.eda_tools における narwhals ベースの実装
 
 ## 概要
 
