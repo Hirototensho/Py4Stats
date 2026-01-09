@@ -53,4 +53,4 @@ print(py4st.is_dummy(penguins2))
 #> Name: 0, dtype: bool
 ```
 ***
-[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
+[Return to **Function reference**.](../reference.md)

@@ -4,13 +4,13 @@
 import py4stats as py4st
 ```
 
-ここでは `Py4Stats` の主な機能を紹介します。実装されている関数の一覧は [Function reference](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md) を参照してください。
+ここでは `Py4Stats` の主な機能を紹介します。実装されている関数の一覧は [Function reference](./reference.md) を参照してください。
 
 ## `py4stats.eda_tools`
 
 　探索的データ解析と前処理に関する機能を提供するモジュールです。一部の関数は [`pandas-flavor`](https://pypi.org/project/pandas-flavor/) ライブラリの機能を使って実装しており、[`pandas.DataFrame`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html) のメソッドと同じ構文で利用することができます。
 
-　[`py4stats.diagnose()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/diagnose.md)：R言語の[`dlookr::diagnose()`](https://choonghyunryu.github.io/dlookr/reference/diagnose.data.frame.html)を再現した関数で、データの全般的な状態についての要約を提供します。
+　[`py4stats.diagnose()`](man/diagnose.md)：R言語の[`dlookr::diagnose()`](https://choonghyunryu.github.io/dlookr/reference/diagnose.data.frame.html)を再現した関数で、データの全般的な状態についての要約を提供します。
 
 ``` python
 import pandas as pd
@@ -30,7 +30,7 @@ print(penguins.diagnose().round(4))
 #> year                 int64              0           0.0000             3       0.8721
 ```
 
-[`py4stats.tabyl()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tabyl.md)：R言語の [`janitor::tabyl()`](https://sfirke.github.io/janitor/reference/tabyl.html)を参考にした、クロス集計表を作成する関数です。
+[`py4stats.tabyl()`](man/tabyl.md)：R言語の [`janitor::tabyl()`](https://sfirke.github.io/janitor/reference/tabyl.html)を参考にした、クロス集計表を作成する関数です。
 
 ``` python
 print(penguins.tabyl('island', 'species'))
@@ -41,7 +41,7 @@ print(penguins.tabyl('island', 'species'))
 #> Torgersen  52 (100.0%)    0 (0.0%)     0 (0.0%)   52
 #> All        152 (44.2%)  68 (19.8%)  124 (36.0%)  344
 ```
-　[`py4stats.freq_table()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/freq_table.md)：R言語の[`DescTools::Freq()`](https://cran.r-project.org/web/packages/DescTools/DescTools.pdf)をオマージュした、1変数の度数分布表を計算する関数。度数 `freq` と相対度数 `perc` に加えて、それぞれの累積値を計算します。
+　[`py4stats.freq_table()`](man/freq_table.md)：R言語の[`DescTools::Freq()`](https://cran.r-project.org/web/packages/DescTools/DescTools.pdf)をオマージュした、1変数の度数分布表を計算する関数。度数 `freq` と相対度数 `perc` に加えて、それぞれの累積値を計算します。
 
 ``` python
 print(penguins.freq_table('species'))
@@ -76,7 +76,7 @@ print(
 #>           (52.725, 59.6]       5  0.040650      123  1.000000
 ```
 
-　[`py4stats.remove_empty()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/remove_empty_constant.md)：完全に空白な列や行の削除する関数。R言語の [`janitor::remove_empty()`](https://sfirke.github.io/janitor/reference/remove_empty.html) をオマージュした関数で、全ての要素が `NaN` である列や行をデータフレームから除外します。
+　[`py4stats.remove_empty()`](man/remove_empty_constant.md)：完全に空白な列や行の削除する関数。R言語の [`janitor::remove_empty()`](https://sfirke.github.io/janitor/reference/remove_empty.html) をオマージュした関数で、全ての要素が `NaN` である列や行をデータフレームから除外します。
 
 ``` python
 penguins2 = penguins.loc[:, ['species', 'body_mass_g']].copy()
@@ -115,7 +115,7 @@ print(penguins2.remove_empty(cols = False, quiet = False).tail(3))
 #> 343  Chinstrap       3775.0    NaN
 ```
 
-　[`py4stats.remove_constant()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/remove_empty_constant.md)：定数列の削除。R言語の [`janitor::remove_constant()`](https://sfirke.github.io/janitor/reference/remove_constant.html) をオマージュした関数で、1種類だけの要素からなる列をデータフレームから除外します。
+　[`py4stats.remove_constant()`](man/remove_empty_constant.md)：定数列の削除。R言語の [`janitor::remove_constant()`](https://sfirke.github.io/janitor/reference/remove_constant.html) をオマージュした関数で、1種類だけの要素からなる列をデータフレームから除外します。
 ``` python
 penguins2 = penguins.loc[:, ['species', 'body_mass_g']].copy()
 penguins2.loc[:, 'constant'] = 'c'
@@ -134,7 +134,7 @@ print(penguins2.remove_constant(quiet = False).head(3))
 #> 2  Adelie       3250.0
 ```
 
-　[`py4stats.filtering_out()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/filtering_out.md)：`pandas` の [`DataFrame.filter()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.filter.html) メソッドでは引数 `like` に文字列を指定することで、列名に特定の文字列を含む列を選択できますが、反対に `py4stats.filtering_out()` では列名に特定の文字列を含む列を除外します。実装の一部はR言語の [`dplyr::select()`](https://dplyr.tidyverse.org/reference/select.html) を参考にしました。
+　[`py4stats.filtering_out()`](man/filtering_out.md)：`pandas` の [`DataFrame.filter()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.filter.html) メソッドでは引数 `like` に文字列を指定することで、列名に特定の文字列を含む列を選択できますが、反対に `py4stats.filtering_out()` では列名に特定の文字列を含む列を除外します。実装の一部はR言語の [`dplyr::select()`](https://dplyr.tidyverse.org/reference/select.html) を参考にしました。
 
 ```python
 # 列名に 'length' を含む列を除外
@@ -161,9 +161,9 @@ print(penguins.filtering_out(ends_with = '_mm').head(3))
 
 ## `py4stats.regression_tools`
 
-　`py4stats.regression_tools` は [`statsmodels`](https://www.statsmodels.org/stable/index.html)ライブラリで作成された回帰分析の結果についての表作成と視覚化を補助する機能を提供するモジュールです。
+　`py4stats.regression_tools` は [`statsmodels`](https://www.statsmodels.org/stable/index.html)ライブラリで作成された回帰分析の結果についての表作成と可視化を補助する機能を提供するモジュールです。
 
-　[`py4stats.compare_ols()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_ols.md) ：計量経済学の実証論文でよく用いられる、回帰分析の結果を列方向に並べて比較する表を作成します。表のフォーマットについてはR言語の[`texreg::screenreg()`](https://cran.r-project.org/web/packages/texreg/index.html)や[`modelsummary::modelsummary()`](https://modelsummary.com/man/modelsummary.html)を参考にしています。同種の機能を提供する Python ライブラリーとしては、R言語の [`stargazer`](https://cran.r-project.org/web/packages/stargazer/index.html) パッケージをもとにした [`stargazer`](https://pypi.org/project/stargazer/) ライブラリがあります。
+　[`py4stats.compare_ols()`](man/compare_ols.md) ：計量経済学の実証論文でよく用いられる、回帰分析の結果を列方向に並べて比較する表を作成します。表のフォーマットについてはR言語の[`texreg::screenreg()`](https://cran.r-project.org/web/packages/texreg/index.html)や[`modelsummary::modelsummary()`](https://modelsummary.com/man/modelsummary.html)を参考にしています。同種の機能を提供する Python ライブラリーとしては、R言語の [`stargazer`](https://cran.r-project.org/web/packages/stargazer/index.html) パッケージをもとにした [`stargazer`](https://pypi.org/project/stargazer/) ライブラリがあります。
 
 ``` python
 import statsmodels.formula.api as smf
@@ -196,7 +196,7 @@ compare_tab1
 | df                   | 3              | 4                | 5               |
 
 
-`py4stats.compare_ols()` の実行結果は `Pandas` の `DataFrame` として出力されるため、`.xlsx`. ファイルなどに変換することができます。また、用途に応じて表の体裁を調整できるようにしています。詳細については [「回帰分析の比較」](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_ols.md) を参照してください。
+`py4stats.compare_ols()` の実行結果は `Pandas` の `DataFrame` として出力されるため、`.xlsx`. ファイルなどに変換することができます。また、用途に応じて表の体裁を調整できるようにしています。詳細については [「回帰分析の比較」](man/compare_ols.md) を参照してください。
 
 ``` python
 compare_tab2 = py4st.compare_ols(
@@ -222,7 +222,7 @@ compare_tab2
 | nobs                 | 342             | 342               | 333              |
 | df                   | 3               | 4                 | 5                |
 
-[`py4stats.coefplot()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/coefplot.md)：回帰係数の可視化。R言語の [`coefplot::coefplot()`](https://cran.r-project.org/web/packages/coefplot/index.html) を参考にしました。
+[`py4stats.coefplot()`](man/coefplot.md)：回帰係数の可視化。R言語の [`coefplot::coefplot()`](https://cran.r-project.org/web/packages/coefplot/index.html) を参考にしました。
 
 ```python
 import matplotlib.pyplot as plt
@@ -244,8 +244,8 @@ ax[1].set_xlim(-900, 1800);
 
 ![Unknown](https://github.com/Hirototensho/Py4Stats/assets/55335752/4c2dbfda-c67d-45c5-ba28-0f7fc72bd7d3)
 
-　[`py4stats.compare_mfx()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_mfx.md)
- と [`py4stats.mfxplot()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_mfx.md) は、それぞれ `py4stats.compare_ols()` と `py4stats.coefplot()` の一般化線型モデルバージョンです。`statsmodels` ライブラリの[`.get_margeff()`](https://www.statsmodels.org/dev/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドから得られた限界効果の推定値を表示します。
+　[`py4stats.compare_mfx()`](man/compare_mfx.md)
+ と [`py4stats.mfxplot()`](man/compare_mfx.md) は、それぞれ `py4stats.compare_ols()` と `py4stats.coefplot()` の一般化線型モデルバージョンです。`statsmodels` ライブラリの[`.get_margeff()`](https://www.statsmodels.org/dev/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドから得られた限界効果の推定値を表示します。
 
 ```python
 penguins['female'] = np.where(penguins['sex'] == 'female', 1, 0)
@@ -288,4 +288,4 @@ ax[1].set_xlim(-0.2, 0.85);
 ![Unknown](https://github.com/Hirototensho/Py4Stats/assets/55335752/f62e934a-91da-4ca8-9272-3006df2383f0)
 
 ***
-[Jump to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
+[Jump to **Function reference**.](./reference.md)

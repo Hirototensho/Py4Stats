@@ -41,5 +41,5 @@ print(py4st.diagnose(penguins).round(4))
 ```
 
 ***
-[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
+[Return to **Function reference**.](../reference.md)
 

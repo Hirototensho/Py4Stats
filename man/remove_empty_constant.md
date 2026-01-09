@@ -132,4 +132,4 @@ print(py4st.remove_constant(penguins2, dropna = True).head(3))
 #> 2  Adelie       3250.0
 ```
 ***
-[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
+[Return to **Function reference**.](../reference.md)

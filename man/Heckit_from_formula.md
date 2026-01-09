@@ -107,4 +107,4 @@ print(res_heckit.summary())
 - 春山鉄源(2023) 『Pythonで学ぶ入門計量経済学』 https://py4etrics.github.io/index.html
 
 ***
-[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
+[Return to **Function reference**.](../reference.md)

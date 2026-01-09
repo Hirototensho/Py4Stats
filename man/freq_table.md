@@ -76,4 +76,4 @@ print(
 #> 15  Chinstrap  (36.683, 41.267]     1  0.002907      344  1.000000
 ``` 
 ***
-[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
+[Return to **Function reference**.](../reference.md)
