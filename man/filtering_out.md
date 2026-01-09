@@ -7,16 +7,18 @@
 ```python
 filtering_out(
     self, 
-    contains = None, 
-    starts_with = None, 
-    ends_with = None, 
-    axis = 1
+    self: IntoFrameT,
+    contains: Optional[str] = None,
+    starts_with: Optional[str] = None,
+    ends_with: Optional[str] = None,
+    axis: Union[int, str] = 'columns',
+    to_native: bool = True,
 )
 ```
 
 ## 引数
 
-- `self`：`pandas DataFrame`
+- `self`：`IntoFrameT`（必須）
 - `contains`：**str**</br>
 　列名（行名）の検索に使用する文字列。内部で使用している [`pandas.Series.str.contains`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.contains.html#pandas.Series.str.contains) に渡され、指定された文字列を列名（行名）に含む列（行）を除外します。
 - `starts_with`：**str**</br>
@@ -64,5 +66,10 @@ print(py4st.filtering_out(penguins, ends_with = '_mm').head(3))
 #> 1  Adelie  Torgersen       3800.0  female  2007       1
 #> 2  Adelie  Torgersen       3250.0  female  2007       1
 ```
+
+## Notes
+
+`axis='index'` による行を対象とするフィルタリングは、インデックスの存在に依存します。したがって、`pd.DataFrame` 以外の行ラベルをもたない `DataFrame` バックエンドでは、このオプションは利用できません。
+
 ***
 [Return to **Function reference**.](../reference.md)

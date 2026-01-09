@@ -6,30 +6,34 @@
 
 ``` python
 remove_empty(
-    self, 
-    cols = True, 
-    rows = True, 
-    cutoff = 1, 
-    quiet = True
-)
+    self: IntoFrameT,
+    cols: bool = True,
+    rows: bool = True,
+    cutoff: float = 1.0,
+    quiet: bool = True,
+    to_native: bool = True,
+    **kwargs: Any
+) 
 
 remove_constant(
-    self, 
-    quiet = True, 
-    dropna = False
+    self: IntoFrameT,
+    quiet: bool = True,
+    to_native: bool = True,
+    dropna = False,
+    **kwargs: Any
 )
 ```
 
 
 ## 引数
 
-- `self`：`pandas DataFrame`
+- `self`：`IntoFrameT`
 - `cols`：**bool**</br>
 　空白列を削除するかどうかを表すブール値（`remove_empty()` のみ）。True（初期設定） なら空白列を削除し、Falseなら全ての要素が `NaN` の列があっても削除しません。
 - `rows`：**bool**</br>
 　空白行を削除するかどうかを表すブール値（`remove_empty()` のみ）。True（初期設定） なら空白行を削除し、Falseなら全ての要素が `NaN` の行があっても削除しません。
 - `cutoff`：**float**</br>
-　列の削除を行う閾値（`remove_empty()` のみ）。ある列（行）における `NaN` の割合が `>= cutoff` のとき、その列（行）を削除します。初期設定は1で全ての要素が `NaN` の列（行）のみ削除しますが、例えば `cutoff = 0.9` とすることで `NaN` の割合9が割以上の列（行）を削除できます。
+　列（行）の削除を行うかどうかを判定する欠測率の閾値（`remove_empty()` のみ）。ある列（行）における `NaN` の割合が `>= cutoff` のとき、その列（行）を削除します。初期設定は1で全ての要素が `NaN` の列（行）のみ削除しますが、例えば `cutoff = 0.9` とすることで `NaN` の割合9が割以上の列（行）を削除できます。
 - `quiet`：**bool**</br>
 　削除した列（行）を報告するかどうかを表すブール値。`quiet = True`（初期設定） であれば何も報告せずに削除だけ行い、`quiet = False` なら、削除した列（行）の数と列名（行名）を報告します。
 - `dropna`：**bool**</br>

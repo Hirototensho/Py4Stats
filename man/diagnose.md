@@ -10,11 +10,11 @@ diagnose(self)
 
 ## 引数
 
-- `self`：`pandas DataFrame`（必須）
+- `self`：`IntoFrameT`（必須）
 
 ## 返り値
 
-- `dtype`：該当する列のpandasにおけるデータの型。「〇〇の個数」や「〇〇の金額」といったデータの `dtype` が `object` になっていたら、文字列として読み込まれているので要注意です。
+- `dtype`：該当する列のpandasにおけるデータの型。「〇〇の個数」や「〇〇の金額」といったデータの `dtype` が `object` や `String` になっていたら、文字列として読み込まれているので要注意です。
 - `missing_count`：1列のなかで `NaN` などの欠測値になっている数
 - `missing_percent`：1列のなかで欠測値が占めている割合で`missing_percent = (missing_count / 行数) * 100` として計算されます。もし `missing_percent = 100` なら、その列は完全に空白です。
 - `unique_count`：その列で重複を除外したユニークな値の数。例えばある列の中身が「`a, a, b`」であればユニークな値は `a` と `b` の2つなので `unique_count = 2` です。もし `unique_count = 1` であれば、その行にはたった1種類の値しか含まれていないことが分かりますし、例えば都道府県を表す列の `unique_count` が47より多ければ、都道府県以外のものが混ざっていると考えられます。

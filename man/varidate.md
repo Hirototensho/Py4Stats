@@ -5,14 +5,18 @@
 　R言語の [`varidate`](https://github.com/data-cleaning/validate)パッケージの `check_that()` 関数などをオマージュした、ごく簡易なデータ検証関数です。
 
 ```python
-check_that(data, rule_dict, **kwargs)
+check_that(
+    data: IntoFrameT,
+    rule_dict: Union[Mapping[str, str], pd.Series],
+    **kwargs: Any,
+)
 
 check_viorate(data, rule_dict, **kwargs)
 ```
 
 ## 引数 Argument
 
-- `data`**pd.DataFrame**（必須）<br>
+- `data`**IntoFrameT**（必須）<br>
 　ルールに基づくデータ検証を行うデータセット。
 
 - `rule_dict`**dict or pd.Series of str**（必須）<br>
@@ -121,5 +125,10 @@ print(retailers.loc[df_viorate['to'], 'size':'turnover'])
 #> 4  sc3       0.14    NaN       NaN
 #> 6  sc3       0.14    5.0       NaN
 ```
+
+## Notes
+
+本関数の実装は、 `pd.DataFrame.eval()` メソッドに依存しているため、代入されたデータフレームのバックエンドに関わらず `pd.DataFrame` が出力されます。
+
 ***
 [Return to **Function reference**.](../reference.md)

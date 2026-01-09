@@ -5,16 +5,36 @@
 　R言語の [`ggdist::mean_qi()`](https://mjskay.github.io/ggdist/reference/point_interval.html) をオマージュした数値変数の点推定と区間推定を行う関数です。
 
 ```python
-mean_qi(self, width = 0.95)
+mean_qi(
+    self: Union[IntoFrameT, SeriesT],
+    width: float = 0.975,
+    interpolation: str = 'midpoint',
+    to_native: bool = True
+)
+mean_qi(
+    self: Union[IntoFrameT, SeriesT],
+    width: float = 0.975,
+    interpolation: str = 'midpoint',
+    to_native: bool = True
+)
 
-median_qi(self, width = 0.95)
+median_qi(
+    self: Union[IntoFrameT, IntoSeriesT],
+    width: float = 0.975,
+    interpolation: str = 'midpoint',
+    to_native: bool = True
+)
 
-mean_ci(self, width = 0.95)
+mean_ci(
+    self: Union[IntoFrameT, IntoSeriesT],
+    width: float = 0.975,
+    to_native: bool = True
+)
 ```
 
 ## 引数 Argument
 
-- `self`：**pd.DataFrame or pd.Series**（必須）
+- `self`：**IntoFrameT or SeriesT**（必須）
 - `width`：**float**<br>
 　分位点区間の幅、もしくは信頼区間の計算に用いる信頼係数。
 

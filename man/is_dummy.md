@@ -10,7 +10,7 @@ is_dummy(self, cording = [0, 1])
 
 ## 引数 Argument
 
-- `self` **list, pandas.Series or pandas.DataFrame** <br>
+- `self` **list, IntoFrameT or IntoSeriesT** <br>
 - `cording` **list** <br>
 　ダミー変数のコーディング方式を指定するリスト。
 
@@ -39,7 +39,7 @@ print(py4st.is_dummy(penguins2['species_Adelie']))
 #> True
 ```
 
-なお、初期設定では bool 型の変数についても True を返します。
+なお、初期設定では bool 型の変数についても True が出力されます。
 
 ```python
 print(py4st.is_dummy(penguins2))

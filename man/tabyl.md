@@ -6,22 +6,21 @@
 
 ```python
 tabyl(
-    self, 
-    index, 
-    columns, 
-    margins = True, 
-    margins_name = 'All', 
-    normalize = 'index', 
-    dropna = False,
-    rownames = None, 
-    colnames = None
-    digits = 1,
+    self: IntoFrameT,
+    index: str,
+    columns: str,
+    margins: bool = True,
+    margins_name: str = 'All',
+    normalize: Union[bool, Literal["index", "columns", "all"]] = "index",
+    dropna: bool = False,
+    digits: int = 1,
+    **kwargs: Any
 )
 ```
 
 ## 引数
 
-- `self`：`pandas DataFrame`（必須）
+- `self`：`IntoFrameT`（必須）
 - `index`：**str**</br>
 　集計に使用するデータフレームの変数名（必須）。
 - `columns`：**str**</br>
@@ -29,7 +28,7 @@ tabyl(
 - `margins`：**bool**</br>
 　行または列の合計を追加するかどうかを表すブール値。初期設定は True です。
 - `dropna`：**bool**</br>
-　全ての値が NaN である列を除外するかどうかを表すブール値
+　 欠測値（NaN）を集計から除外するかどうかを表すブール値。初期設定は False です。
 - `normalize`：**str**</br>
 　丸括弧`( )`に表示する相対度数の計算方式。
     - `index` 各セルの度数を行の和で割り、横方向の相対度数の和が100%になるように計算します。
