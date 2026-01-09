@@ -1,4 +1,4 @@
-# 引数のアサーション `bilding_block.arg_match()`
+# 引数のアサーション `building_block.arg_match()`
 
 ## 概要
 
@@ -32,7 +32,7 @@ arg_match(
 ## 使用例 Examples
 
 ```python
-from py4stats import bilding_block as build
+from py4stats import building_block as build
 
 def my_faivarit(fruits):
   fruits = build.arg_match(

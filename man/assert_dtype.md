@@ -1,5 +1,5 @@
 # 引数のデータ型によるアサーション
-## `bilding_block.assert_character()` `bilding_block.assert_logical()` `bilding_block.assert_numeric()` `bilding_block.assert_integer()` `bilding_block.assert_count()` `bilding_block.assert_float()`
+## `building_block.assert_character()` `building_block.assert_logical()` `building_block.assert_numeric()` `building_block.assert_integer()` `building_block.assert_count()` `building_block.assert_float()`
 
 ## 概要
 
@@ -73,7 +73,7 @@ assert_float(
 ## 使用例 Examples
 
 ```python
-from py4stats import bilding_block as build
+from py4stats import building_block as build
 x = [1, 2, 3]
 y = ['A', 'B', 'C']
 

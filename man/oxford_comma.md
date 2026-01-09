@@ -25,7 +25,7 @@ oxford_comma_or(x, quotation = True)
 ## 使用例
 
 ```python
-from py4stats import bilding_block as build
+from py4stats import building_block as build
 x = ['A', 'B', 'C']
 
 print(build.oxford_comma_and(x))

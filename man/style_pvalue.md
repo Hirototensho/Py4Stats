@@ -36,8 +36,8 @@ p_stars(
 
 ## 返り値 Value
 
-　フォーマットされたp-値を表す pd.Series を出力します。`bilding_block.style_pvalue()` では引数 `p_value` に与えられた数値を指定された桁数に丸めた値を表示し、指定された範囲を外れる値については `’<p_min’` や ’>p_max’` の書式にへんかんします。  
-　`bilding_block.p_stars()` では仮説検定の有意性を示すアスタリスク `*` に変換します。初期設定ではアスタリスクはp-値の値に応じて次のように表示されます。
+　フォーマットされたp-値を表す pd.Series を出力します。`building_block.style_pvalue()` では引数 `p_value` に与えられた数値を指定された桁数に丸めた値を表示し、指定された範囲を外れる値については `’<p_min’` や ’>p_max’` の書式にへんかんします。  
+　`building_block.p_stars()` では仮説検定の有意性を示すアスタリスク `*` に変換します。初期設定ではアスタリスクはp-値の値に応じて次のように表示されます。
 
   - p ≤ 0.1 `*`
   - p ≤ 0.05 `**`
@@ -48,7 +48,7 @@ p_stars(
 
 ```python
 
-from py4stats import bilding_block as build
+from py4stats import building_block as build
 p_value = [
     0.999, 0.5028, 0.2514, 0.197, 0.10, 
     0.0999, 0.06, 0.03, 0.002, 0.0002

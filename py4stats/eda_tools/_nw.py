@@ -12,7 +12,7 @@ from __future__ import annotations
 # In[ ]:
 
 
-from py4stats import bilding_block as build # py4stats のプログラミングを補助する関数群
+from py4stats import building_block as build # py4stats のプログラミングを補助する関数群
 # from py4stats import eda_tools as eda        # 基本統計量やデータの要約など
 import matplotlib.pyplot as plt
 import functools

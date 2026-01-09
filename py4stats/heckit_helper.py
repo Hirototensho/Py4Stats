@@ -15,7 +15,7 @@ from py4etrics.heckit import Heckit
 import statsmodels.formula.api as smf
 import patsy
 
-from py4stats import bilding_block as build # py4stats のプログラミングを補助する関数群
+from py4stats import building_block as build # py4stats のプログラミングを補助する関数群
 from py4stats import regression_tools as reg
 
 from functools import singledispatch

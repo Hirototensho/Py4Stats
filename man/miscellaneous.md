@@ -25,15 +25,15 @@ style_percent(x, digits = 2, unit = 100, symbol = '%')
 
 　以下の値をもつ `pd.Series` を返します。
 
-- `bilding_block.style_number()`： 任意の数値に対して、小数点以下を桁数 `digits` に丸め、3桁区切り記号を通過した値を文字列として返します。f-string によるフォーマット `f'{x:{big_mark}.{digits}f}'` を用いて実装されています。
-- `bilding_block.style_currency()`： `build.style_number()` と同じく任意の数値に対して、小数点以下を桁数 `digits` に丸め、3桁区切り記号を通過した値を文字列として返しますが、さらに貨幣記号を追加します。f-string によるフォーマット `f'{symbol}{x:{big_mark}.{digits}f}'` を用いて実装されています。
-- `bilding_block.style_percent()`： 任意の数値をパーセンテージ表示に変換した値を文字列として返します。f-string によるフォーマット `f'{x:,.{digits}%}'` を用いて実装されています。
+- `building_block.style_number()`： 任意の数値に対して、小数点以下を桁数 `digits` に丸め、3桁区切り記号を通過した値を文字列として返します。f-string によるフォーマット `f'{x:{big_mark}.{digits}f}'` を用いて実装されています。
+- `building_block.style_currency()`： `build.style_number()` と同じく任意の数値に対して、小数点以下を桁数 `digits` に丸め、3桁区切り記号を通過した値を文字列として返しますが、さらに貨幣記号を追加します。f-string によるフォーマット `f'{symbol}{x:{big_mark}.{digits}f}'` を用いて実装されています。
+- `building_block.style_percent()`： 任意の数値をパーセンテージ表示に変換した値を文字列として返します。f-string によるフォーマット `f'{x:,.{digits}%}'` を用いて実装されています。
 
 ## 使用例 Examples
 
 ```python
 import numpy as np
-from py4stats import bilding_block as build
+from py4stats import building_block as build
 
 x = [2000, 1000, 0.5, 0.11, 0.123]
 

@@ -1,5 +1,5 @@
 # データ型を判定する論理関数
-## `bilding_block.is_character()` `bilding_block.is_logical()` `bilding_block.is_numeric()` `bilding_block.is_integer()` `bilding_block.is_float()`
+## `building_block.is_character()` `building_block.is_logical()` `building_block.is_numeric()` `building_block.is_integer()` `building_block.is_float()`
 
 ## 概要
 
@@ -34,7 +34,7 @@ is_float(x)
 ## 使用例 Examples
 
 ```python
-from py4stats import bilding_block as build
+from py4stats import building_block as build
 x_str = ['A', 'B']
 x_bool = [True, False, True]
 x_int = [1, 2, 3]
