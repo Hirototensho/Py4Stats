@@ -58,7 +58,7 @@ from .eda_tools._nw import (
 
 __all__ = [
     # 'load',
-    ## eda_tools --------------------------------------------
+    # eda_tools --------------------------------------------
     # 'Max',
     # 'Mean',
     # 'Median',
@@ -72,8 +72,8 @@ __all__ = [
     # 'compare_df_stats',
     # 'compare_group_means',
     # 'compare_group_median',
-    # 'crosstab2',
-    # 'detect_Kanzi',
+    # 'crosstab',
+    # 'is_kanzi',
     # 'diagnose',
     # 'diagnose_category',
     # 'entropy',
