@@ -35,14 +35,14 @@ penguins2 = pd.get_dummies(
 penguins2['Intercept'] = 1 # 定数列の作成
 penguins2['female'] = penguins['sex'] == 'female' # bool 型の変数を作成
 
-print(penguins2['species_Adelie'].is_dummy())
+print(py4st.is_dummy(penguins2['species_Adelie']))
 #> True
 ```
 
 なお、初期設定では bool 型の変数についても True を返します。
 
 ```python
-print(penguins2.is_dummy())
+print(py4st.is_dummy(penguins2))
 #> island               False
 #> bill_length_mm       False
 #> species_Adelie        True
@@ -50,7 +50,7 @@ print(penguins2.is_dummy())
 #> species_Gentoo        True
 #> Intercept            False
 #> female                True
-#> dtype: bool
+#> Name: 0, dtype: bool
 ```
 ***
-[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
+[Return to **Function reference**.](../reference.md)

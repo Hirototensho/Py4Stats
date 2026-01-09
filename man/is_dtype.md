@@ -57,4 +57,4 @@ print([bild.is_float(x) for x in x_list])
 #> [False, False, False, True]
 ```
 ***
-[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
+[Return to **Function reference**.](../reference.md)

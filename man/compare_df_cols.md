@@ -76,4 +76,4 @@ print(py4st.compare_df_stats([data_2019, data_2020, data_2021]))
 # 死者数       0.003759   0.003378   0.002782        False
 ```
 ***
-[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
+[Return to **Function reference**.](../reference.md)

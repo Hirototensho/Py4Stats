@@ -77,7 +77,7 @@ my_faivarit2(['apple', 'orang'])
 #>              Did you mean 'orange'?
 ```
 
-　`Py4Stats` では [`eda_tools.tabyl()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tabyl.md)や [`regression_tools.compare_ols()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_ols.md) など、文字列で指定する引数をもつ関数で、引数のアサーションに `bild.arg_match()` を使用しています。
+　`Py4Stats` では [`eda_tools.tabyl()`](./tabyl.md)や [`regression_tools.compare_ols()`](./compare_ols.md) など、文字列で指定する引数をもつ関数で、引数のアサーションに `bild.arg_match()` を使用しています。
 
 ```python
 from py4stats import eda_tools as eda
@@ -90,5 +90,5 @@ penguins.tabyl('island', 'species', normalize = 'ind')
 #>              Did you mean 'index'?
 ```
 ***
-[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
+[Return to **Function reference**.](../reference.md)
 

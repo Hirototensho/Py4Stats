@@ -61,4 +61,4 @@ print(bild.style_percent(pct, unit = 1000, symbol = '‰').to_list())
 ```
 
 ***
-[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
+[Return to **Function reference**.](../reference.md)

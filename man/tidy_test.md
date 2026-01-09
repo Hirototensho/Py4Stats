@@ -2,7 +2,7 @@
 
 ## 概要
 
-　R言語の [`broom::tidy()`](https://broom.tidymodels.org/reference/tidy.lm.html) をオマージュした [`py4stats.tidy()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy.md) 関数のうち、`statsmodels` ライブラリのメソッド [`RegressionResults.t_test()`](https://www.statsmodels.org/dev/generated/statsmodels.regression.linear_model.RegressionResults.t_test.html#statsmodels.regression.linear_model.RegressionResults.t_test) もしくは [`RegressionResults.f_test()`](https://www.statsmodels.org/dev/generated/statsmodels.regression.linear_model.RegressionResults.f_test.html#statsmodels.regression.linear_model.RegressionResults.f_test) で作成された `statsmodels.stats.contrast.ContrastResults` クラスのオブジェクト専用のメソッドです。[`py4stats.tidy()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy.md)はジェネリック関数として実装されているため、`py4st.tidy(x)` としてご利用いただけます。
+　R言語の [`broom::tidy()`](https://broom.tidymodels.org/reference/tidy.lm.html) をオマージュした [`py4stats.tidy()`](./tidy.md) 関数のうち、`statsmodels` ライブラリのメソッド [`RegressionResults.t_test()`](https://www.statsmodels.org/dev/generated/statsmodels.regression.linear_model.RegressionResults.t_test.html#statsmodels.regression.linear_model.RegressionResults.t_test) もしくは [`RegressionResults.f_test()`](https://www.statsmodels.org/dev/generated/statsmodels.regression.linear_model.RegressionResults.f_test.html#statsmodels.regression.linear_model.RegressionResults.f_test) で作成された `statsmodels.stats.contrast.ContrastResults` クラスのオブジェクト専用のメソッドです。[`py4stats.tidy()`](./tidy.md)はジェネリック関数として実装されているため、`py4st.tidy(x)` としてご利用いただけます。
 
 ```python
 tidy_test(x, conf_level = 0.95, **kwargs)
@@ -75,4 +75,4 @@ print(py4st.tidy(fit3.f_test(hypotheses)).round(4))
 ```
 
 ***
-[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
+[Return to **Function reference**.](../reference.md)

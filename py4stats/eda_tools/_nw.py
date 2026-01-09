@@ -1,0 +1,2303 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[ ]:
+
+
+from __future__ import annotations
+
+
+# # `eda_tools_nw`： `narwhals` ライブラリを使った実験的実装
+
+# In[ ]:
+
+
+from py4stats import bilding_block as bild # py4stats のプログラミングを補助する関数群
+# from py4stats import eda_tools as eda        # 基本統計量やデータの要約など
+import matplotlib.pyplot as plt
+import functools
+from functools import singledispatch
+import pandas_flavor as pf
+
+import pandas as pd
+import numpy as np
+import scipy as sp
+import itertools
+import narwhals as nw
+import narwhals.selectors as ncs
+from narwhals.typing import FrameT, IntoFrameT, SeriesT, IntoSeriesT
+
+import pandas_flavor as pf
+
+
+# In[ ]:
+
+
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Mapping,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+    Literal,
+    overload,
+)
+from numpy.typing import ArrayLike
+
+# matplotlib の Axes は遅延インポート/前方参照でもOK
+try:
+    from matplotlib.axes import Axes
+except Exception:  # notebook等で未importでも落ちないように
+    Axes = Any  # type: ignore
+
+DataLike = Union[pd.Series, pd.DataFrame]
+
+
+# # `diagnose()`
+
+# In[ ]:
+
+
+def get_dtypes(data: IntoFrameT) -> pd.Series:
+    data_nw = nw.from_native(data)
+    if hasattr(data, 'dtypes'):
+        list_dtypes = data.dtypes
+    else:
+        list_dtypes = [str(data_nw.schema[col]) for col in data_nw.columns]
+
+    s_dtypes = pd.Series(list_dtypes, index = data_nw.columns).astype(str)
+    return s_dtypes
+
+
+# In[ ]:
+
+
+@pf.register_dataframe_method
+def diagnose(self: IntoFrameT, to_native: bool = True) -> IntoFrameT:
+    """Summarize each column of a DataFrame for quick EDA.
+
+    This method computes basic diagnostics for each column:
+    - dtype
+    - missing_count / missing_percent
+    - unique_count / unique_rate
+
+    Returns:
+        pandas.DataFrame:
+            Summary table indexed by original column names with columns:
+            - dtype: pandas dtype of the column.
+            - missing_count: number of missing values.
+            - missing_percent: percentage of missing values (100 * missing_count / nrow).
+            - unique_count: number of unique values (excluding duplicates).
+            - unique_rate: percentage of unique values (100 * unique_count / nrow).
+
+    Raises:
+        AssertionError:
+            If `self` is not a pandas.DataFrame.
+    """
+    bild.assert_logical(to_native, arg_name = 'to_native')
+    self_nw = nw.from_native(self)
+
+    n = self_nw.shape[0]
+    list_dtypes = get_dtypes(self).to_list()
+
+    result = nw.from_dict({
+        'columns':self_nw.columns,
+        'dtype':list_dtypes,
+        'missing_count':self_nw.null_count().row(0),
+        'unique_count':[self_nw[col].n_unique() for col in self_nw.columns]
+    }, backend = self_nw.implementation)\
+    .with_columns(
+        (100 * nw.col('missing_count') / n).alias('missing_percent'),
+        (100 * nw.col('unique_count') / n).alias('unique_rate')
+    )\
+    .select('columns', 'dtype', 'missing_count', 'missing_percent', 'unique_count', 'unique_rate')
+
+    if to_native: return result.to_native()
+    return result
+
+
+# In[ ]:
+
+
+@pf.register_dataframe_method
+def plot_miss_var(
+        data: IntoFrameT,
+        values: Literal['missing_percent', 'missing_count'] = 'missing_percent', 
+        sort: bool = True, 
+        miss_only: bool = False, 
+        fontsize: int = 12,
+        ax: Optional[Axes] = None,
+        color: str = '#478FCE',
+        **kwargs: Any
+        ) -> None:
+    """Plot missing-value diagnostics for each variable in a DataFrame.
+
+    This function visualizes the amount of missing data for each column
+    as a horizontal bar chart. It supports multiple DataFrame backends
+    via narwhals and relies on ``diagnose_nw`` to compute missing-value
+    statistics.
+
+    Args:
+        data (IntoFrameT):
+            Input DataFrame. Any DataFrame type supported by narwhals
+            (e.g. pandas, polars, pyarrow) can be used.
+        values (Literal['missing_percent', 'missing_count'], optional):
+            Metric to plot on the horizontal axis.
+            - ``'missing_percent'``: percentage of missing values per column.
+            - ``'missing_count'``: absolute number of missing values per column.
+            Defaults to ``'missing_percent'``.
+        sort (bool, optional):
+            Whether to sort columns by the selected metric before plotting.
+            Defaults to ``True``.
+        miss_only (bool, optional):
+            Whether to include only columns that contain at least one
+            missing value. If ``True``, columns with no missing values
+            are excluded from the plot. Defaults to ``False``.
+        fontsize (int, optional):
+            Base font size used for axis labels. Defaults to ``12``.
+        ax (matplotlib.axes.Axes, optional):
+            Matplotlib Axes object to draw the plot on. If ``None``,
+            a new figure and axes are created. Defaults to ``None``.
+        color (str, optional):
+            Color of the bars in the plot. Defaults to ``'#478FCE'``.
+        **kwargs:
+            Additional keyword arguments passed to
+            ``matplotlib.axes.Axes.barh``.
+
+    Returns:
+        None:
+            This function draws a plot and does not return a value.
+
+    Raises:
+        ValueError:
+            If ``values`` is not one of the supported options
+            (``'missing_percent'`` or ``'missing_count'``).
+
+    Notes:
+        This function is intended for exploratory data analysis.
+        The underlying missing-value statistics are computed by
+        ``diagnose``, and the resulting plot reflects its output.
+    """
+    values = bild.arg_match(
+        values, ['missing_percent', 'missing_count'],
+        arg_name = 'values'
+    )
+    bild.assert_logical(sort, arg_name = 'sort')
+    bild.assert_logical(miss_only, arg_name = 'miss_only')
+
+    diagnose_tab = diagnose(data, to_native = False)
+    if sort: diagnose_tab = diagnose_tab.sort(values)
+    if miss_only: diagnose_tab = diagnose_tab.filter(nw.col('missing_percent') > 0)
+
+    # グラフの描画
+    if ax is None:
+        fig, ax = plt.subplots()
+
+    ax.barh(
+        y = diagnose_tab['columns'],
+        width = diagnose_tab[values],
+        color = color,
+        **kwargs
+    )
+    if values == 'missing_percent':
+        ax.set_xlabel('percentage of missing recode(%)', fontsize = fontsize * 1.1);
+    if values == 'missing_count':
+        ax.set_xlabel('number of missing recode', fontsize = fontsize * 1.1);
+
+
+# ### 異なるデータフレームの列を比較する関数
+
+# In[ ]:
+
+
+def is_FrameT(obj: object) -> bool:
+    try:
+        _ = nw.from_native(obj)
+        return True
+    except Exception:
+        return False
+
+
+# In[ ]:
+
+
+ReturnMatch = Literal["all", "match", "mismatch"]
+
+def compare_df_cols(
+    df_list: List[IntoFrameT],
+    return_match: Literal["all", "match", "mismatch"] = 'all',
+    df_name = None,
+    dropna = False,
+) -> pd.DataFrame:
+  """Compare dtypes of columns with the same names across multiple DataFrames.
+
+  Args:
+      df_list (list[pandas.DataFrame]):
+          List of DataFrames to compare.
+      return_match (str):
+          Which rows to return.
+          - 'all': return all columns.
+          - 'match': return only columns whose dtypes match across all DataFrames.
+          - 'mismatch': return only columns whose dtypes do not match.
+      df_name (list[str] or None):
+          Names for each DataFrame (used as column names in the output).
+          If None, auto-generated as ['df1', 'df2', ...].
+      dropna (bool):
+          Passed to `nunique(dropna=...)` when checking whether dtypes match.
+
+  Returns:
+      pandas.DataFrame:
+          A table with index = column names (`term`) and one column per DataFrame
+          containing the dtype. Additional column:
+          - match_dtype (bool): True if all dtypes are identical across DataFrames.
+
+  Raises:
+      AssertionError:
+          If `df_list` is not a list of pandas.DataFrame.
+  """
+  # 引数のアサーション ----------------------
+  assert isinstance(df_list, list) & \
+        all([is_FrameT(v) for v in df_list]), \
+        "argument 'df_list' is must be a list of DataFrame."
+
+  return_match = bild.arg_match(
+      return_match, ['all', 'match', 'mismatch'],
+      arg_name = 'return_match'
+      )
+  bild.assert_logical(dropna, arg_name = 'dropna')
+  # --------------------------------------
+  # df_name が指定されていなければ、自動で作成します。
+  if df_name is None:
+      df_name = [f'df{i + 1}' for i in range(len(df_list))]
+
+  df_list = [nw.from_native(v) for v in df_list]
+  dtype_list = [get_dtypes(v) for v in df_list]
+  res = pd.concat(dtype_list, axis = 1)
+  res.columns = df_name
+  res.index.name = 'term'
+  res['match_dtype'] = res.nunique(axis = 1, dropna = dropna) == 1
+
+  if(return_match == 'match'):
+    res = res[res['match_dtype']]
+  elif(return_match == 'mismatch'):
+    res = res[~res['match_dtype']]
+
+  return res
+
+
+# ### 平均値などの統計値の近接性で比較するバージョン
+
+# In[ ]:
+
+
+# import narwhals.selectors as ncs
+# import itertools
+# StatsLike = Union[str, Callable[..., Any]]
+
+def compare_df_stats(
+    df_list: List[IntoFrameT],
+    return_match: ReturnMatch = "all",
+    df_name: Optional[List[str]] = None,
+    stats: Callable[..., Any] = nw.mean,
+    rtol: float = 1e-05,
+    atol: float = 1e-08,
+    **kwargs: Any,
+) -> pd.DataFrame:
+    """Compare numeric column statistics across multiple DataFrames.
+
+    This function computes a summary statistic (e.g., mean) for numeric columns
+    in each DataFrame, then checks whether those statistics are close across
+    DataFrames using `numpy.isclose`.
+
+    Args:
+        df_list (List[IntoFrameT]):
+            List of DataFrames to compare.
+        return_match (str):
+            Which rows to return.
+            - 'all': return all columns.
+            - 'match': return only columns whose stats are close across all pairs.
+            - 'mismatch': return only columns whose stats are not close.
+            Note: this code uses `match_stats` internally; see Returns.
+        df_name (list[str] or None):
+            Names for each DataFrame (used as column names in the output).
+            If None, auto-generated as ['df1', 'df2', ...].
+        stats (str or callable):
+            Statistic passed to `.agg(stats, **kwargs)` (e.g., 'mean', 'median').
+        rtol (float):
+            Relative tolerance for `numpy.isclose`.
+        atol (float):
+            Absolute tolerance for `numpy.isclose`.
+        **kwargs:
+            Extra keyword arguments forwarded to `.agg(stats, **kwargs)`.
+
+    Returns:
+        pandas.DataFrame:
+            A table with index = numeric column names (`term`) and one column per DataFrame
+            containing the computed statistic. Additional column:
+            - match_stats (bool): True if stats are close for all DataFrame pairs.
+
+    Raises:
+        AssertionError:
+            If `df_list` is not a list of pandas.DataFrame.
+    """
+    # 引数のアサーション ----------------------
+    assert isinstance(df_list, list) & \
+            all([is_FrameT(v) for v in df_list]), \
+            "argument 'df_list' is must be a list of DataFrame."
+
+    return_match = bild.arg_match(
+        return_match,
+        ['all', 'match', 'mismatch'],
+        arg_name = 'return_match'
+        )
+    # --------------------------------------
+    # df_name が指定されていなければ、自動で作成します。
+    if df_name is None:
+        df_name = [f'df{i + 1}' for i in range(len(df_list))]
+
+    df_list_nw = [nw.from_native(v) for v in df_list]
+
+    stats_list = [_compute_stats(df, stats) for df in df_list_nw]
+    res = pd.concat(stats_list, axis = 1)
+    res.columns = df_name
+    res.index.name = 'term'
+
+    # データフレームのペア毎に、統計値が近いかどうかを比較します。
+    pairwise_comparesion = \
+    [pd.Series(
+        np.isclose(
+            res.iloc[:, i], res.iloc[:, j],
+            rtol = rtol, atol = atol
+        ), index = res.index)
+    for i, j in itertools.combinations(range(len(res.columns)), 2)
+        ]
+
+    res['match_stats'] = pd.concat(pairwise_comparesion, axis = 1).all(axis = 1)
+
+    if(return_match == 'match'):
+        res = res[res['match_stats']]
+    elif(return_match == 'mismatch'):
+        res = res[~res['match_stats']]
+
+    return res
+
+def _compute_stats(df, func):
+    numeric_vars = df.select(ncs.numeric()).columns
+    return df.select(func(numeric_vars)).to_pandas().loc[0, :]
+
+
+# In[ ]:
+
+
+# レコード毎の近接性（数値の場合）または一致性（数値以外）で評価する関数
+def compare_df_record(
+    df1: IntoFrameT,
+    df2: IntoFrameT,
+    rtol: float = 1e-05,
+    atol: float = 1e-08,
+    sikipna: bool = True,
+    columns: Literal['common', 'all'] = 'all',
+    to_native: bool = True
+) -> pd.DataFrame:
+    """Compare two DataFrames record-wise (element-wise).
+
+    Each element is compared row by row:
+    - Numeric columns are compared using `numpy.isclose`.
+    - Non-numeric columns are compared using equality (`==`).
+
+    The set of columns used for comparison is controlled by `columns`.
+
+    Args:
+        df1 (IntoFrameT):
+            First DataFrame-like object.
+        df2 (IntoFrameT):
+            Second DataFrame-like object.
+        rtol (float, optional):
+            Relative tolerance for numeric comparison via `numpy.isclose`.
+        atol (float, optional):
+            Absolute tolerance for numeric comparison via `numpy.isclose`.
+        skipna (bool, optional):
+            If True(default), Exclude NA/null values when computing the result.
+        columns (Literal["common", "all"], optional):
+            Policy that determines which columns are compared.
+
+            - `"all"` (default):
+                Require `df1` and `df2` to have exactly the same set of columns.
+                If columns differ, an error is raised.
+            - `"common"`:
+                Compare only the intersection of columns present in both
+                `df1` and `df2`. Columns that exist in only one DataFrame
+                are ignored.
+        to_native (bool, optional):
+            If True, return the result as a native DataFrame class of 'df1'.
+            If False, return a `narwhals.DataFrame`.
+
+    Returns:
+        pandas.DataFrame or narwhals.DataFrame:
+            A DataFrame of boolean values indicating, for each element,
+            whether the values in `df1` and `df2` match (or are close for
+            numeric columns). Column order follows `df1.columns`
+            (restricted by `columns` if `"common"` is used).
+
+    Raises:
+        AssertionError:
+            If `df1` and `df2` do not have the same number of rows.
+        ValueError:
+            If `columns="all"` and `df1` and `df2` do not have identical
+            column sets.
+
+    Examples:
+        >>> compare_df_record(df1, df2, columns="all")
+        >>> compare_df_record(df1, df2, rtol=1e-4, columns="common")
+    """
+    df1 = nw.from_native(df1)
+    df2 = nw.from_native(df2)
+    all1 = df1.columns
+    all2 = df2.columns
+
+    bild.assert_logical(sikipna, arg_name = 'sikipna')
+    if sikipna:
+        df1 = df1.drop_nulls(all1)
+        df2 = df2.drop_nulls(all2)
+
+    # 引数のアサーション ----------------------------------------------------------------------------------
+    bild.assert_logical(to_native, arg_name = 'to_native')
+
+    columns = bild.arg_match(
+        columns, ['common', 'all'],
+        arg_name = 'columns'
+        )
+
+    assert df1.shape[0] == df2.shape[0], (
+        "df1 and df2 must have the same number of rows "
+        f"(got len(df1)={df1.shape[0]} and len(df2)={df2.shape[0]})."
+    )
+    if columns == 'all':
+        only_in_df1 = sorted(set(all1) - set(all2))
+        only_in_df2 = sorted(set(all2) - set(all1))
+
+        if only_in_df1 or only_in_df2:
+            messages = [
+                "Column sets of df1 and df2 do not match while columns='all' is specified."
+            ]
+            if only_in_df1:
+                messages.append(
+                    f"Columns only in df1: {bild.oxford_comma_and(only_in_df1)}."
+                )
+            if only_in_df2:
+                messages.append(
+                    f"Columns only in df2: {bild.oxford_comma_and(only_in_df2)}."
+                )
+            messages.append(
+                "Use columns='common' to compare only shared columns."
+            )
+            raise ValueError("\n".join(messages))
+    # --------------------------------------------------------------------------------------------------
+
+    numeric1 = df1.select(ncs.numeric()).columns
+    nonnum1 = df1.select(~ncs.numeric()).columns
+    numeric2 = df2.select(ncs.numeric()).columns
+    nonnum2 = df2.select(~ncs.numeric()).columns
+
+    # df1と df2 の列名の共通部分を抽出します。
+    all_columns = [item for item in all1 if item in all2]
+    numeric_col = set(numeric1) & set(numeric2)
+    nonnum_col = set(nonnum1) & set(nonnum2)
+
+    res_number_col = [
+        np.isclose(
+            df1[v], df2[v], rtol = rtol, atol = atol
+        ) for v in numeric_col
+    ]
+    if res_number_col:
+        res_number_col_df = nw.from_numpy(
+            np.vstack(res_number_col).T, 
+            backend = df1.implementation
+        )
+        res_number_col_df = res_number_col_df.rename(
+            dict(zip(res_number_col_df.columns, numeric_col))
+        )
+    else:
+        res_number_col_df = None
+
+    res_nonnum_col = [(df1[v] == df2[v]).to_frame() for v in nonnum_col]
+
+    if res_nonnum_col:
+        res_nonnum_col_df = nw.concat(res_nonnum_col, how = 'horizontal')
+    else:
+        res_nonnum_col_df = None
+
+    res_list = [res_number_col_df, res_nonnum_col_df]
+    res_list = list(filter(None, res_list))
+
+    result = nw.concat(
+        res_list, 
+        how = 'horizontal'
+        )\
+        .select(all_columns)
+
+
+    if to_native: return result.to_native()
+    return result
+
+
+# ## グループ別平均（中央値）の比較
+
+# In[ ]:
+
+
+def compare_group_means(
+    group1: IntoFrameT,
+    group2: IntoFrameT,
+    group_names: Sequence[str] = ('group1', 'group2'),
+) -> pd.DataFrame:
+    """Compare group-wise means and derived difference metrics.
+
+    Args:
+        group1 (pandas.DataFrame):
+            Data for group 1.
+        group2 (pandas.DataFrame):
+            Data for group 2.
+        group_names (list[str]):
+            Names used for output columns. Must be length 2.
+
+    Returns:
+        pandas.DataFrame:
+            DataFrame indexed by variable names with columns:
+            - {group_names[0]}: mean of group 1
+            - {group_names[1]}: mean of group 2
+            - norm_diff: normalized difference using pooled variance
+            - abs_diff: absolute difference
+            - rel_diff: relative difference defined as
+            2*(A-B)/(A+B)
+
+    Notes:
+        Constant columns are removed using `remove_constant` before comparison.
+        Means/variances use `numeric_only=True`.
+    """
+    # 引数のアサーション ==============================================
+    bild.assert_character(group_names, arg_name = 'group_names')
+    # ==============================================================
+    group1 = nw.from_native(group1)
+    group2 = nw.from_native(group2)
+    group1 = remove_constant(group1, to_native = False)
+    group2 = remove_constant(group2, to_native = False)
+
+    res = pd.DataFrame({
+        group_names[0]:group1.select(ncs.numeric().mean()).to_pandas().loc[0, :],
+        group_names[1]:group2.select(ncs.numeric().mean()).to_pandas().loc[0, :]
+    })
+
+    s2A = group1.select(ncs.numeric().var()).to_pandas().loc[0, :]
+    s2B = group2.select(ncs.numeric().var()).to_pandas().loc[0, :]
+    nA = group1.shape[0]
+    nB = group2.shape[0]
+
+    s2_pooled = ((nA - 1) * s2A + (nB - 1) * s2B) / (nA + nB - 2)
+    res['norm_diff'] = (res[group_names[0]] - res[group_names[1]]) / np.sqrt(s2_pooled)
+
+    res['abs_diff'] = (res[group_names[0]] - res[group_names[1]]).abs()
+    res['rel_diff'] = 2 * (res[group_names[0]] - res[group_names[1]]) \
+                    /(res[group_names[0]] + res[group_names[1]])
+    return res
+
+
+
+# In[ ]:
+
+
+def compare_group_median(
+    group1: IntoFrameT,
+    group2: IntoFrameT,
+    group_names: Sequence[str] = ("group1", "group2"),
+) -> pd.DataFrame:
+    """Compare group-wise medians and derived difference metrics.
+
+    Args:
+        group1 (IntoFrameT):
+            Data for group 1.
+        group2 (IntoFrameT):
+            Data for group 2.
+        group_names (list[str]):
+            Names used for output columns. Must be length 2.
+
+    Returns:
+        pandas.DataFrame:
+            DataFrame indexed by variable names with columns:
+            - {group_names[0]}: median of group 1
+            - {group_names[1]}: median of group 2
+            - abs_diff: absolute difference
+            - rel_diff: relative difference defined as
+            2*(A-B)/(A+B)
+
+    Notes:
+        Constant columns are removed using `remove_constant` before comparison.
+        Medians use `numeric_only=True`.
+    """
+    # 引数のアサーション ==============================================
+    bild.assert_character(group_names, arg_name = 'group_names')
+    # ==============================================================
+    group1 = nw.from_native(group1)
+    group2 = nw.from_native(group2)
+    group1 = remove_constant(group1, to_native = False)
+    group2 = remove_constant(group2, to_native = False)
+
+    res = pd.DataFrame({
+        group_names[0]:group1.select(ncs.numeric().median()).to_pandas().loc[0, :],
+        group_names[1]:group2.select(ncs.numeric().median()).to_pandas().loc[0, :]
+    })
+
+    res['abs_diff'] = (res[group_names[0]] - res[group_names[1]]).abs()
+    res['rel_diff'] = 2 * (res[group_names[0]] - res[group_names[1]]) \
+                    /(res[group_names[0]] + res[group_names[1]])
+    return res
+
+
+# In[ ]:
+
+
+def plot_mean_diff(
+    group1: IntoFrameT,
+    group2: IntoFrameT,
+    stats_diff: Literal["norm_diff", "abs_diff", "rel_diff"] = "norm_diff",
+    ax: Optional[Axes] = None,
+) -> None:
+  """Plot group mean differences for each variable as a stem plot.
+
+  Args:
+      group1 (IntoFrameT):
+          Data for group 1.
+      group2 (IntoFrameT):
+          Data for group 2.
+      stats_diff (str):
+          Which difference metric to plot.
+          - 'norm_diff': normalized difference using pooled variance
+          - 'abs_diff': absolute difference
+          - 'rel_diff': relative difference
+      ax (matplotlib.axes.Axes or None):
+          Axes to draw on. If None, a new figure/axes is created.
+
+  Returns:
+      None
+  """
+  stats_diff = bild.arg_match(
+      stats_diff, ['norm_diff', 'abs_diff', 'rel_diff'],
+      arg_name = 'stats_diff'
+      )
+  group_means = compare_group_means(group1, group2)
+
+  if ax is None:
+    fig, ax = plt.subplots()
+
+  ax.stem(group_means[stats_diff], orientation = 'horizontal', basefmt = 'C7--');
+
+  ax.set_yticks(range(len(group_means.index)), group_means.index)
+
+  ax.invert_yaxis();
+
+
+# In[ ]:
+
+
+def plot_median_diff(
+    group1: IntoFrameT,
+    group2: IntoFrameT,
+    stats_diff: Literal["abs_diff", "rel_diff"] = "rel_diff",
+    ax: Optional[Axes] = None,
+) -> None:
+  """Plot group median differences for each variable as a stem plot.
+
+  Args:
+      group1 (IntoFrameT):
+          Data for group 1.
+      group2 (IntoFrameT):
+          Data for group 2.
+      stats_diff (str):
+          Which difference metric to plot.
+          - 'abs_diff': absolute difference
+          - 'rel_diff': relative difference
+      ax (matplotlib.axes.Axes or None):
+          Axes to draw on. If None, a new figure/axes is created.
+
+  Returns:
+      None
+  """
+  stats_diff = bild.arg_match(
+      stats_diff, ['abs_diff', 'rel_diff']
+      )
+
+  group_median = compare_group_median(group1, group2)
+
+  if ax is None:
+    fig, ax = plt.subplots()
+
+  ax.stem(group_median[stats_diff], orientation = 'horizontal', basefmt = 'C7--')
+  ax.set_yticks(range(len(group_median.index)), group_median.index)
+  ax.invert_yaxis();
+
+
+# ## クロス集計表ほか
+
+# In[ ]:
+
+
+@pf.register_dataframe_method
+def crosstab(
+        df_native: IntoFrameT, 
+        index: str, columns: str, 
+        margins: bool = False,
+        margins_name: str = 'All',
+        sort_index: bool = True,
+        normalize: Union[bool, Literal['all', 'index', 'columns']] = False,
+        to_native: bool = True,
+        **kwargs: Any
+        ) -> IntoFrameT:
+
+    bild.assert_logical(to_native, arg_name = 'to_native')
+    bild.assert_logical(margins, arg_name = 'margins')
+
+    if not isinstance(normalize, bool):
+        normalize = bild.arg_match(
+            normalize,
+            ['all', 'index', 'columns'],
+            arg_name = 'normalize'
+        )
+    df = nw.from_native(df_native)
+
+    out = (
+        df.with_columns(__n=nw.lit(1))              # 1を立てる
+          .pivot(
+              on = columns,
+              index = index,
+              values = '__n',
+              aggregate_function = 'sum',             # セル内の1を合計＝件数
+              sort_columns = True,
+          )
+          # 欠損セルを0にしたい場合（バックエンド依存はあるが一般にOK）
+          .with_columns(nw.all().fill_null(0))
+    )
+    if sort_index:
+        out = out.sort(index)
+    # return out
+    if margins:
+        out = out.with_columns(nw.sum_horizontal(ncs.numeric()).alias(margins_name))
+
+        # row_sums の作成と結合
+        row_sums = out.select(ncs.numeric().sum())\
+            .with_columns(nw.lit(margins_name).alias(index))
+
+        if normalize == 'columns':
+            numeric_vars = out.select(ncs.numeric()).columns
+            for v in numeric_vars:
+                out = out.with_columns(
+                    nw.col(v) / row_sums.item(0, v)
+                )
+        else:
+            out = nw.concat([
+                    out, row_sums.select(index, ncs.numeric())
+                    ], 
+                    how = 'vertical'
+                    )
+
+        if normalize == 'index':
+            out = out.with_columns(
+                ncs.numeric() / nw.col(margins_name)
+                ).drop(margins_name, strict = False)
+
+        if normalize == 'all':
+            total_val = out[margins_name].tail(1).item(0)
+            out = out.with_columns(ncs.numeric()/total_val)
+
+        if not normalize:
+            out = out.with_columns(ncs.numeric().cast(nw.Int64))
+
+    if not to_native: return out
+
+    if out.implementation.is_pandas_like():
+        result = nw.to_native(out).set_index(index)
+    else:
+        result = out.to_native()
+    return result
+
+
+# In[ ]:
+
+
+@pf.register_dataframe_method
+def freq_table(
+    self: IntoFrameT,
+    subset: Union[str, Sequence[str]],
+    sort: bool = True,
+    descending: bool = False,
+    dropna: bool = False,
+    to_native: bool = True,
+) -> IntoFrameT:
+    """Compute frequency table for one or multiple columns.
+
+    Args:
+        self (pandas.DataFrame):
+            Input DataFrame.
+        subset (str or list[str]):
+            Column(s) to count by. Passed to `DataFrame.value_counts(subset=...)`.
+        sort (bool):
+            Whether to sort counts.
+        ascending (bool):
+            Sort order.
+        dropna (bool):
+            Whether to drop NaN from counts.
+
+    Returns:
+        pandas.DataFrame:
+            Frequency table with columns:
+            - freq: counts
+            - perc: proportions
+            - cumfreq: cumulative counts
+            - cumperc: cumulative proportions
+    """
+    bild.assert_logical(sort, arg_name = 'sort')
+    bild.assert_logical(descending, arg_name = 'descending')
+    bild.assert_logical(dropna, arg_name = 'dropna')
+    bild.assert_logical(to_native, arg_name = 'to_native')
+
+    df = nw.from_native(self)
+    if dropna:
+        df = df.drop_nulls(subset)
+    result = df.with_columns(__n=nw.lit(1))\
+        .group_by(nw.col(subset))\
+        .agg(
+            nw.col('__n').sum().alias('freq'),
+            )
+    if sort:
+        result = result.sort(subset, descending = descending)
+
+    result = result.with_columns(
+            (nw.col('freq') / nw.col('freq').sum()).alias('perc'),
+            nw.col('freq').cum_sum().alias('cumfreq')
+        )\
+        .with_columns(
+            (nw.col('cumfreq') / nw.col('freq').sum()).alias('cumperc'),
+        )
+    if to_native: return result.to_native()
+    return result
+
+
+# In[ ]:
+
+
+@pf.register_dataframe_method
+def tabyl(
+    self: IntoFrameT,
+    index: str,
+    columns: str,
+    margins: bool = True,
+    margins_name: str = 'All',
+    normalize: Union[bool, Literal["index", "columns", "all"]] = "index",
+    dropna: bool = False,
+    digits: int = 1,
+    **kwargs: Any
+) -> pd.DataFrame:
+    """Create a crosstab with counts and (optionally) percentages in parentheses.
+
+    This function produces a table similar to `janitor::tabyl()` (R), where the
+    main cell is a count and percentages can be appended like: `count (xx.x%)`.
+
+    Args:
+        self (IntoFrameT):
+            Input DataFrame.
+        index (str):
+            Column name used for row categories.
+        columns (str):
+            Column name used for column categories.
+        margins (bool):
+            Add margins (totals) if True.
+        margins_name (str):
+            Name of the margin row/column.
+        normalize (bool or {'index','columns','all'}):
+            If False, return counts only.
+            Otherwise, compute percentages normalized by the specified axis.
+        dropna (bool):
+            Whether to drop NaN in the crosstab.
+        rownames (list[str] or None):
+            Row names passed to `pandas.crosstab`.
+        colnames (list[str] or None):
+            Column names passed to `pandas.crosstab`.
+        digits (int):
+            Number of decimal places for percentages.
+
+    Returns:
+        pandas.DataFrame:
+            Crosstab table. If `normalize` is not False, cells contain strings like
+            `"count (xx.x%)"`. Otherwise counts (as strings after formatting).
+    """
+    bild.assert_logical(margins, arg_name = 'margins')
+    bild.assert_character(margins_name, arg_name = 'margins_name')
+    bild.assert_logical(dropna, arg_name = 'dropna')
+    bild.assert_count(digits, arg_name = 'digits')
+
+    df = nw.from_native(self)
+
+    if(not isinstance(normalize, bool)):
+      normalize = bild.arg_match(
+          normalize, ['index', 'columns', 'all'],
+          arg_name = 'normalize'
+          )
+
+    # index または columns に bool 値が指定されていると後続処理でエラーが生じるので、
+    # 文字列型に cast します。
+    df = df[[index, columns]].with_columns(
+       ncs.boolean().cast(nw.String)
+    )
+
+    # 度数クロス集計表（最終的な表では左側の数字）
+    args_dict = locals()
+    args_dict.pop('normalize')
+    c_tab1 = crosstab(
+        df_native = df,
+        normalize = False,
+        to_native = False,
+        **args_dict
+       ).to_pandas().set_index(index)
+
+    c_tab1 = c_tab1.apply(bild.style_number, digits = 0)
+    # return c_tab1
+
+
+    if(normalize != False):
+        # 回答率クロス集計表（最終的な表では括弧内の数字）
+        c_tab2 = crosstab(
+            df_native = df, 
+            normalize = normalize, 
+            to_native = False,
+            **args_dict
+           ).to_pandas().set_index(index)
+
+        # 2つめのクロス集計表の回答率をdigitsで指定した桁数のパーセントに換算し、文字列化します。
+        c_tab2 = c_tab2.apply(bild.style_percent, digits = digits)
+
+        # return c_tab2
+        col = c_tab2.columns
+        idx = c_tab2.index
+        c_tab1 = c_tab1.astype('str')
+        # 1つめのクロス集計表も文字列化して、↑で計算したパーセントに丸括弧と%記号を追加したものを文字列として結合します。
+        c_tab1.loc[idx, col] = c_tab1.astype('str').loc[idx, col] + ' (' + c_tab2 + ')'
+
+    return c_tab1
+
+
+# ## `diagnose_category()`：カテゴリー変数専用の要約関数
+
+# In[ ]:
+
+
+@pf.register_dataframe_method
+@pf.register_series_method
+@singledispatch
+def is_dummy(
+    self: Union[IntoFrameT, SeriesT],
+    cording: Sequence[Any] = (0, 1),
+    to_pd_Series = True,
+    **kwargs
+) -> Union[bool, IntoSeriesT, IntoFrameT]:
+    """Check whether values consist only of dummy codes.
+
+    Args:
+        self (pandas.Series or pandas.DataFrame):
+            Input data.
+        cording (list):
+            Allowed set of dummy codes (default: [0, 1]).
+
+    Returns:
+        bool or pandas.Series:
+            - If Series input: returns bool.
+            - If DataFrame input: returns a boolean Series per column.
+    """
+    bild.assert_logical(to_pd_Series, arg_name = 'to_pd_Series')
+
+    self_nw = nw.from_native(self, allow_series = True)
+    return is_dummy(self_nw, cording, to_pd_Series)
+
+
+# In[ ]:
+
+
+@is_dummy.register(nw.Series)
+def is_dummy_series(
+    self: IntoSeriesT,
+    cording: Sequence[Any] = (0, 1),
+    to_pd_Series = True,
+    **kwargs
+) -> bool:
+    return set(self) == set(cording)
+
+
+# In[ ]:
+
+
+@is_dummy.register(nw.DataFrame)
+def is_dummy_data_frame(
+        self: IntoFrameT, 
+        cording: Sequence[Any] = (0, 1),
+        to_pd_Series = True,
+        **kwargs
+        ) -> Union[IntoFrameT, pd.Series]:
+
+    self_nw = nw.from_native(self)
+
+    result = self_nw.select(
+        nw.all().map_batches(
+            lambda x: is_dummy_series(x, cording), 
+            return_dtype = nw.Boolean,
+            returns_scalar = True
+            )
+    )
+
+    if to_pd_Series: 
+        return result.to_pandas().loc[0, :]
+    return result
+
+
+# In[ ]:
+
+
+import scipy as sp
+
+def entropy(x: IntoSeriesT, base: float = 2.0, dropna: bool = False) -> float:
+    bild.assert_numeric(base, arg_name = 'base', lower = 0, inclusive = 'right')
+    bild.assert_logical(dropna, arg_name = 'dropna')
+
+    x_nw = nw.from_native(x, series_only = True)
+
+    if dropna: x_nw = x_nw.drop_nulls()
+
+    prop = x_nw.value_counts(normalize = True, sort = False)['proportion']
+    result = sp.stats.entropy(pk = prop,  base = base, axis = 0)
+    return result
+
+def std_entropy(x: IntoSeriesT, dropna: bool = False) -> float:
+    bild.assert_logical(dropna, arg_name = 'dropna')
+
+    x_nw = nw.from_native(x, series_only = True)
+
+    if dropna: x_nw = x_nw.drop_nulls()
+
+    K = x.n_unique()
+    result = entropy(x_nw, base = K) if K > 1 else 0.0
+
+    return result
+
+
+# In[ ]:
+
+
+@pf.register_dataframe_method
+def diagnose_category(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
+    """Summarize categorical variables in a DataFrame.
+
+    This function summarizes columns that represent categorical information,
+    including categorical/string/boolean columns and 0/1 dummy columns
+    (integer-valued columns restricted to {0, 1}). Dummy columns are cast to
+    string before summarization.
+
+    The summary includes missing percentage, number/percentage of unique
+    values, mode and its frequency/share, and standardized entropy.
+
+    The implementation is backend-agnostic via narwhals.
+
+    Args:
+        data (IntoFrameT):
+            Input DataFrame. Any DataFrame type supported by narwhals can be
+            used (e.g., pandas, polars, pyarrow).
+        to_native (bool, optional):
+            If True, convert the result to the native DataFrame type of the
+            selected backend. If False, return a narwhals DataFrame.
+            Defaults to True.
+
+    Returns:
+        IntoFrameT:
+            A summary table with one row per selected variable and the
+            following columns:
+
+            - variables: variable (column) name
+            - count: non-missing count
+            - miss_pct: missing percentage
+            - unique: number of unique values
+            - unique_pct: percentage of unique values (unique / N * 100)
+            - mode: most frequent value
+            - mode_freq: frequency of the mode value
+            - mode_pct: percentage of the mode value (mode_freq / N * 100)
+            - std_entropy: standardized entropy in [0, 1]
+
+    Raises:
+        TypeError:
+            If ``data`` is not a DataFrame/Series type supported by narwhals.
+        ValueError:
+            If no columns are selected for summarization (i.e., ``data`` has
+            no categorical/string/boolean columns and no 0/1 dummy columns).
+
+    Notes:
+        - ``N`` denotes the number of rows of the selected DataFrame.
+        - ``miss_pct`` is computed as ``null_count / N * 100``.
+        - ``unique_pct`` and ``mode_pct`` use ``N`` in the denominator (not
+          the non-missing count).
+        - Standardized entropy is computed per column via ``std_entropy`` and
+          is expected to return a scalar in the range [0, 1].
+
+    Examples:
+        Basic usage:
+
+        >>> summary = diagnose_category(df)
+        >>> summary.head()
+
+        Keep narwhals output (do not convert back to native):
+
+        >>> summary_nw = diagnose_category(df, to_native=False)
+
+        Dummy columns are included automatically if they are 0/1-valued
+        integer columns:
+
+        >>> df = df.assign(dummy=(df["x"] > 0).astype(int))
+        >>> diagnose_category(df)
+    """
+    bild.assert_logical(to_native, arg_name = 'to_native')
+
+    data_nw = nw.from_native(data, allow_series = True)
+    res_is_dummy = is_dummy(data_nw)
+    dummy_col = res_is_dummy[res_is_dummy].index.to_list()
+
+    df = (
+        data_nw
+        .with_columns(nw.col(dummy_col).cast(nw.String))\
+        .select(
+        ncs.categorical(),
+        ncs.by_dtype(nw.String), 
+        ncs.boolean(), 
+        ))
+    N = df.shape[0]
+
+    var_name = df.columns
+
+    if not var_name:
+        raise ValueError(
+            "`data` has no columns to summarize.\n"
+            "Expected at least one categorical, string, or boolean column,\n"
+            "or a 0/1 dummy column (integer values restricted to {0, 1})."
+        )
+
+    result  = nw.from_dict({
+        'variables': var_name,
+        'count':df.select(nw.all().count()).row(0),
+        'miss_pct':df.select(nw.all().null_count() * nw.lit(100 / N)).row(0),
+        'unique':df.select(nw.all().n_unique()).row(0),
+        'mode':df.select(nw.all().mode(keep = 'any')).row(0),
+        'mode_freq':[df[v].value_counts().row(0)[1] for v in var_name],
+        'std_entropy':df.select(
+            nw.all().map_batches(std_entropy, returns_scalar = True)
+            ).row(0)
+        },
+        backend = df.implementation
+        )\
+        .with_columns(
+        unique_pct = 100 * nw.col('unique') / N,
+        mode_pct = 100 * nw.col('mode_freq') / N
+        )\
+        .select(
+            nw.col([
+                'variables', 'count',  'miss_pct', 
+                'unique', 'unique_pct',
+                'mode', 'mode_freq', 'mode_pct', 
+                'std_entropy'
+            ])
+            )
+
+    if to_native: return result.to_native()
+    return result
+
+
+# ## その他の補助関数
+
+# In[ ]:
+
+
+def weighted_mean(x: SeriesT, w: SeriesT) -> float:
+  wmean = (x * w).sum() / w.sum()
+  return wmean
+
+def scale(x: SeriesT, ddof: int = 1) -> SeriesT:
+    z = (x - x.mean()) / x.std(ddof = ddof)
+    return z
+
+def min_max(x: SeriesT) -> SeriesT:
+  mn = (x - x.min()) / (x.max() - x.min())
+  return mn
+
+
+# ## 完全な空白列 and / or 行の除去
+
+# In[ ]:
+
+
+def missing_percent(
+        data: IntoFrameT,
+        axis: str = 'index',
+        pct: bool = True
+        ):
+    data_nw = nw.from_native(data)
+    n = data_nw.shape[0]
+
+    if axis == 'index':
+        n = data_nw.shape[0]
+        miss_count = pd.Series(data_nw.null_count().row(0), index = data_nw.columns)
+        miss_pct = (100 ** pct) * miss_count / n
+        return miss_pct
+    else:
+        miss_count = data_nw.with_columns(
+            nw.all().is_null().cast(nw.Int32)
+            )\
+            .select(
+                nw.sum_horizontal(nw.all()).alias('miss_count')
+            )['miss_count']
+
+        if data_nw.implementation.is_pandas_like():
+            miss_count = pd.Series(miss_count, index = data.index)
+        else:
+            miss_count = pd.Series(miss_count)
+
+        k = data_nw.shape[1]
+        miss_pct = (100 ** pct) * miss_count / k
+        return miss_pct
+
+
+# In[ ]:
+
+
+@pf.register_dataframe_method
+def remove_empty(
+    self: IntoFrameT,
+    cols: bool = True,
+    rows: bool = True,
+    cutoff: float = 1.0,
+    quiet: bool = True,
+    to_native: bool = True,
+    **kwargs: Any
+) -> IntoFrameT:
+    """Remove fully (or mostly) empty columns and/or rows.
+
+    Args:
+        self (pandas.DataFrame):
+            Input DataFrame.
+        cols (bool):
+            If True, remove empty columns.
+        rows (bool):
+            If True, remove empty rows.
+        cutoff (float):
+            Threshold on missing proportion (0-1). A column/row is removed if
+            missing proportion is >= cutoff.
+            - cutoff=1 removes only completely empty columns/rows.
+        quiet (bool):
+            If False, print removal summary.
+
+    Returns:
+        pandas.DataFrame:
+            DataFrame after removing empty columns/rows.
+    """
+    # 引数のアサーション ==============================================
+    bild.assert_logical(cols, arg_name = 'cols')
+    bild.assert_logical(rows, arg_name = 'rows')
+    bild.assert_numeric(cutoff, lower = 0, upper = 1)
+    bild.assert_logical(quiet, arg_name = 'quiet')
+    bild.assert_logical(to_native, arg_name = 'to_native')
+    # ==============================================================
+
+    df_shape = self.shape
+    data_nw = nw.from_native(self)
+    # 空白列の除去 ------------------------------
+    if cols :
+        empty_col = missing_percent(self, axis = 'index', pct = False) >= cutoff
+        data_nw = data_nw[:, (~empty_col).to_list()]
+
+        if not(quiet) :
+            ncol_removed = empty_col.sum()
+            col_removed = empty_col[empty_col].index.to_series().astype('str').to_list()
+            print(
+                f"Removing {ncol_removed} empty column(s) out of {df_shape[1]} columns" +
+                f"(Removed: {','.join(col_removed)}). "
+                )
+    # 空白行の除去 ------------------------------
+    if rows :
+        empty_rows = missing_percent(self, axis = 'columns', pct = False) >= cutoff
+        data_nw = data_nw.filter((~empty_rows).to_list())
+
+        if not(quiet) :
+            nrow_removed = empty_rows.sum()
+            row_removed = empty_rows[empty_rows].index.to_series().astype('str').to_list()
+            print(
+                    f"Removing {nrow_removed} empty row(s) out of {df_shape[0]} rows" +
+                    f"(Removed: {','.join(row_removed)}). "
+                )
+
+    if to_native: return data_nw.to_native()
+    return data_nw
+
+
+# In[ ]:
+
+
+@pf.register_dataframe_method
+def remove_constant(
+    self: IntoFrameT,
+    quiet: bool = True,
+    to_native: bool = True,
+    dropna = False,
+    **kwargs: Any
+) -> IntoFrameT:
+    """Remove constant columns (columns with only one unique value).
+
+    Args:
+        self (pandas.DataFrame):
+            Input DataFrame.
+        quiet (bool):
+            If False, print removal summary.
+        dropna (bool):
+            Passed to `nunique(dropna=...)`. If False, NaN is counted as a value.
+
+    Returns:
+        pandas.DataFrame:
+            DataFrame after removing constant columns.
+    """
+    # 引数のアサーション ==============================================
+    bild.assert_logical(quiet, arg_name = 'quiet')
+    bild.assert_logical(to_native, arg_name = 'to_native')
+    # ==============================================================
+    data_nw = nw.from_native(self)
+    df_shape = data_nw.shape
+    col_name = data_nw.columns
+
+    # データフレーム(data_nw) の行が定数かどうかを判定
+    def foo (col, dropna):
+        if dropna: 
+            return data_nw[col].drop_nulls().n_unique() 
+        else:
+            return data_nw[col].n_unique()
+    # unique_count = pd.Series(data_nw.select(nw.all().n_unique()).row(0), index = data_nw.columns)
+    unique_count = pd.Series([foo(col, dropna) for col in col_name])
+    constant_col = unique_count == 1
+    data_nw = data_nw[:, (~constant_col).to_list()]
+
+    if not(quiet) :
+        ncol_removed = constant_col.sum()
+        col_removed = constant_col[constant_col].index.to_series().astype('str').to_list()
+
+        print(
+            f"Removing {ncol_removed} constant column(s) out of {df_shape[1]} columns" +
+            f"(Removed: {','.join(col_removed)}). "
+        )
+    if to_native: return data_nw.to_native()
+    return data_nw
+
+
+# In[ ]:
+
+
+# 列名や行名に特定の文字列を含む列や行を除外する関数
+@pf.register_dataframe_method
+def filtering_out(
+    self: IntoFrameT,
+    contains: Optional[str] = None,
+    starts_with: Optional[str] = None,
+    ends_with: Optional[str] = None,
+    axis: Union[int, str] = 'columns',
+    to_native: bool = True,
+) -> IntoFrameT:
+    """Filter out rows/columns whose labels match given string patterns.
+
+    Args:
+        self (IntoFrameT):
+            Input DataFrame.
+        contains (str or None):
+            Exclude labels that contain this substring.
+        starts_with (str or None):
+            Exclude labels that start with this substring.
+        ends_with (str or None):
+            Exclude labels that end with this substring.
+        axis (int or str):
+            Axis to filter.
+            - 1 or 'columns': filter columns by column labels.
+            Supported for all DataFrame backends handled by narwhals.
+            - 0 or 'index': filter rows by index (row labels).
+            This option is only supported when the input DataFrame has
+            an explicit index attribute (e.g. pandas.DataFrame).
+
+
+    Returns:
+        IntoFrameT:
+            Filtered DataFrame.
+
+    Raises:
+        AssertionError:
+            If `contains`/`starts_with`/`ends_with` is provided but not a string.
+        TypeError:
+            If axis is set to 'index' (or 0) but the input DataFrame
+            does not support row labels (i.e. has no 'index' attribute).
+
+    Notes:
+        Row-wise filtering via axis='index' relies on the presence of an explicit index. Therefore, this option is not available for DataFrame backends that do not expose row labels (e.g. some Arrow-based tables).
+
+    """
+    # 引数のアサーション ==============================================
+    axis = str(axis)
+    axis = bild.arg_match(axis, ['1', 'columns', '0', 'index'], arg_name = 'axis')
+    bild.assert_logical(to_native, arg_name = 'to_native')
+    # ==============================================================
+    data_nw = nw.from_native(self)
+    drop_table = pd.DataFrame()
+
+    if axis in ("0", "index"):
+        if not hasattr(self, "index"):
+            raise TypeError(
+                f"filtering_out(..., axis='{axis}') requires an input that has"
+                "an 'index' (row labels), e.g. pandas.DataFrame.\n"
+                f"Got: {type(self)}."
+            )
+
+    if((axis == '1') | (axis == 'columns')):
+        s_columns = pd.Series(data_nw.columns)
+        if contains is not None:
+            # assert isinstance(contains, str), "'contains' must be a string."
+            bild.assert_character(contains, arg_name = 'contains')
+            drop_table['contains'] = s_columns.str.contains(contains)
+
+        if starts_with is not None:
+            # assert isinstance(starts_with, str), "'starts_with' must be a string."
+            bild.assert_character(starts_with, arg_name = 'starts_with')
+            drop_table['starts_with'] = s_columns.str.startswith(starts_with)
+
+        if ends_with is not None:
+            # assert isinstance(ends_with, str), "'ends_with' must be a string."
+            bild.assert_character(ends_with, arg_name = 'ends_with')
+            drop_table['ends_with'] = s_columns.str.endswith(ends_with)
+        drop_list = s_columns[drop_table.any(axis = 'columns')].to_list()
+        data_nw = data_nw.drop(drop_list)
+
+    elif hasattr(self, 'index'):
+        if contains is not None: 
+            bild.assert_character(contains, arg_name = 'contains')
+            drop_table['contains'] = self.index.to_series().str.contains(contains)
+
+        if starts_with is not None: 
+            bild.assert_character(starts_with, arg_name = 'starts_with')
+            drop_table['starts_with'] = self.index.to_series().str.startswith(starts_with)
+
+        if ends_with is not None:
+            bild.assert_character(ends_with, arg_name = 'ends_with')
+            drop_table['ends_with'] = self.index.to_series().str.endswith(ends_with)
+
+        keep_list = (~drop_table.any(axis = 'columns')).to_list()
+        data_nw = data_nw.filter(keep_list)
+
+    if to_native: return data_nw.to_native()
+    return data_nw
+
+
+# # パレート図を作図する関数
+
+# In[ ]:
+
+
+# パレート図を作成する関数
+@pf.register_dataframe_method
+def Pareto_plot(
+    data: IntoFrameT,
+    group: str,
+    values: Optional[str] = None,
+    top_n: Optional[int] = None,
+    aggfunc: Callable[..., Any] = nw.mean,
+    ax: Optional[Axes] = None,
+    fontsize: int = 12,
+    xlab_rotation: Union[int, float] = 0,
+    palette: Sequence[str] = ("#478FCE", "#252525"),
+) -> None:
+    """Plot a Pareto chart.
+
+    If `values` is None, the chart is built from frequency counts of `group`.
+    Otherwise, it aggregates `values` by `group` using `aggfunc`.
+
+    Args:
+        data (pandas.DataFrame):
+            Input data.
+        group (str):
+            Grouping column (x-axis categories).
+        values (str or None):
+            Value column to aggregate. If None, uses counts.
+        top_n (int or None):
+            If specified, plot only top-N categories.
+        aggfunc (str or callable):
+            Aggregation function used when `values` is provided.
+        ax (matplotlib.axes.Axes or None):
+            Axes to draw the bar chart on. If None, a new figure/axes is created.
+        fontsize (int):
+            Base font size.
+        xlab_rotation (float or int):
+            Rotation angle for x tick labels.
+        palette (list[str]):
+            Colors for bar and line. (Note: this function explicitly uses colors.)
+
+    Returns:
+        None
+    """
+    # 引数のアサーション ===================================================================
+    bild.assert_numeric(fontsize, arg_name = 'fontsize', lower = 0, inclusive = 'right')
+    bild.assert_numeric(xlab_rotation, arg_name = 'xlab_rotation')
+    bild.assert_character(palette, arg_name = 'palette')
+    # ===================================================================================
+
+    # 指定された変数でのランクを表すデータフレームを作成
+    data_nw = nw.from_native(data)
+    if values is None:
+        shere_rank = freq_table(data_nw, group, dropna = True,  descending = True, to_native = False)
+        cumlative = 'cumfreq'
+    else:
+        shere_rank = make_rank_table(
+            data_nw.to_pandas(), 
+            group, values, aggfunc = aggfunc,
+            to_native = False
+            )
+        cumlative = 'cumshare'
+
+    shere_rank = shere_rank.to_pandas().set_index(group)
+
+    # 作図
+    args_dict = locals()
+    make_Pareto_plot(**args_dict)
+
+
+# In[ ]:
+
+
+def make_rank_table(
+    data: pd.DataFrame,
+    group: str,
+    values: str,
+    aggfunc: Callable[..., Any] = nw.mean,
+    to_native: bool = True,
+) -> pd.DataFrame:
+    data_nw = nw.from_native(data)
+
+    # 引数のアサーション ===================================================================
+    col_names = data_nw.columns
+    group = bild.arg_match(group, values = col_names, arg_name = 'group', multiple = True)
+    values = bild.arg_match(values, values = col_names, arg_name = 'values')
+    # ===================================================================================
+    rank_table = data_nw\
+        .group_by(group)\
+        .agg(aggfunc(values))\
+        .sort(values, descending = True)\
+        .with_columns(share = nw.col(values) / nw.col(values).sum())\
+        .with_columns(cumshare = nw.col('share').cum_sum())
+
+    if to_native:
+        return rank_table.to_native()
+    else:
+        return rank_table
+
+
+# In[ ]:
+
+
+def make_Pareto_plot(
+    shere_rank: pd.DataFrame,
+    group: str,
+    cumlative: str,
+    values: Optional[str] = None,
+    top_n: Optional[int] = None,
+    ax: Optional[Axes] = None,
+    fontsize: int = 12,
+    xlab_rotation: Union[int, float] = 0,
+    palette: Sequence[str] = ("#478FCE", "#252525"),
+    **kwargs: Any
+):
+    # グラフの描画
+    if ax is None:
+        fig, ax = plt.subplots()
+
+    # yで指定された変数の棒グラフ
+    # top_n が指定されていた場合、上位 top_n 件を抽出します。
+    if top_n is not None:
+        bild.assert_count(top_n, lower = 1, arg_name = 'top_n')
+        shere_rank = shere_rank.head(top_n)
+
+    if values is None:
+        ax.bar(shere_rank.index, shere_rank['freq'], color = palette[0])
+        ax.set_ylabel('freq', fontsize = fontsize * 1.1)
+    else:
+        # yで指定された変数の棒グラフ
+        ax.bar(shere_rank.index, shere_rank[values], color = palette[0])
+        ax.set_ylabel(values, fontsize = fontsize * 1.1)
+
+    ax.set_xlabel(group, fontsize = fontsize * 1.1)
+
+    # 累積相対度数（シェア率）の線グラフ
+    ax2 = ax.twinx()
+    ax2.plot(
+        shere_rank.index, shere_rank[cumlative],
+        linestyle = 'dashed', color = palette[1], marker = 'o'
+        )
+
+    ax2.set_xlabel(group, fontsize = fontsize * 1.1)
+    ax2.set_ylabel(cumlative, fontsize = fontsize * 1.1)
+
+    # x軸メモリの回転
+    ax.xaxis.set_tick_params(rotation = xlab_rotation, labelsize = fontsize)
+    ax2.xaxis.set_tick_params(rotation = xlab_rotation, labelsize = fontsize);
+    ax.yaxis.set_tick_params(labelsize = fontsize * 0.9)
+    ax2.yaxis.set_tick_params(labelsize = fontsize * 0.9);
+
+
+# ### 代表値 + 区間推定関数
+# 
+# ```python
+# import pandas as pd
+# from palmerpenguins import load_penguins
+# penguins = load_penguins() # サンプルデータの読み込み
+# 
+# from py4stats import eda_tools as eda
+# 
+# print(penguins['bill_depth_mm'].mean_qi().round(2))
+# #>                 mean  lower  upper
+# #> variable                          
+# #> bill_depth_mm  17.15   13.9   20.0
+# 
+# print(penguins['bill_depth_mm'].median_qi().round(2))
+# #>                median  lower  upper
+# #> variable                           
+# #> bill_depth_mm    17.3   13.9   20.0
+# 
+# print(penguins['bill_depth_mm'].mean_ci().round(2))
+# #>                 mean  lower  upper
+# #> variable                          
+# #> bill_depth_mm  17.15  16.94  17.36
+# ```
+
+# In[ ]:
+
+
+Interpolation = Literal[
+    'inverted_cdf', 'averaged_inverted_cdf', 'closest_observation', 
+    'interpolated_inverted_cdf', 'hazen', 'weibull', 'linear', 
+    'median_unbiased', 'normal_unbiased', 'lower', 'higher', 
+    'midpoint', 'nearest'
+    ]
+
+interpolation_values = [
+    'inverted_cdf', 'averaged_inverted_cdf', 'closest_observation', 
+    'interpolated_inverted_cdf', 'hazen', 'weibull', 'linear', 
+    'median_unbiased', 'normal_unbiased', 'lower', 'higher', 
+    'midpoint', 'nearest'
+    ]
+
+
+# In[ ]:
+
+
+@pf.register_dataframe_method
+@pf.register_series_method
+@singledispatch
+def mean_qi(
+    self: Union[IntoFrameT, SeriesT],
+    width: float = 0.975,
+    interpolation: Interpolation = 'midpoint',
+    to_native: bool = True
+) -> pd.DataFrame:
+    """Compute mean and quantile interval (QI).
+
+    Args:
+        self (IntoFrameT, IntoSeriesT):
+            Input data.
+        width (float):
+            Upper quantile to use (must be in (0, 1)).
+            Lower quantile is computed as `1 - width`.
+        point_fun (str):
+            Currently kept for API compatibility. (Not used in computation.)
+
+    Returns:
+        IntoFrameT:
+            Table indexed by variable names with columns:
+            - mean: mean value
+            - lower: quantile at `1 - width`
+            - upper: quantile at `width`
+
+    Raises:
+        AssertionError:
+            If `width` is not in (0, 1).
+    """
+    # 引数のアサーション =======================================================
+    bild.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
+    bild.assert_logical(to_native, arg_name = 'to_native')
+    interpolation = bild.arg_match(
+        interpolation, interpolation_values,
+        arg_name = 'interpolation'
+        )
+    # =======================================================================
+
+    self_nw = nw.from_native(self, allow_series = True)
+    return mean_qi(
+        self_nw, interpolation = interpolation, 
+        width = width, to_native = to_native
+        )
+
+@mean_qi.register(nw.DataFrame)
+def mean_qi_data_frame(
+    self: IntoFrameT,
+    width: float = 0.975,
+    interpolation: Interpolation = 'midpoint',
+    to_native: bool = True
+    ) -> pd.DataFrame:
+
+    df_numeric = nw.from_native(self).select(ncs.numeric())
+
+    result = nw.from_dict({
+        'variable': df_numeric.columns,
+        'mean': df_numeric.select(ncs.numeric().mean()).row(0),
+        'lower': df_numeric.select(
+            ncs.numeric().quantile(1 - width, interpolation = interpolation)
+            ).row(0),
+        'upper': df_numeric.select(
+            ncs.numeric().quantile(width, interpolation = interpolation)
+            ).row(0)
+        }, backend = df_numeric.implementation
+        )
+    if to_native: return result.to_native()
+    return result
+
+@mean_qi.register(nw.Series)
+def mean_qi_series(
+    self: SeriesT,
+    width: float = 0.975,
+    interpolation: Interpolation = 'midpoint',
+    to_native: bool = True
+    ):
+
+    self_nw = nw.from_native(self, allow_series=True)
+
+    result = nw.from_dict({
+        'variable': [self_nw.name],
+        'mean': [self_nw.mean()],
+        'lower': [self_nw.quantile(1 - width, interpolation = interpolation)],
+        'upper': [self_nw.quantile(width, interpolation = interpolation)]
+    }, backend = self_nw.implementation
+    )
+    if to_native: return result.to_native()
+    return result
+
+
+# In[ ]:
+
+
+@pf.register_dataframe_method
+@pf.register_series_method
+@singledispatch
+def median_qi(
+    self: Union[IntoFrameT, IntoSeriesT],
+    width: float = 0.975,
+    interpolation: Interpolation = 'midpoint',
+    to_native: bool = True
+) -> pd.DataFrame:
+    """Compute median and quantile interval (QI).
+
+    Args:
+        self (IntoFrameT, IntoSeriesT):
+            Input data.
+        width (float):
+            Upper quantile to use (must be in (0, 1)).
+            Lower quantile is computed as `1 - width`.
+        point_fun (str):
+            Currently kept for API compatibility. (Not used in computation.)
+
+    Returns:
+        IntoFrameT:
+            Table indexed by variable names with columns:
+            - median: median value
+            - lower: quantile at `1 - width`
+            - upper: quantile at `width`
+
+    Raises:
+        AssertionError:
+            If `width` is not in (0, 1).
+    """
+    # 引数のアサーション =======================================================
+    bild.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
+    bild.assert_logical(to_native, arg_name = 'to_native')
+    interpolation = bild.arg_match(
+        interpolation, interpolation_values,
+        arg_name = 'interpolation'
+        )
+    # =======================================================================
+
+    self_nw = nw.from_native(self, allow_series = True)
+    return median_qi(
+        self_nw, interpolation = interpolation, 
+        width = width, to_native = to_native
+        )
+
+@median_qi.register(nw.DataFrame)
+def median_qi_data_frame(
+    self: IntoFrameT,
+    width: float = 0.975,
+    interpolation: Interpolation = 'midpoint',
+    to_native: bool = True
+) -> pd.DataFrame:
+
+    df_numeric = nw.from_native(self).select(ncs.numeric())
+
+    result = nw.from_dict({
+        'variable': df_numeric.columns,
+        'median': df_numeric.select(ncs.numeric().median()).row(0),
+        'lower': df_numeric.select(
+            ncs.numeric().quantile(1 - width, interpolation = interpolation)
+            ).row(0),
+        'upper': df_numeric.select(
+            ncs.numeric().quantile(width, interpolation = interpolation)
+            ).row(0)
+        }, backend = df_numeric.implementation
+        )
+    if to_native: return result.to_native()
+    return result
+
+@median_qi.register(nw.Series)
+def median_qi_series(
+    self: SeriesT,
+    width: float = 0.975,
+    interpolation: Interpolation = 'midpoint',
+    to_native: bool = True
+):
+    self_nw = nw.from_native(self, allow_series=True)
+
+    result = nw.from_dict({
+        'variable': [self_nw.name],
+        'median': [self_nw.median()],
+        'lower': [self_nw.quantile(1 - width, interpolation = interpolation)],
+        'upper': [self_nw.quantile(width, interpolation = interpolation)]
+    }, backend = self_nw.implementation
+    )
+    if to_native: return result.to_native()
+    return result
+
+
+# In[ ]:
+
+
+from scipy.stats import t
+@pf.register_dataframe_method
+@pf.register_series_method
+@singledispatch
+def mean_ci(
+    self: Union[IntoFrameT, IntoSeriesT],
+    width: float = 0.975,
+    to_native: bool = True
+) -> pd.DataFrame:
+    """Compute mean and t-based confidence interval (CI).
+
+    Args:
+        self (IntoFrameT, IntoSeriesT):
+            Input data.
+        width (float):
+            Confidence level in (0, 1) (e.g., 0.95).
+
+    Returns:
+        IntoFrameT:
+            Table indexed by variable names with columns:
+            - mean: sample mean
+            - lower: lower bound of CI
+            - upper: upper bound of CI
+
+    Raises:
+        AssertionError:
+            If `width` is not in (0, 1).
+
+    Notes:
+        Uses t critical value with df = n - 1:
+        `t.isf((1 - width) / 2, df=n-1)`.
+    """
+    # 引数のアサーション =======================================================
+    bild.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
+    bild.assert_logical(to_native, arg_name = 'to_native')
+    # =======================================================================
+
+    self_nw = nw.from_native(self, allow_series = True)
+
+    return mean_ci(
+        self_nw, width = width, to_native = to_native
+    )
+
+@mean_ci.register(nw.DataFrame)
+def mean_ci_data_frame(
+    self: IntoFrameT,
+    width: float = 0.975,
+    to_native: bool = True
+) -> pd.DataFrame:
+
+    df_numeric = nw.from_native(self).select(ncs.numeric())
+    n = len(df_numeric)
+    t_alpha = t.isf((1 - width) / 2, df = n - 1)
+    x_mean = df_numeric.select(ncs.numeric().mean())\
+        .to_numpy()[0, :]
+    x_std = df_numeric.select(ncs.numeric().std())\
+        .to_numpy()[0, :]
+
+    result = nw.from_dict({
+        'variable': df_numeric.columns,
+        'mean':x_mean,
+        'lower':x_mean - t_alpha * x_std / np.sqrt(n),
+        'upper':x_mean + t_alpha * x_std / np.sqrt(n),
+        }, backend = df_numeric.implementation
+        )
+    if to_native: return result.to_native()
+    return result
+
+@mean_ci.register(nw.Series)
+def mean_ci_series(
+    self: SeriesT,
+    width: float = 0.975,
+    to_native: bool = True
+):
+
+    self_nw = nw.from_native(self, allow_series=True)
+    n = len(self_nw)
+    t_alpha = t.isf((1 - width) / 2, df = n - 1)
+    x_mean = self_nw.mean()
+    x_std = self_nw.std()
+
+    result = nw.from_dict({
+        'variable': [self_nw.name],
+        'mean':[x_mean],
+        'lower':[x_mean - t_alpha * x_std / np.sqrt(n)],
+        'upper':[x_mean + t_alpha * x_std / np.sqrt(n)],
+    }, backend = self_nw.implementation
+    )
+    if to_native: return result.to_native()
+    return result
+
+
+# ## 正規表現を文字列関連の論理関数
+
+# In[ ]:
+
+
+@pf.register_series_method
+def is_kanzi(self:IntoSeriesT, na_default:bool = True, to_native: bool = True) -> IntoSeriesT:
+    """与えられた文字列が ymd 形式の日付かどうかを判定する関数"""
+    bild.assert_logical(to_native, arg_name = 'to_native')
+    bild.assert_logical(na_default, arg_name = 'na_default')
+
+    self_nw = nw.from_native(self, allow_series = True)
+
+    result = self_nw.str.contains('[\u4E00-\u9FFF]+').fill_null(na_default)
+
+    if to_native: return result.to_native()
+    return result
+
+
+# In[ ]:
+
+
+@pf.register_series_method
+def is_ymd(self:IntoSeriesT, na_default:bool = True, to_native: bool = True) -> IntoSeriesT:
+    """与えられた文字列が ymd 形式の日付かどうかを判定する関数"""
+    bild.assert_logical(to_native, arg_name = 'to_native')
+    bild.assert_logical(na_default, arg_name = 'na_default')
+
+    rex_ymd = '[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}'
+
+    self_nw = nw.from_native(self, allow_series = True)
+
+    result = self_nw.str.contains(rex_ymd)
+
+    result = result.fill_null(na_default)
+    if to_native: return result.to_native()
+    return result
+
+@pf.register_series_method
+def is_ymd_like(self:IntoSeriesT, na_default:bool = True, to_native: bool = True) -> IntoSeriesT:
+    """与えられた文字列が ymd 形式っぽい日付かどうかを判定する関数"""
+    bild.assert_logical(to_native, arg_name = 'to_native')
+    bild.assert_logical(na_default, arg_name = 'na_default')
+
+    rex_ymd_like = '[Script=Han]{0,2}[0-9]{1,4}(?:年|-)[0-9]{1,2}(?:月|-)[0-9]{1,2}(?:日)?'
+
+    self_nw = nw.from_native(self, allow_series = True)
+
+    result = self_nw.str.contains(rex_ymd_like)
+
+    result = result.fill_null(na_default)
+    if to_native: return result.to_native()
+    return result
+
+
+# In[ ]:
+
+
+@pf.register_series_method
+def is_number(self:IntoSeriesT, na_default:bool = True, to_native: bool = True) -> IntoSeriesT:
+    """文字列が数字であるかどうかを判定する関数"""
+    bild.assert_logical(to_native, arg_name = 'to_native')
+    bild.assert_logical(na_default, arg_name = 'na_default')
+
+    self_nw = nw.from_native(self, allow_series = True)
+
+    rex_dict = {
+        'exponent': r'[0-9]+[Ee][+-][0-9]+',
+        'numeric':'[0-9]+',
+        'phone':'[0-9]{0,4}(?: |-)[0-9]{0,4}(?: |-)[0-9]{0,4}',
+        'alpha':'[A-z]+',
+        'ひらがな': r'[\u3041-\u309F]+',
+        'カタカナ':r'[\u30A1-\u30FF]+',
+        '半角カタカナ':r'[\uFF61-\uFF9F]+',
+        '漢字':r'[\u4E00-\u9FFF]+',
+        'ymd_like':'[Script=Han]{0,2}[0-9]{1,4}(?:年|-)[0-9]{1,2}(?:月|-)[0-9]{1,2}(?:日)?'
+    }
+
+    result_dict = {
+        key:~(self_nw.str.contains(rex_val).fill_null(na_default).cast(nw.Boolean))
+        for rex_val, key in zip(rex_dict.values(), rex_dict.keys())
+    }
+
+    result_dict['numeric'] = ~result_dict['numeric']
+    result_dict['exponent'] = ~result_dict['exponent']
+    result_table = nw.from_dict(result_dict)
+    selected_col = list(rex_dict.keys())[1:]
+
+    result = result_table\
+        .with_columns(
+            res1 = nw.all_horizontal(nw.col(selected_col), ignore_nulls = True),
+            )\
+        .with_columns(
+                result = nw.col('res1') | nw.col('exponent')
+            )['result']
+    result
+
+    if to_native: return result.to_native()
+    return result
+
+
+# ## 簡易なデータバリデーションツール
+
+# In[ ]:
+
+
+@pf.register_dataframe_method
+def check_that(
+    data: IntoFrameT,
+    rule_dict: Union[Mapping[str, str], pd.Series],
+    **kwargs: Any,
+):
+    """Evaluate validation rules and summarize pass/fail counts.
+
+    Each rule is an expression evaluated by `pd.DataFrame.eval(...)` and must return
+    a boolean array-like of length equal to the number of rows, or a scalar bool.
+
+    Args:
+        data (IntoFrameT):
+            Data to validate.
+        rule_dict (dict or pandas.Series):
+            Mapping from rule name to expression string (for `DataFrame.eval`).
+            If a Series is given, it is converted to dict.
+        **kwargs:
+            Keyword arguments forwarded to `DataFrame.eval(...)` (e.g., engine, parser).
+
+    Returns:
+        pandas.DataFrame:
+            Summary table indexed by rule name with columns:
+            - item: number of evaluated items (rows)
+            - passes: number of True
+            - fails: number of False
+            - coutna: number of NA (after handling NA rows)
+            - expression: the rule expression string
+
+    Raises:
+        AssertionError:
+            If rule expressions are not strings, or the evaluation result is not boolean.
+    """
+    data_pd = nw.from_native(data).to_pandas()
+    return check_that_pandas(data_pd, rule_dict = rule_dict, **kwargs)
+
+
+# In[ ]:
+
+
+def check_that_pandas(
+    data: pd.DataFrame,
+    rule_dict: Union[Mapping[str, str], pd.Series],
+    **kwargs: Any,
+) -> pd.DataFrame:
+  """Evaluate validation rules and summarize pass/fail counts.
+
+  Each rule is an expression evaluated by `DataFrame.eval(...)` and must return
+  a boolean array-like of length equal to the number of rows, or a scalar bool.
+
+  Args:
+      data (pandas.DataFrame):
+          Data to validate.
+      rule_dict (dict or pandas.Series):
+          Mapping from rule name to expression string (for `DataFrame.eval`).
+          If a Series is given, it is converted to dict.
+      **kwargs:
+          Keyword arguments forwarded to `DataFrame.eval(...)` (e.g., engine, parser).
+
+  Returns:
+      pandas.DataFrame:
+          Summary table indexed by rule name with columns:
+          - item: number of evaluated items (rows)
+          - passes: number of True
+          - fails: number of False
+          - coutna: number of NA (after handling NA rows)
+          - expression: the rule expression string
+
+  Raises:
+      AssertionError:
+          If rule expressions are not strings, or the evaluation result is not boolean.
+  """
+  if(isinstance(rule_dict, pd.Series)): rule_dict = rule_dict.to_dict()
+
+  [bild.assert_character(x, arg_name = 'rule_dict') for x in rule_dict.values()]
+
+  result_list = []
+  for i, name in enumerate(rule_dict):
+    condition = data.eval(rule_dict[name], **kwargs)
+    condition = pd.Series(condition)
+    assert bild.is_logical(condition),\
+    f"Result of rule(s) must be of type 'bool'. But result of '{name}' is '{condition.dtype}'."
+
+    if len(condition) == len(data):
+      in_exper = [s in rule_dict[name] for s in data.columns]
+      any_na = data.loc[:, in_exper].isna().any(axis = 'columns')
+      condition = condition.astype('boolean')
+      condition = condition.where(~any_na)
+
+    res_df = pd.DataFrame({
+        'item':len(condition),
+        'passes':condition.sum(skipna = True),
+        'fails':(~condition).sum(skipna = True),
+        'coutna':condition.isna().sum(),
+        'expression':rule_dict[name]
+        }, index = [name])
+
+    result_list.append(res_df)
+
+  result_df = pd.concat(result_list)
+  result_df.index.name = 'name'
+
+  return result_df
+
+
+# In[ ]:
+
+
+pf.register_dataframe_method
+def check_viorate(
+    data: IntoFrameT,
+    rule_dict: Union[Mapping[str, str], pd.Series],
+    **kwargs: Any,
+):
+    """Return row-wise rule violation indicators for each rule.
+
+    Args:
+        data (pandas.DataFrame):
+            Data to validate.
+        rule_dict (dict or pandas.Series):
+            Mapping from rule name to expression string (for `DataFrame.eval`).
+            If a Series is given, it is converted to dict.
+        **kwargs:
+            Keyword arguments forwarded to `DataFrame.eval(...)`.
+
+    Returns:
+        pandas.DataFrame:
+            Boolean DataFrame with one column per rule indicating violations
+            (True means violation). Additional columns:
+            - any: True if any rule is violated in the row
+            - all: True if all rules are violated in the row
+
+    Raises:
+        AssertionError:
+            If rule expressions are not strings, or the evaluation result is not boolean.
+    """
+    data_pd = nw.from_native(data).to_pandas()
+    return check_viorate_pandas(data_pd, rule_dict = rule_dict, **kwargs)
+
+
+# In[ ]:
+
+
+def check_viorate_pandas(
+    data: pd.DataFrame,
+    rule_dict: Union[Mapping[str, str], pd.Series],
+    **kwargs: Any,
+) -> pd.DataFrame:
+  """Return row-wise rule violation indicators for each rule.
+
+  Args:
+      data (pandas.DataFrame):
+          Data to validate.
+      rule_dict (dict or pandas.Series):
+          Mapping from rule name to expression string (for `DataFrame.eval`).
+          If a Series is given, it is converted to dict.
+      **kwargs:
+          Keyword arguments forwarded to `DataFrame.eval(...)`.
+
+  Returns:
+      pandas.DataFrame:
+          Boolean DataFrame with one column per rule indicating violations
+          (True means violation). Additional columns:
+          - any: True if any rule is violated in the row
+          - all: True if all rules are violated in the row
+
+  Raises:
+      AssertionError:
+          If rule expressions are not strings, or the evaluation result is not boolean.
+  """
+  if(isinstance(rule_dict, pd.Series)): rule_dict = rule_dict.to_dict()
+  [bild.assert_character(x, arg_name = 'rule_dict') for x in rule_dict.values()]
+
+  df_viorate = pd.DataFrame()
+  for i, name in enumerate(rule_dict):
+    condition = data.eval(rule_dict[name], **kwargs)
+    assert bild.is_logical(condition),\
+    f"Result of rule(s) must be of type 'bool'. But result of '{name}' is '{condition.dtype}'."
+
+    df_viorate[name] = ~condition
+
+  df_viorate['any'] = df_viorate.any(axis = 'columns')
+  df_viorate['all'] = df_viorate.all(axis = 'columns')
+
+  return df_viorate
+
+
+# ### helper function for pandas `DataFrame.eval()`
+
+# In[ ]:
+
+
+def implies_exper(P, Q):
+  return f"{Q} | ~({P})"
+
+@singledispatch
+def is_complet(self: pd.DataFrame) -> pd.Series:
+  return self.notna().all(axis = 'columns')
+
+@is_complet.register(pd.Series)
+def _(*arg: pd.Series) -> pd.Series:
+  return pd.concat(arg, axis = 'columns').notna().all(axis = 'columns')
+
+
+# In[ ]:
+
+
+def Sum(*arg): return pd.concat(arg, axis = 'columns').sum(axis = 'columns')
+def Mean(*arg): return pd.concat(arg, axis = 'columns').mean(axis = 'columns')
+def Max(*arg): return pd.concat(arg, axis = 'columns').max(axis = 'columns')
+def Min(*arg): return pd.concat(arg, axis = 'columns').min(axis = 'columns')
+def Median(*arg): return pd.concat(arg, axis = 'columns').median(axis = 'columns')
+

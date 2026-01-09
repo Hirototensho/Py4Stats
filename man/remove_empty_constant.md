@@ -60,7 +60,7 @@ print(penguins2.tail(3))
 
 ``` python
 # 完全に空白な行と列を削除。
-print(penguins2.remove_empty(quiet = False).tail(3))
+print(py4st.remove_empty(penguins2, quiet = False).tail(3))
 #> Removing 1 empty column(s) out of 3 columns(Removed: empty).
 #> Removing 1 empty row(s) out of 345 rows(Removed: 344).
 #>        species  body_mass_g
@@ -69,7 +69,7 @@ print(penguins2.remove_empty(quiet = False).tail(3))
 #> 343  Chinstrap       3775.0
 
 # 完全に空白な列のみ削除。
-print(penguins2.remove_empty(rows = False, quiet = False).tail(3))
+print(py4st.remove_empty(penguins2, rows = False, quiet = False).tail(3))
 #> Removing 1 empty column(s) out of 3 columns(Removed: empty).
 #>        species  body_mass_g
 #> 342  Chinstrap       4100.0
@@ -77,7 +77,7 @@ print(penguins2.remove_empty(rows = False, quiet = False).tail(3))
 #> 344        NaN          NaN
 
 # 完全に空白な行のみ削除。
-print(penguins2.remove_empty(cols = False, quiet = False).tail(3))
+print(py4st.remove_empty(penguins2, cols = False, quiet = False).tail(3))
 #> Removing 1 empty row(s) out of 345 rows(Removed: 344).
 #>        species  body_mass_g  empty
 #> 341  Chinstrap       3775.0    NaN
@@ -87,7 +87,7 @@ print(penguins2.remove_empty(cols = False, quiet = False).tail(3))
 
 ``` python
 # quiet = True の場合
-print(penguins2.remove_empty().tail(3))
+print(py4st.remove_empty(penguins2).tail(3))
 #>        species  body_mass_g
 #> 341  Chinstrap       3775.0
 #> 342  Chinstrap       4100.0
@@ -106,7 +106,7 @@ print(penguins2.head(3))
 #> 1  Adelie       3800.0        c
 #> 2  Adelie       3250.0        c
 
-print(penguins2.remove_constant(quiet = False).head(3))
+print(py4st.remove_constant(penguins2, quiet = False).head(3))
 #> Removing 1 constant column(s) out of 3 column(s)(Removed: constant).
 #>   species  body_mass_g
 #> 0  Adelie       3750.0
@@ -115,21 +115,21 @@ print(penguins2.remove_constant(quiet = False).head(3))
 ```
 
 ``` python
-penguins2.loc[:, 'almost_empty'] = np.nan
+penguins2.loc[:, 'almost_empty'] = pd.NA
 penguins2.loc[1, 'almost_empty'] = 'c'
 
 # dropna = False なら、almost_empty は削除されません。
-print(penguins2.remove_constant().head(3))
+print(py4st.remove_constant(penguins2).head(3))
 #>   species  body_mass_g almost_empty
-#> 0  Adelie       3750.0          NaN
+#> 0  Adelie       3750.0         <NA>
 #> 1  Adelie       3800.0            c
-#> 2  Adelie       3250.0          NaN
+#> 2  Adelie       3250.0         <NA>
 
-print(penguins2.remove_constant(dropna = True).head(3))
+print(py4st.remove_constant(penguins2, dropna = True).head(3))
 #>   species  body_mass_g
 #> 0  Adelie       3750.0
 #> 1  Adelie       3800.0
 #> 2  Adelie       3250.0
 ```
 ***
-[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
+[Return to **Function reference**.](../reference.md)

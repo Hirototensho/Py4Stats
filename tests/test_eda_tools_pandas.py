@@ -24,7 +24,7 @@ gentoo = penguins.query("species == 'Gentoo'")
 # =========================================================
 def test_diagnose():
     output_df = eda_pd.diagnose(penguins)
-    # output_df.to_csv(f'{tests_path}/fixtures/diagnose.csv')
+    # expected_df = pd.read_csv(f'{tests_path}/fixtures/diagnose.csv', index_col = 0)
     expected_df = pd.read_csv(f'{tests_path}/fixtures/diagnose.csv', index_col = 0)
     assert_frame_equal(output_df, expected_df)
     print()
@@ -135,7 +135,7 @@ def test_remove_constant():
 
 def test_filtering_out_columns() -> None:
     df = pd.DataFrame({"foo_x": [1], "foo_y": [2], "bar": [3]})
-    out = eda_pd.filtering_out(df, contains="foo", axis="columns")
+    out = eda_pd.filtering_out(df,　contains="foo", axis="columns")
     assert list(out.columns) == ["bar"]
 
 def test_filtering_out_index() -> None:
