@@ -135,7 +135,7 @@ def test_remove_constant():
 
 def test_filtering_out_columns() -> None:
     df = pd.DataFrame({"foo_x": [1], "foo_y": [2], "bar": [3]})
-    out = eda_pd.filtering_out(df,　contains="foo", axis="columns")
+    out = eda_pd.filtering_out(df, contains="foo", axis="columns")
     assert list(out.columns) == ["bar"]
 
 def test_filtering_out_index() -> None:
