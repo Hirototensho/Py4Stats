@@ -8,7 +8,7 @@ import py4stats as py4st
 
 ## `py4stats.eda_tools`
 
-　探索的データ解析と前処理に関する機能を提供するモジュールです。一部の関数は [`pandas-flavor`](https://pypi.org/project/pandas-flavor/) ライブラリの機能を使って実装しており、[`pandas.DataFrame`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html) のメソッドと同じ構文で利用することができます。
+　探索的データ解析と前処理に関する機能を提供するモジュールです。このモジュールは、複数の DataFrame バックエンドに対して共通の API を提供することを目的として、[`narwhals`](https://narwhals-dev.github.io/narwhals/) ライブラリを用いて実装されています。詳細は [Technical Notes: py4stats.eda_tools における narwhals ベースの実装](articles/narwhals_in_py4stats.md) を参照してください。
 
 　[`py4stats.diagnose()`](man/diagnose.md)：R言語の[`dlookr::diagnose()`](https://choonghyunryu.github.io/dlookr/reference/diagnose.data.frame.html)を再現した関数で、データの全般的な状態についての要約を提供します。
 
@@ -18,7 +18,7 @@ import numpy as np
 from palmerpenguins import load_penguins
 penguins = load_penguins() # サンプルデータの読み込み
 
-print(penguins.diagnose().round(4))
+print(py4st.diagnose(penguins).round(4))
 #>                      dtype  missing_count  missing_percent  unique_count  unique_rate
 #> species             object              0           0.0000             3       0.8721
 #> island              object              0           0.0000             3       0.8721
@@ -33,7 +33,7 @@ print(penguins.diagnose().round(4))
 [`py4stats.tabyl()`](man/tabyl.md)：R言語の [`janitor::tabyl()`](https://sfirke.github.io/janitor/reference/tabyl.html)を参考にした、クロス集計表を作成する関数です。
 
 ``` python
-print(penguins.tabyl('island', 'species'))
+print(py4st.tabyl(penguins, 'island', 'species'))
 #> species         Adelie   Chinstrap       Gentoo  All
 #> island                                              
 #> Biscoe      44 (26.2%)    0 (0.0%)  124 (73.8%)  168
@@ -44,7 +44,7 @@ print(penguins.tabyl('island', 'species'))
 　[`py4stats.freq_table()`](man/freq_table.md)：R言語の[`DescTools::Freq()`](https://cran.r-project.org/web/packages/DescTools/DescTools.pdf)をオマージュした、1変数の度数分布表を計算する関数。度数 `freq` と相対度数 `perc` に加えて、それぞれの累積値を計算します。
 
 ``` python
-print(penguins.freq_table('species'))
+print(py4st.freq_table(penguins, 'species'))
 #>            freq      perc  cumfreq   cumperc
 #> species                                     
 #> Adelie      152  0.441860      152  0.441860
@@ -58,7 +58,7 @@ print(penguins.freq_table('species'))
 penguins2 = penguins.assign(bill_length_mm2 = pd.cut(penguins['bill_length_mm'], 6))
 
 print(
-    penguins2.freq_table(['species', 'bill_length_mm2'], sort = False)
+    py4st.freq_table(penguins2, ['species', 'bill_length_mm2'], sort = False)
     )
 #>                             freq      perc  cumfreq   cumperc
 #> species   bill_length_mm2
@@ -90,7 +90,7 @@ print(penguins2.tail(3))
 #> 344        NaN          NaN    NaN
 
 # 完全に空白な行と列を削除。
-print(penguins2.remove_empty(quiet = False).tail(3))
+print(py4st.remove_empty(penguins2, quiet = False).tail(3))
 #> Removing 1 empty column(s) out of 3 columns(Removed: empty).
 #> Removing 1 empty row(s) out of 345 rows(Removed: 344). 
 #>        species  body_mass_g
@@ -99,7 +99,7 @@ print(penguins2.remove_empty(quiet = False).tail(3))
 #> 343  Chinstrap       3775.0
 
 # 完全に空白な列のみ削除。
-print(penguins2.remove_empty(rows = False, quiet = False).tail(3))
+print(py4st.remove_empty(penguins2, rows = False, quiet = False).tail(3))
 #> Removing 1 empty column(s) out of 3 columns(Removed: empty).
 #>        species  body_mass_g
 #> 342  Chinstrap       4100.0
@@ -107,7 +107,7 @@ print(penguins2.remove_empty(rows = False, quiet = False).tail(3))
 #> 344        NaN          NaN
 
 # 完全に空白な行のみ削除。
-print(penguins2.remove_empty(cols = False, quiet = False).tail(3))
+print(py4st.remove_empty(penguins2, cols = False, quiet = False).tail(3))
 #> Removing 1 empty row(s) out of 345 rows(Removed: 344). 
 #>        species  body_mass_g  empty
 #> 341  Chinstrap       3775.0    NaN
@@ -126,7 +126,7 @@ print(penguins2.head(3))
 #> 1  Adelie       3800.0        c
 #> 2  Adelie       3250.0        c
 
-print(penguins2.remove_constant(quiet = False).head(3))
+print(py4st.remove_constant(penguins2, quiet = False).head(3))
 #> Removing 1 constant column(s) out of 3 column(s)(Removed: constant). 
 #>   species  body_mass_g
 #> 0  Adelie       3750.0
@@ -138,21 +138,21 @@ print(penguins2.remove_constant(quiet = False).head(3))
 
 ```python
 # 列名に 'length' を含む列を除外
-print(penguins.filtering_out(contains = 'length').head(3))
+print(py4st.filtering_out(penguins, contains = 'length').head(3))
 #>   species     island  bill_depth_mm  body_mass_g     sex  year  female
 #> 0  Adelie  Torgersen           18.7       3750.0    male  2007       0
 #> 1  Adelie  Torgersen           17.4       3800.0  female  2007       1
 #> 2  Adelie  Torgersen           18.0       3250.0  female  2007       1
 
 # 列名が 'bill' から始まる列を除外
-print(penguins.filtering_out(starts_with = 'bill').head(3))
+print(py4st.filtering_out(penguins, starts_with = 'bill').head(3))
 #>   species     island  flipper_length_mm  body_mass_g     sex  year  female
 #> 0  Adelie  Torgersen              181.0       3750.0    male  2007       0
 #> 1  Adelie  Torgersen              186.0       3800.0  female  2007       1
 #> 2  Adelie  Torgersen              195.0       3250.0  female  2007       1
 
 # 列名が '_mm' で終わる列を除外
-print(penguins.filtering_out(ends_with = '_mm').head(3))
+print(py4st.filtering_out(penguins, ends_with = '_mm').head(3))
 #>   species     island  body_mass_g     sex  year  female
 #> 0  Adelie  Torgersen       3750.0    male  2007       0
 #> 1  Adelie  Torgersen       3800.0  female  2007       1

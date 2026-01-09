@@ -2,7 +2,7 @@
 
 ## 概要
 
-`py4stats.eda_tools` モジュールは、複数の DataFrame バックエンドに対して共通の API を提供することを目的として、`narwhals` ライブラリを用いて実装されています。
+`py4stats.eda_tools` モジュールは、複数の DataFrame バックエンドに対して共通の API を提供することを目的として、[`narwhals`](https://narwhals-dev.github.io/narwhals/) ライブラリを用いて実装されています。
 
 本ドキュメントでは、本モジュールの内部実装に関する前提条件や、バックエンドの違いに起因する挙動上の注意点について説明します。
 
@@ -10,7 +10,7 @@
 
 ## 対応している DataFrame バックエンドについて
 
-　`py4stats.eda_tools` モジュールの関数は、第一引数として `narwhals.from_native()` によって `nw.DataFrame` 型へ変換可能な DataFrame オブジェクトを受け取ります。
+　`py4stats.eda_tools` モジュールの関数は、第一引数として `[narwhals.from_native()`](https://narwhals-dev.github.io/narwhals/api-reference/narwhals/#narwhals.from_native) によって `nw.DataFrame` 型へ変換可能な DataFrame オブジェクトを受け取ります。
 
 具体的には、以下のようなバックエンドを想定しています。
 
