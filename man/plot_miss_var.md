@@ -2,7 +2,7 @@
 
 ## 概要
 
-データフレームからパレート図を作図する関数です。
+R言語の [`naniar::gg_miss_var()`](https://naniar.njtierney.com/reference/gg_miss_var.html) をオマージュした関数で、DataFrameの各変数について欠測値の量を横棒グラフとして可視化します。欠損値統計の計算には [`py4stats.diagnose()`](diagnose.md) を使用しています。
 
 ``` python
 plot_miss_var(

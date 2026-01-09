@@ -140,7 +140,7 @@ def plot_miss_var(
 
     This function visualizes the amount of missing data for each column
     as a horizontal bar chart. It supports multiple DataFrame backends
-    via narwhals and relies on ``diagnose_nw`` to compute missing-value
+    via narwhals and relies on ``diagnose()`` to compute missing-value
     statistics.
 
     Args:

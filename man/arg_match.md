@@ -2,7 +2,7 @@
 
 ## 概要
 
-　R言語の [`rlang::arg_match()`](https://rlang.r-lib.org/reference/arg_match.html) をオマージュした関数で文字列で与えられた引数のアサーションを行います。
+　R言語の [`rlang::arg_match()`](https://rlang.r-lib.org/reference/arg_match.html) をオマージュした関数で、文字列で与えられた引数のアサーションを行います。
 
 ``` python
 arg_match(
