@@ -80,12 +80,12 @@ my_faivarit2(['apple', 'orang'])
 　`Py4Stats` では [`eda_tools.tabyl()`](./tabyl.md)や [`regression_tools.compare_ols()`](./compare_ols.md) など、文字列で指定する引数をもつ関数で、引数のアサーションに `build.arg_match()` を使用しています。
 
 ```python
-from py4stats import eda_tools as eda
+import py4stats as py4st
 import pandas as pd
 from palmerpenguins import load_penguins
 penguins = load_penguins() # サンプルデータの読み込
 
-penguins.tabyl('island', 'species', normalize = 'ind')
+py4st.tabyl(penguins, 'island', 'species', normalize = 'ind')
 #> ValueError: 'normalize' must be one of 'index', 'columns' or 'all', not 'ind'.
 #>              Did you mean 'index'?
 ```
