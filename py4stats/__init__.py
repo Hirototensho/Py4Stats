@@ -1,9 +1,73 @@
 # -*- coding: utf-8 -*-
 # from py4stats import *
 
-from .eda_tools import Max, Mean, Median, Min, Pareto_plot, Sum, check_that, check_viorate, compare_df_cols, compare_df_record, compare_df_stats, compare_group_means, compare_group_median, crosstab2, detect_Kanzi, diagnose, diagnose_category, entropy, filtering_out, freq_mode, freq_table, implies_exper, is_complet, is_dummy, is_number, is_ymd, is_ymd_like, itertools, mean_ci, mean_qi, median_qi, min_max, missing_percent, plot_mean_diff, plot_median_diff, remove_constant, remove_empty, set_n_miss, set_prop_miss, singledispatch, std_entropy, tabyl , weighted_mean
+from .regression_tools import (
+    Blinder_Oaxaca, 
+    add_one_sided_p_value, 
+    coefplot, 
+    compare_mfx, 
+    compare_ols, 
+    glance, 
+    glance_glm, 
+    glance_ols, 
+    log_to_pct, 
+    mfxplot, 
+    overload, 
+    plot_Blinder_Oaxaca, 
+    tidy, 
+    tidy_mfx, 
+    tidy_to_jp
+    )
 
-from .regression_tools import Blinder_Oaxaca, add_one_sided_p_value, coefplot, compare_mfx, compare_ols, glance, glance_glm, glance_ols, log_to_pct, mfxplot, overload, plot_Blinder_Oaxaca, tidy, tidy_mfx, tidy_to_jp
+
+
+from .eda_tools._pandas import (
+    Max, 
+    Mean, 
+    Median, 
+    Min, 
+    Pareto_plot, 
+    Sum, 
+    check_that, 
+    check_viorate, 
+    compare_df_cols, 
+    compare_df_record, 
+    compare_df_stats, 
+    compare_group_means, 
+    compare_group_median, 
+    crosstab2, 
+    detect_Kanzi, 
+    diagnose, 
+    diagnose_category, 
+    entropy, 
+    filtering_out, 
+    freq_mode, 
+    freq_table, 
+    implies_exper, 
+    is_complet, 
+    is_dummy, 
+    is_number, 
+    is_ymd, 
+    is_ymd_like, 
+    itertools, 
+    mean_ci, 
+    mean_qi, 
+    median_qi, 
+    min_max, 
+    missing_percent, 
+    plot_mean_diff, 
+    plot_median_diff, 
+    remove_constant, 
+    remove_empty, 
+    set_n_miss, 
+    set_prop_miss, 
+    singledispatch, 
+    std_entropy, 
+    tabyl , 
+    weighted_mean
+    )
+
+
 
 __all__ = [
     # 'load',
