@@ -34,26 +34,26 @@ is_float(x)
 ## 使用例 Examples
 
 ```python
-from py4stats import bilding_block as bild
+from py4stats import bilding_block as build
 x_str = ['A', 'B']
 x_bool = [True, False, True]
 x_int = [1, 2, 3]
 x_float = [0, 1, 2.1, 0.5]
 x_list = [x_str, x_bool, x_int, x_float]
 
-print([bild.is_character(x) for x in x_list])
+print([build.is_character(x) for x in x_list])
 #> [True, False, False, False]
 
-print([bild.is_logical(x) for x in x_list])
+print([build.is_logical(x) for x in x_list])
 #> [False, True, False, False]
 
-print([bild.is_numeric(x) for x in x_list])
+print([build.is_numeric(x) for x in x_list])
 #> [False, True, True, True]
 
-print([bild.is_integer(x) for x in x_list])
+print([build.is_integer(x) for x in x_list])
 #> [False, False, True, False]
 
-print([bild.is_float(x) for x in x_list])
+print([build.is_float(x) for x in x_list])
 #> [False, False, False, True]
 ```
 ***

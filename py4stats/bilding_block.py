@@ -348,7 +348,7 @@ def make_assert_numeric(
       if not cond.all():
        message =  f"Argment '{arg_name}' must have value {lower} {inclusive_dict[inclusive]} {upper}."
        raise ValueError(message)
-    
+
     if(arg_name is None):
         arg_name = varname.argname('arg')
   return func
@@ -423,14 +423,14 @@ def style_pvalue(
 ) -> pd.Series:
   """
   Format p-values into strings with optional clipping and prefix.
-  
+
   Args:
         p_value: Scalar or array-like of p-values.
         digits: Number of decimals.
         prepend_p: If True, prepend 'p' or 'p='.
         p_min: Lower clipping threshold.
         p_max: Upper clipping threshold.
-  
+
   Returns:
         pandas.Series: Formatted p-values as strings.
   """

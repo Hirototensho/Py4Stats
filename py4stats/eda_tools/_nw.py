@@ -12,7 +12,7 @@ from __future__ import annotations
 # In[ ]:
 
 
-from py4stats import bilding_block as bild # py4stats のプログラミングを補助する関数群
+from py4stats import bilding_block as build # py4stats のプログラミングを補助する関数群
 # from py4stats import eda_tools as eda        # 基本統計量やデータの要約など
 import matplotlib.pyplot as plt
 import functools
@@ -69,7 +69,7 @@ def get_dtypes(data: IntoFrameT) -> pd.Series:
         list_dtypes = data.dtypes
     else:
         list_dtypes = [str(data_nw.schema[col]) for col in data_nw.columns]
-    
+
     s_dtypes = pd.Series(list_dtypes, index = data_nw.columns).astype(str)
     return s_dtypes
 
@@ -99,7 +99,7 @@ def diagnose(self: IntoFrameT, to_native: bool = True) -> IntoFrameT:
         AssertionError:
             If `self` is not a pandas.DataFrame.
     """
-    bild.assert_logical(to_native, arg_name = 'to_native')
+    build.assert_logical(to_native, arg_name = 'to_native')
     self_nw = nw.from_native(self)
 
     n = self_nw.shape[0]
@@ -116,7 +116,7 @@ def diagnose(self: IntoFrameT, to_native: bool = True) -> IntoFrameT:
         (100 * nw.col('unique_count') / n).alias('unique_rate')
     )\
     .select('columns', 'dtype', 'missing_count', 'missing_percent', 'unique_count', 'unique_rate')
-    
+
     if to_native: return result.to_native()
     return result
 
@@ -183,17 +183,17 @@ def plot_miss_var(
         The underlying missing-value statistics are computed by
         ``diagnose``, and the resulting plot reflects its output.
     """
-    values = bild.arg_match(
+    values = build.arg_match(
         values, ['missing_percent', 'missing_count'],
         arg_name = 'values'
     )
-    bild.assert_logical(sort, arg_name = 'sort')
-    bild.assert_logical(miss_only, arg_name = 'miss_only')
-    
+    build.assert_logical(sort, arg_name = 'sort')
+    build.assert_logical(miss_only, arg_name = 'miss_only')
+
     diagnose_tab = diagnose(data, to_native = False)
     if sort: diagnose_tab = diagnose_tab.sort(values)
     if miss_only: diagnose_tab = diagnose_tab.filter(nw.col('missing_percent') > 0)
-    
+
     # グラフの描画
     if ax is None:
         fig, ax = plt.subplots()
@@ -265,11 +265,11 @@ def compare_df_cols(
         all([is_FrameT(v) for v in df_list]), \
         "argument 'df_list' is must be a list of DataFrame."
 
-  return_match = bild.arg_match(
+  return_match = build.arg_match(
       return_match, ['all', 'match', 'mismatch'],
       arg_name = 'return_match'
       )
-  bild.assert_logical(dropna, arg_name = 'dropna')
+  build.assert_logical(dropna, arg_name = 'dropna')
   # --------------------------------------
   # df_name が指定されていなければ、自動で作成します。
   if df_name is None:
@@ -350,7 +350,7 @@ def compare_df_stats(
             all([is_FrameT(v) for v in df_list]), \
             "argument 'df_list' is must be a list of DataFrame."
 
-    return_match = bild.arg_match(
+    return_match = build.arg_match(
         return_match,
         ['all', 'match', 'mismatch'],
         arg_name = 'return_match'
@@ -361,7 +361,7 @@ def compare_df_stats(
         df_name = [f'df{i + 1}' for i in range(len(df_list))]
 
     df_list_nw = [nw.from_native(v) for v in df_list]
-   
+
     stats_list = [_compute_stats(df, stats) for df in df_list_nw]
     res = pd.concat(stats_list, axis = 1)
     res.columns = df_name
@@ -459,20 +459,20 @@ def compare_df_record(
     df2 = nw.from_native(df2)
     all1 = df1.columns
     all2 = df2.columns
-    
-    bild.assert_logical(sikipna, arg_name = 'sikipna')
+
+    build.assert_logical(sikipna, arg_name = 'sikipna')
     if sikipna:
         df1 = df1.drop_nulls(all1)
         df2 = df2.drop_nulls(all2)
 
     # 引数のアサーション ----------------------------------------------------------------------------------
-    bild.assert_logical(to_native, arg_name = 'to_native')
+    build.assert_logical(to_native, arg_name = 'to_native')
 
-    columns = bild.arg_match(
+    columns = build.arg_match(
         columns, ['common', 'all'],
         arg_name = 'columns'
         )
-    
+
     assert df1.shape[0] == df2.shape[0], (
         "df1 and df2 must have the same number of rows "
         f"(got len(df1)={df1.shape[0]} and len(df2)={df2.shape[0]})."
@@ -487,18 +487,18 @@ def compare_df_record(
             ]
             if only_in_df1:
                 messages.append(
-                    f"Columns only in df1: {bild.oxford_comma_and(only_in_df1)}."
+                    f"Columns only in df1: {build.oxford_comma_and(only_in_df1)}."
                 )
             if only_in_df2:
                 messages.append(
-                    f"Columns only in df2: {bild.oxford_comma_and(only_in_df2)}."
+                    f"Columns only in df2: {build.oxford_comma_and(only_in_df2)}."
                 )
             messages.append(
                 "Use columns='common' to compare only shared columns."
             )
             raise ValueError("\n".join(messages))
     # --------------------------------------------------------------------------------------------------
-    
+
     numeric1 = df1.select(ncs.numeric()).columns
     nonnum1 = df1.select(~ncs.numeric()).columns
     numeric2 = df2.select(ncs.numeric()).columns
@@ -531,7 +531,7 @@ def compare_df_record(
         res_nonnum_col_df = nw.concat(res_nonnum_col, how = 'horizontal')
     else:
         res_nonnum_col_df = None
-    
+
     res_list = [res_number_col_df, res_nonnum_col_df]
     res_list = list(filter(None, res_list))
 
@@ -581,7 +581,7 @@ def compare_group_means(
         Means/variances use `numeric_only=True`.
     """
     # 引数のアサーション ==============================================
-    bild.assert_character(group_names, arg_name = 'group_names')
+    build.assert_character(group_names, arg_name = 'group_names')
     # ==============================================================
     group1 = nw.from_native(group1)
     group2 = nw.from_native(group2)
@@ -640,7 +640,7 @@ def compare_group_median(
         Medians use `numeric_only=True`.
     """
     # 引数のアサーション ==============================================
-    bild.assert_character(group_names, arg_name = 'group_names')
+    build.assert_character(group_names, arg_name = 'group_names')
     # ==============================================================
     group1 = nw.from_native(group1)
     group2 = nw.from_native(group2)
@@ -685,7 +685,7 @@ def plot_mean_diff(
   Returns:
       None
   """
-  stats_diff = bild.arg_match(
+  stats_diff = build.arg_match(
       stats_diff, ['norm_diff', 'abs_diff', 'rel_diff'],
       arg_name = 'stats_diff'
       )
@@ -727,7 +727,7 @@ def plot_median_diff(
   Returns:
       None
   """
-  stats_diff = bild.arg_match(
+  stats_diff = build.arg_match(
       stats_diff, ['abs_diff', 'rel_diff']
       )
 
@@ -758,19 +758,19 @@ def crosstab(
         **kwargs: Any
         ) -> IntoFrameT:
     # 引数のアサーション -------------------------------------
-    bild.assert_logical(to_native, arg_name = 'to_native')
-    bild.assert_logical(margins, arg_name = 'margins')
-    bild.assert_logical(dropna, arg_name = 'dropna')
-    
+    build.assert_logical(to_native, arg_name = 'to_native')
+    build.assert_logical(margins, arg_name = 'margins')
+    build.assert_logical(dropna, arg_name = 'dropna')
+
     if not isinstance(normalize, bool):
-        normalize = bild.arg_match(
+        normalize = build.arg_match(
             normalize,
             ['all', 'index', 'columns'],
             arg_name = 'normalize'
         )
     # -----------------------------------------------------
     df = nw.from_native(df_native)
-    
+
     if dropna: df = df.drop_nulls([index, columns])
 
     # return df
@@ -789,7 +789,7 @@ def crosstab(
           # 欠損セルを0にしたい場合（バックエンド依存はあるが一般にOK）
           .with_columns(ncs.numeric().fill_null(0))
     )
-    
+
     if sort_index:
         out = out.sort(index)
     # return out
@@ -812,21 +812,21 @@ def crosstab(
                     ], 
                     how = 'vertical'
                     )
-        
+
         if normalize == 'index':
             out = out.with_columns(
                 ncs.numeric() / nw.col(margins_name)
                 ).drop(margins_name, strict = False)
-        
+
         if normalize == 'all':
             total_val = out[margins_name].tail(1).item(0)
             out = out.with_columns(ncs.numeric()/total_val)
-        
+
         if not normalize:
             out = out.with_columns(ncs.numeric().cast(nw.Int64))
-    
+
     if not to_native: return out
-    
+
     if out.implementation.is_pandas_like():
         result = nw.to_native(out).set_index(index)
     else:
@@ -869,12 +869,12 @@ def freq_table(
             - cumperc: cumulative proportions
     """
     # 引数のアサーション ----------------------------------------
-    bild.assert_logical(sort, arg_name = 'sort')
-    bild.assert_logical(descending, arg_name = 'descending')
-    bild.assert_logical(dropna, arg_name = 'dropna')
-    bild.assert_logical(to_native, arg_name = 'to_native')
+    build.assert_logical(sort, arg_name = 'sort')
+    build.assert_logical(descending, arg_name = 'descending')
+    build.assert_logical(dropna, arg_name = 'dropna')
+    build.assert_logical(to_native, arg_name = 'to_native')
     # ---------------------------------------------------------
-    
+
     df = nw.from_native(self)
     if dropna:
         df = df.drop_nulls(subset)
@@ -882,12 +882,12 @@ def freq_table(
     result = df.with_columns(__n=nw.lit(1))\
         .group_by(nw.col(subset))\
         .agg(nw.col('__n').sum().alias('freq'))
-    
+
     if sort:
         result = result.sort('freq', descending = descending)
     else:
         result = result.sort(subset, descending = descending)
-    
+
     result = result.with_columns(
             (nw.col('freq') / nw.col('freq').sum()).alias('perc'),
             nw.col('freq').cum_sum().alias('cumfreq')
@@ -895,7 +895,7 @@ def freq_table(
         .with_columns(
             (nw.col('cumfreq') / nw.col('freq').sum()).alias('cumperc'),
         )
-    
+
     if to_native: 
         if result.implementation.is_pandas_like():
             return result.to_native().reset_index(drop=True)
@@ -947,19 +947,19 @@ def tabyl(
             Crosstab table. If `normalize` is not False, cells contain strings like
             `"count (xx.x%)"`. Otherwise counts (as strings after formatting).
     """
-    bild.assert_logical(margins, arg_name = 'margins')
-    bild.assert_character(margins_name, arg_name = 'margins_name')
-    bild.assert_logical(dropna, arg_name = 'dropna')
-    bild.assert_count(digits, arg_name = 'digits')
-    
+    build.assert_logical(margins, arg_name = 'margins')
+    build.assert_character(margins_name, arg_name = 'margins_name')
+    build.assert_logical(dropna, arg_name = 'dropna')
+    build.assert_count(digits, arg_name = 'digits')
+
     df = nw.from_native(self)
 
     if(not isinstance(normalize, bool)):
-      normalize = bild.arg_match(
+      normalize = build.arg_match(
           normalize, ['index', 'columns', 'all'],
           arg_name = 'normalize'
           )
-    
+
     # index または columns に bool 値が指定されていると後続処理でエラーが生じるので、
     # 文字列型に cast します。
     df = df[[index, columns]].with_columns(
@@ -975,10 +975,10 @@ def tabyl(
         to_native = False,
         **args_dict
        ).to_pandas().set_index(index)
-    
-    c_tab1 = c_tab1.apply(bild.style_number, digits = 0)
+
+    c_tab1 = c_tab1.apply(build.style_number, digits = 0)
     # return c_tab1
-    
+
 
     if(normalize != False):
         # 回答率クロス集計表（最終的な表では括弧内の数字）
@@ -990,8 +990,8 @@ def tabyl(
            ).to_pandas().set_index(index)
 
         # 2つめのクロス集計表の回答率をdigitsで指定した桁数のパーセントに換算し、文字列化します。
-        c_tab2 = c_tab2.apply(bild.style_percent, digits = digits)
-        
+        c_tab2 = c_tab2.apply(build.style_percent, digits = digits)
+
         # return c_tab2
         col = c_tab2.columns
         idx = c_tab2.index
@@ -1029,8 +1029,8 @@ def is_dummy(
             - If Series input: returns bool.
             - If DataFrame input: returns a boolean Series per column.
     """
-    bild.assert_logical(to_pd_Series, arg_name = 'to_pd_Series')
-    
+    build.assert_logical(to_pd_Series, arg_name = 'to_pd_Series')
+
     self_nw = nw.from_native(self, allow_series = True)
     return is_dummy(self_nw, cording, to_pd_Series)
 
@@ -1059,9 +1059,9 @@ def is_dummy_data_frame(
         to_pd_Series = True,
         **kwargs
         ) -> Union[IntoFrameT, pd.Series]:
-    
+
     self_nw = nw.from_native(self)
-    
+
     result = self_nw.select(
         nw.all().map_batches(
             lambda x: is_dummy_series(x, cording), 
@@ -1069,7 +1069,7 @@ def is_dummy_data_frame(
             returns_scalar = True
             )
     )
-    
+
     if to_pd_Series: 
         return result.to_pandas().loc[0, :]
     return result
@@ -1081,8 +1081,8 @@ def is_dummy_data_frame(
 import scipy as sp
 
 def entropy(x: IntoSeriesT, base: float = 2.0, dropna: bool = False) -> float:
-    bild.assert_numeric(base, arg_name = 'base', lower = 0, inclusive = 'right')
-    bild.assert_logical(dropna, arg_name = 'dropna')
+    build.assert_numeric(base, arg_name = 'base', lower = 0, inclusive = 'right')
+    build.assert_logical(dropna, arg_name = 'dropna')
 
     x_nw = nw.from_native(x, series_only = True)
 
@@ -1093,15 +1093,15 @@ def entropy(x: IntoSeriesT, base: float = 2.0, dropna: bool = False) -> float:
     return result
 
 def std_entropy(x: IntoSeriesT, dropna: bool = False) -> float:
-    bild.assert_logical(dropna, arg_name = 'dropna')
-    
+    build.assert_logical(dropna, arg_name = 'dropna')
+
     x_nw = nw.from_native(x, series_only = True)
-    
+
     if dropna: x_nw = x_nw.drop_nulls()
 
     K = x.n_unique()
     result = entropy(x_nw, base = K) if K > 1 else 0.0
-    
+
     return result
 
 
@@ -1177,12 +1177,12 @@ def diagnose_category(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
         >>> df = df.assign(dummy=(df["x"] > 0).astype(int))
         >>> diagnose_category(df)
     """
-    bild.assert_logical(to_native, arg_name = 'to_native')
+    build.assert_logical(to_native, arg_name = 'to_native')
 
     data_nw = nw.from_native(data, allow_series = True)
     res_is_dummy = is_dummy(data_nw)
     dummy_col = res_is_dummy[res_is_dummy].index.to_list()
-    
+
     df = (
         data_nw
         .with_columns(nw.col(dummy_col).cast(nw.String))\
@@ -1192,9 +1192,9 @@ def diagnose_category(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
         ncs.boolean(), 
         ))
     N = df.shape[0]
-    
+
     var_name = df.columns
-    
+
     if not var_name:
         raise ValueError(
             "`data` has no columns to summarize.\n"
@@ -1275,12 +1275,12 @@ def missing_percent(
             .select(
                 nw.sum_horizontal(nw.all()).alias('miss_count')
             )['miss_count']
-        
+
         if data_nw.implementation.is_pandas_like():
             miss_count = pd.Series(miss_count, index = data.index)
         else:
             miss_count = pd.Series(miss_count)
-        
+
         k = data_nw.shape[1]
         miss_pct = (100 ** pct) * miss_count / k
         return miss_pct
@@ -1320,13 +1320,13 @@ def remove_empty(
             DataFrame after removing empty columns/rows.
     """
     # 引数のアサーション ==============================================
-    bild.assert_logical(cols, arg_name = 'cols')
-    bild.assert_logical(rows, arg_name = 'rows')
-    bild.assert_numeric(cutoff, lower = 0, upper = 1)
-    bild.assert_logical(quiet, arg_name = 'quiet')
-    bild.assert_logical(to_native, arg_name = 'to_native')
+    build.assert_logical(cols, arg_name = 'cols')
+    build.assert_logical(rows, arg_name = 'rows')
+    build.assert_numeric(cutoff, lower = 0, upper = 1)
+    build.assert_logical(quiet, arg_name = 'quiet')
+    build.assert_logical(to_native, arg_name = 'to_native')
     # ==============================================================
-    
+
     df_shape = self.shape
     data_nw = nw.from_native(self)
     # 空白列の除去 ------------------------------
@@ -1384,13 +1384,13 @@ def remove_constant(
             DataFrame after removing constant columns.
     """
     # 引数のアサーション ==============================================
-    bild.assert_logical(quiet, arg_name = 'quiet')
-    bild.assert_logical(to_native, arg_name = 'to_native')
+    build.assert_logical(quiet, arg_name = 'quiet')
+    build.assert_logical(to_native, arg_name = 'to_native')
     # ==============================================================
     data_nw = nw.from_native(self)
     df_shape = data_nw.shape
     col_name = data_nw.columns
-    
+
     # データフレーム(data_nw) の行が定数かどうかを判定
     def foo (col, dropna):
         if dropna: 
@@ -1460,12 +1460,12 @@ def filtering_out(
 
     Notes:
         Row-wise filtering via axis='index' relies on the presence of an explicit index. Therefore, this option is not available for DataFrame backends that do not expose row labels (e.g. some Arrow-based tables).
-    
+
     """
     # 引数のアサーション ==============================================
     axis = str(axis)
-    axis = bild.arg_match(axis, ['1', 'columns', '0', 'index'], arg_name = 'axis')
-    bild.assert_logical(to_native, arg_name = 'to_native')
+    axis = build.arg_match(axis, ['1', 'columns', '0', 'index'], arg_name = 'axis')
+    build.assert_logical(to_native, arg_name = 'to_native')
     # ==============================================================
     data_nw = nw.from_native(self)
     drop_table = pd.DataFrame()
@@ -1482,32 +1482,32 @@ def filtering_out(
         s_columns = pd.Series(data_nw.columns)
         if contains is not None:
             # assert isinstance(contains, str), "'contains' must be a string."
-            bild.assert_character(contains, arg_name = 'contains')
+            build.assert_character(contains, arg_name = 'contains')
             drop_table['contains'] = s_columns.str.contains(contains)
 
         if starts_with is not None:
             # assert isinstance(starts_with, str), "'starts_with' must be a string."
-            bild.assert_character(starts_with, arg_name = 'starts_with')
+            build.assert_character(starts_with, arg_name = 'starts_with')
             drop_table['starts_with'] = s_columns.str.startswith(starts_with)
 
         if ends_with is not None:
             # assert isinstance(ends_with, str), "'ends_with' must be a string."
-            bild.assert_character(ends_with, arg_name = 'ends_with')
+            build.assert_character(ends_with, arg_name = 'ends_with')
             drop_table['ends_with'] = s_columns.str.endswith(ends_with)
         drop_list = s_columns[drop_table.any(axis = 'columns')].to_list()
         data_nw = data_nw.drop(drop_list)
-    
+
     elif hasattr(self, 'index'):
         if contains is not None: 
-            bild.assert_character(contains, arg_name = 'contains')
+            build.assert_character(contains, arg_name = 'contains')
             drop_table['contains'] = self.index.to_series().str.contains(contains)
 
         if starts_with is not None: 
-            bild.assert_character(starts_with, arg_name = 'starts_with')
+            build.assert_character(starts_with, arg_name = 'starts_with')
             drop_table['starts_with'] = self.index.to_series().str.startswith(starts_with)
 
         if ends_with is not None:
-            bild.assert_character(ends_with, arg_name = 'ends_with')
+            build.assert_character(ends_with, arg_name = 'ends_with')
             drop_table['ends_with'] = self.index.to_series().str.endswith(ends_with)
 
         keep_list = (~drop_table.any(axis = 'columns')).to_list()
@@ -1564,9 +1564,9 @@ def Pareto_plot(
         None
     """
     # 引数のアサーション ===================================================================
-    bild.assert_numeric(fontsize, arg_name = 'fontsize', lower = 0, inclusive = 'right')
-    bild.assert_numeric(xlab_rotation, arg_name = 'xlab_rotation')
-    bild.assert_character(palette, arg_name = 'palette')
+    build.assert_numeric(fontsize, arg_name = 'fontsize', lower = 0, inclusive = 'right')
+    build.assert_numeric(xlab_rotation, arg_name = 'xlab_rotation')
+    build.assert_character(palette, arg_name = 'palette')
     # ===================================================================================
 
     # 指定された変数でのランクを表すデータフレームを作成
@@ -1581,7 +1581,7 @@ def Pareto_plot(
             to_native = False
             )
         cumlative = 'cumshare'
-    
+
     shere_rank = shere_rank.to_pandas().set_index(group)
 
     # 作図
@@ -1603,8 +1603,8 @@ def make_rank_table(
 
     # 引数のアサーション ===================================================================
     col_names = data_nw.columns
-    group = bild.arg_match(group, values = col_names, arg_name = 'group', multiple = True)
-    values = bild.arg_match(values, values = col_names, arg_name = 'values')
+    group = build.arg_match(group, values = col_names, arg_name = 'group', multiple = True)
+    values = build.arg_match(values, values = col_names, arg_name = 'values')
     # ===================================================================================
     rank_table = data_nw\
         .group_by(group)\
@@ -1612,7 +1612,7 @@ def make_rank_table(
         .sort(values, descending = True)\
         .with_columns(share = nw.col(values) / nw.col(values).sum())\
         .with_columns(cumshare = nw.col('share').cum_sum())
-    
+
     if to_native:
         return rank_table.to_native()
     else:
@@ -1641,7 +1641,7 @@ def make_Pareto_plot(
     # yで指定された変数の棒グラフ
     # top_n が指定されていた場合、上位 top_n 件を抽出します。
     if top_n is not None:
-        bild.assert_count(top_n, lower = 1, arg_name = 'top_n')
+        build.assert_count(top_n, lower = 1, arg_name = 'top_n')
         shere_rank = shere_rank.head(top_n)
 
     if values is None:
@@ -1749,14 +1749,14 @@ def mean_qi(
             If `width` is not in (0, 1).
     """
     # 引数のアサーション =======================================================
-    bild.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
-    bild.assert_logical(to_native, arg_name = 'to_native')
-    interpolation = bild.arg_match(
+    build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
+    build.assert_logical(to_native, arg_name = 'to_native')
+    interpolation = build.arg_match(
         interpolation, interpolation_values,
         arg_name = 'interpolation'
         )
     # =======================================================================
-    
+
     self_nw = nw.from_native(self, allow_series = True)
     return mean_qi(
         self_nw, interpolation = interpolation, 
@@ -1770,7 +1770,7 @@ def mean_qi_data_frame(
     interpolation: Interpolation = 'midpoint',
     to_native: bool = True
     ) -> pd.DataFrame:
-    
+
     df_numeric = nw.from_native(self).select(ncs.numeric())
 
     result = nw.from_dict({
@@ -1794,9 +1794,9 @@ def mean_qi_series(
     interpolation: Interpolation = 'midpoint',
     to_native: bool = True
     ):
-    
+
     self_nw = nw.from_native(self, allow_series=True)
-    
+
     result = nw.from_dict({
         'variable': [self_nw.name],
         'mean': [self_nw.mean()],
@@ -1843,14 +1843,14 @@ def median_qi(
             If `width` is not in (0, 1).
     """
     # 引数のアサーション =======================================================
-    bild.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
-    bild.assert_logical(to_native, arg_name = 'to_native')
-    interpolation = bild.arg_match(
+    build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
+    build.assert_logical(to_native, arg_name = 'to_native')
+    interpolation = build.arg_match(
         interpolation, interpolation_values,
         arg_name = 'interpolation'
         )
     # =======================================================================
-    
+
     self_nw = nw.from_native(self, allow_series = True)
     return median_qi(
         self_nw, interpolation = interpolation, 
@@ -1864,7 +1864,7 @@ def median_qi_data_frame(
     interpolation: Interpolation = 'midpoint',
     to_native: bool = True
 ) -> IntoFrameT:
-    
+
     df_numeric = nw.from_native(self).select(ncs.numeric())
 
     result = nw.from_dict({
@@ -1889,7 +1889,7 @@ def median_qi_series(
     to_native: bool = True
 ) -> IntoFrameT:
     self_nw = nw.from_native(self, allow_series=True)
-    
+
     result = nw.from_dict({
         'variable': [self_nw.name],
         'median': [self_nw.median()],
@@ -1937,10 +1937,10 @@ def mean_ci(
         `t.isf((1 - width) / 2, df=n-1)`.
     """
     # 引数のアサーション =======================================================
-    bild.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
-    bild.assert_logical(to_native, arg_name = 'to_native')
+    build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
+    build.assert_logical(to_native, arg_name = 'to_native')
     # =======================================================================
-    
+
     self_nw = nw.from_native(self, allow_series = True)
 
     return mean_ci(
@@ -1960,7 +1960,7 @@ def mean_ci_data_frame(
         .to_numpy()[0, :]
     x_std = df_numeric.select(ncs.numeric().std())\
         .to_numpy()[0, :]
-    
+
     result = nw.from_dict({
         'variable': df_numeric.columns,
         'mean':x_mean,
@@ -1982,7 +1982,7 @@ def mean_ci_series(
     t_alpha = t.isf((1 - width) / 2, df = n - 1)
     x_mean = self_nw.mean()
     x_std = self_nw.std()
-    
+
     result = nw.from_dict({
         'variable': [self_nw.name],
         'mean':[x_mean],
@@ -2002,13 +2002,13 @@ def mean_ci_series(
 @pf.register_series_method
 def is_kanzi(self:IntoSeriesT, na_default:bool = True, to_native: bool = True) -> IntoSeriesT:
     """与えられた文字列が ymd 形式の日付かどうかを判定する関数"""
-    bild.assert_logical(to_native, arg_name = 'to_native')
-    bild.assert_logical(na_default, arg_name = 'na_default')
+    build.assert_logical(to_native, arg_name = 'to_native')
+    build.assert_logical(na_default, arg_name = 'na_default')
 
     self_nw = nw.from_native(self, allow_series = True)
-    
+
     result = self_nw.str.contains('[\u4E00-\u9FFF]+').fill_null(na_default)
-    
+
     if to_native: return result.to_native()
     return result
 
@@ -2019,13 +2019,13 @@ def is_kanzi(self:IntoSeriesT, na_default:bool = True, to_native: bool = True) -
 @pf.register_series_method
 def is_ymd(self:IntoSeriesT, na_default:bool = True, to_native: bool = True) -> IntoSeriesT:
     """与えられた文字列が ymd 形式の日付かどうかを判定する関数"""
-    bild.assert_logical(to_native, arg_name = 'to_native')
-    bild.assert_logical(na_default, arg_name = 'na_default')
+    build.assert_logical(to_native, arg_name = 'to_native')
+    build.assert_logical(na_default, arg_name = 'na_default')
 
     rex_ymd = '[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}'
 
     self_nw = nw.from_native(self, allow_series = True)
-    
+
     result = self_nw.str.contains(rex_ymd)
 
     result = result.fill_null(na_default)
@@ -2035,13 +2035,13 @@ def is_ymd(self:IntoSeriesT, na_default:bool = True, to_native: bool = True) -> 
 @pf.register_series_method
 def is_ymd_like(self:IntoSeriesT, na_default:bool = True, to_native: bool = True) -> IntoSeriesT:
     """与えられた文字列が ymd 形式っぽい日付かどうかを判定する関数"""
-    bild.assert_logical(to_native, arg_name = 'to_native')
-    bild.assert_logical(na_default, arg_name = 'na_default')
+    build.assert_logical(to_native, arg_name = 'to_native')
+    build.assert_logical(na_default, arg_name = 'na_default')
 
     rex_ymd_like = '[Script=Han]{0,2}[0-9]{1,4}(?:年|-)[0-9]{1,2}(?:月|-)[0-9]{1,2}(?:日)?'
 
     self_nw = nw.from_native(self, allow_series = True)
-    
+
     result = self_nw.str.contains(rex_ymd_like)
 
     result = result.fill_null(na_default)
@@ -2055,9 +2055,9 @@ def is_ymd_like(self:IntoSeriesT, na_default:bool = True, to_native: bool = True
 @pf.register_series_method
 def is_number(self:IntoSeriesT, na_default:bool = True, to_native: bool = True) -> IntoSeriesT:
     """文字列が数字であるかどうかを判定する関数"""
-    bild.assert_logical(to_native, arg_name = 'to_native')
-    bild.assert_logical(na_default, arg_name = 'na_default')
-    
+    build.assert_logical(to_native, arg_name = 'to_native')
+    build.assert_logical(na_default, arg_name = 'na_default')
+
     self_nw = nw.from_native(self, allow_series = True)
 
     rex_dict = {
@@ -2174,13 +2174,13 @@ def check_that_pandas(
   """
   if(isinstance(rule_dict, pd.Series)): rule_dict = rule_dict.to_dict()
 
-  [bild.assert_character(x, arg_name = 'rule_dict') for x in rule_dict.values()]
+  [build.assert_character(x, arg_name = 'rule_dict') for x in rule_dict.values()]
 
   result_list = []
   for i, name in enumerate(rule_dict):
     condition = data.eval(rule_dict[name], **kwargs)
     condition = pd.Series(condition)
-    assert bild.is_logical(condition),\
+    assert build.is_logical(condition),\
     f"Result of rule(s) must be of type 'bool'. But result of '{name}' is '{condition.dtype}'."
 
     if len(condition) == len(data):
@@ -2271,12 +2271,12 @@ def check_viorate_pandas(
           If rule expressions are not strings, or the evaluation result is not boolean.
   """
   if(isinstance(rule_dict, pd.Series)): rule_dict = rule_dict.to_dict()
-  [bild.assert_character(x, arg_name = 'rule_dict') for x in rule_dict.values()]
+  [build.assert_character(x, arg_name = 'rule_dict') for x in rule_dict.values()]
 
   df_viorate = pd.DataFrame()
   for i, name in enumerate(rule_dict):
     condition = data.eval(rule_dict[name], **kwargs)
-    assert bild.is_logical(condition),\
+    assert build.is_logical(condition),\
     f"Result of rule(s) must be of type 'bool'. But result of '{name}' is '{condition.dtype}'."
 
     df_viorate[name] = ~condition
