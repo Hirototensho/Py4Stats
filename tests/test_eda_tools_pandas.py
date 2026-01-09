@@ -47,7 +47,7 @@ def test_crosstab2():
         aggfunc = 'mean'
     )
     output_df.round(1)
-    output_df.to_csv(f'{tests_path}/fixtures/crosstab2.csv')
+    # output_df.to_csv(f'{tests_path}/fixtures/crosstab2.csv')
     expected_df = pd.read_csv(f'{tests_path}/fixtures/crosstab2.csv', index_col = 0)
 
     test_result = eda_pd.compare_df_record(output_df, expected_df).all().all()
@@ -135,12 +135,12 @@ def test_remove_constant():
 
 def test_filtering_out_columns() -> None:
     df = pd.DataFrame({"foo_x": [1], "foo_y": [2], "bar": [3]})
-    out = df.filtering_out(contains="foo", axis="columns")
+    out = eda_pd.filtering_out(df,　contains="foo", axis="columns")
     assert list(out.columns) == ["bar"]
 
 def test_filtering_out_index() -> None:
     df = pd.DataFrame({"x": [1, 2, 3]}, index=["keep", "drop_me", "drop_you"])
-    out = df.filtering_out(starts_with="drop", axis="index")
+    out = eda_pd.filtering_out(df, starts_with="drop", axis="index")
     assert list(out.index) == ["keep"]
 
 # =========================================================
@@ -181,17 +181,17 @@ def test_detect_kanzi() -> None:
 
 def test_is_ymd_and_like() -> None:
     s = pd.Series(["2025-12-30", "2025-1-2", "abc", None])
-    out = s.is_ymd(na_default=True)
+    out = eda_pd.is_ymd(s, na_default=True)
     assert list(out[:3]) == [True, True, False]
     assert out.iloc[3]
 
     s2 = pd.Series(["2025年12月30日", "2025-12-30", "nope"])
-    out2 = s2.is_ymd_like()
+    out2 = eda_pd.is_ymd_like(s2)
     assert list(out2) == [True, True, False]
 
 def test_is_number_basic() -> None:
     s = pd.Series(["123", "12E+3", "abc", "2025-12-30", None])
-    out = s.is_number(na_default=False)
+    out = eda_pd.is_number(s, na_default=False)
     assert out.iloc[0]
     assert out.iloc[1]
     assert not out.iloc[2]
