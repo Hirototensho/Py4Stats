@@ -92,18 +92,18 @@ def test_is_numeric(x, expected):
 # =========================================================
 
 def test_assert_character_raises():
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         bild.assert_character([1, 2, 3], arg_name="x")
 
 def test_assert_logical_raises():
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         bild.assert_logical([1, 0], arg_name="x")
 
 def test_assert_numeric_passes_on_numeric():
     bild.assert_numeric([1, 2, 3], arg_name="x")
 
 def test_assert_numeric_raises_on_non_numeric():
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         bild.assert_numeric(["a", "b"], arg_name="x")
 
 @pytest.mark.parametrize("inclusive", ["both", "neither", "left", "right"])
@@ -112,12 +112,12 @@ def test_assert_numeric_inclusive_argument_accepted(inclusive):
     bild.assert_numeric([0.5, 0.9], lower=0.0, upper=1.0, inclusive=inclusive, arg_name="x")
 
 def test_assert_numeric_range_raises():
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         bild.assert_numeric([0, 2], lower=0, upper=1, inclusive="both", arg_name="x")
 
 def test_assert_count_requires_nonnegative_integer():
     bild.assert_count([0, 1, 10], arg_name="n")
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         bild.assert_count([-1, 1], arg_name="n")
 
 

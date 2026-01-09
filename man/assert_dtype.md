@@ -78,7 +78,7 @@ x = [1, 2, 3]
 y = ['A', 'B', 'C']
 
 bild.assert_character(x)
-#> AssertionError: Argment 'x' must be of type 'str'.
+#> ValueError: Argment 'x' must be of type 'str'.
 
 bild.assert_character(y)
 ```
@@ -87,19 +87,19 @@ bild.assert_character(y)
 bild.assert_numeric(x)
 
 bild.assert_numeric(y)
-#> AssertionError: Argment 'y' must be of type 'int' or 'float'.
+#> ValueError: Argment 'y' must be of type 'int' or 'float' with value(s) -inf <= x <= inf.
 
 z = [0.1, 0.3, 0.6]
 bild.assert_numeric(z, lower = 0, upper = 1)
 
 z.extend([2, 3])
 bild.assert_numeric(z, lower = 0, upper = 1)
-#> AssertionError: Argment 'z' must have value 0 <= x <= 1.
-#>                element '3' and '4' of 'z' not sutisfy the condtion.
+#> ValueError: Argment 'z' must have value 0 <= x <= 1
+#> element '3' and '4' of 'z' not sutisfy the condtion.
 
 z = 1
 bild.assert_numeric(z, lower = 0, upper = 1, inclusive = 'left')
-#> AssertionError: Argment 'z' must have value 0 <= x < 1.
+#> ValueError: Argment 'z' must have value 0 <= x < 1.
 ```
 
 ## 参照

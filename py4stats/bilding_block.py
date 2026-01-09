@@ -1,12 +1,15 @@
-# %%
+#!/usr/bin/env python
+# coding: utf-8
+
+
+
 from __future__ import annotations
 
-# %% [markdown]
+
 # # `py4stats` のプログラミングを補助する関数群
 # 
 # `eda_tools` や `regression_tools` で共通して使う関数をここにまとめておきます。`bilding_block` モジュール自体は外部から呼び出さずに使用することを想定しています。
 
-# %% [markdown]
 # `bilding_block` モジュールに実装された主要な関数の依存関係
 # 
 # ```python
@@ -72,17 +75,19 @@ from __future__ import annotations
 # 
 # ```
 
-# %%
+
+
 import pandas as pd
 import numpy as np
 import scipy as sp
 # from varname import argname
 import varname
 
-# %% [markdown]
+
 # ## 型ヒントの準備
 
-# %%
+
+
 from typing import (
     Any,
     Callable,
@@ -118,10 +123,11 @@ StrArrayLike = Union[str, Sequence[str], np.ndarray, pd.Series]
 # p-value などは 0..1 の数値配列として扱うことが多い
 ProbArrayLike = ArrayLike
 
-# %% [markdown]
+
 # ## 引数のアサーション
 
-# %%
+
+
 import argparse
 
 def match_arg(arg: str, values: Sequence[str], arg_name: str = "argument") -> str:
@@ -149,7 +155,9 @@ def match_arg(arg: str, values: Sequence[str], arg_name: str = "argument") -> st
       else:
           raise ValueError(f"'{arg_name}' must be one of {oxford_comma_or(values)}, not '{arg}'.")
 
-# %%
+
+
+
 def arg_match0(arg: str, values: Sequence[str], arg_name: Optional[str] = None) -> str:
     """
     Simulates the functionality of R's rlang::arg_match() function with partial matching in Python.
@@ -176,7 +184,9 @@ def arg_match0(arg: str, values: Sequence[str], arg_name: Optional[str] = None) 
       else:
         raise ValueError(f"'{arg_name}' must be one of {oxford_comma_or(values)}, not '{arg}'.")
 
-# %%
+
+
+
 # from varname import argname
 def arg_match(
     arg: Union[str, Sequence[str], pd.Series, np.ndarray],
@@ -208,10 +218,11 @@ def arg_match(
     arg = arg_match0(arg[0], values = values, arg_name = arg_name)
     return arg
 
-# %% [markdown]
+
 # ## タイプチェックを行う関数
 
-# %%
+
+
 import pandas.api.types
 
 def is_character(x: Any) -> bool:
@@ -229,7 +240,9 @@ def is_integer(x: Any) -> bool:
 def is_float(x: Any) -> bool:
   return pandas.api.types.is_float_dtype(pd.Series(x))
 
-# %%
+
+
+
 def make_assert_type(
     predicate_fun: Callable[[Any], bool],
     valid_type: Sequence[str],
@@ -249,19 +262,23 @@ def make_assert_type(
     if(arg_name is None):
       arg_name = varname.argname('arg')
 
-    assert predicate_fun(arg), f"Argment '{arg_name}' must be of" +\
-      f" type {oxford_comma_or(valid_type)}"
+    if not predicate_fun(arg):
+      messages = f"Argment '{arg_name}' must be of type {oxford_comma_or(valid_type)}." 
+      raise ValueError(messages)
 
   return func
 
-# %%
+
+
+
 assert_character = make_assert_type(is_character, valid_type = ['str'])
 assert_logical = make_assert_type(is_logical, valid_type = ['bool'])
 
-# %% [markdown]
+
 # ### 数値用の `assert_*()` 関数
 
-# %%
+
+
 def make_assert_numeric(
     predicate_fun: Callable[[Any], bool],
     valid_type: Sequence[str],
@@ -285,7 +302,7 @@ def make_assert_numeric(
       arg: Any,
       lower: float = lower,
       upper: float = upper,
-      inclusive: Inclusive = "both",
+      inclusive: Literal["both", "neither", "left", "right"] = "both",
       arg_name: Optional[str] = None,
   ) -> None:
     if(arg_name is None):
@@ -300,35 +317,55 @@ def make_assert_numeric(
       'right':'< x <='
     }
 
-    assert predicate_fun(arg), f"Argment '{arg_name}' must be of" +\
-      f" type {oxford_comma_or(valid_type)}" + \
-      f" with value(s) {lower} {inclusive_dict[inclusive]} {upper}."
+    # assert predicate_fun(arg), f"Argment '{arg_name}' must be of" +\
+    #   f" type {oxford_comma_or(valid_type)}" + \
+    #   f" with value(s) {lower} {inclusive_dict[inclusive]} {upper}."
+    if not predicate_fun(arg): 
+       message = f"Argment '{arg_name}' must be of" +\
+            f" type {oxford_comma_or(valid_type)}" + \
+            f" with value(s) {lower} {inclusive_dict[inclusive]} {upper}."
+       raise ValueError(message)
 
     cond = arg.between(lower, upper, inclusive = inclusive)
     not_sutisfy = arg[~cond].index.astype(str).to_list()
 
-    if(len(arg) > 1):
-      assert cond.all(),\
-      f"""Argment '{arg_name}' must have value {lower} {inclusive_dict[inclusive]} {upper}.
-                element {oxford_comma_and(not_sutisfy)} of '{arg_name}' not sutisfy the condtion."""
-    else:
-      assert cond.all(),\
-      f"Argment '{arg_name}' must have value {lower} {inclusive_dict[inclusive]} {upper}."
+    # if(len(arg) > 1):
+    #   assert cond.all(),\
+    #   f"""Argment '{arg_name}' must have value {lower} {inclusive_dict[inclusive]} {upper}.
+    #             element {oxford_comma_and(not_sutisfy)} of '{arg_name}' not sutisfy the condtion."""
+    # else:
+    #   assert cond.all(),\
+    #   f"Argment '{arg_name}' must have value {lower} {inclusive_dict[inclusive]} {upper}."
 
+    if(len(arg) > 1):
+      if not cond.all():
+        message = (
+            f"Argment '{arg_name}' must have value {lower} {inclusive_dict[inclusive]} {upper}\n"  +
+            f"element {oxford_comma_and(not_sutisfy)} of '{arg_name}' not sutisfy the condtion."
+            )
+        raise ValueError(message)
+    else:
+      if not cond.all():
+       message =  f"Argment '{arg_name}' must have value {lower} {inclusive_dict[inclusive]} {upper}."
+       raise ValueError(message)
+    
     if(arg_name is None):
         arg_name = varname.argname('arg')
   return func
 
-# %%
+
+
+
 assert_numeric = make_assert_numeric(is_numeric, valid_type = ['int', 'float'])
 assert_integer = make_assert_numeric(is_integer, valid_type = ['int'])
 assert_count = make_assert_numeric(is_integer, valid_type = ['positive integer'], lower = 0)
 assert_float = make_assert_numeric(is_float, valid_type = ['float'])
 
-# %% [markdown]
+
 # ## 数値などのフォーマット
 
-# %%
+
+
 # def p_stars(p_value, stars = {'***':0.01, '**':0.05, '*':0.1}):
 def p_stars(
     p_value: ProbArrayLike,
@@ -373,7 +410,9 @@ def p_stars(
 
     return pd.Series(styled)
 
-# %%
+
+
+
 # def style_pvalue(p_value, digits = 3, prepend_p = False, p_min = 0.001, p_max = 0.9):
 def style_pvalue(
     p_value: ProbArrayLike,
@@ -412,7 +451,9 @@ def style_pvalue(
 
   return styled
 
-# %%
+
+
+
 @np.vectorize
 def num_comma(x: NumberLike, digits: int = 2, big_mark: str = ",") -> str:
   assert_count(digits)
@@ -429,7 +470,9 @@ def num_currency(x: NumberLike, symbol: str = "$", digits: int = 0, big_mark: st
 def num_percent(x: NumberLike, digits: int = 2) -> str:
   return f'{x:.{digits}%}'
 
-# %%
+
+
+
 def style_number(x: ArrayLike, digits: int = 2, big_mark: str = ",") -> pd.Series:
   x = pd.Series(x)
 
@@ -458,7 +501,9 @@ def style_percent(x: ArrayLike, digits: int = 2, unit: float = 100, symbol: str 
 
   return x.apply(lambda v: f'{v*unit:.{digits}f}{symbol}')
 
-# %%
+
+
+
 @np.vectorize
 def pad_zero(x: Any, digits: int = 2) -> str:
     s = str(x)
@@ -468,12 +513,14 @@ def pad_zero(x: Any, digits: int = 2) -> str:
         s = s + '0' * (digits + 1 - s_digits) # 足りない分だけ0を追加
     return s
 
-# %%
+
+
+
 @np.vectorize
 def add_big_mark(s: Any) -> str:
     return f'{s:,}'
 
-# %% [markdown]
+
 # 　文字列のリストを与えると、英文の並列の形に変換する関数です。表記法については[Wikipedia Serial comma](https://en.wikipedia.org/wiki/Serial_comma)を参照し、コードについては[stack overflow:Grammatical List Join in Python [duplicate]](https://stackoverflow.com/questions/19838976/grammatical-list-join-in-python)を参照しました。
 # 
 # ```python
@@ -482,7 +529,8 @@ def add_big_mark(s: Any) -> str:
 # #> 'apple, orange or grape'
 # ```
 
-# %%
+
+
 def oxford_comma(x: Union[str, Sequence[str]], sep_last: str = "and", quotation: bool = True) -> str:
     if isinstance(x, str):
       if(quotation): return f"'{x}'"
@@ -499,5 +547,4 @@ def oxford_comma_and(x: Union[str, Sequence[str]], quotation: bool = True) -> st
 
 def oxford_comma_or(x: Union[str, Sequence[str]], quotation: bool = True) -> str:
   return oxford_comma(x, quotation = quotation, sep_last = 'or')
-
 

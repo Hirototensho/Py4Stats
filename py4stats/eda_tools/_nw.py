@@ -1725,7 +1725,7 @@ def mean_qi(
     width: float = 0.975,
     interpolation: Interpolation = 'midpoint',
     to_native: bool = True
-) -> pd.DataFrame:
+) -> IntoFrameT:
     """Compute mean and quantile interval (QI).
 
     Args:
@@ -1819,7 +1819,7 @@ def median_qi(
     width: float = 0.975,
     interpolation: Interpolation = 'midpoint',
     to_native: bool = True
-) -> pd.DataFrame:
+) -> IntoFrameT:
     """Compute median and quantile interval (QI).
 
     Args:
@@ -1863,7 +1863,7 @@ def median_qi_data_frame(
     width: float = 0.975,
     interpolation: Interpolation = 'midpoint',
     to_native: bool = True
-) -> pd.DataFrame:
+) -> IntoFrameT:
     
     df_numeric = nw.from_native(self).select(ncs.numeric())
 
@@ -1883,11 +1883,11 @@ def median_qi_data_frame(
 
 @median_qi.register(nw.Series)
 def median_qi_series(
-    self: SeriesT,
+    self: IntoSeriesT,
     width: float = 0.975,
     interpolation: Interpolation = 'midpoint',
     to_native: bool = True
-):
+) -> IntoFrameT:
     self_nw = nw.from_native(self, allow_series=True)
     
     result = nw.from_dict({
@@ -1912,7 +1912,7 @@ def mean_ci(
     self: Union[IntoFrameT, IntoSeriesT],
     width: float = 0.975,
     to_native: bool = True
-) -> pd.DataFrame:
+) -> IntoFrameT:
     """Compute mean and t-based confidence interval (CI).
 
     Args:
@@ -1952,8 +1952,7 @@ def mean_ci_data_frame(
     self: IntoFrameT,
     width: float = 0.975,
     to_native: bool = True
-) -> pd.DataFrame:
-    
+) -> IntoFrameT:
     df_numeric = nw.from_native(self).select(ncs.numeric())
     n = len(df_numeric)
     t_alpha = t.isf((1 - width) / 2, df = n - 1)
@@ -1977,8 +1976,7 @@ def mean_ci_series(
     self: SeriesT,
     width: float = 0.975,
     to_native: bool = True
-):
-    
+) -> IntoFrameT:
     self_nw = nw.from_native(self, allow_series=True)
     n = len(self_nw)
     t_alpha = t.isf((1 - width) / 2, df = n - 1)
@@ -2107,7 +2105,7 @@ def check_that(
     data: IntoFrameT,
     rule_dict: Union[Mapping[str, str], pd.Series],
     **kwargs: Any,
-):
+) -> pd.DataFrame:
     """Evaluate validation rules and summarize pass/fail counts.
 
     Each rule is an expression evaluated by `pd.DataFrame.eval(...)` and must return
