@@ -33,7 +33,7 @@ s = pd.Series([
     '0120-123-456', "apple", "不明", None, np.nan
     ])
 
-print(s[s.is_number()])
+print(s[py4st.is_number(s)])
 #> 0       123
 #> 1      0.12
 #> 2     1e+07
@@ -42,13 +42,13 @@ print(s[s.is_number()])
 #> 14      NaN
 #> dtype: object
 
-print(s[s.is_ymd()])
+print(s[py4st.is_ymd(s)])
 #> 6     2024-03-03
 #> 13          None
 #> 14           NaN
 #> dtype: object
 
-print(s[s.is_ymd_like()])
+print(s[py4st.is_ymd_like(s)])
 #> 6     2024-03-03
 #> 7      2024年3月3日
 #> 8        24年3月3日
@@ -83,7 +83,7 @@ print(data['摂食者数'])
 `eda.is_number()` を使うと数字以外にどのような値が含まれているかを確認できるため、これをもとに「不明」となっている部分は `NaN` に置き換えるなどの対処法が考えられます。
 
 ```python
-print(data.loc[~data['摂食者数'].is_number(), '摂食者数'])
+print(data.loc[~py4st.is_number(data['摂食者数']), '摂食者数'])
 #> 285    不明
 #> 315    不明
 #> 374    不明

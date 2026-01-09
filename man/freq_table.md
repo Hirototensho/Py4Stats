@@ -36,13 +36,13 @@ import pandas as pd
 from palmerpenguins import load_penguins
 penguins = load_penguins() # サンプルデータの読み込
 
-print(penguins.freq_table('species'))
+print(py4st.freq_table(penguins, 'species'))
 #>      species  freq      perc  cumfreq   cumperc
 #> 0     Adelie   152  0.441860      152  0.441860
 #> 2  Chinstrap    68  0.197674      220  0.639535
 #> 1     Gentoo   124  0.360465      344  1.000000
 
-print(penguins.freq_table(['island', 'species']))
+print(py4st.freq_table(penguins, ['island', 'species']))
 #>       island    species  freq      perc  cumfreq   cumperc
 #> 1     Biscoe     Adelie    44  0.127907       44  0.127907
 #> 3     Biscoe     Gentoo   124  0.360465      168  0.488372
@@ -55,7 +55,7 @@ print(penguins.freq_table(['island', 'species']))
 penguins2 = penguins.assign(bill_length_mm2 = pd.cut(penguins['bill_length_mm'], 6))
 
 print(
-    penguins2.freq_table(['species', 'bill_length_mm2'], sort = False)
+    py4st.freq_table(penguins2, ['species', 'bill_length_mm2'], sort = False)
     )
 #>       species   bill_length_mm2  freq      perc  cumfreq   cumperc
 #> 0      Adelie  (36.683, 41.267]    89  0.258721       89  0.258721

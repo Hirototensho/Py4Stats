@@ -28,7 +28,7 @@ import pandas as pd
 from palmerpenguins import load_penguins
 penguins = load_penguins() # サンプルデータの読み込み
 
-print(penguins.diagnose().round(4))
+print(py4st.diagnose(penguins).round(4))
 #>              columns    dtype  missing_count  missing_percent  unique_count  unique_rate
 #> 0            species   object              0           0.0000             3       0.8721
 #> 1             island   object              0           0.0000             3       0.8721

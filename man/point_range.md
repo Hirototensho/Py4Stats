@@ -26,20 +26,20 @@ import pandas as pd
 from palmerpenguins import load_penguins
 penguins = load_penguins() # サンプルデータの読み込み
 
-print(penguins['bill_length_mm'].mean_qi().round(2))
+print(py4st.mean_qi(penguins['bill_length_mm']).round(2))
 #>          variable   mean  lower  upper
 #> 0  bill_length_mm  43.92   34.8   53.1
 
 
-print(penguins['bill_length_mm'].median_qi().round(2))
+print(py4st.median_qi(penguins['bill_length_mm']).round(2))
 #>          variable  median  lower  upper
 #> 0  bill_length_mm   44.45   34.8   53.1
 
-print(penguins['bill_length_mm'].mean_ci().round(2))
+print(py4st.mean_ci(penguins['bill_length_mm']).round(2))
 #>          variable   mean  lower  upper
 #> 0  bill_length_mm  43.92  43.26  44.58
 
-print(penguins[['bill_length_mm', 'bill_depth_mm']].mean_ci().round(2))
+print(py4st.mean_ci(penguins[['bill_length_mm', 'bill_depth_mm']]).round(2))
 #>          variable   mean  lower  upper
 #> 0  bill_length_mm  43.92  43.26  44.58
 #> 1   bill_depth_mm  17.15  16.91  17.39

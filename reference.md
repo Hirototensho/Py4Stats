@@ -2,6 +2,8 @@
 
 ## `py4stats.eda_tools`
 
+`py4stats.eda_tools` モジュールは、探索的データ解析と前処理に関する機能を提供するします。複数の DataFrame バックエンドに対して共通の API を提供することを目的として、`narwhals` ライブラリを用いて実装されています。詳細は [`**narwhals_in_py4stats.md`**へのリンク] を参照してください。
+
 ### データフレームの概要
 [`py4stats.diagnose()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/diagnose.md)
 

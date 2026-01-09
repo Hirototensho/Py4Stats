@@ -124,6 +124,7 @@ def diagnose(self: IntoFrameT, to_native: bool = True) -> IntoFrameT:
 # In[ ]:
 
 
+@pf.register_dataframe_method
 def plot_miss_var(
         data: IntoFrameT,
         values: Literal['missing_percent', 'missing_count'] = 'missing_percent', 
@@ -1093,6 +1094,7 @@ def std_entropy(x: IntoSeriesT, dropna: bool = False) -> float:
 # In[ ]:
 
 
+@pf.register_dataframe_method
 def diagnose_category(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
     """Summarize categorical variables in a DataFrame.
 
@@ -1507,6 +1509,7 @@ def filtering_out(
 
 
 # パレート図を作成する関数
+@pf.register_dataframe_method
 def Pareto_plot(
     data: IntoFrameT,
     group: str,
@@ -2193,6 +2196,7 @@ def check_that_pandas(
 # In[ ]:
 
 
+pf.register_dataframe_method
 def check_viorate(
     data: IntoFrameT,
     rule_dict: Union[Mapping[str, str], pd.Series],
