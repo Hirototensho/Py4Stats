@@ -1,8 +1,9 @@
 [project]
 name = 'py4stats'
-version = '0.0.1'
+version = '0.1.0'
 dependencies = [
     'matplotlib>=3.10.8',
+    'narwhals>=2.15.0',
     'numpy>=2.4.0',
     'palmerpenguins>=0.1.4',
     'pandas>=2.3.3',
