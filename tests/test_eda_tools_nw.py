@@ -41,6 +41,24 @@ def _assert_df_fixture(output_df, fixture_csv: str, check_dtype: bool = False, i
     # バックエンド差で dtype が微妙に変わりやすいので、基本は dtype を厳密に見ない運用が安定
     assert_frame_equal(output_df, expected_df, check_dtype=check_dtype)
 
+def _assert_df_fixture_new(
+        output_df,  fixture_csv: str,  
+        check_dtype: bool = False, reset_index: bool = True, 
+        **kwarg
+        ) -> None:
+    expected_df = nw.read_csv(
+        f'{tests_path}/fixtures/{fixture_csv}',
+        backend = output_df.implementation
+        )
+    
+    output_df = output_df.to_pandas()
+    expected_df = expected_df.to_pandas()
+
+    if reset_index:
+        output_df = output_df.reset_index(drop = True)
+        expected_df = expected_df.reset_index(drop = True)
+
+    assert_frame_equal(output_df, expected_df, check_dtype = check_dtype)
 
 def _assert_df_record(output_df, fixture_csv: str, index_col = 0, **kwarg) -> None:
     if hasattr(output_df, 'to_pandas'):
@@ -55,38 +73,41 @@ def _assert_df_record(output_df, fixture_csv: str, index_col = 0, **kwarg) -> No
 # test_diagnose
 # =========================================================
 def test_diagnose_pd():
-    output_df = eda_nw.diagnose(penguins)
-    # output_df.to_csv(f'{tests_path}/fixtures/diagnose_nw.csv')
-    _assert_df_fixture(output_df, 'diagnose_nw.csv')
+    output_df = eda_nw.diagnose(penguins, to_native = False)
+    # output_df.write_csv(f'{tests_path}/fixtures/diagnose_nw.csv')
+    _assert_df_fixture_new(output_df, 'diagnose_nw.csv')
 
 def test_diagnose_pl():
-    output_df = eda_nw.diagnose(penguins_pl)
-    # output_df.to_pandas().to_csv(f'{tests_path}/fixtures/diagnose_pl.csv')
-    _assert_df_fixture(output_df, 'diagnose_pl.csv')
+    output_df = eda_nw.diagnose(penguins_pl, to_native = False)
+    # output_df.write_csv(f'{tests_path}/fixtures/diagnose_pl.csv')
+    _assert_df_fixture_new(output_df, 'diagnose_pl.csv')
 
 def test_diagnose_pa():
-    output_df = eda_nw.diagnose(penguins_pa)
-    # output_df.to_pandas().to_csv(f'{tests_path}/fixtures/diagnose_pa.csv')
-    _assert_df_fixture(output_df, 'diagnose_pa.csv')
+    output_df = eda_nw.diagnose(penguins_pa, to_native = False)
+    _assert_df_fixture_new(output_df, 'diagnose_pl.csv')
 
 # =========================================================
 # freq_tabl/ crosstab
 # =========================================================
 def test_freq_table_pd():
-    output_df = eda_nw.freq_table(penguins, 'species')
-    # output_df.to_csv(f'{tests_path}/fixtures/freq_table_nw.csv')
-    _assert_df_fixture(output_df, 'freq_table_nw.csv')
+    output_df = eda_nw.freq_table(penguins, 'species', to_native = False)
+    # output_df.write_csv(f'{tests_path}/fixtures/freq_table_nw.csv')
+    _assert_df_fixture_new(output_df, 'freq_table_nw.csv')
 
 def test_freq_table_pl():
-    output_df = eda_nw.freq_table(penguins_pl, 'species')
-    # output_df.to_pandas().to_csv(f'{tests_path}/fixtures/freq_table_pl.csv')
-    _assert_df_fixture(output_df, 'freq_table_pl.csv')
+    output_df = eda_nw.freq_table(penguins_pl, 'species', to_native = False)
+    # output_df.write_csv(f'{tests_path}/fixtures/freq_table_pl.csv')
+    _assert_df_fixture_new(output_df, 'freq_table_pl.csv')
 
 
 def test_freq_table_pa():
-    output_df = eda_nw.freq_table(penguins_pa, 'species')
-    # output_df.to_pandas().to_csv(f'{tests_path}/fixtures/freq_table_pa.csv')
-    _assert_df_fixture(output_df, 'freq_table_pa.csv')
+    output_df = eda_nw.freq_table(penguins_pa, 'species', to_native = False)
+    # output_df.write_csv(f'{tests_path}/fixtures/freq_table_pa.csv')
+    _assert_df_fixture_new(output_df, 'freq_table_pa.csv')
+
+# =========================================================
+# crosstab
+# =========================================================
 
 def test_crosstab_pd():
     output_df1 = eda_nw.crosstab(penguins, 'island', 'species', margins = True, normalize = 'all')
@@ -190,18 +211,36 @@ def test_tabyl_with_boolen_col_pd():
     assert test_result
 
 # =========================================================
-# compare_df
+# compare_df_cols
 # =========================================================
 def test_compare_df_cols_pd():
     output_df = eda_nw.compare_df_cols(
         [adelie, gentoo],
         return_match = 'match'
     )
-    # display(output_df)
+    # output_df.to_csv(f'{tests_path}/fixtures/compare_df_cols_nw.csv')
+    _assert_df_fixture(output_df, 'compare_df_cols_nw.csv')
+    
 
-    # output_df.to_csv(f'{tests_path}/fixtures/compare_df_colss_nw.csv')
-    expected_df = pd.read_csv(f'{tests_path}/fixtures/compare_df_colss_nw.csv', index_col = 0).fillna('')
-    assert_frame_equal(output_df, expected_df)
+def test_compare_df_cols_pl():
+    output_df = eda_nw.compare_df_cols(
+        [adelie_pl, gentoo_pl],
+        return_match = 'match'
+    )
+    # output_df.to_csv(f'{tests_path}/fixtures/compare_df_cols_pl.csv')
+    _assert_df_fixture(output_df, 'compare_df_cols_pl.csv')
+
+def test_compare_df_cols_pa():
+    output_df = eda_nw.compare_df_cols(
+        [adelie_pa, gentoo_pa],
+        return_match = 'match'
+    )
+    # output_df.to_csv(f'{tests_path}/fixtures/compare_df_cols_pa.csv')
+    _assert_df_fixture(output_df, 'compare_df_cols_pa.csv')
+
+# =========================================================
+# compare_df_stats
+# =========================================================
 
 def test_compare_df_stats_pd():
     penguins_modify = penguins.copy()
@@ -213,9 +252,35 @@ def test_compare_df_stats_pd():
         )
 
     # output_df.to_csv(f'{tests_path}/fixtures/compare_df_stats_nw.csv')
-    expected_df = pd.read_csv(f'{tests_path}/fixtures/compare_df_stats_nw.csv', index_col = 0)
-    assert_frame_equal(output_df, expected_df)
+    _assert_df_fixture(output_df, 'compare_df_stats_nw.csv')
 
+def test_compare_df_stats_pl():
+    penguins_modify = penguins.copy()
+    penguins_modify['body_mass_g'] = penguins_modify['body_mass_g'] / 1000
+    penguins_modify['bill_length_mm'] = eda_nw.scale(penguins_modify['bill_length_mm'])
+
+    output_df = eda_nw.compare_df_stats(
+        [penguins_pl, pl.from_pandas(penguins_modify)]
+        )
+
+    # output_df.to_csv(f'{tests_path}/fixtures/compare_df_stats_pl.csv')
+    _assert_df_fixture(output_df, 'compare_df_stats_pl.csv')
+
+def test_compare_df_stats_pa():
+    penguins_modify = penguins.copy()
+    penguins_modify['body_mass_g'] = penguins_modify['body_mass_g'] / 1000
+    penguins_modify['bill_length_mm'] = eda_nw.scale(penguins_modify['bill_length_mm'])
+
+    output_df = eda_nw.compare_df_stats(
+        [penguins_pa, pa.Table.from_pandas(penguins_modify)]
+        )
+
+    # output_df.to_csv(f'{tests_path}/fixtures/compare_df_stats_pa.csv')
+    _assert_df_fixture(output_df, 'compare_df_stats_pa.csv')
+
+# =========================================================
+# compare_df_record
+# =========================================================
 def test_compare_df_record_pd():
     penguins_copy = penguins.copy()
     penguins_copy.loc[200:250, 'flipper_length_mm'] = \
@@ -224,11 +289,35 @@ def test_compare_df_record_pd():
     output_df = eda_nw.compare_df_record(penguins, penguins_copy)
 
     # output_df.to_csv(f'{tests_path}/fixtures/compare_df_record_nw.csv')
-    expected_df = pd.read_csv(f'{tests_path}/fixtures/compare_df_record_nw.csv', index_col = 0)
-    assert_frame_equal(output_df, expected_df)
+    _assert_df_fixture(output_df, 'compare_df_record_nw.csv')
+
+def test_compare_df_record_pl():
+    penguins_copy = penguins.copy()
+    penguins_copy.loc[200:250, 'flipper_length_mm'] = \
+        2 * penguins_copy.loc[200:250, 'flipper_length_mm'] 
+
+    output_df = eda_nw.compare_df_record(
+        penguins_pl, pl.from_pandas(penguins_copy),
+        to_native = False
+        )
+    # output_df.write_csv(f'{tests_path}/fixtures/compare_df_record_pl.csv')
+    _assert_df_fixture_new(output_df, 'compare_df_record_pl.csv')
+
+def test_compare_df_record_pa():
+    penguins_copy = penguins.copy()
+    penguins_copy.loc[200:250, 'flipper_length_mm'] = \
+        2 * penguins_copy.loc[200:250, 'flipper_length_mm'] 
+
+    output_df = eda_nw.compare_df_record(
+        penguins_pa, pa.Table.from_pandas(penguins_copy),
+        to_native = False
+        )
+
+    # output_df.write_csv(f'{tests_path}/fixtures/compare_df_record_pa.csv')
+    _assert_df_fixture_new(output_df, 'compare_df_record_pa.csv')
 
 # =========================================================
-# remove_empty_nw / test_remove_constant_nw
+# remove_empty
 # =========================================================
 def test_remove_empty_pd():
     penguins_empty = penguins.copy()
@@ -236,26 +325,73 @@ def test_remove_empty_pd():
     penguins_empty = eda_nw.remove_empty(penguins_empty)
     assert_frame_equal(penguins_empty, penguins)
 
+def test_remove_empty_pl():
+    penguins_empty = penguins.copy()
+    penguins_empty['na_col'] = pd.NA
+    penguins_empty = pl.from_pandas(penguins_empty)
+    penguins_empty = eda_nw.remove_empty(penguins_empty)
+    assert_frame_equal(penguins_empty.to_pandas(), penguins_pl.to_pandas())
+
+def test_remove_empty_pa():
+    penguins_empty = penguins.copy()
+    penguins_empty['na_col'] = pd.NA
+    penguins_empty = pa.Table.from_pandas(penguins_empty)
+    penguins_empty = eda_nw.remove_empty(penguins_empty)
+    assert_frame_equal(penguins_empty.to_pandas(), penguins_pa.to_pandas())
+
+# =========================================================
+# remove_constant
+# =========================================================
+
 def test_remove_constant_pd():
     penguins_constant = penguins.copy()
     penguins_constant['one'] = 1
     penguins_constant['two'] = 2
-    penguins_constant = eda_nw.remove_constant(penguins_constant, quiet = False)
-    assert_frame_equal(penguins_constant, penguins)
+    output_df = eda_nw.remove_constant(penguins_constant)
+    assert_frame_equal(output_df, penguins)
+
+def test_remove_constant_pl():
+    penguins_constant = penguins.copy()
+    penguins_constant['one'] = 1
+    penguins_constant['two'] = 2
+    output_df = eda_nw.remove_constant(
+        pl.from_pandas(penguins_constant)
+        ).to_pandas()
+    assert_frame_equal(output_df, penguins_pl.to_pandas())
+
+def test_remove_constant_pa():
+    penguins_constant = penguins.copy()
+    penguins_constant['one'] = 1
+    penguins_constant['two'] = 2
+    output_df = eda_nw.remove_constant(
+        pa.Table.from_pandas(penguins_constant)
+        ).to_pandas()
+    assert_frame_equal(output_df, penguins_pa.to_pandas())
 
 # =========================================================
 # filtering_out
 # =========================================================
-
-def test_filtering_out_nw_columns_pd() -> None:
+def test_filtering_out_columns_pd() -> None:
     df = pd.DataFrame({"foo_x": [1], "foo_y": [2], "bar": [3]})
     out = eda_nw.filtering_out(df, contains="foo", axis="columns")
     assert list(out.columns) == ["bar"]
 
-def test_filtering_out_nw_index_pd() -> None:
+def test_filtering_out_index_pd() -> None:
     df = pd.DataFrame({"x": [1, 2, 3]}, index=["keep", "drop_me", "drop_you"])
     out = eda_nw.filtering_out(df, starts_with="drop", axis="index")
     assert list(out.index) == ["keep"]
+
+def test_filtering_out_columns_pl() -> None:
+    df = pd.DataFrame({"foo_x": [1], "foo_y": [2], "bar": [3]})
+    df = pl.from_pandas(df)
+    out = eda_nw.filtering_out(df, contains="foo", axis="columns")
+    assert list(out.columns) == ["bar"]
+
+def test_filtering_out_columns_pa() -> None:
+    df = pd.DataFrame({"foo_x": [1], "foo_y": [2], "bar": [3]})
+    df = pa.Table.from_pandas(df)
+    out = eda_nw.filtering_out(df, contains="foo", axis="columns")
+    assert list(out.to_pandas().columns) == ["bar"]
 
 # =========================================================
 # is_dummy_nw (Series/DataFrame)
@@ -280,7 +416,7 @@ def test_is_dummy_nw_dataframe() -> None:
 # diagnose_category
 # =========================================================
 
-def test_diagnose_category_pd_pd():
+def test_diagnose_category_pd():
     pm2 = penguins.copy()
     pm2['species'] = pd.Categorical(pm2['species'])
 
@@ -290,10 +426,24 @@ def test_diagnose_category_pd_pd():
         pm2['body_mass_g'] >= pm2['body_mass_g'].quantile(0.75), 
         1, 0
     )
-    output_df = eda_nw.diagnose_category(pm2)
-    # output_df.to_csv(f'{tests_path}/fixtures/diagnose_category_nw.csv')
-    expected_df = pd.read_csv(f'{tests_path}/fixtures/diagnose_category_nw.csv', index_col = 0)
-    assert_frame_equal(output_df, expected_df)
+    output_df = eda_nw.diagnose_category(pm2, to_native = False)
+    output_df.write_csv(f'{tests_path}/fixtures/diagnose_category_nw.csv')
+    _assert_df_fixture_new(output_df, 'diagnose_category_nw.csv')
+
+# def test_diagnose_category_pl():
+#     pm2 = penguins.copy()
+#     # pm2['species'] = pd.Categorical(pm2['species'])
+
+#     pm2 = pd.get_dummies(pm2,  columns = ['sex'])
+
+#     pm2['heavy'] = np.where(
+#         pm2['body_mass_g'] >= pm2['body_mass_g'].quantile(0.75), 
+#         1, 0
+#     )
+#     pm2 = pl.from_pandas(pm2)
+#     output_df = eda_nw.diagnose_category(pm2, to_native = False)
+#     # output_df.write_csv(f'{tests_path}/fixtures/diagnose_category_pl.csv')
+#     # _assert_df_fixture_new(output_df, 'diagnose_category_pl.csv')
 
 # =========================================================
 # Pareto_plot_nw
