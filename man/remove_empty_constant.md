@@ -2,7 +2,7 @@
 
 ## 概要
 
-　`py4stats.remove_empty()`はR言語の [`janitor:remove_empty()`](https://sfirke.github.io/janitor/reference/remove_empty.html) をオマージュした関数で、全ての要素が `NaN` である列や行をデータフレームから除外します`py4stats.remove_constant()`はR言語の [`janitor:remove_constant()`](https://sfirke.github.io/janitor/reference/remove_constant.html) をオマージュした関数で、1種類だけの要素からなる列をデータフレームから除外します。
+　`py4stats.remove_empty()`はR言語の [`janitor:remove_empty()`](https://sfirke.github.io/janitor/reference/remove_empty.html) をオマージュした関数で、全ての要素が `NaN` である列や行をデータフレームから除外します `py4stats.remove_constant()` はR言語の [`janitor:remove_constant()`](https://sfirke.github.io/janitor/reference/remove_constant.html) をオマージュした関数で、1種類だけの要素からなる列をデータフレームから除外します。
 
 ``` python
 remove_empty(

@@ -2,7 +2,7 @@
 
 ## 概要
 
-　R言語の [`broom::tidy()`](https://broom.tidymodels.org/reference/tidy.lm.html) をオマージュした [`regression_tools.tidy()`](./tidy.md) 関数の、`py4etrics.heckit.HeckitResults` クラス専用のメソッドです。[`regression_tools.tidy()`](./tidy.md)はジェネリック関数として実装されているため、`reg.tidy(x)` としてご利用いただけます。
+　R言語の [`broom::tidy()`](https://broom.tidymodels.org/reference/tidy.lm.html) をオマージュした [`regression_tools.tidy()`](./tidy.md) 関数の、`py4etrics.heckit.HeckitResults` クラス専用のメソッドです。[`regression_tools.tidy()`](./tidy.md)はジェネリック関数として実装されているため、`py4st.tidy(x)` としてご利用いただけます。
 
 ```python
 tidy_heckit(
@@ -56,8 +56,8 @@ pip install git+https://github.com/Py4Etrics/py4etrics.git
 ```python
 import pandas as pd
 import wooldridge
+import py4stats as py4st
 from py4stats import heckit_helper
-from py4stats import regression_tools as reg # 回帰分析の要約
 
 mroz = wooldridge.data('mroz') # サンプルデータの読み込み
 
@@ -70,11 +70,11 @@ mod_heckit, exog_outcome, exog_select = heckit_helper.Heckit_from_formula(
 res_heckit = mod_heckit.fit(cov_type_2 = 'HC1')
 ```
 
-内部で `functools.singledispatch` を使用して定義しているため、`heckit_helper` モジュールの読み込み後は、`reg.tidy()` 関数を呼び出すことで `tidy_heckit()` を実行することができます。
+内部で `functools.singledispatch` を使用して定義しているため、`heckit_helper` モジュールの読み込み後は、`py4st.tidy()` 関数を呼び出すことで `tidy_heckit()` を実行することができます。
 
 ```python
 # 初期設定で使用した場合
-print(reg.tidy(res_heckit).round(4))
+print(py4st.tidy(res_heckit).round(4))
 #>               estimate  std_err  statistics  p_value  conf_lower  conf_higher
 #> term                                                                         
 #> O: Intercept   -0.5781   0.3050     -1.8954   0.0580     -1.1759       0.0197
@@ -94,7 +94,7 @@ print(reg.tidy(res_heckit).round(4))
 　**注意**：内部で使用している `statsmodels.iolib.summary.summary_params_frame()` の仕様上、初期設定では第1段階の説明変数の名前が反映されません。説明変数の名前を反映するには `name_selection` 引数で指定してください。
 
 ```python
-print(reg.tidy(res_heckit, name_selection = exog_select.columns).round(4))
+print(py4st.tidy(res_heckit, name_selection = exog_select.columns).round(4))
 #>               estimate  std_err  statistics  p_value  conf_lower  conf_higher
 #> term                                                                         
 #> O: Intercept   -0.5781   0.3050     -1.8954   0.0580     -1.1759       0.0197

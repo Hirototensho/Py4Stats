@@ -2,7 +2,7 @@
 
 ## 概要
 
-　`sm.ols()` や `smf.ols()` で作成された回帰分析の結果から、推定結果を縦方向に並べて比較する表を作成します。表のフォーマットについてはR言語の [`texreg::screenreg()`](https://cran.r-project.org/web/packages/texreg/index.html)や[`modelsummary::modelsummary()`](https://modelsummary.com/man/modelsummary.html)を参考にしています。
+　`sm.ols()` や `smf.glm()` で作成された回帰分析の結果から、推定結果を縦方向に並べて比較する表を作成します。表のフォーマットについてはR言語の [`texreg::screenreg()`](https://cran.r-project.org/web/packages/texreg/index.html)や[`modelsummary::modelsummary()`](https://modelsummary.com/man/modelsummary.html)を参考にしています。
 
 ```python
 compare_ols(
@@ -38,7 +38,7 @@ compare_ols(
     - p ≤ 0.01 `***`
     - p > 0.1 表示なし
 
-- `stats_glance`**list of str**：表の下部に追加する当てはまりの尺度の種類を表す文字列のリスト。リストの値には次の値を指定できます。なお、`None` もしくは空のリスト `[]` が指定された場合には非表示となります。
+- `stats_glance`**list of str**：表の下部に追加する当てはまりの尺度の種類を表す文字列のリスト。リストの値には次の値を指定できます。なお、`None` もしくは空のリスト `[ ]` が指定された場合には非表示となります。
     - `'rsquared'`：決定係数
     - `'rsquared_adj'`：自由度調整済み決定係数
     - `'nobs'`：サインプルサイズ
