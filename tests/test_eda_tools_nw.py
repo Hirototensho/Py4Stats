@@ -555,6 +555,24 @@ def test_mean_ci_pa() -> None:
     _assert_df_fixture_new(output_df, 'mean_ci_pa.csv')
 
 # =======================================================================
+# plot_miss_var
+# =======================================================================
+def test_plot_miss_var_pd() -> None:
+    fig, ax = plt.subplots()
+    eda_nw.plot_miss_var(penguins, ax = ax)
+    assert len(ax.patches) > 0
+
+
+def test_plot_miss_var_pl() -> None:
+    fig, ax = plt.subplots()
+    eda_nw.plot_miss_var(penguins_pl, ax = ax)
+    assert len(ax.patches) > 0
+
+def test_plot_miss_var_pa() -> None:
+    fig, ax = plt.subplots()
+    eda_nw.plot_miss_var(penguins_pa, ax = ax)
+    assert len(ax.patches) > 0
+# =======================================================================
 # string/regex helpers: is_number / is_ymd / is_ymd_like
 # =======================================================================
 

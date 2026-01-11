@@ -33,7 +33,7 @@
 | min_max              | Series           | 🔼       | 🔼       | 🔼        |                                            |
 | plot_mean_diff       | DataFrame        | 🔼       | 🔼       | 🔼        |                                            |
 | plot_median_diff     | DataFrame        | 🔼       | 🔼       | 🔼        |                                            |
-| plot_miss_var        | DataFrame        | 🔼       | 🔼       | 🔼        |                                            |
+| plot_miss_var        | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | scale                | Series           | 🔼       | 🔼       | 🔼        |                                            |
 | remove_constant      | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | remove_empty         | DataFrame        | ✅       | ✅       | ✅        |                                            |
