@@ -3,7 +3,7 @@ import pytest
 import pandas as pd
 import numpy as np
 import wooldridge
-from palmerpenguins import load_penguins
+# from palmerpenguins import load_penguins
 import matplotlib.pyplot as plt
 from pandas.testing import assert_frame_equal
 import polars as pl
@@ -17,7 +17,10 @@ tests_path = pathlib.Path(__file__).parent
 
 # サンプルデータの読み込み --------------------------------
 
-penguins = load_penguins() 
+# penguins = load_penguins() 
+# penguins.to_csv(f'{tests_path}/fixtures/penguins.csv', index = False)
+penguins = pd.read_csv(f'{tests_path}/fixtures/penguins.csv')
+
 adelie = penguins.query("species == 'Adelie'")
 gentoo = penguins.query("species == 'Gentoo'")
 
@@ -70,7 +73,7 @@ def _assert_df_record(output_df, fixture_csv: str, index_col = 0, **kwarg) -> No
     assert result
 
 # =========================================================
-# test_diagnose
+# diagnose
 # =========================================================
 def test_diagnose_pd():
     output_df = eda_nw.diagnose(penguins, to_native = False)
@@ -149,27 +152,22 @@ def test_crosstab_pl():
 
     assert test_result1 and test_result2 and test_result3
 
-
-# =========================================================
-# メモ：現状 narwhal ライブラリでは pa バックエンドの場合 
-# `pivot`メソッドに対応していないため、使用できない。
-# =========================================================
 def test_crosstab_pa():
     output_df1 = eda_nw.crosstab(penguins_pa, 'island', 'species', margins = True, normalize = 'all')
     output_df1 = output_df1.to_pandas()
-    output_df1.to_csv(f'{tests_path}/fixtures/crosstab_pa1.csv')
+    # output_df1.to_csv(f'{tests_path}/fixtures/crosstab_pa1.csv')
     expected_df1 = pd.read_csv(f'{tests_path}/fixtures/crosstab_pa1.csv', index_col = 0)
     test_result1 = eda_nw.compare_df_record(output_df1, expected_df1).all().all()
 
     output_df2 = eda_nw.crosstab(penguins_pa, 'island', 'species', margins = True, normalize = 'columns')
     output_df2 = output_df2.to_pandas()
-    output_df2.to_csv(f'{tests_path}/fixtures/crosstab_pa2.csv')
+    # output_df2.to_csv(f'{tests_path}/fixtures/crosstab_pa2.csv')
     expected_df2 = pd.read_csv(f'{tests_path}/fixtures/crosstab_pa2.csv', index_col = 0)
     test_result2 = eda_nw.compare_df_record(output_df2, expected_df2).all().all()
 
     output_df3 = eda_nw.crosstab(penguins_pa, 'island', 'species', margins = True, normalize = 'index')
     output_df3 = output_df3.to_pandas()
-    output_df3.to_csv(f'{tests_path}/fixtures/crosstab_pa3.csv')
+    # output_df3.to_csv(f'{tests_path}/fixtures/crosstab_pa3.csv')
     expected_df3 = pd.read_csv(f'{tests_path}/fixtures/crosstab_pa3.csv', index_col = 0)
     test_result3 = eda_nw.compare_df_record(output_df3, expected_df3).all().all()
 
@@ -190,10 +188,10 @@ def test_tabyl_pl():
     # output_df.to_csv(f'{tests_path}/fixtures/tabyl_pl.csv', index = True)
     _assert_df_record(output_df, 'tabyl_pl.csv', dtype = {'All':str})
 
-# def test_tabyl_pa():
-#     output_df = eda_nw.tabyl(penguins_pa, 'island', 'species', normalize = 'index')
-#     output_df.to_csv(f'{tests_path}/fixtures/tabyl_pa.csv', index = True)
-#     _assert_df_record(output_df, 'tabyl_pa.csv', dtype = {'All':str})
+def test_tabyl_pa():
+    output_df = eda_nw.tabyl(penguins_pa, 'island', 'species', normalize = 'index')
+    # output_df.to_csv(f'{tests_path}/fixtures/tabyl_pa.csv', index = True)
+    _assert_df_record(output_df, 'tabyl_pa.csv', dtype = {'All':str})
 
 def test_tabyl_with_boolen_col_pd():
     pm2 = penguins.copy()
@@ -416,34 +414,29 @@ def test_is_dummy_nw_dataframe() -> None:
 # diagnose_category
 # =========================================================
 
+pm2 = penguins.copy()
+pm2['species'] = pd.Categorical(pm2['species'])
+
+pm2 = pd.get_dummies(pm2,  columns = ['sex'])
+
+pm2['heavy'] = np.where(
+    pm2['body_mass_g'] >= pm2['body_mass_g'].quantile(0.75), 
+    1, 0
+)
 def test_diagnose_category_pd():
-    pm2 = penguins.copy()
-    pm2['species'] = pd.Categorical(pm2['species'])
-
-    pm2 = pd.get_dummies(pm2,  columns = ['sex'])
-
-    pm2['heavy'] = np.where(
-        pm2['body_mass_g'] >= pm2['body_mass_g'].quantile(0.75), 
-        1, 0
-    )
     output_df = eda_nw.diagnose_category(pm2, to_native = False)
-    output_df.write_csv(f'{tests_path}/fixtures/diagnose_category_nw.csv')
+    # output_df.write_csv(f'{tests_path}/fixtures/diagnose_category_nw.csv')
     _assert_df_fixture_new(output_df, 'diagnose_category_nw.csv')
 
-# def test_diagnose_category_pl():
-#     pm2 = penguins.copy()
-#     # pm2['species'] = pd.Categorical(pm2['species'])
+def test_diagnose_category_pl():
+    output_df = eda_nw.diagnose_category(pl.from_pandas(pm2)).to_pandas()
+    # output_df.to_csv(f'{tests_path}/fixtures/diagnose_category_pl.csv', index = False)
+    _assert_df_fixture(output_df, 'diagnose_category_pl.csv', index_col = None)
 
-#     pm2 = pd.get_dummies(pm2,  columns = ['sex'])
-
-#     pm2['heavy'] = np.where(
-#         pm2['body_mass_g'] >= pm2['body_mass_g'].quantile(0.75), 
-#         1, 0
-#     )
-#     pm2 = pl.from_pandas(pm2)
-#     output_df = eda_nw.diagnose_category(pm2, to_native = False)
-#     # output_df.write_csv(f'{tests_path}/fixtures/diagnose_category_pl.csv')
-#     # _assert_df_fixture_new(output_df, 'diagnose_category_pl.csv')
+def test_diagnose_category_pa():
+    output_df = eda_nw.diagnose_category(pa.Table.from_pandas(pm2)).to_pandas()
+    # output_df.to_csv(f'{tests_path}/fixtures/diagnose_category_pa.csv', index = False)
+    _assert_df_fixture(output_df, 'diagnose_category_pa.csv', index_col = None)
 
 # =========================================================
 # Pareto_plot_nw
@@ -474,6 +467,23 @@ def test_make_rank_table_nw_error_on_non_exist_col():
     # 仕様：候補があると "Did you mean ..." を含む
     assert "must be one of" in str(excinfo.value)
 
+def test_Pareto_plot_pl() -> None:
+    penguins_modify = penguins.copy()
+    penguins_modify['group'] = penguins_modify['species'] + '\n' + penguins_modify['island']
+    
+    fig, ax = plt.subplots()
+
+    eda_nw.Pareto_plot(pl.from_pandas(penguins_modify), group = 'group', ax = ax)
+    assert len(ax.patches) > 0
+
+def test_Pareto_plot_pa() -> None:
+    penguins_modify = penguins.copy()
+    penguins_modify['group'] = penguins_modify['species'] + '\n' + penguins_modify['island']
+    
+    fig, ax = plt.subplots()
+
+    eda_nw.Pareto_plot(pa.Table.from_pandas(penguins_modify), group = 'group', ax = ax)
+    assert len(ax.patches) > 0
 
 # ================================================================
 # compare_group_means_nw / compare_group_median_nw
@@ -486,31 +496,63 @@ def test_compare_group_means_pd() -> None:
 
 def test_compare_group_median_pd() -> None:
     output_df = eda_nw.compare_group_median(adelie, gentoo)
-    output_df.to_csv(f'{tests_path}/fixtures/compare_group_median_nw.csv')
+    # output_df.to_csv(f'{tests_path}/fixtures/compare_group_median_nw.csv')
     expected_df = pd.read_csv(f'{tests_path}/fixtures/compare_group_median_nw.csv', index_col = 0)
     assert_frame_equal(output_df, expected_df)
 
 # ================================================================
-# mean_qi / median_qi / mean_ci
+# mean_qi / median_qi / mean_ci (Pandas)
 # ================================================================
 def test_mean_qi_pd() -> None:
-    output_df = eda_nw.mean_qi(penguins)
-    # output_df.to_csv(f'{tests_path}/fixtures/mean_qi_nw.csv')
-    expected_df = pd.read_csv(f'{tests_path}/fixtures/mean_qi_nw.csv', index_col = 0)
-    assert_frame_equal(output_df, expected_df)
+    output_df = eda_nw.mean_qi(penguins, to_native = False)
+    # output_df.write_csv(f'{tests_path}/fixtures/mean_qi_nw.csv')
+    _assert_df_fixture_new(output_df, 'mean_qi_nw.csv')
 
 def test_median_qi_pd() -> None:
-    output_df = eda_nw.median_qi(penguins)
-    # output_df.to_csv(f'{tests_path}/fixtures/median_qi_nw.csv')
-    expected_df = pd.read_csv(f'{tests_path}/fixtures/median_qi_nw.csv', index_col = 0)
-    assert_frame_equal(output_df, expected_df)
+    output_df = eda_nw.median_qi(penguins, to_native = False)
+    # output_df.write_csv(f'{tests_path}/fixtures/median_qi_nw.csv')
+    _assert_df_fixture_new(output_df, 'median_qi_nw.csv')
 
 def test_mean_ci_pd() -> None:
-    output_df = eda_nw.mean_ci(penguins)
-    # output_df.to_csv(f'{tests_path}/fixtures/mean_ci_nw.csv')
-    expected_df = pd.read_csv(f'{tests_path}/fixtures/mean_ci_nw.csv', index_col = 0)
-    assert_frame_equal(output_df, expected_df)
+    output_df = eda_nw.mean_ci(penguins, to_native = False)
+    # output_df.write_csv(f'{tests_path}/fixtures/mean_ci_nw.csv')
+    _assert_df_fixture_new(output_df, 'mean_ci_nw.csv')
 
+# ================================================================
+# mean_qi / median_qi / mean_ci (polars)
+# ================================================================
+def test_mean_qi_pl() -> None:
+    output_df = eda_nw.mean_qi(penguins_pl, to_native = False)
+    # output_df.write_csv(f'{tests_path}/fixtures/mean_qi_pl.csv')
+    _assert_df_fixture_new(output_df, 'mean_qi_pl.csv')
+
+def test_median_qi_pl() -> None:
+    output_df = eda_nw.median_qi(penguins_pl, to_native = False)
+    # output_df.write_csv(f'{tests_path}/fixtures/median_qi_pl.csv')
+    _assert_df_fixture_new(output_df, 'median_qi_pl.csv')
+
+def test_mean_ci_pl() -> None:
+    output_df = eda_nw.mean_ci(penguins_pl, to_native = False)
+    # output_df.write_csv(f'{tests_path}/fixtures/mean_ci_pl.csv')
+    _assert_df_fixture_new(output_df, 'mean_ci_pl.csv')
+
+# ================================================================
+# mean_qi / median_qi / mean_ci (pyarrow)
+# ================================================================
+def test_mean_qi_pa() -> None:
+    output_df = eda_nw.mean_qi(penguins_pa, to_native = False)
+    # output_df.write_csv(f'{tests_path}/fixtures/mean_qi_pa.csv')
+    _assert_df_fixture_new(output_df, 'mean_qi_pa.csv')
+
+def test_median_qi_pa() -> None:
+    output_df = eda_nw.median_qi(penguins_pa, to_native = False)
+    # output_df.write_csv(f'{tests_path}/fixtures/median_qi_pa.csv')
+    _assert_df_fixture_new(output_df, 'median_qi_pa.csv')
+
+def test_mean_ci_pa() -> None:
+    output_df = eda_nw.mean_ci(penguins_pa, to_native = False)
+    # output_df.write_csv(f'{tests_path}/fixtures/mean_ci_pa.csv')
+    _assert_df_fixture_new(output_df, 'mean_ci_pa.csv')
 
 # =======================================================================
 # string/regex helpers: is_number / is_ymd / is_ymd_like
@@ -572,9 +614,10 @@ def test_check_viorate_nw_flags_rows() -> None:
     assert out["all"].tolist() == [False, True, False]
 
 
-URL = 'https://raw.githubusercontent.com/data-cleaning/validate/master/pkg/data/retailers.csv'
-retailers = pd.read_csv(URL, sep = ';')
-retailers.columns = retailers.columns.to_series().str.replace('.', '_', regex = False)
+# URL = 'https://raw.githubusercontent.com/data-cleaning/validate/master/pkg/data/retailers.csv'
+# retailers = pd.read_csv(URL, sep = ';')
+# retailers.columns = retailers.columns.to_series().str.replace('.', '_', regex = False)
+retailers = pd.read_csv(f'{tests_path}/fixtures/retailers.csv', index_col = 0)
 
 rule_dict =  {
     'to':'turnover > 0',                                     # 売上高は厳密に正である
@@ -584,7 +627,8 @@ rule_dict =  {
     'bs':'turnover + other_rev == total_rev',                # 売上高とその他の収入の合計は総収入に等しい
     'mn':'profit.mean() > 0'                                 # セクター全体の平均的な利益はゼロよりも大きい
     }
-def test_check_that_nw_basic() -> None:
+
+def test_check_that_nw_pd() -> None:
     output_df = eda_nw.check_that(retailers, rule_dict)
     # output_df.to_csv(f'{tests_path}/fixtures/check_that_nw.csv')
     expected_df = pd.read_csv(f'{tests_path}/fixtures/check_that_nw.csv', index_col = 0)

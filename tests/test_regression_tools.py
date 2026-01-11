@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 import wooldridge
 from pandas.testing import assert_frame_equal
-from palmerpenguins import load_penguins
+# from palmerpenguins import load_penguins
 import matplotlib.pyplot as plt
 import statsmodels.formula.api as smf
 
@@ -13,7 +13,8 @@ from py4stats import regression_tools as reg # 回帰分析の要約
 import pathlib
 tests_path = pathlib.Path(__file__).parent
 
-penguins = load_penguins() # サンプルデータの読み込み
+# penguins = load_penguins() # サンプルデータの読み込み
+penguins = pd.read_csv(f'{tests_path}/fixtures/penguins.csv')
 wage1 = wooldridge.data('wage1')
 mroz = wooldridge.data('mroz')
 adelie = penguins.query("species == 'Adelie'")

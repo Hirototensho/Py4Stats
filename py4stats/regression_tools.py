@@ -292,7 +292,7 @@ def tidy_test(
           If `conf_level` is not in (0, 1).
   """
   build.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither', arg_name = 'conf_level')
-  
+
   if(x.distribution == 'F'):
     tidied = pd.DataFrame({
     'statistics':x.statistic,
@@ -736,7 +736,7 @@ def compare_ols(
     # 引数のアサーション ----------------------------------------------------------------------------------
     if model_name is not None:
         build.assert_character(model_name, arg_name = 'model_name')
-    
+
     build.assert_count(digits, arg_name = 'digits')
     build.assert_logical(add_stars, arg_name = 'add_stars')
     build.assert_character(line_break, arg_name = 'line_break')

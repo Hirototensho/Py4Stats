@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 import wooldridge
 from pandas.testing import assert_frame_equal
-from palmerpenguins import load_penguins
+# from palmerpenguins import load_penguins
 import matplotlib.pyplot as plt
 
 # from py4stats.eda_tools import _pandas as eda
@@ -13,7 +13,8 @@ from py4stats.eda_tools import _pandas as eda_pd
 import pathlib
 tests_path = pathlib.Path(__file__).parent
 
-penguins = load_penguins() # サンプルデータの読み込み
+# penguins = load_penguins() # サンプルデータの読み込み
+penguins = pd.read_csv(f'{tests_path}/fixtures/penguins.csv')
 wage1 = wooldridge.data('wage1')
 mroz = wooldridge.data('mroz')
 adelie = penguins.query("species == 'Adelie'")

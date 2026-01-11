@@ -1,0 +1,6 @@
+"variable","median","lower","upper"
+"bill_length_mm",44.382000000000005,34.8,53.099999999999994
+"bill_depth_mm",17.32,13.7,20.7
+"flipper_length_mm",197,180,229
+"body_mass_g",4031.5,2987.5,5825
+"year",2008,2007,2009
