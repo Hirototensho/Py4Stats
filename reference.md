@@ -44,6 +44,10 @@
 [`py4stats.plot_mean_diff()`](man/compare_group_stats.md)
 [`py4stats.plot_median_diff()`](man/compare_group_stats.md)
 
+#### 簡易な欠測値の可視化
+
+[`py4stats.plot_miss_var()`](man/plot_miss_var.md)
+
 #### 論理関数
 
 [`py4stats.is_number()`](man/predicate_str.md)
