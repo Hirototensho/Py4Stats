@@ -7,16 +7,18 @@
 ```python
 filtering_out(
     self, 
-    contains = None, 
-    starts_with = None, 
-    ends_with = None, 
-    axis = 1
+    self: IntoFrameT,
+    contains: Optional[str] = None,
+    starts_with: Optional[str] = None,
+    ends_with: Optional[str] = None,
+    axis: Union[int, str] = 'columns',
+    to_native: bool = True,
 )
 ```
 
 ## 引数
 
-- `self`：`pandas DataFrame`
+- `self`：`IntoFrameT`（必須）
 - `contains`：**str**</br>
 　列名（行名）の検索に使用する文字列。内部で使用している [`pandas.Series.str.contains`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.contains.html#pandas.Series.str.contains) に渡され、指定された文字列を列名（行名）に含む列（行）を除外します。
 - `starts_with`：**str**</br>
@@ -44,25 +46,30 @@ print(penguins.head(3))
 
 ```python
 # 列名に 'length' を含む列を除外
-print(penguins.filtering_out(contains = 'length').head(3))
+print(py4st.filtering_out(penguins, contains = 'length').head(3))
 #>   species     island  bill_depth_mm  body_mass_g     sex  year  female
 #> 0  Adelie  Torgersen           18.7       3750.0    male  2007       0
 #> 1  Adelie  Torgersen           17.4       3800.0  female  2007       1
 #> 2  Adelie  Torgersen           18.0       3250.0  female  2007       1
 
 # 列名が 'bill' から始まる列を除外
-print(penguins.filtering_out(starts_with = 'bill').head(3))
+print(py4st.filtering_out(penguins, starts_with = 'bill').head(3))
 #>   species     island  flipper_length_mm  body_mass_g     sex  year  female
 #> 0  Adelie  Torgersen              181.0       3750.0    male  2007       0
 #> 1  Adelie  Torgersen              186.0       3800.0  female  2007       1
 #> 2  Adelie  Torgersen              195.0       3250.0  female  2007       1
 
 # 列名が '_mm' で終わる列を除外
-print(penguins.filtering_out(ends_with = '_mm').head(3))
+print(py4st.filtering_out(penguins, ends_with = '_mm').head(3))
 #>   species     island  body_mass_g     sex  year  female
 #> 0  Adelie  Torgersen       3750.0    male  2007       0
 #> 1  Adelie  Torgersen       3800.0  female  2007       1
 #> 2  Adelie  Torgersen       3250.0  female  2007       1
 ```
+
+## Notes
+
+`axis='index'` による行を対象とするフィルタリングは、インデックスの存在に依存します。したがって、`pd.DataFrame` 以外の行ラベルをもたない `DataFrame` バックエンドでは、このオプションは利用できません。
+
 ***
-[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
+[Return to **Function reference**.](../reference.md)

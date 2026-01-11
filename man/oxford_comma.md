@@ -25,27 +25,27 @@ oxford_comma_or(x, quotation = True)
 ## 使用例
 
 ```python
-from py4stats import bilding_block as bild
+from py4stats import building_block as build
 x = ['A', 'B', 'C']
 
-print(bild.oxford_comma_and(x))
+print(build.oxford_comma_and(x))
 #> 'A', 'B' and 'C'
 
-print(bild.oxford_comma_and(x, quotation = False))
+print(build.oxford_comma_and(x, quotation = False))
 #> A, B and C
 
-print(bild.oxford_comma_or(x))
+print(build.oxford_comma_or(x))
 #> 'A', 'B' or 'C'
 ```
 
 リストの要素が1つの場合、あるいは `x` に文字列が指定された場合はカンマなどを追加せずにそのまま出力します。
 
 ```python
-print(bild.oxford_comma_or(['A']))
+print(build.oxford_comma_or(['A']))
 #> 'A'
 
-print(bild.oxford_comma_or('A'))
+print(build.oxford_comma_or('A'))
 #> 'A'
 ```
 ***
-[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
+[Return to **Function reference**.](../reference.md)

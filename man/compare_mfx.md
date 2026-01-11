@@ -88,7 +88,7 @@ from palmerpenguins import load_penguins
 penguins = load_penguins() # サンプルデータの読み込み
 ```
 
-　`py4st.compare_mfx()` は [`py4st.compare_ols()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_ols.md) の一般化線型モデルバージョンで、初期設定では `statsmodels` ライブラリの[`.get_margeff()`](https://www.statsmodels.org/dev/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドから得られた限界効果の推定値を表示します。
+　`py4st.compare_mfx()` は [`py4st.compare_ols()`](./compare_ols.md) の一般化線型モデルバージョンで、初期設定では `statsmodels` ライブラリの[`.get_margeff()`](https://www.statsmodels.org/dev/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドから得られた限界効果の推定値を表示します。
 
 ```python
 penguins['female'] = np.where(penguins['sex'] == 'female', 1, 0)
@@ -139,4 +139,4 @@ GT(compare_tab.reset_index())\
 　　`table_style = 'two_line'` としたとき、初期設定ではの回帰係数とp-値の間に改行記号 `'\n'`が挿入されます。`そのため、print()` 関数や `display()` 関数を使った出力では、改行記号 `'\n'` がそのまま表示されます。この場合でも、[`pd.DataFrame.to_excel()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_excel.html) や [`pd.DataFrame.to_markdown()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_markdown.html) を使って Excel ファイルや markdown の表に変換していただくと、改行として反映されます。
 
 ***
-[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
+[Return to **Function reference**.](../reference.md)

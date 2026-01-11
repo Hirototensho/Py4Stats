@@ -25,40 +25,40 @@ style_percent(x, digits = 2, unit = 100, symbol = '%')
 
 　以下の値をもつ `pd.Series` を返します。
 
-- `bilding_block.style_number()`： 任意の数値に対して、小数点以下を桁数 `digits` に丸め、3桁区切り記号を通過した値を文字列として返します。f-string によるフォーマット `f'{x:{big_mark}.{digits}f}'` を用いて実装されています。
-- `bilding_block.style_currency()`： `bild.style_number()` と同じく任意の数値に対して、小数点以下を桁数 `digits` に丸め、3桁区切り記号を通過した値を文字列として返しますが、さらに貨幣記号を追加します。f-string によるフォーマット `f'{symbol}{x:{big_mark}.{digits}f}'` を用いて実装されています。
-- `bilding_block.style_percent()`： 任意の数値をパーセンテージ表示に変換した値を文字列として返します。f-string によるフォーマット `f'{x:,.{digits}%}'` を用いて実装されています。
+- `building_block.style_number()`： 任意の数値に対して、小数点以下を桁数 `digits` に丸め、3桁区切り記号を通過した値を文字列として返します。f-string によるフォーマット `f'{x:{big_mark}.{digits}f}'` を用いて実装されています。
+- `building_block.style_currency()`： `build.style_number()` と同じく任意の数値に対して、小数点以下を桁数 `digits` に丸め、3桁区切り記号を通過した値を文字列として返しますが、さらに貨幣記号を追加します。f-string によるフォーマット `f'{symbol}{x:{big_mark}.{digits}f}'` を用いて実装されています。
+- `building_block.style_percent()`： 任意の数値をパーセンテージ表示に変換した値を文字列として返します。f-string によるフォーマット `f'{x:,.{digits}%}'` を用いて実装されています。
 
 ## 使用例 Examples
 
 ```python
 import numpy as np
-from py4stats import bilding_block as bild
+from py4stats import building_block as build
 
 x = [2000, 1000, 0.5, 0.11, 0.123]
 
-print(bild.style_number(x).to_list())
+print(build.style_number(x).to_list())
 #> ['2,000.00', '1,000.00', '0.50', '0.11', '0.12']
 
-print(bild.style_number(x, big_mark = '').to_list())
+print(build.style_number(x, big_mark = '').to_list())
 #> ['2000.00', '1000.00', '0.50', '0.11', '0.12']
 
-print(bild.style_currency(x).to_list())
+print(build.style_currency(x).to_list())
 #> ['$2,000', '$1,000', '$0', '$0', '$0']
 ```
 
 ```python
 pct = [0.11, 0.06, 0.05, 0.01, 0.00234]
 
-print(bild.style_percent(pct).to_list())
+print(build.style_percent(pct).to_list())
 #> ['11.00%', '6.00%', '5.00%', '1.00%', '0.23%']
 
-print(bild.style_percent(pct, unit = 1).to_list())
+print(build.style_percent(pct, unit = 1).to_list())
 #> ['0.11%', '0.06%', '0.05%', '0.01%', '0.00%']
 
-print(bild.style_percent(pct, unit = 1000, symbol = '‰').to_list())
+print(build.style_percent(pct, unit = 1000, symbol = '‰').to_list())
 #> ['110.00‰', '60.00‰', '50.00‰', '10.00‰', '2.34‰']
 ```
 
 ***
-[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
+[Return to **Function reference**.](../reference.md)

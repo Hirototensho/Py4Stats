@@ -112,8 +112,8 @@ print(py4st.tidy_mfx(fit_logit1).round(4))
 list(py4st.tidy.registry.keys())
 ```
 
- `py4stats.tidy()` は `functools.singledispatch` を用いたジェネリック関数として実装しています。 [`Py4Etrics`](https://github.com/Py4Etrics/py4etrics) モジュールの `py4etrics.heckit.Heckit()` で作成された `HeckitResults` クラスのオブジェクト用のメソッドについては [`heckit_helper.tidy_heckit()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy_heckit.md) を参照してください。
+ `py4stats.tidy()` は `functools.singledispatch` を用いたジェネリック関数として実装しています。 [`Py4Etrics`](https://github.com/Py4Etrics/py4etrics) モジュールの `py4etrics.heckit.Heckit()` で作成された `HeckitResults` クラスのオブジェクト用のメソッドについては [`heckit_helper.tidy_heckit()`](./tidy_heckit.md) を参照してください。
 
 
 ***
-[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
+[Return to **Function reference**.](../reference.md)

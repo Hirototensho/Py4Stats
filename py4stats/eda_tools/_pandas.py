@@ -19,10 +19,10 @@ from __future__ import annotations
 # └─ missing_percent()                  # 欠損割合を判定に利用
 # 
 # compare_df_cols()                      # 複数データフレームの列データ型を比較
-# └─ bild.arg_match()                   # 引数の妥当性チェック
+# └─ build.arg_match()                   # 引数の妥当性チェック
 # 
 # compare_df_stats()                     # 列の平均・中央値など統計値に基づいて比較
-# ├─ bild.arg_match()
+# ├─ build.arg_match()
 # └─ np.isclose()                       # 数値の近接性を比較
 # 
 # compare_df_record()                    # レコード単位で値を比較（数値・非数値を分離して比較）
@@ -68,10 +68,10 @@ from __future__ import annotations
 # └─ scipy.stats.t.isf()
 # 
 # set_n_miss()                            # 欠損数を指定して Series に欠損を挿入
-# └─ bild.arg_match()
+# └─ build.arg_match()
 # 
 # set_prop_miss()                         # 欠損率を指定して Series に欠損を挿入
-# └─ bild.arg_match()
+# └─ build.arg_match()
 # 
 # check_that()                            # データにルールを適用し、判定集計を返す
 # └─ data.eval()                         # pandas の式評価
@@ -89,7 +89,7 @@ from __future__ import annotations
 # is_ymd_like()                            # 年月日らしい表現の判定（例：2020年5月1日）
 # 
 # filtering_out()                         # 列・行名に特定文字列を含む行/列を除外
-# └─ bild.arg_match()
+# └─ build.arg_match()
 # 
 # remove_constant()                       # 定数列の除去
 # 
@@ -99,8 +99,8 @@ from __future__ import annotations
 # 
 # tabyl()                                 # クロス集計表＋割合＋表示整形
 # ├─ pd.crosstab()
-# ├─ bild.style_number()
-# └─ bild.style_percent()
+# ├─ build.style_number()
+# └─ build.style_percent()
 # 
 # is_complet()                            # 欠損のない行を判定
 # 
@@ -111,7 +111,7 @@ from __future__ import annotations
 # In[ ]:
 
 
-from py4stats import bilding_block as bild # py4stats のプログラミングを補助する関数群
+from py4stats import building_block as build # py4stats のプログラミングを補助する関数群
 import functools
 from functools import singledispatch
 import matplotlib.pyplot as plt
@@ -262,12 +262,12 @@ def plot_miss_var_pd(
         The underlying missing-value statistics are computed by
         ``diagnose``, and the resulting plot reflects its output.
     """
-    values = bild.arg_match(
+    values = build.arg_match(
         values, ['missing_percent', 'missing_count'],
         arg_name = 'values'
     )
-    bild.assert_logical(sort, arg_name = 'sort')
-    bild.assert_logical(miss_only, arg_name = 'miss_only')
+    build.assert_logical(sort, arg_name = 'sort')
+    build.assert_logical(miss_only, arg_name = 'miss_only')
 
     diagnose_tab = diagnose(data)
     if sort: diagnose_tab = diagnose_tab.sort_values(values)
@@ -333,7 +333,7 @@ def compare_df_cols(
         all([isinstance(v, pd.DataFrame) for v in df_list]),\
         "argument 'df_list' is must be a list of pandas.DataFrame."
 
-  return_match = bild.arg_match(
+  return_match = build.arg_match(
       return_match,
        ['all', 'match', 'mismatch'],
       arg_name = 'return_match'
@@ -417,7 +417,7 @@ def compare_df_stats(
         all([isinstance(v, pd.DataFrame) for v in df_list]),\
         "argument 'df_list' is must be a list of pandas.DataFrame."
 
-  return_match = bild.arg_match(
+  return_match = build.arg_match(
       return_match,
        ['all', 'match', 'mismatch'],
       arg_name = 'return_match'
@@ -637,7 +637,7 @@ def plot_mean_diff(
   Returns:
       None
   """
-  stats_diff = bild.arg_match(
+  stats_diff = build.arg_match(
       stats_diff, ['norm_diff', 'abs_diff', 'rel_diff']
       )
   group_means = compare_group_means(group1, group2)
@@ -678,7 +678,7 @@ def plot_median_diff(
   Returns:
       None
   """
-  stats_diff = bild.arg_match(
+  stats_diff = build.arg_match(
       stats_diff, ['abs_diff', 'rel_diff']
       )
 
@@ -835,7 +835,7 @@ def filtering_out(
             If `contains`/`starts_with`/`ends_with` is provided but not a string.
   """
   axis = str(axis)
-  axis = bild.arg_match(axis, ['1', 'columns', '0', 'index'], arg_name = 'axis')
+  axis = build.arg_match(axis, ['1', 'columns', '0', 'index'], arg_name = 'axis')
   self = self.copy()
 
   if((axis == '1') | (axis == 'columns')):
@@ -1003,7 +1003,7 @@ def tabyl(
             `"count (xx.x%)"`. Otherwise counts (as strings after formatting).
     """
     if(not isinstance(normalize, bool)):
-      normalize = bild.arg_match(
+      normalize = build.arg_match(
           normalize, ['index', 'columns', 'all'],
           arg_name = 'normalize'
           )
@@ -1021,7 +1021,7 @@ def tabyl(
         dropna = dropna, normalize = False
         )
 
-    c_tab1 = c_tab1.apply(bild.style_number, digits = 0)
+    c_tab1 = c_tab1.apply(build.style_number, digits = 0)
 
     if(normalize != False):
 
@@ -1034,7 +1034,7 @@ def tabyl(
           )
 
       # 2つめのクロス集計表の回答率をdigitsで指定した桁数のパーセントに換算し、文字列化します。
-      c_tab2 = c_tab2.apply(bild.style_percent, digits = digits)
+      c_tab2 = c_tab2.apply(build.style_percent, digits = digits)
 
       col = c_tab2.columns
       idx = c_tab2.index
@@ -1238,9 +1238,9 @@ def Pareto_plot(
         None
     """
     # 引数のアサーション
-    if(top_n is not None): bild.assert_count(top_n, lower = 1)
-    bild.assert_numeric(xlab_rotation)
-    bild.assert_character(palette)
+    if(top_n is not None): build.assert_count(top_n, lower = 1)
+    build.assert_numeric(xlab_rotation)
+    build.assert_character(palette)
 
     # 指定された変数でのランクを表すデータフレームを作成
     if values is None:
@@ -1345,7 +1345,7 @@ def mean_qi(
           If `width` is not in (0, 1).
   """
 
-  bild.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
+  build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
   if(isinstance(self, pd.DataFrame)):
     self = self.select_dtypes([int, float])
     var_name = self.columns
@@ -1395,7 +1395,7 @@ def median_qi(
       AssertionError:
           If `width` is not in (0, 1).
   """
-  bild.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
+  build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
   if(isinstance(self, pd.DataFrame)):
     self = self.select_dtypes([int, float])
     var_name = self.columns
@@ -1446,7 +1446,7 @@ def mean_ci(
       Uses t critical value with df = n - 1:
       `t.isf((1 - width) / 2, df=n-1)`.
   """
-  bild.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
+  build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
   if(isinstance(self, pd.DataFrame)):
     self = self.select_dtypes([int, float])
     var_name = self.columns
@@ -1546,8 +1546,8 @@ def is_number(self, na_default = True):
 
 
 def set_n_miss(x, n = 10, method = 'random', random_state = None, na_value = pd.NA):
-  method = bild.arg_match(method, ['random', 'first', 'last'])
-  bild.assert_count(n, upper = len(x))
+  method = build.arg_match(method, ['random', 'first', 'last'])
+  build.assert_count(n, upper = len(x))
 
   x = x.copy()
   n_miss = x.isna().sum()
@@ -1569,8 +1569,8 @@ def set_n_miss(x, n = 10, method = 'random', random_state = None, na_value = pd.
 
 
 def set_prop_miss(x, prop = 0.1, method = 'random', random_state = None, na_value = pd.NA):
-  method = bild.arg_match(method, ['random', 'first', 'last'])
-  bild.assert_numeric(prop, lower = 0, upper = 1)
+  method = build.arg_match(method, ['random', 'first', 'last'])
+  build.assert_numeric(prop, lower = 0, upper = 1)
 
   x = x.copy()
   prop_miss = x.isna().mean()
@@ -1684,13 +1684,13 @@ def check_that(
   """
   if(isinstance(rule_dict, pd.Series)): rule_dict = rule_dict.to_dict()
 
-  [bild.assert_character(x, arg_name = 'rule_dict') for x in rule_dict.values()]
+  [build.assert_character(x, arg_name = 'rule_dict') for x in rule_dict.values()]
 
   result_list = []
   for i, name in enumerate(rule_dict):
     condition = data.eval(rule_dict[name], **kwargs)
     condition = pd.Series(condition)
-    assert bild.is_logical(condition),\
+    assert build.is_logical(condition),\
     f"Result of rule(s) must be of type 'bool'. But result of '{name}' is '{condition.dtype}'."
 
     if len(condition) == len(data):
@@ -1747,12 +1747,12 @@ def check_viorate(
           If rule expressions are not strings, or the evaluation result is not boolean.
   """
   if(isinstance(rule_dict, pd.Series)): rule_dict = rule_dict.to_dict()
-  [bild.assert_character(x, arg_name = 'rule_dict') for x in rule_dict.values()]
+  [build.assert_character(x, arg_name = 'rule_dict') for x in rule_dict.values()]
 
   df_viorate = pd.DataFrame()
   for i, name in enumerate(rule_dict):
     condition = data.eval(rule_dict[name], **kwargs)
-    assert bild.is_logical(condition),\
+    assert build.is_logical(condition),\
     f"Result of rule(s) must be of type 'bool'. But result of '{name}' is '{condition.dtype}'."
 
     df_viorate[name] = ~condition

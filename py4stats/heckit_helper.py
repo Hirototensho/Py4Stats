@@ -1,7 +1,13 @@
-# %%
+#!/usr/bin/env python
+# coding: utf-8
+
+
+
 from __future__ import annotations
 
-# %%
+
+
+
 import pandas as pd
 import numpy as np
 from py4etrics.heckit import Heckit
@@ -9,15 +15,16 @@ from py4etrics.heckit import Heckit
 import statsmodels.formula.api as smf
 import patsy
 
-from py4stats import bilding_block as bild # py4stats のプログラミングを補助する関数群
+from py4stats import building_block as build # py4stats のプログラミングを補助する関数群
 from py4stats import regression_tools as reg
 
 from functools import singledispatch
 
-# %% [markdown]
+
 # ## 型ヒントの準備
 
-# %%
+
+
 from typing import (
     Any,
     Callable,
@@ -58,10 +65,10 @@ class _HasMargEff(Protocol):
     def get_margeff(self, *args: Any, **kwargs: Any) -> Any: ...
 
 
-# %% [markdown]
 # ### 回帰式を使った Heckit のインターフェース
 
-# %%
+
+
 def Heckit_from_formula(selection, outcome, data, **kwargs):
   # ステップ1：第１段階の説明変数
   y_select, exog_select = patsy.dmatrices(
@@ -80,10 +87,11 @@ def Heckit_from_formula(selection, outcome, data, **kwargs):
   model = Heckit(endog[endog_name], exog_outcome, exog_select, **kwargs)
   return model, exog_outcome, exog_select
 
-# %% [markdown]
+
 # ## `HeckitResults` 用の `tidy()` メソッド
 
-# %%
+
+
 # regression_tools.tdy() にメソッドを後付けする実験的試み
 from py4etrics.heckit import HeckitResults
 
@@ -113,8 +121,9 @@ def tidy_heckit(
   res = pd.concat([tidy_outcome, tidy_select])
   return res
 
-# %%
-from py4etrics.heckit import HeckitResults
+
+
+
 @reg.coefplot.register(HeckitResults)
 def coefplot_Heckit(
     mod: Any,
@@ -154,8 +163,8 @@ def coefplot_Heckit(
     Returns:
         None
     """
-    bild.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither')
-    bild.assert_character(palette)
+    build.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither')
+    build.assert_character(palette)
 
     # 回帰係数の表を抽出
     tidy_ci_high = reg.tidy(
@@ -182,10 +191,10 @@ def coefplot_Heckit(
         )
 
 
-# %% [markdown]
 # ### 限界効果を推定する関数
 
-# %%
+
+
 from scipy.stats import norm
 
 def finv_mills(x): return norm.pdf(x) / norm.cdf(x)
@@ -209,7 +218,9 @@ def f_d_log_cdf(var_name, Z, gamma, beta_lambda):
   res = (np.log(norm.cdf(z1 @ gamma)) - np.log(norm.cdf(z0 @ gamma)))
   return res
 
-# %%
+
+
+
 from py4etrics.heckit import HeckitResults
 
 def heckitmfx_compute(
@@ -281,13 +292,16 @@ def heckitmfx_compute(
   est.index.name  = 'term'
   return est
 
-# %%
+
+
+
 def log_to_pct(x): return 100 * (np.exp(x) - 1)
 
-# %% [markdown]
+
 # ### デルタ法により限界効果の標準誤差を推定する関数
 
-# %%
+
+
 def jacobian(f, x, h=0.00001, *args):
     J = []
     x = np.array(x).astype(float)
@@ -300,7 +314,9 @@ def jacobian(f, x, h=0.00001, *args):
     return np.column_stack(J)
     return J
 
-# %%
+
+
+
 from scipy.stats import norm
 
 def heckitmfx(
@@ -312,7 +328,7 @@ def heckitmfx(
     alpha = 0.05
     ):
 
-  type_estimate = bild.arg_match(
+  type_estimate = build.arg_match(
       type_estimate, arg_name = 'type_estimate',
        values = ['unconditional', 'conditional', 'selection']
       )
@@ -358,5 +374,4 @@ def heckitmfx(
     })
 
   return res
-
 

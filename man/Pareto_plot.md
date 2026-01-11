@@ -6,19 +6,19 @@
 
 ``` python
 Pareto_plot(
-    data, 
-    group, 
-    values = None, 
-    top_n = None, 
-    aggfunc = 'sum',
-    ax = None, 
-    fontsize = 12, 
-    xlab_rotation = 0,
-    palette = ['#478FCE', '#252525']
+    data: IntoFrameT,
+    group: str,
+    values: Optional[str] = None,
+    top_n: Optional[int] = None,
+    aggfunc: Callable[..., Any] = nw.mean,
+    ax: Optional[Axes] = None,
+    fontsize: int = 12,
+    xlab_rotation: Union[int, float] = 0,
+    palette: Sequence[str] = ("#478FCE", "#252525"),
     )
 ``` 
 
-- `data`：`pandas DataFrame`（必須）
+- `data`：`IntoFrameT`（必須）
 - `group`：**str**</br>
 　集計に使用するデータフレームの列名（必須）。
 - `values`：**str**</br>
@@ -61,4 +61,4 @@ py4st.Pareto_plot(
 ![Unknown-2](https://github.com/Hirototensho/Py4Stats/assets/55335752/5e323376-eb56-4407-a047-0fded76c6619)
 
 ***
-[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
+[Return to **Function reference**.](../reference.md)

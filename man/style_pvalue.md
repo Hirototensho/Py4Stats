@@ -36,8 +36,8 @@ p_stars(
 
 ## 返り値 Value
 
-　フォーマットされたp-値を表す pd.Series を出力します。`bilding_block.style_pvalue()` では引数 `p_value` に与えられた数値を指定された桁数に丸めた値を表示し、指定された範囲を外れる値については `’<p_min’` や ’>p_max’` の書式にへんかんします。  
-　`bilding_block.p_stars()` では仮説検定の有意性を示すアスタリスク `*` に変換します。初期設定ではアスタリスクはp-値の値に応じて次のように表示されます。
+　フォーマットされたp-値を表す pd.Series を出力します。`building_block.style_pvalue()` では引数 `p_value` に与えられた数値を指定された桁数に丸めた値を表示し、指定された範囲を外れる値については `’<p_min’` や ’>p_max’` の書式にへんかんします。  
+　`building_block.p_stars()` では仮説検定の有意性を示すアスタリスク `*` に変換します。初期設定ではアスタリスクはp-値の値に応じて次のように表示されます。
 
   - p ≤ 0.1 `*`
   - p ≤ 0.05 `**`
@@ -48,25 +48,25 @@ p_stars(
 
 ```python
 
-from py4stats import bilding_block as bild
+from py4stats import building_block as build
 p_value = [
     0.999, 0.5028, 0.2514, 0.197, 0.10, 
     0.0999, 0.06, 0.03, 0.002, 0.0002
     ]
 
-print(bild.style_pvalue(p_value).to_list())
+print(build.style_pvalue(p_value).to_list())
 #> ['>0.9', '0.503', '0.251', '0.197', '0.1', '0.1', '0.06', '0.03', '0.002', '<0.001']
 
-print(bild.style_pvalue(p_value, prepend_p = True).to_list())
+print(build.style_pvalue(p_value, prepend_p = True).to_list())
 #> ['p>0.9', 'p=0.503', 'p=0.251', 'p=0.197', 'p=0.1', 'p=0.1', 'p=0.06', 'p=0.03', 'p=0.002', 'p<0.001']
 
-print(bild.p_stars(p_value).to_list())
+print(build.p_stars(p_value).to_list())
 #> ['', '', '', '', '*', '*', '*', '**', '***', '***']
 
 # R言語の stats::summary.lm() や gtools::stars.pval() を再現する場合。
 stars_dict = {'***':0.001, '**':0.01, '*': 0.05, '.':0.1}
-print(bild.p_stars(p_value, stars = stars_dict).to_list())
+print(build.p_stars(p_value, stars = stars_dict).to_list())
 #> ['', '', '', '', '.', '.', '.', '*', '**', '***']
 ```
 ***
-[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
+[Return to **Function reference**.](../reference.md)

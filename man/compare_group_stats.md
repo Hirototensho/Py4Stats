@@ -131,4 +131,4 @@ py4st.plot_median_diff(
 ```
 ![Unknown-3](https://github.com/Hirototensho/Py4Stats/assets/55335752/7a496916-e828-44e1-a0e0-d50bb22ecc12)
 ***
-[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
+[Return to **Function reference**.](../reference.md)

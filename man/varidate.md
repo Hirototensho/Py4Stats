@@ -5,14 +5,18 @@
 　R言語の [`varidate`](https://github.com/data-cleaning/validate)パッケージの `check_that()` 関数などをオマージュした、ごく簡易なデータ検証関数です。
 
 ```python
-check_that(data, rule_dict, **kwargs)
+check_that(
+    data: IntoFrameT,
+    rule_dict: Union[Mapping[str, str], pd.Series],
+    **kwargs: Any,
+)
 
 check_viorate(data, rule_dict, **kwargs)
 ```
 
 ## 引数 Argument
 
-- `data`**pd.DataFrame**（必須）<br>
+- `data`**IntoFrameT**（必須）<br>
 　ルールに基づくデータ検証を行うデータセット。
 
 - `rule_dict`**dict or pd.Series of str**（必須）<br>
@@ -87,10 +91,10 @@ rule_dict2 =  {
 print(py4st.check_that(
     retailers, rule_dict2, local_dict = locals()
     ))
-#>              item  passes  fails  coutna                                   expression
-#> name                                                                                 
-#> to_num          1       1      0       0                  @is_numeric_dtype(turnover)
-#> rev_complet    60      23      0      37  @is_complet(turnover, total_rev, other_rev)
+#>              item  passes  fails  coutna                                    expression
+#> name                                                                                  
+#> to_num          1       1      0       0                   @is_numeric_dtype(turnover)
+#> rev_complet    60      23      0      37  @is_complete(turnover, total_rev, other_rev)
 ```
 
 `py4st.check_viorate()` の使い方も `py4st.check_that()` と同様ですが、`py4st.check_that()` がデータセット全体での検証結果を出力するのに対し、`py4st.check_viorate()` ではレコード別の検証結果を表示します。`py4st.check_viorate()` から出力されるデータフレームでは、各列が検証ルールに、各行が元データの観測値に対応し、当該ルールが満たされていない場合、True と表示されます。また、`any` 列は複数あるルールのいずれか1つでも満たされていないことを、`all` 列は全てのルールが満たされていないことを示します。
@@ -121,5 +125,10 @@ print(retailers.loc[df_viorate['to'], 'size':'turnover'])
 #> 4  sc3       0.14    NaN       NaN
 #> 6  sc3       0.14    5.0       NaN
 ```
+
+## Notes
+
+本関数の実装は、 `pd.DataFrame.eval()` メソッドに依存しているため、代入されたデータフレームのバックエンドに関わらず `pd.DataFrame` が出力されます。
+
 ***
-[Return to **Function reference**.](https://github.com/Hirototensho/Py4Stats/blob/main/reference.md)
+[Return to **Function reference**.](../reference.md)
