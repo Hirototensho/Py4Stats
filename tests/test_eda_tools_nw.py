@@ -133,26 +133,26 @@ def test_crosstab_pl():
 # メモ：現状 narwhal ライブラリでは pa バックエンドの場合 
 # `pivot`メソッドに対応していないため、使用できない。
 # =========================================================
-# def test_crosstab_pa():
-#     output_df1 = eda_nw.crosstab(penguins_pa, 'island', 'species', margins = True, normalize = 'all')
-#     output_df1 = output_df1.to_pandas()
-#     output_df1.to_csv(f'{tests_path}/fixtures/crosstab_pa1.csv')
-#     expected_df1 = pd.read_csv(f'{tests_path}/fixtures/crosstab_pa1.csv', index_col = 0)
-#     test_result1 = eda_nw.compare_df_record(output_df1, expected_df1).all().all()
+def test_crosstab_pa():
+    output_df1 = eda_nw.crosstab(penguins_pa, 'island', 'species', margins = True, normalize = 'all')
+    output_df1 = output_df1.to_pandas()
+    output_df1.to_csv(f'{tests_path}/fixtures/crosstab_pa1.csv')
+    expected_df1 = pd.read_csv(f'{tests_path}/fixtures/crosstab_pa1.csv', index_col = 0)
+    test_result1 = eda_nw.compare_df_record(output_df1, expected_df1).all().all()
 
-#     output_df2 = eda_nw.crosstab(penguins_pa, 'island', 'species', margins = True, normalize = 'columns')
-#     output_df2 = output_df2.to_pandas()
-#     output_df2.to_csv(f'{tests_path}/fixtures/crosstab_pa2.csv')
-#     expected_df2 = pd.read_csv(f'{tests_path}/fixtures/crosstab_pa2.csv', index_col = 0)
-#     test_result2 = eda_nw.compare_df_record(output_df2, expected_df2).all().all()
+    output_df2 = eda_nw.crosstab(penguins_pa, 'island', 'species', margins = True, normalize = 'columns')
+    output_df2 = output_df2.to_pandas()
+    output_df2.to_csv(f'{tests_path}/fixtures/crosstab_pa2.csv')
+    expected_df2 = pd.read_csv(f'{tests_path}/fixtures/crosstab_pa2.csv', index_col = 0)
+    test_result2 = eda_nw.compare_df_record(output_df2, expected_df2).all().all()
 
-#     output_df3 = eda_nw.crosstab(penguins_pa, 'island', 'species', margins = True, normalize = 'index')
-#     output_df3 = output_df3.to_pandas()
-#     output_df3.to_csv(f'{tests_path}/fixtures/crosstab_pa3.csv')
-#     expected_df3 = pd.read_csv(f'{tests_path}/fixtures/crosstab_pa3.csv', index_col = 0)
-#     test_result3 = eda_nw.compare_df_record(output_df3, expected_df3).all().all()
+    output_df3 = eda_nw.crosstab(penguins_pa, 'island', 'species', margins = True, normalize = 'index')
+    output_df3 = output_df3.to_pandas()
+    output_df3.to_csv(f'{tests_path}/fixtures/crosstab_pa3.csv')
+    expected_df3 = pd.read_csv(f'{tests_path}/fixtures/crosstab_pa3.csv', index_col = 0)
+    test_result3 = eda_nw.compare_df_record(output_df3, expected_df3).all().all()
 
-#     assert test_result1 and test_result2 and test_result3
+    assert test_result1 and test_result2 and test_result3
 
 # =========================================================
 # tabyl
