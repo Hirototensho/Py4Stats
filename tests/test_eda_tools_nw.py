@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 from pandas.testing import assert_frame_equal
 import polars as pl
 import pyarrow as pa
+
+import narwhals
 import narwhals as nw
 
 from py4stats.eda_tools import _nw as eda_nw
@@ -71,6 +73,39 @@ def _assert_df_record(output_df, fixture_csv: str, index_col = 0, **kwarg) -> No
     result = eda_nw.compare_df_record(output_df, expected_df).all().all()
 
     assert result
+
+# =========================================================
+# 実験的実装
+# =========================================================
+from narwhals import testing as nw_test
+
+# 私の手元にある環境では、`narwhals.testing.assert_frame_equal()` が読み込めないので、
+# 以下の関数はまだ使えません。
+
+# def _assert_df_eq(
+#         output_df,  
+#         path_fixture: str,  
+#         update_fixture: bool = False, 
+#         check_dtype: bool = True, 
+#         **kwarg
+#         ) -> None:
+    
+#     output_df = nw.from_native(output_df)
+
+#     if update_fixture:
+#         output_df.write_csv(f'{tests_path}/fixtures/{path_fixture}')
+
+#     expected_df = nw.read_csv(
+#         f'{tests_path}/fixtures/{path_fixture}',
+#         backend = output_df.implementation
+#         )
+    
+#     nw_test.assert_frame_equal(
+#         left = output_df, 
+#         right = expected_df, 
+#         check_dtype = check_dtype,
+#         **kwarg
+#         )
 
 # =========================================================
 # diagnose
