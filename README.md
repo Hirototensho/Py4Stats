@@ -18,13 +18,33 @@
 
 ## 使用例
 
-　[`py4stats.compare_ols()`](man//compare_ols.md) ：計量経済学の実証論文でよく用いられる、回帰分析の結果を列方向に並べて比較する表を作成します。
+[`py4stats.diagnose()`](man/diagnose.md) 関数はデータの全般的な状態についての要約を提供します。
 
 ``` python
 import py4stats as py4st
-import statsmodels.formula.api as smf
+```
+``` python
+import pandas as pd
 from palmerpenguins import load_penguins
 penguins = load_penguins() # サンプルデータの読み込み
+
+print(py4st.diagnose(penguins).round(4))
+#>              columns    dtype  missing_count  missing_percent  unique_count  unique_rate
+#> 0            species   object              0           0.0000             3       0.8721
+#> 1             island   object              0           0.0000             3       0.8721
+#> 2     bill_length_mm  float64              2           0.5814           165      47.9651
+#> 3      bill_depth_mm  float64              2           0.5814            81      23.5465
+#> 4  flipper_length_mm  float64              2           0.5814            56      16.2791
+#> 5        body_mass_g  float64              2           0.5814            95      27.6163
+#> 6                sex   object             11           3.1977             3       0.8721
+#> 7               year    int64              0           0.0000             3       0.8721
+```
+
+[`py4stats.compare_ols()`](man/compare_ols.md) 関数は、計量経済学の実証論文でよく用いられる、回帰分析の結果を列方向に並べて比較する表を作成します。
+
+
+``` python
+import statsmodels.formula.api as smf
 
 # 回帰分析の実行
 fit1 = smf.ols('body_mass_g ~ bill_length_mm + species', data = penguins).fit()
