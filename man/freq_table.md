@@ -17,7 +17,9 @@ freq_table(
 
 ## 引数 
 
-- `data`：`IntoFrameT`（必須）
+- `data`：**IntoFrameT**（必須）<br>
+  入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト<br>
+  （例：`pandas.DataFrame`、`polars.DataFrame`、`pyarrow.Table`）を指定できます。
 - `subset`：**str or list of str**</br>
 　集計に使用するデータフレームの列名（必須）。
 - `sort`：**bool**</br>

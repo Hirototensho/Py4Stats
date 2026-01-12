@@ -11,7 +11,7 @@ glance(x)
 ## 引数 Argument
 
 - `x`（必須）</br>
-　[`sm.ols()`](https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.OLS.html)もしくは [`smf.logit()`](https://www.statsmodels.org/stable/generated/statsmodels.formula.api.logit.html) などで作成された分析結果のオブジェクト。
+　[`sm.ols()`](https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.OLS.html) もしくは [`smf.logit()`](https://www.statsmodels.org/stable/generated/statsmodels.formula.api.logit.html) などで作成された分析結果のオブジェクト。
 
 ## 返り値 Value
 

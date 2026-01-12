@@ -27,7 +27,9 @@ remove_constant(
 
 ## 引数
 
-- `data`：`IntoFrameT`
+- `data`：**IntoFrameT**（必須）<br>
+  入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト<br>
+  （例：`pandas.DataFrame`、`polars.DataFrame`、`pyarrow.Table`）を指定できます。
 - `cols`：**bool**</br>
 　空白列を削除するかどうかを表すブール値（`remove_empty()` のみ）。True（初期設定） なら空白列を削除し、Falseなら全ての要素が `NaN` の列があっても削除しません。
 - `rows`：**bool**</br>
