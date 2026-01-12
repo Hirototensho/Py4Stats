@@ -6,7 +6,7 @@
 
 ```python
 tabyl(
-    self: IntoFrameT,
+    data: IntoFrameT,
     index: str,
     columns: str,
     margins: bool = True,
@@ -20,7 +20,7 @@ tabyl(
 
 ## 引数
 
-- `self`：`IntoFrameT`（必須）
+- `data`：`IntoFrameT`（必須）
 - `index`：**str**</br>
 　集計に使用するデータフレームの変数名（必須）。
 - `columns`：**str**</br>

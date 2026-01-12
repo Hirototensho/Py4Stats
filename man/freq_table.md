@@ -6,7 +6,7 @@
 
 ``` python
 freq_table(
-    self, 
+    data, 
     subset: Union[str, Sequence[str]],
     sort: bool = True,
     descending: bool = False,
@@ -17,7 +17,7 @@ freq_table(
 
 ## 引数 
 
-- `self`：`IntoFrameT`（必須）
+- `data`：`IntoFrameT`（必須）
 - `subset`：**str or list of str**</br>
 　集計に使用するデータフレームの列名（必須）。
 - `sort`：**bool**</br>

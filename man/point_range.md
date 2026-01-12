@@ -6,27 +6,27 @@
 
 ```python
 mean_qi(
-    self: Union[IntoFrameT, SeriesT],
+    data: Union[IntoFrameT, SeriesT],
     width: float = 0.975,
     interpolation: str = 'midpoint',
     to_native: bool = True
 )
 mean_qi(
-    self: Union[IntoFrameT, SeriesT],
+    data: Union[IntoFrameT, SeriesT],
     width: float = 0.975,
     interpolation: str = 'midpoint',
     to_native: bool = True
 )
 
 median_qi(
-    self: Union[IntoFrameT, IntoSeriesT],
+    data: Union[IntoFrameT, IntoSeriesT],
     width: float = 0.975,
     interpolation: str = 'midpoint',
     to_native: bool = True
 )
 
 mean_ci(
-    self: Union[IntoFrameT, IntoSeriesT],
+    data: Union[IntoFrameT, IntoSeriesT],
     width: float = 0.975,
     to_native: bool = True
 )
@@ -34,7 +34,7 @@ mean_ci(
 
 ## 引数 Argument
 
-- `self`：**IntoFrameT or SeriesT**（必須）
+- `data`：**IntoFrameT or SeriesT**（必須）
 - `width`：**float**<br>
 　分位点区間の幅、もしくは信頼区間の計算に用いる信頼係数。
 

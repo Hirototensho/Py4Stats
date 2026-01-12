@@ -6,8 +6,8 @@
 
 ```python
 filtering_out(
-    self, 
-    self: IntoFrameT,
+    data, 
+    data: IntoFrameT,
     contains: Optional[str] = None,
     starts_with: Optional[str] = None,
     ends_with: Optional[str] = None,
@@ -18,7 +18,7 @@ filtering_out(
 
 ## 引数
 
-- `self`：`IntoFrameT`（必須）
+- `data`：`IntoFrameT`（必須）
 - `contains`：**str**</br>
 　列名（行名）の検索に使用する文字列。内部で使用している [`pandas.Series.str.contains`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.contains.html#pandas.Series.str.contains) に渡され、指定された文字列を列名（行名）に含む列（行）を除外します。
 - `starts_with`：**str**</br>

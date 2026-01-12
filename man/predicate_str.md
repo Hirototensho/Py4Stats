@@ -5,9 +5,9 @@
 　`pandas.Series` の要素が、特定のフォーマットにそった文字列かどうかを判定する関数。
 
 ```python
-is_number(self, na_default = True)
-is_ymd(self, na_default = True)
-is_ymd_like(self, na_default = True)
+is_number(data, na_default = True)
+is_ymd(data, na_default = True)
+is_ymd_like(data, na_default = True)
 ```
 
 - `py4stats.is_number()`：与えられた文字列が数字かどうかを判定します。
@@ -16,7 +16,7 @@ is_ymd_like(self, na_default = True)
 
 ## 引数
 
-- `self`：`pandas.Series`（必須）
+- `data`：`pandas.Series`（必須）
 - `na_default`：**bool**</br>
  　NA値に対して関数が返す値。`na_default = True` （初期設定）であれば `None` や  `NaN` には True を返し、`na_default = False` であれば  False が返します。
 
