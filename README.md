@@ -18,11 +18,12 @@
 
 ## 使用例
 
-[`py4stats.diagnose()`](man/diagnose.md) 関数はデータの全般的な状態についての要約を提供します。
-
 ``` python
 import py4stats as py4st
 ```
+
+[`py4stats.diagnose()`](man/diagnose.md) 関数はデータの全般的な状態についての要約を提供します。
+
 ``` python
 import pandas as pd
 from palmerpenguins import load_penguins
