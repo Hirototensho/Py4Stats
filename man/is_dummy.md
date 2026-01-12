@@ -5,18 +5,18 @@
 　リストや pandas.Series の要素がダミー変数かどうかを判定する関数。
 
 ```python
-is_dummy(self, cording = [0, 1])
+is_dummy(data, cording = [0, 1])
 ```
 
 ## 引数 Argument
 
-- `self` **list, IntoFrameT or IntoSeriesT** <br>
+- `data` **list, IntoFrameT or IntoSeriesT** <br>
 - `cording` **list** <br>
 　ダミー変数のコーディング方式を指定するリスト。
 
 ## 返り値 Value
 
-`py4stats.is_dummy()` は `self` が `cording`  と集合として等しければ True を、そうでなければ False を返します。
+`py4stats.is_dummy()` は `data` が `cording`  と集合として等しければ True を、そうでなければ False を返します。
 
 ## 使用例 Examples
 

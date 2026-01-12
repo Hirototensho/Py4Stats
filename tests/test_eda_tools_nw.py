@@ -694,20 +694,20 @@ def test_check_viorate() -> None:
     assert_frame_equal(output_df, expected_df)
 
 # ================================================================
-# implies_exper / is_complet / reducers (Sum/Mean/Max/Min/Median)
+# implies_exper / is_complete / reducers (Sum/Mean/Max/Min/Median)
 # ================================================================
 
 def test_implies_exper_string() -> None:
     assert eda_nw.implies_exper("A", "B") == "B | ~(A)"
 
-def test_is_complet_dataframe_and_series() -> None:
+def test_is_complete_dataframe_and_series() -> None:
     df = pd.DataFrame({"a": [1, None], "b": [2, 3]})
-    out_df = eda_nw.is_complet(df)
+    out_df = eda_nw.is_complete(df)
     assert out_df.tolist() == [True, False]
 
     s1 = pd.Series([1, None])
     s2 = pd.Series([2, 3])
-    out_s = eda_nw.is_complet(s1, s2)
+    out_s = eda_nw.is_complete(s1, s2)
     assert out_s.tolist() == [True, False]
 
 def test_reducers() -> None:

@@ -66,6 +66,7 @@ import matplotlib.pyplot as plt
 
 import matplotlib.pyplot as plt
 
+import statsmodels
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 
@@ -174,6 +175,7 @@ from statsmodels.iolib.summary import summary_params_frame
 from statsmodels.regression.linear_model import RegressionResultsWrapper
 
 @tidy.register(RegressionResultsWrapper)
+@tidy.register(statsmodels.imputation.mice.MICEResults)
 def tidy_regression(
     x: RegressionResultsWrapper,
     name_of_term: Optional[Sequence[str]] = None,

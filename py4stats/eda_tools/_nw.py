@@ -29,6 +29,8 @@ from narwhals.typing import FrameT, IntoFrameT, SeriesT, IntoSeriesT
 
 import pandas_flavor as pf
 
+import warnings
+
 
 # In[ ]:
 
@@ -78,7 +80,7 @@ def get_dtypes(data: IntoFrameT) -> pd.Series:
 
 
 @pf.register_dataframe_method
-def diagnose(self: IntoFrameT, to_native: bool = True) -> IntoFrameT:
+def diagnose(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
     """Summarize each column of a DataFrame for quick EDA.
 
     This method computes basic diagnostics for each column:
@@ -97,20 +99,20 @@ def diagnose(self: IntoFrameT, to_native: bool = True) -> IntoFrameT:
 
     Raises:
         AssertionError:
-            If `self` is not a pandas.DataFrame.
+            If `data` is not a pandas.DataFrame.
     """
     build.assert_logical(to_native, arg_name = 'to_native')
-    self_nw = nw.from_native(self)
+    data_nw = nw.from_native(data)
 
-    n = self_nw.shape[0]
-    list_dtypes = get_dtypes(self).to_list()
+    n = data_nw.shape[0]
+    list_dtypes = get_dtypes(data).to_list()
 
     result = nw.from_dict({
-        'columns':self_nw.columns,
+        'columns':data_nw.columns,
         'dtype':list_dtypes,
-        'missing_count':self_nw.null_count().row(0),
-        'unique_count':[self_nw[col].n_unique() for col in self_nw.columns]
-    }, backend = self_nw.implementation)\
+        'missing_count':data_nw.null_count().row(0),
+        'unique_count':[data_nw[col].n_unique() for col in data_nw.columns]
+    }, backend = data_nw.implementation)\
     .with_columns(
         (100 * nw.col('missing_count') / n).alias('missing_percent'),
         (100 * nw.col('unique_count') / n).alias('unique_rate')
@@ -239,7 +241,7 @@ def compare_df_cols(
     df_list: List[IntoFrameT],
     return_match: Literal["all", "match", "mismatch"] = 'all',
     df_name = None,
-    dropna = False,
+    dropna:bool = False,
 ) -> pd.DataFrame:
   """Compare dtypes of columns with the same names across multiple DataFrames.
 
@@ -856,7 +858,7 @@ def crosstab(
 
 @pf.register_dataframe_method
 def freq_table(
-    self: IntoFrameT,
+    data: IntoFrameT,
     subset: Union[str, Sequence[str]],
     sort: bool = True,
     descending: bool = False,
@@ -866,7 +868,7 @@ def freq_table(
     """Compute frequency table for one or multiple columns.
 
     Args:
-        self (IntoFrameT):
+        data (IntoFrameT):
             Input DataFrame.
         subset (str or list[str]):
             Column(s) to count by. Passed to `DataFrame.value_counts(subset=...)`.
@@ -892,7 +894,7 @@ def freq_table(
     build.assert_logical(to_native, arg_name = 'to_native')
     # ---------------------------------------------------------
 
-    df = nw.from_native(self)
+    df = nw.from_native(data)
     if dropna:
         df = df.drop_nulls(subset)
 
@@ -925,7 +927,7 @@ def freq_table(
 
 @pf.register_dataframe_method
 def tabyl(
-    self: IntoFrameT,
+    data: IntoFrameT,
     index: str,
     columns: str,
     margins: bool = True,
@@ -941,7 +943,7 @@ def tabyl(
     main cell is a count and percentages can be appended like: `count (xx.x%)`.
 
     Args:
-        self (IntoFrameT):
+        data (IntoFrameT):
             Input DataFrame.
         index (str):
             Column name used for row categories.
@@ -969,7 +971,7 @@ def tabyl(
     build.assert_logical(dropna, arg_name = 'dropna')
     build.assert_count(digits, arg_name = 'digits')
 
-    df = nw.from_native(self)
+    data_nw = nw.from_native(data)
 
     if(not isinstance(normalize, bool)):
       normalize = build.arg_match(
@@ -979,15 +981,17 @@ def tabyl(
 
     # index または columns に bool 値が指定されていると後続処理でエラーが生じるので、
     # 文字列型に cast します。
-    df = df[[index, columns]].with_columns(
+    data_nw = data_nw[[index, columns]].with_columns(
        ncs.boolean().cast(nw.String)
     )
 
     # 度数クロス集計表（最終的な表では左側の数字）
     args_dict = locals()
     args_dict.pop('normalize')
+    args_dict.pop('data')
+
     c_tab1 = crosstab(
-        data = df,
+        data = data_nw,
         normalize = False,
         to_native = False,
         **args_dict
@@ -1000,7 +1004,7 @@ def tabyl(
     if(normalize != False):
         # 回答率クロス集計表（最終的な表では括弧内の数字）
         c_tab2 = crosstab(
-            data = df, 
+            data = data_nw, 
             normalize = normalize, 
             to_native = False,
             **args_dict
@@ -1028,7 +1032,7 @@ def tabyl(
 @pf.register_series_method
 @singledispatch
 def is_dummy(
-    self: Union[IntoFrameT, IntoSeriesT],
+    data: Union[IntoFrameT, IntoSeriesT],
     cording: Sequence[Any] = (0, 1),
     to_pd_Series = True,
     **kwargs
@@ -1036,7 +1040,7 @@ def is_dummy(
     """Check whether values consist only of dummy codes.
 
     Args:
-        self (pandas.Series or pandas.DataFrame):
+        data (pandas.Series or pandas.DataFrame):
             Input data.
         cording (list):
             Allowed set of dummy codes (default: [0, 1]).
@@ -1048,8 +1052,8 @@ def is_dummy(
     """
     build.assert_logical(to_pd_Series, arg_name = 'to_pd_Series')
 
-    self_nw = nw.from_native(self, allow_series = True)
-    return is_dummy(self_nw, cording, to_pd_Series)
+    data_nw = nw.from_native(data, allow_series = True)
+    return is_dummy(data_nw, cording, to_pd_Series)
 
 
 # In[ ]:
@@ -1058,12 +1062,12 @@ def is_dummy(
 @is_dummy.register(nw.Series)
 @is_dummy.register(list)
 def is_dummy_series(
-    self: IntoSeriesT,
+    data: IntoSeriesT,
     cording: Sequence[Any] = (0, 1),
     to_pd_Series = True,
     **kwargs
 ) -> bool:
-    return set(self) == set(cording)
+    return set(data) == set(cording)
 
 
 # In[ ]:
@@ -1071,15 +1075,15 @@ def is_dummy_series(
 
 @is_dummy.register(nw.DataFrame)
 def is_dummy_data_frame(
-        self: IntoFrameT, 
+        data: IntoFrameT, 
         cording: Sequence[Any] = (0, 1),
         to_pd_Series = True,
         **kwargs
         ) -> Union[IntoFrameT, pd.Series]:
 
-    self_nw = nw.from_native(self)
+    data_nw = nw.from_native(data)
 
-    result = self_nw.select(
+    result = data_nw.select(
         nw.all().map_batches(
             lambda x: is_dummy_series(x, cording), 
             return_dtype = nw.Boolean,
@@ -1265,15 +1269,15 @@ def diagnose_category(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
 # In[ ]:
 
 
-def weighted_mean(x: SeriesT, w: SeriesT) -> float:
+def weighted_mean(x: IntoSeriesT, w: IntoSeriesT) -> float:
   wmean = (x * w).sum() / w.sum()
   return wmean
 
-def scale(x: SeriesT, ddof: int = 1) -> SeriesT:
+def scale(x: IntoSeriesT, ddof: int = 1) -> IntoSeriesT:
     z = (x - x.mean()) / x.std(ddof = ddof)
     return z
 
-def min_max(x: SeriesT) -> SeriesT:
+def min_max(x: IntoSeriesT) -> IntoSeriesT:
   mn = (x - x.min()) / (x.max() - x.min())
   return mn
 
@@ -1319,7 +1323,7 @@ def missing_percent(
 
 @pf.register_dataframe_method
 def remove_empty(
-    self: IntoFrameT,
+    data: IntoFrameT,
     cols: bool = True,
     rows: bool = True,
     cutoff: float = 1.0,
@@ -1330,7 +1334,7 @@ def remove_empty(
     """Remove fully (or mostly) empty columns and/or rows.
 
     Args:
-        self (pandas.DataFrame):
+        data (pandas.DataFrame):
             Input DataFrame.
         cols (bool):
             If True, remove empty columns.
@@ -1355,11 +1359,11 @@ def remove_empty(
     build.assert_logical(to_native, arg_name = 'to_native')
     # ==============================================================
 
-    df_shape = self.shape
-    data_nw = nw.from_native(self)
+    df_shape = data.shape
+    data_nw = nw.from_native(data)
     # 空白列の除去 ------------------------------
     if cols :
-        empty_col = missing_percent(self, axis = 'index', pct = False) >= cutoff
+        empty_col = missing_percent(data, axis = 'index', pct = False) >= cutoff
         data_nw = data_nw[:, (~empty_col).to_list()]
 
         if not(quiet) :
@@ -1371,7 +1375,7 @@ def remove_empty(
                 )
     # 空白行の除去 ------------------------------
     if rows :
-        empty_rows = missing_percent(self, axis = 'columns', pct = False) >= cutoff
+        empty_rows = missing_percent(data, axis = 'columns', pct = False) >= cutoff
         data_nw = data_nw.filter((~empty_rows).to_list())
 
         if not(quiet) :
@@ -1391,7 +1395,7 @@ def remove_empty(
 
 @pf.register_dataframe_method
 def remove_constant(
-    self: IntoFrameT,
+    data: IntoFrameT,
     quiet: bool = True,
     to_native: bool = True,
     dropna = False,
@@ -1400,7 +1404,7 @@ def remove_constant(
     """Remove constant columns (columns with only one unique value).
 
     Args:
-        self (pandas.DataFrame):
+        data (pandas.DataFrame):
             Input DataFrame.
         quiet (bool):
             If False, print removal summary.
@@ -1415,7 +1419,7 @@ def remove_constant(
     build.assert_logical(quiet, arg_name = 'quiet')
     build.assert_logical(to_native, arg_name = 'to_native')
     # ==============================================================
-    data_nw = nw.from_native(self)
+    data_nw = nw.from_native(data)
     df_shape = data_nw.shape
     col_name = data_nw.columns
 
@@ -1448,7 +1452,7 @@ def remove_constant(
 # 列名や行名に特定の文字列を含む列や行を除外する関数
 @pf.register_dataframe_method
 def filtering_out(
-    self: IntoFrameT,
+    data: IntoFrameT,
     contains: Optional[str] = None,
     starts_with: Optional[str] = None,
     ends_with: Optional[str] = None,
@@ -1458,7 +1462,7 @@ def filtering_out(
     """Filter out rows/columns whose labels match given string patterns.
 
     Args:
-        self (IntoFrameT):
+        data (IntoFrameT):
             Input DataFrame.
         contains (str or None):
             Exclude labels that contain this substring.
@@ -1495,15 +1499,15 @@ def filtering_out(
     axis = build.arg_match(axis, ['1', 'columns', '0', 'index'], arg_name = 'axis')
     build.assert_logical(to_native, arg_name = 'to_native')
     # ==============================================================
-    data_nw = nw.from_native(self)
+    data_nw = nw.from_native(data)
     drop_table = pd.DataFrame()
 
     if axis in ("0", "index"):
-        if not hasattr(self, "index"):
+        if not hasattr(data, "index"):
             raise TypeError(
                 f"filtering_out(..., axis='{axis}') requires an input that has"
                 "an 'index' (row labels), e.g. pandas.DataFrame.\n"
-                f"Got: {type(self)}."
+                f"Got: {type(data)}."
             )
 
     if((axis == '1') | (axis == 'columns')):
@@ -1525,18 +1529,18 @@ def filtering_out(
         drop_list = s_columns[drop_table.any(axis = 'columns')].to_list()
         data_nw = data_nw.drop(drop_list)
 
-    elif hasattr(self, 'index'):
+    elif hasattr(data, 'index'):
         if contains is not None: 
             build.assert_character(contains, arg_name = 'contains')
-            drop_table['contains'] = self.index.to_series().str.contains(contains)
+            drop_table['contains'] = data.index.to_series().str.contains(contains)
 
         if starts_with is not None: 
             build.assert_character(starts_with, arg_name = 'starts_with')
-            drop_table['starts_with'] = self.index.to_series().str.startswith(starts_with)
+            drop_table['starts_with'] = data.index.to_series().str.startswith(starts_with)
 
         if ends_with is not None:
             build.assert_character(ends_with, arg_name = 'ends_with')
-            drop_table['ends_with'] = self.index.to_series().str.endswith(ends_with)
+            drop_table['ends_with'] = data.index.to_series().str.endswith(ends_with)
 
         keep_list = (~drop_table.any(axis = 'columns')).to_list()
         data_nw = data_nw.filter(keep_list)
@@ -1749,7 +1753,7 @@ interpolation_values = [
 @pf.register_series_method
 @singledispatch
 def mean_qi(
-    self: Union[IntoFrameT, SeriesT],
+    data: Union[IntoFrameT, SeriesT],
     width: float = 0.975,
     interpolation: Interpolation = 'midpoint',
     to_native: bool = True
@@ -1757,7 +1761,7 @@ def mean_qi(
     """Compute mean and quantile interval (QI).
 
     Args:
-        self (IntoFrameT, IntoSeriesT):
+        data (IntoFrameT, IntoSeriesT):
             Input data.
         width (float):
             Upper quantile to use (must be in (0, 1)).
@@ -1785,21 +1789,21 @@ def mean_qi(
         )
     # =======================================================================
 
-    self_nw = nw.from_native(self, allow_series = True)
+    data_nw = nw.from_native(data, allow_series = True)
     return mean_qi(
-        self_nw, interpolation = interpolation, 
+        data_nw, interpolation = interpolation, 
         width = width, to_native = to_native
         )
 
 @mean_qi.register(nw.DataFrame)
 def mean_qi_data_frame(
-    self: IntoFrameT,
+    data: IntoFrameT,
     width: float = 0.975,
     interpolation: Interpolation = 'midpoint',
     to_native: bool = True
     ) -> pd.DataFrame:
 
-    df_numeric = nw.from_native(self).select(ncs.numeric())
+    df_numeric = nw.from_native(data).select(ncs.numeric())
 
     result = nw.from_dict({
         'variable': df_numeric.columns,
@@ -1817,20 +1821,20 @@ def mean_qi_data_frame(
 
 @mean_qi.register(nw.Series)
 def mean_qi_series(
-    self: SeriesT,
+    data: SeriesT,
     width: float = 0.975,
     interpolation: Interpolation = 'midpoint',
     to_native: bool = True
     ):
 
-    self_nw = nw.from_native(self, allow_series=True)
+    data_nw = nw.from_native(data, allow_series=True)
 
     result = nw.from_dict({
-        'variable': [self_nw.name],
-        'mean': [self_nw.mean()],
-        'lower': [self_nw.quantile(1 - width, interpolation = interpolation)],
-        'upper': [self_nw.quantile(width, interpolation = interpolation)]
-    }, backend = self_nw.implementation
+        'variable': [data_nw.name],
+        'mean': [data_nw.mean()],
+        'lower': [data_nw.quantile(1 - width, interpolation = interpolation)],
+        'upper': [data_nw.quantile(width, interpolation = interpolation)]
+    }, backend = data_nw.implementation
     )
     if to_native: return result.to_native()
     return result
@@ -1843,7 +1847,7 @@ def mean_qi_series(
 @pf.register_series_method
 @singledispatch
 def median_qi(
-    self: Union[IntoFrameT, IntoSeriesT],
+    data: Union[IntoFrameT, IntoSeriesT],
     width: float = 0.975,
     interpolation: Interpolation = 'midpoint',
     to_native: bool = True
@@ -1851,7 +1855,7 @@ def median_qi(
     """Compute median and quantile interval (QI).
 
     Args:
-        self (IntoFrameT, IntoSeriesT):
+        data (IntoFrameT, IntoSeriesT):
             Input data.
         width (float):
             Upper quantile to use (must be in (0, 1)).
@@ -1879,21 +1883,21 @@ def median_qi(
         )
     # =======================================================================
 
-    self_nw = nw.from_native(self, allow_series = True)
+    data_nw = nw.from_native(data, allow_series = True)
     return median_qi(
-        self_nw, interpolation = interpolation, 
+        data_nw, interpolation = interpolation, 
         width = width, to_native = to_native
         )
 
 @median_qi.register(nw.DataFrame)
 def median_qi_data_frame(
-    self: IntoFrameT,
+    data: IntoFrameT,
     width: float = 0.975,
     interpolation: Interpolation = 'midpoint',
     to_native: bool = True
 ) -> IntoFrameT:
 
-    df_numeric = nw.from_native(self).select(ncs.numeric())
+    df_numeric = nw.from_native(data).select(ncs.numeric())
 
     result = nw.from_dict({
         'variable': df_numeric.columns,
@@ -1911,19 +1915,19 @@ def median_qi_data_frame(
 
 @median_qi.register(nw.Series)
 def median_qi_series(
-    self: IntoSeriesT,
+    data: IntoSeriesT,
     width: float = 0.975,
     interpolation: Interpolation = 'midpoint',
     to_native: bool = True
 ) -> IntoFrameT:
-    self_nw = nw.from_native(self, allow_series=True)
+    data_nw = nw.from_native(data, allow_series=True)
 
     result = nw.from_dict({
-        'variable': [self_nw.name],
-        'median': [self_nw.median()],
-        'lower': [self_nw.quantile(1 - width, interpolation = interpolation)],
-        'upper': [self_nw.quantile(width, interpolation = interpolation)]
-    }, backend = self_nw.implementation
+        'variable': [data_nw.name],
+        'median': [data_nw.median()],
+        'lower': [data_nw.quantile(1 - width, interpolation = interpolation)],
+        'upper': [data_nw.quantile(width, interpolation = interpolation)]
+    }, backend = data_nw.implementation
     )
     if to_native: return result.to_native()
     return result
@@ -1937,14 +1941,14 @@ from scipy.stats import t
 @pf.register_series_method
 @singledispatch
 def mean_ci(
-    self: Union[IntoFrameT, IntoSeriesT],
+    data: Union[IntoFrameT, IntoSeriesT],
     width: float = 0.975,
     to_native: bool = True
 ) -> IntoFrameT:
     """Compute mean and t-based confidence interval (CI).
 
     Args:
-        self (IntoFrameT, IntoSeriesT):
+        data (IntoFrameT, IntoSeriesT):
             Input data.
         width (float):
             Confidence level in (0, 1) (e.g., 0.95).
@@ -1969,19 +1973,19 @@ def mean_ci(
     build.assert_logical(to_native, arg_name = 'to_native')
     # =======================================================================
 
-    self_nw = nw.from_native(self, allow_series = True)
+    data_nw = nw.from_native(data, allow_series = True)
 
     return mean_ci(
-        self_nw, width = width, to_native = to_native
+        data_nw, width = width, to_native = to_native
     )
 
 @mean_ci.register(nw.DataFrame)
 def mean_ci_data_frame(
-    self: IntoFrameT,
+    data: IntoFrameT,
     width: float = 0.975,
     to_native: bool = True
 ) -> IntoFrameT:
-    df_numeric = nw.from_native(self).select(ncs.numeric())
+    df_numeric = nw.from_native(data).select(ncs.numeric())
     n = len(df_numeric)
     t_alpha = t.isf((1 - width) / 2, df = n - 1)
     x_mean = df_numeric.select(ncs.numeric().mean())\
@@ -2001,22 +2005,22 @@ def mean_ci_data_frame(
 
 @mean_ci.register(nw.Series)
 def mean_ci_series(
-    self: SeriesT,
+    data: SeriesT,
     width: float = 0.975,
     to_native: bool = True
 ) -> IntoFrameT:
-    self_nw = nw.from_native(self, allow_series=True)
-    n = len(self_nw)
+    data_nw = nw.from_native(data, allow_series=True)
+    n = len(data_nw)
     t_alpha = t.isf((1 - width) / 2, df = n - 1)
-    x_mean = self_nw.mean()
-    x_std = self_nw.std()
+    x_mean = data_nw.mean()
+    x_std = data_nw.std()
 
     result = nw.from_dict({
-        'variable': [self_nw.name],
+        'variable': [data_nw.name],
         'mean':[x_mean],
         'lower':[x_mean - t_alpha * x_std / np.sqrt(n)],
         'upper':[x_mean + t_alpha * x_std / np.sqrt(n)],
-    }, backend = self_nw.implementation
+    }, backend = data_nw.implementation
     )
     if to_native: return result.to_native()
     return result
@@ -2028,14 +2032,14 @@ def mean_ci_series(
 
 
 @pf.register_series_method
-def is_kanzi(self:IntoSeriesT, na_default:bool = True, to_native: bool = True) -> IntoSeriesT:
+def is_kanzi(data:IntoSeriesT, na_default:bool = True, to_native: bool = True) -> IntoSeriesT:
     """与えられた文字列が ymd 形式の日付かどうかを判定する関数"""
     build.assert_logical(to_native, arg_name = 'to_native')
     build.assert_logical(na_default, arg_name = 'na_default')
 
-    self_nw = nw.from_native(self, allow_series = True)
+    data_nw = nw.from_native(data, allow_series = True)
 
-    result = self_nw.str.contains('[\u4E00-\u9FFF]+').fill_null(na_default)
+    result = data_nw.str.contains('[\u4E00-\u9FFF]+').fill_null(na_default)
 
     if to_native: return result.to_native()
     return result
@@ -2045,32 +2049,32 @@ def is_kanzi(self:IntoSeriesT, na_default:bool = True, to_native: bool = True) -
 
 
 @pf.register_series_method
-def is_ymd(self:IntoSeriesT, na_default:bool = True, to_native: bool = True) -> IntoSeriesT:
+def is_ymd(data:IntoSeriesT, na_default:bool = True, to_native: bool = True) -> IntoSeriesT:
     """与えられた文字列が ymd 形式の日付かどうかを判定する関数"""
     build.assert_logical(to_native, arg_name = 'to_native')
     build.assert_logical(na_default, arg_name = 'na_default')
 
     rex_ymd = '[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}'
 
-    self_nw = nw.from_native(self, allow_series = True)
+    data_nw = nw.from_native(data, allow_series = True)
 
-    result = self_nw.str.contains(rex_ymd)
+    result = data_nw.str.contains(rex_ymd)
 
     result = result.fill_null(na_default)
     if to_native: return result.to_native()
     return result
 
 @pf.register_series_method
-def is_ymd_like(self:IntoSeriesT, na_default:bool = True, to_native: bool = True) -> IntoSeriesT:
+def is_ymd_like(data:IntoSeriesT, na_default:bool = True, to_native: bool = True) -> IntoSeriesT:
     """与えられた文字列が ymd 形式っぽい日付かどうかを判定する関数"""
     build.assert_logical(to_native, arg_name = 'to_native')
     build.assert_logical(na_default, arg_name = 'na_default')
 
     rex_ymd_like = '[Script=Han]{0,2}[0-9]{1,4}(?:年|-)[0-9]{1,2}(?:月|-)[0-9]{1,2}(?:日)?'
 
-    self_nw = nw.from_native(self, allow_series = True)
+    data_nw = nw.from_native(data, allow_series = True)
 
-    result = self_nw.str.contains(rex_ymd_like)
+    result = data_nw.str.contains(rex_ymd_like)
 
     result = result.fill_null(na_default)
     if to_native: return result.to_native()
@@ -2081,12 +2085,12 @@ def is_ymd_like(self:IntoSeriesT, na_default:bool = True, to_native: bool = True
 
 
 @pf.register_series_method
-def is_number(self:IntoSeriesT, na_default:bool = True, to_native: bool = True) -> IntoSeriesT:
+def is_number(data:IntoSeriesT, na_default:bool = True, to_native: bool = True) -> IntoSeriesT:
     """文字列が数字であるかどうかを判定する関数"""
     build.assert_logical(to_native, arg_name = 'to_native')
     build.assert_logical(na_default, arg_name = 'na_default')
 
-    self_nw = nw.from_native(self, allow_series = True)
+    data_nw = nw.from_native(data, allow_series = True)
 
     rex_dict = {
         'exponent': r'[0-9]+[Ee][+-][0-9]+',
@@ -2101,7 +2105,7 @@ def is_number(self:IntoSeriesT, na_default:bool = True, to_native: bool = True) 
     }
 
     result_dict = {
-        key:~(self_nw.str.contains(rex_val).fill_null(na_default).cast(nw.Boolean))
+        key:~(data_nw.str.contains(rex_val).fill_null(na_default).cast(nw.Boolean))
         for rex_val, key in zip(rex_dict.values(), rex_dict.keys())
     }
 
@@ -2245,7 +2249,7 @@ def check_viorate(
     """Return row-wise rule violation indicators for each rule.
 
     Args:
-        data (pandas.DataFrame):
+        data (IntoFrameT):
             Data to validate.
         rule_dict (dict or pandas.Series):
             Mapping from rule name to expression string (for `DataFrame.eval`).
@@ -2324,10 +2328,10 @@ def implies_exper(P, Q):
   return f"{Q} | ~({P})"
 
 @singledispatch
-def is_complet(self: pd.DataFrame) -> pd.Series:
-  return self.notna().all(axis = 'columns')
+def is_complete(data: pd.DataFrame) -> pd.Series:
+  return data.notna().all(axis = 'columns')
 
-@is_complet.register(pd.Series)
+@is_complete.register(pd.Series)
 def _(*arg: pd.Series) -> pd.Series:
   return pd.concat(arg, axis = 'columns').notna().all(axis = 'columns')
 
@@ -2335,9 +2339,14 @@ def _(*arg: pd.Series) -> pd.Series:
 # In[ ]:
 
 
-def Sum(*arg): return pd.concat(arg, axis = 'columns').sum(axis = 'columns')
-def Mean(*arg): return pd.concat(arg, axis = 'columns').mean(axis = 'columns')
-def Max(*arg): return pd.concat(arg, axis = 'columns').max(axis = 'columns')
-def Min(*arg): return pd.concat(arg, axis = 'columns').min(axis = 'columns')
-def Median(*arg): return pd.concat(arg, axis = 'columns').median(axis = 'columns')
+def Sum(*arg: List[pd.Series]): 
+    return pd.concat(arg, axis = 'columns').sum(axis = 'columns')
+def Mean(*arg: List[pd.Series]): 
+    return pd.concat(arg, axis = 'columns').mean(axis = 'columns')
+def Max(*arg: List[pd.Series]): 
+    return pd.concat(arg, axis = 'columns').max(axis = 'columns')
+def Min(*arg: List[pd.Series]): 
+    return pd.concat(arg, axis = 'columns').min(axis = 'columns')
+def Median(*arg: List[pd.Series]): 
+    return pd.concat(arg, axis = 'columns').median(axis = 'columns')
 

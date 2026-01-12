@@ -16,9 +16,9 @@ check_viorate(data, rule_dict, **kwargs)
 
 ## 引数 Argument
 
-- `data`**IntoFrameT**（必須）<br>
-　ルールに基づくデータ検証を行うデータセット。
-
+- `data`：**IntoFrameT**（必須）<br>
+  　ルールに基づくデータ検証を行うデータセット。narwhals が受け入れ可能な DataFrame 互換オブジェクト<br>
+  （例：`pandas.DataFrame`、`polars.DataFrame`、`pyarrow.Table`）を指定できます。
 - `rule_dict`**dict or pd.Series of str**（必須）<br>
 　`pandas.eval()` メソッドで実行した結果が論理値となるような expression の文字列を値とする辞書オブジェクト。詳細は使用例も参照してください。
 

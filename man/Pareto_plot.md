@@ -18,7 +18,9 @@ Pareto_plot(
     )
 ``` 
 
-- `data`：`IntoFrameT`（必須）
+- `data`：**IntoFrameT**（必須）<br>
+  入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト<br>
+  （例：`pandas.DataFrame`、`polars.DataFrame`、`pyarrow.Table`）を指定できます。
 - `group`：**str**</br>
 　集計に使用するデータフレームの列名（必須）。
 - `values`：**str**</br>

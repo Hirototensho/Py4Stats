@@ -18,7 +18,9 @@ plot_miss_var(
 )
 ``` 
 
-- `data`：`IntoFrameT`（必須）
+- `data`：**IntoFrameT**（必須）<br>
+  入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト<br>
+  （例：`pandas.DataFrame`、`polars.DataFrame`、`pyarrow.Table`）を指定できます。
 - `normalize`：**str**</br>
 　グラフに表示する値の種類。
     - `missing_percent` 列毎の欠測率をパーセンテージで表示します。

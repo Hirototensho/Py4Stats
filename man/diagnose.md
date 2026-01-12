@@ -5,12 +5,14 @@
 　R言語の[`dlookr::diagnose()`](https://choonghyunryu.github.io/dlookr/reference/diagnose.data.frame.html)を再現した関数で、データの全般的な状態についての要約を提供します。
 
 ``` python
-diagnose(self)
+diagnose(data)
 ```
 
 ## 引数
 
-- `self`：`IntoFrameT`（必須）
+- `data`：**IntoFrameT**（必須）<br>
+  入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト<br>
+  （例：`pandas.DataFrame`、`polars.DataFrame`、`pyarrow.Table`）を指定できます。
 
 ## 返り値
 
