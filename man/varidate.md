@@ -75,17 +75,17 @@ print(py4st.check_that(retailers, rule_dict))
 ```
 
 前述の通り、`py4st.check_that()` 関数ではルール検証を `pandas.eval()` メソッドで実行しているため、検証ルールに自作関数や外部のモジュールからインポート関数を使うには、関数名の前に `@` をつけて `@func(…)` と記述し、また `**kwargs` 引数に `local_dict = locals()` と指定してください。  
-　次のコードで定義している `is_complet()` 関数は、代入された pd.Series が全て欠測値ではなく、指定された変数に関して完全ケースであることを判定する関数です。`turnover.notna() & total_rev.notna() & other_rev.notna()` と記述しても同じ結果が得られますが、自作関数を使うことで若干簡潔に記述できます。
+　次のコードで定義している `is_complete()` 関数は、代入された pd.Series が全て欠測値ではなく、指定された変数に関して完全ケースであることを判定する関数です。`turnover.notna() & total_rev.notna() & other_rev.notna()` と記述しても同じ結果が得られますが、自作関数を使うことで若干簡潔に記述できます。
 
 ```python
 from pandas.api.types import is_numeric_dtype
-def is_complet(*arg): return pd.concat(arg, axis = 'columns').notna().all(axis = 'columns')
+def is_complete(*arg): return pd.concat(arg, axis = 'columns').notna().all(axis = 'columns')
 
 pd.set_option('display.expand_frame_repr', False)
 
 rule_dict2 =  {
     'to_num':'@is_numeric_dtype(turnover)',                      # 売上高は数値変数である
-    'rev_complet':'@is_complet(turnover, total_rev, other_rev)', # 売上高と収入が全て観測されている
+    'rev_complete':'@is_complete(turnover, total_rev, other_rev)', # 売上高と収入が全て観測されている
     }
 
 print(py4st.check_that(
@@ -94,7 +94,7 @@ print(py4st.check_that(
 #>              item  passes  fails  coutna                                    expression
 #> name                                                                                  
 #> to_num          1       1      0       0                   @is_numeric_dtype(turnover)
-#> rev_complet    60      23      0      37  @is_complete(turnover, total_rev, other_rev)
+#> rev_complete   60      23      0      37  @is_complete(turnover, total_rev, other_rev)
 ```
 
 `py4st.check_viorate()` の使い方も `py4st.check_that()` と同様ですが、`py4st.check_that()` がデータセット全体での検証結果を出力するのに対し、`py4st.check_viorate()` ではレコード別の検証結果を表示します。`py4st.check_viorate()` から出力されるデータフレームでは、各列が検証ルールに、各行が元データの観測値に対応し、当該ルールが満たされていない場合、True と表示されます。また、`any` 列は複数あるルールのいずれか1つでも満たされていないことを、`all` 列は全てのルールが満たされていないことを示します。
@@ -103,12 +103,12 @@ print(py4st.check_that(
 rule_dict3 =  {
     'to':'turnover > 0',                                     # 売上高は厳密に正である
     'sc':'staff_costs / staff < 50',                         # 従業員1人当たりの人件費は50,000ギルダー未満である
-    'rev_complet':'@is_complet(turnover, total_rev, other_rev)',# 売上高と収入が全て観測されている
+    'rev_complete':'@is_complete(turnover, total_rev, other_rev)',# 売上高と収入が全て観測されている
     }
   
 df_viorate = py4st.check_viorate(retailers, rule_dict3)
 print(df_viorate.head())
-#>       to     sc  rev_complet   any    all
+#>       to     sc rev_complete   any    all
 #> 0   True   True         True  True   True
 #> 1  False  False         True  True  False
 #> 2  False   True        False  True  False
