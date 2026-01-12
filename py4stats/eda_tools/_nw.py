@@ -971,7 +971,7 @@ def tabyl(
     build.assert_logical(dropna, arg_name = 'dropna')
     build.assert_count(digits, arg_name = 'digits')
 
-    df = nw.from_native(data)
+    data_nw = nw.from_native(data)
 
     if(not isinstance(normalize, bool)):
       normalize = build.arg_match(
@@ -981,15 +981,17 @@ def tabyl(
 
     # index または columns に bool 値が指定されていると後続処理でエラーが生じるので、
     # 文字列型に cast します。
-    df = df[[index, columns]].with_columns(
+    data_nw = data_nw[[index, columns]].with_columns(
        ncs.boolean().cast(nw.String)
     )
 
     # 度数クロス集計表（最終的な表では左側の数字）
     args_dict = locals()
     args_dict.pop('normalize')
+    args_dict.pop('data')
+
     c_tab1 = crosstab(
-        data = df,
+        data = data_nw,
         normalize = False,
         to_native = False,
         **args_dict
@@ -1002,7 +1004,7 @@ def tabyl(
     if(normalize != False):
         # 回答率クロス集計表（最終的な表では括弧内の数字）
         c_tab2 = crosstab(
-            data = df, 
+            data = data_nw, 
             normalize = normalize, 
             to_native = False,
             **args_dict
