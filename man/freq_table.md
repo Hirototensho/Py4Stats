@@ -6,12 +6,14 @@
 
 ``` python
 freq_table(
-    data, 
+    data: IntoFrameT,
     subset: Union[str, Sequence[str]],
-    sort: bool = True,
+    sort_by: Literal['frequency', 'values'] = 'frequency',
     descending: bool = False,
     dropna: bool = False,
-    to_native: bool = True
+    to_native: bool = True,
+    *,
+    sort: Optional[bool] = None
 )
 ```
 
@@ -22,14 +24,23 @@ freq_table(
   （例：`pandas.DataFrame`、`polars.DataFrame`、`pyarrow.Table`）を指定できます。
 - `subset`：**str or list of str**</br>
 　集計に使用するデータフレームの列名（必須）。
-- `sort`：**bool**</br>
+- `sort_by`：**bool**</br>
 　True（初期値）なら度数分布表を頻度に応じてソートし、False なら `subset` で指定した列の値に応じてソートします。
 - `descending`：**bool**</br>
 　ソートの方式。True なら降順でソートし、False（初期設定）なら昇順でソートします。
 - `dropna`：**bool**</br>
 　欠測値（NaN）を集計から除外するかどうかを表すブール値。初期設定は False です。
+- `sort`：**Deprecated.**.</br>
+　`sort_by` の使用を推奨しています。この引数は後方互換性のために保持されおり、指定された場合は `FutureWarning`が発生します。デフォルトは `None` です。
 
-以上の引数は、基本的に [pandas.DataFrame.value_counts](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.value_counts.html) の同名の引数と同じですが、 `dropna` のみ初期設定を変更しています。
+## 返り値 Value
+
+　`freq_table()`関数では、次の値をもつ `pandas.DataFrame` が出力されます。
+
+- `freq`: 度数
+- `perc`: 相対度数
+- `cumfreq`: 累積度数
+- `cumperc`: 累積相対度数
 
 ## 使用例
 
@@ -44,7 +55,6 @@ print(py4st.freq_table(penguins, 'species'))
 #> 0  Chinstrap    68  0.197674       68  0.197674
 #> 1     Gentoo   124  0.360465      192  0.558140
 #> 2     Adelie   152  0.441860      344  1.000000
-
 
 print(py4st.freq_table(penguins, ['island', 'species']))
 #>       island    species  freq      perc  cumfreq   cumperc
@@ -61,7 +71,7 @@ penguins2 = penguins.assign(bill_length_mm2 = pd.cut(penguins['bill_length_mm'],
 print(
     py4st.freq_table(
         penguins2, ['species', 'bill_length_mm2'], 
-        sort = False, dropna = True
+        sort_by = 'values',  dropna = True
         )
     )
 #>       species   bill_length_mm2  freq      perc  cumfreq   cumperc
