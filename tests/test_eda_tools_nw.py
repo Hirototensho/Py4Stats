@@ -718,3 +718,50 @@ def test_reducers() -> None:
     assert eda_nw.Max(a, b).tolist() == [10, 20, 30]
     assert eda_nw.Min(a, b).tolist() == [1, 2, 30]  # nan は無視される
     assert eda_nw.Median(a, b).iloc[0] == pytest.approx(5.5)
+
+# ================================================================
+# plot_category
+# ================================================================
+import itertools
+Q1 = [70 * ['Strongly agree'], 200 * ['Agree'], 235 * ['Disagree'], 149 * ['Strongly disagree']]
+Q2 = [74 * ['Strongly agree'], 209 * ['Agree'], 238 * ['Disagree'], 133 * ['Strongly disagree']]
+Q3 = [59 * ['Strongly agree'], 235 * ['Agree'], 220 * ['Disagree'], 140 * ['Strongly disagree']]
+Q4 = [40 * ['Strongly agree'], 72 * ['Agree'], 266 * ['Disagree'], 276 * ['Strongly disagree']]
+
+categ_list = ['Strongly disagree', 'Disagree', 'Agree', 'Strongly agree']
+data = pd.DataFrame({
+    'I read only if I have to.':list(itertools.chain.from_iterable(Q1)),
+    'Reading is one of my favorite hobbies.':list(itertools.chain.from_iterable(Q2)),
+    'I like talking about books with other people.':list(itertools.chain.from_iterable(Q3)),
+    'For me, reading is a waste of time.':list(itertools.chain.from_iterable(Q4))
+})
+
+def test_plot_category_pd() -> None:
+
+    data_pd = data.apply(pd.Categorical, categories = categ_list)
+
+    fig, ax = plt.subplots()
+    eda_nw.plot_category(data_pd, ax = ax)
+
+    assert len(ax.patches) > 0
+
+def test_plot_category_pl() -> None:
+
+    data_pl = pl.from_pandas(data)\
+    .with_columns(
+        pl.all().cast(pl.Enum(categ_list))
+    )
+
+    fig, ax = plt.subplots()
+    eda_nw.plot_category(data_pl, ax = ax)
+
+    assert len(ax.patches) > 0
+
+def test_plot_category_pa() -> None:
+
+    data_pa = pa.Table.from_pandas(data)
+
+    fig, ax = plt.subplots()
+    eda_nw.plot_category(data_pa, sort_by = 'frequency', ax = ax)
+
+    assert len(ax.patches) > 0
