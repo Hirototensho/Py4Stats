@@ -39,7 +39,7 @@ relocate(
 
 - `to_native`（**bool**, optional）<br>
   `True` の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。<br>
-  `False` の場合、`narwhals.DataFrame` を返します。デフォルトは `True` です。
+  `False` の場合、`narwhals.DataFrame` を返します。デフォルトは `True` で、`to_native = False` は、主にライブラリ内部での利用や、`backend` に依存しない後続処理を行う場合を想定したオプションです。
 
 ### 返り値
 

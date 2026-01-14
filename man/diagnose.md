@@ -24,6 +24,9 @@ diagnose(data: IntoFrameT, to_native: bool = True)
 - `missing_percent`：1列のなかで欠測値が占めている割合で`missing_percent = (missing_count / 行数) * 100` として計算されます。もし `missing_percent = 100` なら、その列は完全に空白です。
 - `unique_count`：その列で重複を除外したユニークな値の数。例えばある列の中身が「`a, a, b`」であればユニークな値は `a` と `b` の2つなので `unique_count = 2` です。もし `unique_count = 1` であれば、その行にはたった1種類の値しか含まれていないことが分かりますし、例えば都道府県を表す列の `unique_count` が47より多ければ、都道府県以外のものが混ざっていると考えられます。
 - `unique_rate`： サンプルに占めるユニークな値の割合。 `unique_rate = unique_count / 行数` で計算されます。`unique_rate = 1` であれば、全ての行に異なる値が入っています。一般的に、実数値の列は `unique_rate` が高くなりますが、年齢の「20代」や価格の「200円代」のように階級に分けられている場合には `unique_rate` が低くなります。
+- `to_native`（**bool**, optional）<br>
+  `True` の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。<br>
+  `False` の場合、`narwhals.DataFrame` を返します。デフォルトは `True` で、`to_native = False` は、主にライブラリ内部での利用や、`backend` に依存しない後続処理を行う場合を想定したオプションです。
 
 ## 使用例 Examples
 
