@@ -25,7 +25,7 @@ remove_constant(
 ```
 
 
-## 引数
+## 引数 Argument
 
 - `data`：**IntoFrameT**（必須）<br>
   入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト<br>
@@ -41,15 +41,15 @@ remove_constant(
 - `dropna`：**bool**</br>
 　ユニーク値の数を計算する際に、`NaN` を除外するかどうかを表すブール値（`remove_constant()` のみ）。`dropna = True` だと `NaN` を除外し、`dropna = False`（初期設定）だと `NaN` を除外しません。データフレームに `NaN` と、 `NaN` ではない1種類の値からなる列がある場合、`dropna = False` だと削除されず、`dropna = True` だと削除されます。
 
-## 使用例
+## 使用例 Example
 
 `py4stats.remove_empty()` の使用例。
 
 ``` python
 import py4stats as py4st
 import pandas as pd
-import numpy as np
 from palmerpenguins import load_penguins
+penguins = load_penguins() # サンプルデータの読み込み
 
 penguins2 = penguins.loc[:, ['species', 'body_mass_g']].copy()
 # 空白列を作成

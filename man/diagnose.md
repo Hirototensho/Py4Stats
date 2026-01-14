@@ -1,11 +1,11 @@
-# `py4stats.diagnose()`
+# `py4stats.diagnose()`: データフレームの概要
 
 ## 概要
 
 　R言語の [`dlookr::diagnose()`](https://choonghyunryu.github.io/dlookr/reference/diagnose.data.frame.html) を再現した関数で、データの全般的な状態についての要約を提供します。
 
 ``` python
-diagnose(data)
+diagnose(data: IntoFrameT, to_native: bool = True)
 ```
 
 ## 引数
@@ -13,6 +13,9 @@ diagnose(data)
 - `data`：**IntoFrameT**（必須）<br>
   入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト<br>
   （例：`pandas.DataFrame`、`polars.DataFrame`、`pyarrow.Table`）を指定できます。
+- `to_native`（**bool**, optional）<br>
+  `True` の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。<br>
+  `False` の場合、`narwhals.DataFrame` を返します。デフォルトは `True` です。
 
 ## 返り値
 
@@ -26,7 +29,6 @@ diagnose(data)
 
 ``` python
 import py4stats as py4st
-import pandas as pd
 from palmerpenguins import load_penguins
 penguins = load_penguins() # サンプルデータの読み込み
 
