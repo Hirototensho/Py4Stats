@@ -23,6 +23,7 @@ import pandas as pd
 import numpy as np
 import scipy as sp
 import itertools
+import narwhals
 import narwhals as nw
 import narwhals.selectors as ncs
 from narwhals.typing import FrameT, IntoFrameT, SeriesT, IntoSeriesT
@@ -120,7 +121,8 @@ def diagnose(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
         'columns':data_nw.columns,
         'dtype':list_dtypes,
         'missing_count':data_nw.null_count().row(0),
-        'unique_count':[data_nw[col].n_unique() for col in data_nw.columns]
+        # 'unique_count':[data_nw[col].n_unique() for col in data_nw.columns]
+        'unique_count':[s.n_unique() for s in data_nw.iter_columns()]
     }, backend = data_nw.implementation)\
     .with_columns(
         (100 * nw.col('missing_count') / n).alias('missing_percent'),
@@ -1683,16 +1685,25 @@ def Pareto_plot(
         shere_rank = freq_table(
             data_nw, group, dropna = True, 
             sort_by = 'frequency',
-            descending = True, to_native = False
+            descending = True, 
+            to_native = False
             )
         cumlative = 'cumfreq'
+        # None のままだと `.top_k()` メソッドの使用に問題が生じるため
+        values = 'freq' 
     else:
         shere_rank = make_rank_table(
             data_nw.to_pandas(), 
-            group, values, aggfunc = aggfunc,
+            group, 
+            values, 
+            aggfunc = aggfunc,
             to_native = False
             )
         cumlative = 'cumshare'
+
+    if top_n is not None:
+        build.assert_count(top_n, lower = 1, arg_name = 'top_n')
+        shere_rank = shere_rank.top_k(k = top_n, by = values)
 
     shere_rank = shere_rank.to_pandas().set_index(group)
 
@@ -1739,7 +1750,6 @@ def make_Pareto_plot(
     group: str,
     cumlative: str,
     values: Optional[str] = None,
-    top_n: Optional[int] = None,
     ax: Optional[Axes] = None,
     fontsize: int = 12,
     xlab_rotation: Union[int, float] = 0,
@@ -1749,12 +1759,6 @@ def make_Pareto_plot(
     # グラフの描画
     if ax is None:
         fig, ax = plt.subplots()
-
-    # yで指定された変数の棒グラフ
-    # top_n が指定されていた場合、上位 top_n 件を抽出します。
-    if top_n is not None:
-        build.assert_count(top_n, lower = 1, arg_name = 'top_n')
-        shere_rank = shere_rank.head(top_n)
 
     if values is None:
         ax.bar(shere_rank.index, shere_rank['freq'], color = palette[0])
@@ -2536,16 +2540,143 @@ def set_miss(
 # In[ ]:
 
 
-def relocate(data: IntoFrameT, *args: Any, to_native: bool = True) -> IntoFrameT:
+def arrange_colnames(colnames, selected, before = None, after = None):
+    unselected = [i for i in colnames if i not in selected]
+    if before is None and after is None:
+        arranged = selected + unselected
+
+    if before is not None:
+        idx = unselected.index(before)
+        col_pre = unselected[:idx]
+        col_behind = unselected[idx:]
+        arranged = col_pre + selected + col_behind
+
+    if after is not None:
+        idx = unselected.index(after) + 1
+        col_pre = unselected[:idx]
+        col_behind = unselected[idx:]
+        arranged = col_pre + selected + col_behind
+
+    return arranged
+
+
+# In[ ]:
+
+
+def relocate(
+        data: IntoFrameT, 
+        *args: Union[str, List[str], narwhals.Expr, narwhals.selectors.Selector], 
+        before: Optional[str] = None,
+        after: Optional[str] = None,
+        to_native: bool = True
+        ) -> IntoFrameT:
+    """Reorder columns in a DataFrame without dropping any columns.
+
+    This function reorders columns in a DataFrame by relocating selected
+    columns to a new position, while keeping all other columns intact.
+    Selected columns can be specified by column names, lists of names,
+    or narwhals expressions/selectors.
+
+    By default, the selected columns are moved to the front of the DataFrame.
+    Alternatively, they can be placed immediately before or after a specified
+    reference column.
+
+    Internally, the input is converted to a narwhals DataFrame to support
+    multiple backends (e.g., pandas, polars, pyarrow), and the reordered
+    DataFrame is returned in its native type by default.
+
+    Args:
+        data (IntoFrameT):
+            Input DataFrame whose columns are to be reordered.
+            Any DataFrame type supported by narwhals can be used
+            (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table).
+        *args (Union[str, List[str], narwhals.Expr, narwhals.Selector]):
+            Columns to relocate. Each element may be:
+            - a column name (`str`)
+            - a list of column names
+            - a narwhals expression
+            - a narwhals selector
+            The order of columns specified here is preserved in the output.
+        before (Optional[str], optional):
+            Name of a column before which the selected columns should be placed.
+            Cannot be specified together with `after`. Defaults to `None`.
+        after (Optional[str], optional):
+            Name of a column after which the selected columns should be placed.
+            Cannot be specified together with `before`. Defaults to `None`.
+        to_native (bool, optional):
+            If `True`, return the result as the native DataFrame type
+            corresponding to the input (e.g., pandas or polars).
+            If `False`, return a narwhals DataFrame. Defaults to `True`.
+
+    Returns:
+        IntoFrameT:
+            A DataFrame with the same columns as `data`, reordered according
+            to the specified rules.
+
+    Raises:
+        ValueError:
+            If `*args` contains unsupported types.
+        ValueError:
+            If both `before` and `after` are specified.
+        ValueError:
+            If `before` or `after` is not a valid column name.
+
+    Notes:
+        - This function only changes the order of columns; no columns are
+          added or removed.
+        - If neither `before` nor `after` is specified, the selected columns
+          are moved to the beginning of the DataFrame.
+        - Column order among the selected columns follows the order specified
+          in `*args`.
+
+    Examples:
+        >>> import py4stats as py4st
+        >>> import narwhals.selectors as ncs
+        >>> from palmerpenguins import load_penguins
+        >>> penguins = load_penguins()
+
+        Move columns to the front:
+        >>> py4st.relocate(penguins, "year", "sex")
+
+        Relocate columns using a selector:
+        >>> py4st.relocate(penguins, ncs.numeric())
+
+        Place columns before a specific column:
+        >>> py4st.relocate(penguins, "year", before="island")
+    """
     # 引数のアサーション ======================================
     build.assert_logical(to_native, arg_name = 'to_native')
+
+    is_varid = [
+        isinstance(v, str) or
+        (build.is_character(v) and isinstance(v, list)) or
+        isinstance(v, nw.expr.Expr)
+        for v in args
+        ]
+
+    if not all(is_varid):
+        invalids = [v for i, v in enumerate(args) if not is_varid[i]]
+        message = "Argment '*args' must be of type 'str', list of 'str', 'narwhals.Expr' or 'narwhals.Selector'\n"\
+        + f"            The value(s) of {build.oxford_comma_and(invalids)} cannot be accepted.\n"\
+        + "            Examples of valid inputs: 'col1', ['col1', 'col2'], ncs.numeric(), nw.col('col1')"
+
+        raise ValueError(message)
+
+    if (before is not None) and (after is not None):
+        raise ValueError("Please specify either 'before' or 'after'.")
+
+    if before is not None:
+        build.assert_character(before, arg_name = 'before')
+    if after is not None:
+        build.assert_character(after, arg_name = 'after')
     # ======================================================
 
     data_nw = nw.from_native(data)
     colnames = data_nw.columns
     selected = data_nw.select(args).columns
-    droped = [i for i in colnames if i not in selected]
-    result = data_nw.select(nw.col(selected), nw.col(droped))
+    arranged = arrange_colnames(colnames, selected, before, after)
+
+    result = data_nw.select(nw.col(arranged))
 
     if to_native: return result.to_native()
     return result
@@ -2558,7 +2689,7 @@ def relocate(data: IntoFrameT, *args: Any, to_native: bool = True) -> IntoFrameT
 
 def make_table_to_plot(
         data: IntoFrameT, 
-        sort_by: Literal['frequency', 'values'] = 'values',
+        sort_by: Literal['frequency', 'category'] = 'values',
         to_native: bool = True
         ) -> None:
     data_nw = nw.from_native(data)
@@ -2666,6 +2797,7 @@ def make_categ_barh(
 # In[ ]:
 
 
+@pf.register_dataframe_method
 def plot_category(
     data: IntoFrameT,
     sort_by: Literal['frequency', 'values'] = 'values',
@@ -2749,12 +2881,13 @@ def plot_category(
           columns `"variable"`, `"value"`, `"perc"`, and `"bottom"`.
 
     Examples:
+        >>> import py4stats as py4st
         >>> import pandas as pd
         >>> df = pd.DataFrame({
         ...     "Q1": ["Agree", "Disagree", "Agree", "Strongly agree"],
         ...     "Q2": ["Disagree", "Disagree", "Agree", "Agree"],
         ... })
-        >>> plot_category(df, sort_by="values", legend_type="horizontal")
+        >>> py4st.plot_category(df, sort_by="values", legend_type="horizontal")
     """
     data_nw = nw.from_native(data)
     variables = data_nw.columns

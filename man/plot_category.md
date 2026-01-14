@@ -38,8 +38,7 @@ plot_category(
     `True` の場合、x = 0.5（50%）の位置に基準となる垂直線を描画します。
     割合の中点を視覚的に示す目的で使用できます。デフォルトは `True` です。
 - `ax`:<br>
-    描画先となる matplotlib の Axes。
-    `None` の場合は、新しい Figure と Axes が作成されます。デフォルトは `None` です。
+    描画先となる matplotlib の Axes。複数のグラフを並べる場合などに使用します。デフォルトの `None` の場合は、新しい Figure と Axes が作成されます。
 
 ## 使用例 Example
 

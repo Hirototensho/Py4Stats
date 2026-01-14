@@ -29,13 +29,13 @@ Pareto_plot(
 - `top_n`：**int**</br>
 　棒グラフを表示するカテゴリーの件数。`top_n = None`（初期設定）の場合、すべてのカテゴリーを表示し、整数値が指定された場合、上位 `top_n` 件が表示されます。
 - `ax`</br>
-　matplotlib の ax オブジェクト。複数のグラフを並べる場合などに使用します。
+描画先となる matplotlib の Axes。複数のグラフを並べる場合などに使用します。デフォルトの `None` の場合は、新しい Figure と Axes が作成されます。
 - `fontsize`：**int**</br>
 　軸ラベルなどのフォントサイズ。
 - `xlab_rotation`：**int or float**</br>
-　横軸ラベルの角度。matplotlib の `ax.xaxis.set_tick_params()` に引数 `rotation` として渡されます。
+    横軸ラベルの角度。matplotlib の `ax.xaxis.set_tick_params()` に引数 `rotation` として渡されます。
 - `palette`：**list of str**</br>
-　グラフの描画に使用する色コード。1つ目の要素が棒グラフの色に、2つ目の累積値を表す折線グラフの色に対応します。
+    グラフの描画に使用する色コード。1つ目の要素が棒グラフの色に、2つ目の累積値を表す折線グラフの色に対応します。
 
 ## 使用例
 
