@@ -27,6 +27,7 @@ from ._nw import (
     median_qi,
     min_max,
     missing_percent,
+    plot_category,
     plot_mean_diff,
     plot_median_diff,
     plot_miss_var,

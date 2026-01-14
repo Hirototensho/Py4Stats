@@ -46,6 +46,7 @@ from .eda_tools._nw import (
     mean_qi,
     median_qi,
     min_max,
+    plot_category,
     plot_mean_diff,
     plot_median_diff,
     plot_miss_var,
