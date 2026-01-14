@@ -20,6 +20,8 @@
 
 [`py4stats.Pareto_plot()`](man/Pareto_plot.md)
 
+[`py4stats.plot_category()`](man/plot_category.md)
+
 ### 数値変数の点推定と区間推定
 
 [`py4stats.mean_qi()`](man/point_range.md)
