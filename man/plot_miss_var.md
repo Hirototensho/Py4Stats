@@ -18,6 +18,8 @@ plot_miss_var(
 )
 ``` 
 
+## 引数 Argument
+
 - `data`：**IntoFrameT**（必須）<br>
   入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト<br>
   （例：`pandas.DataFrame`、`polars.DataFrame`、`pyarrow.Table`）を指定できます。
@@ -38,7 +40,7 @@ plot_miss_var(
 - `palette`：**list of str**</br>
 　グラフの描画に使用する色コード。棒グラフの色に対応します。
 
-## 使用例
+## 使用例 Example
 
 ``` python
 import py4stats as py4st

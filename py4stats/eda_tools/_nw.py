@@ -894,7 +894,7 @@ def freq_table(
             Column(s) to count by. Passed to `DataFrame.value_counts(subset=...)`.
         sort_by (Literal['frequency', 'values']):
             Sorting rule for the output table.
-            - 'frequency': sort by frequency.
+            - 'frequency': sort by frequency. (default)
             - 'values': sort by the category values.
         descending (bool):
             Sort order. Defaults to False.
@@ -905,14 +905,14 @@ def freq_table(
             selected backend. If False, return a narwhals DataFrame.
             Defaults to True.
         sort (bool):
-            **Deprecated.** Use ``sort_by`` instead.
+            **Deprecated.** Use `sort_by` instead.
             This argument is kept for backward compatibility. If provided, a
-            ``FutureWarning`` is emitted. When both ``sort`` and ``sort_by``
-            are provided, ``sort_by`` takes precedence and ``sort`` is ignored.
+            `FutureWarning` is emitted. When both `sort` and `sort_by`
+            are provided, `sort_by` takes precedence and `sort` is ignored.
             Defaults to None.
 
     Returns:
-        pandas.DataFrame:
+        IntoFrameT:
             Frequency table with columns:
             - freq: counts
             - perc: proportions
@@ -941,11 +941,12 @@ def freq_table(
         )
     # =========================================================
 
-    df = nw.from_native(data)
-    if dropna:
-        df = df.drop_nulls(subset)
+    data_nw = nw.from_native(data)
 
-    result = df.with_columns(__n=nw.lit(1))\
+    if dropna:
+        data_nw = data_nw.drop_nulls(subset)
+
+    result = data_nw.with_columns(__n=nw.lit(1))\
         .group_by(nw.col(subset))\
         .agg(nw.col('__n').sum().alias('freq'))
 
@@ -1681,6 +1682,7 @@ def Pareto_plot(
     if values is None:
         shere_rank = freq_table(
             data_nw, group, dropna = True, 
+            sort_by = 'frequency',
             descending = True, to_native = False
             )
         cumlative = 'cumfreq'
@@ -2527,4 +2529,285 @@ def set_miss(
 
   if to_native: return result.to_native()
   return result
+
+
+# # `relocate()`
+
+# In[ ]:
+
+
+def relocate(data: IntoFrameT, *args: Any, to_native: bool = True) -> IntoFrameT:
+    # 引数のアサーション ======================================
+    build.assert_logical(to_native, arg_name = 'to_native')
+    # ======================================================
+
+    data_nw = nw.from_native(data)
+    colnames = data_nw.columns
+    selected = data_nw.select(args).columns
+    droped = [i for i in colnames if i not in selected]
+    result = data_nw.select(nw.col(selected), nw.col(droped))
+
+    if to_native: return result.to_native()
+    return result
+
+
+# # カテゴリー変数の積み上げ棒グラフ
+
+# In[ ]:
+
+
+def make_table_to_plot(
+        data: IntoFrameT, 
+        sort_by: Literal['frequency', 'values'] = 'values',
+        to_native: bool = True
+        ) -> None:
+    data_nw = nw.from_native(data)
+
+    variables = data_nw.columns
+    def foo(v):
+        res_ft = freq_table(
+                data_nw, v, 
+                dropna = True, 
+                sort_by = sort_by,
+                descending = sort_by == 'frequency',
+                to_native = False
+            ).rename({v:'value'})\
+            .with_columns(
+                bottom = nw.col('cumperc').shift(n = 1).fill_null(0)
+                )
+
+        res_ft = res_ft.with_columns(nw.lit(v).alias('variable'))
+
+        return res_ft
+
+    table_to_plot = nw.concat(
+        [foo(v) for v in variables],
+        how = 'vertical'
+    )
+    table_to_plot = relocate(table_to_plot, nw.col('variable'), to_native = False)
+    if to_native: return table_to_plot.to_native()
+    return table_to_plot
+
+
+# In[ ]:
+
+
+import seaborn as sns
+from matplotlib import patches as mpatches
+from matplotlib.ticker import FuncFormatter
+
+def make_categ_barh(
+        table_to_plot, 
+        list_values,
+        palette: Optional[Sequence] = None,
+        legend_type: Literal['horizontal', 'vertical', 'none'] = 'horizontal',
+        show_vline: bool = True,
+        ax: Optional[Axes] = None
+        ):
+    table_to_plot = table_to_plot.to_pandas() # seaborn が Pandas のみ対応しているため
+    k_categ = len(list_values)
+    ## カラーパレットの生成 ==========================
+    if palette is None:
+        palette = sns.diverging_palette(
+            h_neg = 183, h_pos = 64, 
+            s = 70, l = 75, 
+            n = k_categ, 
+            as_cmap = False
+        )
+
+    value = list_values[0]
+    patch_list = []
+
+    if ax is None:
+        fig, ax = plt.subplots()
+    ## 積み上げ棒グラフの作成 =========================
+    for i, value in enumerate(list_values):
+
+        ax.barh(
+            y = table_to_plot.query('value == @value')['variable'], 
+            width = table_to_plot.query('value == @value')['perc'],
+            left = table_to_plot.query('value == @value')['bottom'],
+            color = palette[i]
+        )
+
+        patch = mpatches.Patch(color = palette[i], label = value)
+        patch_list.append(patch)
+
+    ## 軸ラベルと垂直線の設定 =========================
+    ax.xaxis.set_major_formatter(
+        FuncFormatter(lambda x, pos: f"{abs(100 * x):.0f}%")
+        )
+
+    ax.set_xlim(0, 1)
+    ax.set_ylabel('')
+    ax.set_xlabel('Percentage')
+
+    if show_vline:
+        ax.axvline(0.5, color = "gray", linewidth = 1, linestyle = "--")
+
+    ## 凡例の設定 ===============================
+    if legend_type != 'none':
+        if legend_type == 'horizontal':
+            arg_dict = {
+                'loc': 'upper center',
+                'bbox_to_anchor': (0.5, -0.1),
+                'ncol':k_categ,
+                'reverse': True
+            }
+        else:
+            arg_dict = {
+                'loc': 'upper left',
+                'bbox_to_anchor': (1, 1),
+                'ncol': 1
+            }
+        plt.legend(handles = patch_list, frameon = False, **arg_dict);
+
+
+# In[ ]:
+
+
+def plot_category(
+    data: IntoFrameT,
+    sort_by: Literal['frequency', 'values'] = 'values',
+    palette: Optional[sns.palettes._ColorPalette] = None,
+    legend_type: Literal["horizontal", "vertical", "none"] = "horizontal",
+    show_vline: bool = True,
+    ax: Optional[Axes] = None,
+) -> None:
+    """Plot 100% stacked horizontal bar charts for categorical variables.
+
+    This function summarizes multiple categorical variables and visualizes
+    their response distributions as 100% stacked horizontal bar charts
+    (one bar per variable). It is suitable for Likert-style survey items and
+    other categorical response data where all variables share a common
+    coding scheme.
+
+    Internally, the function aggregates the input data into a plotting table
+    using `make_table_to_plot()`, then renders the stacked bars via
+    `make_categ_barh()` with matplotlib.
+
+    Args:
+        data (IntoFrameT):
+            Input DataFrame containing categorical variables (one column per item).
+            Any DataFrame type supported by narwhals can be used
+            (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table).
+            All columns must share the same set of category labels.
+        sort_by (Literal["frequency", "values"], optional):
+            Rule used to order response categories before plotting.
+            - `"values"`: sort by the category values themselves.
+            - `"frequency"`: sort by response frequency (descending).
+            Defaults to `"values"`.
+        palette (Optional[sns.palettes._ColorPalette], optional):
+            Color palette used for the response categories.
+            If `None`, a default diverging palette is generated internally.
+            The length of the palette must match the number of categories.
+            Defaults to `None`.
+        legend_type (Literal["horizontal", "vertical", "none"], optional):
+            Placement and layout of the legend.
+            - `"horizontal"`: place the legend below the plot in a single row.
+            - `"vertical"`: place the legend to the right of the plot.
+            - `"none"`: do not draw a legend.
+            Defaults to `"horizontal"`.
+        show_vline (bool, optional):
+            If `True`, draw a vertical reference line at 0.5 (50%),
+            which can serve as a visual midpoint for proportions.
+            Defaults to `True`.
+        ax (Optional[matplotlib.axes.Axes], optional):
+            Matplotlib axes to draw the plot on. If `None`, a new figure
+            and axes are created. Defaults to `None`.
+
+    Returns:
+        None:
+            The function draws the plot on the provided or newly created
+            matplotlib axes and returns `None`.
+
+    Raises:
+        ValueError:
+            If the categorical variables in `data` do not share a common
+            coding scheme (i.e., their category labels are not identical).
+
+    Notes:
+        - When `sort_by="values"` is specified, the function relies on the presence of
+          explicit category order information (e.g., ordered categoricals in pandas
+          or Enum categories in polars) to determine the plotting order.
+        - **Recommended:** When using `sort_by="values"`, it is recommended to provide
+          the input as a `pandas.DataFrame` with columns of type `pd.Categorical`
+          (with an explicit order), or as a `polars.DataFrame` with columns defined
+          as `Enum` categories.
+        - For `polars.Categorical` columns, category order may not be preserved as
+          expected, and categories can be displayed in lexicographical order
+          (e.g., "Agree", "Disagree", "Strongly agree", "Strongly disagree").
+        - When a `pyarrow.Table` is provided as input, `sort_by="values"` may raise
+          an error due to limitations of dictionary-encoded types in pyarrow.
+          In such cases, use `sort_by="frequency"` instead.
+        - Missing values are dropped when computing category frequencies.
+        - Category order is determined by `sort_by` and then reversed before
+          plotting so that the first category appears at the bottom of the bar.
+        - The x-axis represents proportions in the range [0, 1], formatted
+          as percentages.
+        - This function assumes that `make_table_to_plot()` produces the
+          columns `"variable"`, `"value"`, `"perc"`, and `"bottom"`.
+
+    Examples:
+        >>> import pandas as pd
+        >>> df = pd.DataFrame({
+        ...     "Q1": ["Agree", "Disagree", "Agree", "Strongly agree"],
+        ...     "Q2": ["Disagree", "Disagree", "Agree", "Agree"],
+        ... })
+        >>> plot_category(df, sort_by="values", legend_type="horizontal")
+    """
+    data_nw = nw.from_native(data)
+    variables = data_nw.columns
+    # 引数のアサーション ==============================================
+    legend_type = build.arg_match(
+      legend_type, ['horizontal', 'vertical', 'none'],
+      arg_name = 'legend_type'
+      )
+    build.assert_logical(show_vline, arg_name = 'sort')
+
+    if data_nw.implementation.is_pyarrow() and sort_by == "values":
+        raise ValueError(
+            "`sort_by='values&` is not supported in pyarrow.Table."
+            "Please try one of the following:\n"\
+            "             - Specify sort_by = 'frequency'\n"\
+            "             - Use a `pandas.DataFrame` and set the `pd.Categorical` column as an ordered category\n"\
+            "             - Use a `polars.DataFrame` and set the `Enum-type` column as an ordered category"\
+        )
+
+    # カテゴリー変数のコーディング確認 ==================================
+    cording = data_nw[variables[0]].unique().to_list()
+    is_common_cording = all([data_nw[v].unique().is_in(cording).all() for v in variables])
+
+    if not is_common_cording:
+        messages = "This function assumes that all columns contained in `data` share a common coding scheme."
+        raise ValueError(messages)
+
+    # データの集計 ==================================================
+
+    table_to_plot = make_table_to_plot(
+        data_nw, sort_by = sort_by,
+        to_native = False
+        )
+
+    list_values = table_to_plot['value'].unique().to_list()
+
+    # if sort_by == 'values':
+    list_values.reverse()
+
+    # if nw.is_ordered_categorical(table_to_plot['value']): 
+    #     list_values = table_to_plot['value'].cat.get_categories().to_list() 
+    #     list_values.reverse() 
+    # else: 
+    #     list_values = table_to_plot['value'].unique().to_list() 
+    #     list_values.reverse()
+
+    # グラフの作図 ==================================================
+    make_categ_barh(
+        table_to_plot,
+        list_values = list_values,
+        palette = palette,
+        legend_type = legend_type,
+        show_vline = show_vline,
+        ax = ax
+    )
 
