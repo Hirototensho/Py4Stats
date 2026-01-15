@@ -1,4 +1,4 @@
-# 数値変換・正規化ユーティリティ `py4stats.weighted_mean()`, `py4stats.scale()`, `py4stats.min_max()`
+# 数値変換・正規化ユーティリティ: `py4stats.weighted_mean()`, `py4stats.scale()`, `py4stats.min_max()`
 
 本モジュールは、探索的データ解析（EDA）で頻繁に用いられる**加重平均の計算**および **数値データの正規化・標準化**を行う関数群を提供します。  
 内部では narwhals を利用することで、pandas・polars など複数のデータフレーム／シリーズ実装に対して共通の API を提供しています。
