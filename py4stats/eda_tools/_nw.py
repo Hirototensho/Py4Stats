@@ -1263,7 +1263,7 @@ def diagnose_category(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
     """
     build.assert_logical(to_native, arg_name = 'to_native')
 
-    data_nw = nw.from_native(data, allow_series = True)
+    data_nw = nw.from_native(data)
     res_is_dummy = is_dummy(data_nw)
     dummy_col = res_is_dummy[res_is_dummy].index.to_list()
 
@@ -1293,17 +1293,15 @@ def diagnose_category(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
         'count':df.select(nw.all().count()).row(0),
         'miss_pct':df.select(nw.all().null_count() * nw.lit(100 / N)).row(0),
         'unique':df.select(nw.all().n_unique()).row(0),
-        # 'mode':[df[v].value_counts().row(0)[0] for v in var_name],
         'mode':[
             freq_table(df, v, descending = True, to_native = False).row(0)[0] 
             for v in var_name
             ],
-        # 'mode_freq':[df[v].value_counts().row(0)[1] for v in var_name],
         'mode_freq':[
             freq_table(df, v, descending = True, to_native = False).row(0)[1] 
             for v in var_name
             ],
-        'std_entropy':[std_entropy(df[v]) for v in var_name]
+        'std_entropy':[std_entropy(s) for s in df.iter_columns()]
         # 'std_entropy':df.select(
         #     nw.all().map_batches(std_entropy, returns_scalar = True)
         #     ).row(0)
@@ -2772,6 +2770,7 @@ def make_categ_barh(
     ax.set_xlim(0, 1)
     ax.set_ylabel('')
     ax.set_xlabel('Percentage')
+    ax.invert_yaxis()
 
     if show_vline:
         ax.axvline(0.5, color = "gray", linewidth = 1, linestyle = "--")
@@ -2909,7 +2908,10 @@ def plot_category(
 
     # カテゴリー変数のコーディング確認 ==================================
     cording = data_nw[variables[0]].unique().to_list()
-    is_common_cording = all([data_nw[v].unique().is_in(cording).all() for v in variables])
+    is_common_cording = all([
+        s.unique().is_in(cording).all() 
+        for s in data_nw.iter_columns()
+    ])
 
     if not is_common_cording:
         messages = "This function assumes that all columns contained in `data` share a common coding scheme."
@@ -2924,7 +2926,6 @@ def plot_category(
 
     list_values = table_to_plot['value'].unique().to_list()
 
-    # if sort_by == 'values':
     list_values.reverse()
 
     # if nw.is_ordered_categorical(table_to_plot['value']): 
