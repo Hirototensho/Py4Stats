@@ -24,8 +24,8 @@ freq_table(
   （例：`pandas.DataFrame`、`polars.DataFrame`、`pyarrow.Table`）を指定できます。
 - `subset`：**str or list of str**</br>
 　集計に使用するデータフレームの列名（必須）。
-- `sort_by`：**bool**</br>
-　True（初期値）なら度数分布表を頻度に応じてソートし、False なら `subset` で指定した列の値に応じてソートします。
+- `sort_by`：**str**</br>
+　`sort_by = 'frequency'` なら度数分布表を頻度に応じてソートし、`sort_by = 'values'`  なら `subset` で指定した列の値に応じてソートします。
 - `descending`：**bool**</br>
 　ソートの方式。True なら降順でソートし、False（初期設定）なら昇順でソートします。
 - `dropna`：**bool**</br>
