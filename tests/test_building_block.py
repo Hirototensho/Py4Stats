@@ -84,11 +84,26 @@ def test_is_logical(x, expected):
 def test_is_numeric(x, expected):
     assert build.is_numeric(x) is expected
 
+# =========================================================
+# assert_length
+# =========================================================
+
+def test_assert_length_len_arg():
+    l = ['a', 'b', 'c']
+    with pytest.raises(ValueError):
+        build.assert_length(l, arg_name = 'l', len_arg = 1)
+
+def test_assert_length_len_max():
+    l = ['a', 'b', 'c']
+    with pytest.raises(ValueError):
+        build.assert_length(l, arg_name = 'l', len_arg = 2)
+def test_assert_length_len_min():
+    l = ['a', 'b', 'c']
+    with pytest.raises(ValueError):
+        build.assert_length(l, arg_name = 'l', len_arg = 4)
 
 # =========================================================
 # assert_* (raises on invalid)
-# 注意：Python は -O で assert を無効化できるので、
-# テストは通常モードで実行する前提です。
 # =========================================================
 
 def test_assert_character_raises():

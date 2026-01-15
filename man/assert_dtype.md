@@ -6,40 +6,65 @@
 　R言語の [`checkmate`](https://mllg.github.io/checkmate/index.html) パッケージの関数群をオマージュした、引数に代入された値が想定されたデータ型ではないときにエラーを出力する関数です。
 
 ``` python
-assert_character(arg, arg_name = None)
+assert_character(
+    arg: Any, 
+    arg_name: Optional[str] = None,
+    len_arg: Optional[int] = None,
+    len_min: int = 1,
+    len_max: Optional[int] = None
+    )
 
-assert_logical(arg, arg_name = None)
+assert_logical(
+    arg: Any, 
+    arg_name: Optional[str] = None,
+    len_arg: Optional[int] = None,
+    len_min: int = 1,
+    len_max: Optional[int] = None
+    )
 
 assert_numeric(
-    arg, 
+    arg: Any,
+    arg_name: Optional[str] = None,
     lower = -float('inf'), 
     upper = float('inf'), 
-    inclusive = 'both', 
-    arg_name = None
+    inclusive: Literal["both", "neither", "left", "right"] = "both",
+    len_arg: Optional[int] = None,
+    len_min: int = 1,
+    len_max: Optional[int] = None
     )
 
 assert_integer(
-    arg, 
+    arg: Any,
+    arg_name: Optional[str] = None,
     lower = -float('inf'), 
     upper = float('inf'), 
-    inclusive = 'both', 
-    arg_name = None
+    inclusive: Literal["both", "neither", "left", "right"] = "both",
+    len_arg: Optional[int] = None,
+    len_min: int = 1,
+    len_max: Optional[int] = None
     )
 
 assert_count(
-    arg, 
+    arg: Any,
+    arg_name: Optional[str] = None,
     lower = 0, 
     upper = float('inf'), 
-    inclusive = 'both', 
+    inclusive: Literal["both", "neither", "left", "right"] = "both",
+    len_arg: Optional[int] = None,
+    len_min: int = 1,
+    len_max: Optional[int] = None
     arg_name = None
     )
 
 assert_float(
-    arg, 
+    arg: Any,
+    arg_name: Optional[str] = None,
     lower = -float('inf'), 
     upper = float('inf'), 
-    inclusive = 'both', 
-    arg_name = None
+    inclusive: Literal["both", "neither", "left", "right"] = "both",
+    len_arg: Optional[int] = None,
+    len_min: int = 1,
+    len_max: Optional[int] = None
     )
 ```
 
@@ -77,28 +102,32 @@ from py4stats import building_block as build
 x = [1, 2, 3]
 y = ['A', 'B', 'C']
 
-build.assert_character(x)
+build.assert_character(x, arg_name = 'x')
 #> ValueError: Argment 'x' must be of type 'str'.
 
-build.assert_character(y)
+build.assert_character(y, arg_name = 'y')
 ```
 
 ```python
-build.assert_numeric(x)
+build.assert_numeric(x, arg_name = 'x')
 
-build.assert_numeric(y)
+build.assert_numeric(y, arg_name = 'y')
 #> ValueError: Argment 'y' must be of type 'int' or 'float' with value(s) -inf <= x <= inf.
 
 z = [0.1, 0.3, 0.6]
-build.assert_numeric(z, lower = 0, upper = 1)
+build.assert_numeric(z, arg_name = 'z', lower = 0, upper = 1)
 
 z.extend([2, 3])
-build.assert_numeric(z, lower = 0, upper = 1)
+build.assert_numeric(z, arg_name = 'z', lower = 0, upper = 1)
 #> ValueError: Argment 'z' must have value 0 <= x <= 1
 #> element '3' and '4' of 'z' not sutisfy the condtion.
 
 z = 1
-build.assert_numeric(z, lower = 0, upper = 1, inclusive = 'left')
+build.assert_numeric(
+    z, arg_name = 'z', 
+    lower = 0, upper = 1, 
+    inclusive = 'left'
+    )
 #> ValueError: Argment 'z' must have value 0 <= x < 1.
 ```
 
