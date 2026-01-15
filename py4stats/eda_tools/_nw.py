@@ -1370,7 +1370,7 @@ def weighted_mean(x: IntoSeriesT, w: IntoSeriesT, dropna:bool = False) -> float:
 
   build.assert_numeric(x, arg_name = 'x')
   build.assert_numeric(w, arg_name = 'w')
-
+  
   wmean = (x * w).sum() / w.sum()
   return wmean
 
@@ -1379,7 +1379,10 @@ def weighted_mean(x: IntoSeriesT, w: IntoSeriesT, dropna:bool = False) -> float:
 
 
 @singledispatch
-def scale(x: Union[IntoSeriesT, pd.DataFrame], ddof: int = 1, to_native: bool = True) -> IntoSeriesT:
+def scale(
+    x: Union[IntoSeriesT, pd.DataFrame], 
+    ddof: int = 1, to_native: bool = True
+    ) -> IntoSeriesT:
     """Standardize a numeric series by Z-score scaling.
 
     This function standardizes numeric data by subtracting the mean
@@ -1417,9 +1420,9 @@ def scale(x: Union[IntoSeriesT, pd.DataFrame], ddof: int = 1, to_native: bool = 
     """
     build.assert_count(ddof, arg_name = 'ddof')
     build.assert_logical(to_native, arg_name = 'to_native')
-
+    
     x = nw.from_native(x, series_only = True)
-
+    
     build.assert_numeric(x.drop_nulls(), arg_name = 'x')
 
     z = (x - x.mean()) / x.std(ddof = ddof)
@@ -1441,7 +1444,10 @@ def scale_pandas(x: pd.DataFrame, ddof: int = 1, to_native: bool = True) -> Into
 
 
 @singledispatch
-def min_max(x: Union[IntoSeriesT, pd.DataFrame], to_native: bool = True) -> IntoSeriesT:
+def min_max(
+    x: Union[IntoSeriesT, pd.DataFrame], 
+    to_native: bool = True
+    ) -> IntoSeriesT:
     """Normalize a numeric series using min-max scaling.
 
     This function rescales numeric data to the range [0, 1] using
@@ -1475,7 +1481,7 @@ def min_max(x: Union[IntoSeriesT, pd.DataFrame], to_native: bool = True) -> Into
     build.assert_logical(to_native, arg_name = 'to_native')
 
     x = nw.from_native(x, series_only = True)
-
+    
     build.assert_numeric(x.drop_nulls(), arg_name = 'x')
 
     z = (x - x.min()) / (x.max() - x.min())
@@ -1847,11 +1853,11 @@ def Pareto_plot(
             to_native = False
             )
         cumlative = 'cumshare'
-
+    
     if top_n is not None:
         build.assert_count(top_n, lower = 1, arg_name = 'top_n')
         shere_rank = shere_rank.top_k(k = top_n, by = values)
-
+    
     shere_rank = shere_rank.to_pandas().set_index(group)
 
     # 作図
@@ -2691,7 +2697,7 @@ def arrange_colnames(colnames, selected, before = None, after = None):
     unselected = [i for i in colnames if i not in selected]
     if before is None and after is None:
         arranged = selected + unselected
-
+    
     if before is not None:
         idx = unselected.index(before)
         col_pre = unselected[:idx]
@@ -2703,7 +2709,7 @@ def arrange_colnames(colnames, selected, before = None, after = None):
         col_pre = unselected[:idx]
         col_behind = unselected[idx:]
         arranged = col_pre + selected + col_behind
-
+    
     return arranged
 
 
@@ -2793,7 +2799,7 @@ def relocate(
     """
     # 引数のアサーション ======================================
     build.assert_logical(to_native, arg_name = 'to_native')
-
+    
     is_varid = [
         isinstance(v, str) or
         (build.is_character(v) and isinstance(v, list)) or
@@ -2806,12 +2812,12 @@ def relocate(
         message = "Argment '*args' must be of type 'str', list of 'str', 'narwhals.Expr' or 'narwhals.Selector'\n"\
         + f"            The value(s) of {build.oxford_comma_and(invalids)} cannot be accepted.\n"\
         + "            Examples of valid inputs: 'x', ['x', 'y'], ncs.numeric(), nw.col('x')"
-
+        
         raise ValueError(message)
-
+    
     if (before is not None) and (after is not None):
         raise ValueError("Please specify either 'before' or 'after'.")
-
+    
     if before is not None:
         build.assert_character(before, arg_name = 'before')
     if after is not None:
@@ -2824,7 +2830,7 @@ def relocate(
     arranged = arrange_colnames(colnames, selected, before, after)
 
     result = data_nw.select(nw.col(arranged))
-
+    
     if to_native: return result.to_native()
     return result
 
@@ -2920,7 +2926,7 @@ def make_categ_barh(
     ax.set_ylabel('')
     ax.set_xlabel('Percentage')
     ax.invert_yaxis()
-
+    
     if show_vline:
         ax.axvline(0.5, color = "gray", linewidth = 1, linestyle = "--")
     
