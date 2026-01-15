@@ -1331,16 +1331,58 @@ def diagnose_category(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
 
 
 def weighted_mean(x: IntoSeriesT, w: IntoSeriesT) -> float:
+  x = nw.from_native(x, series_only = True)
+  w = nw.from_native(w, series_only = True)
   wmean = (x * w).sum() / w.sum()
   return wmean
 
-def scale(x: IntoSeriesT, ddof: int = 1) -> IntoSeriesT:
+
+# In[ ]:
+
+
+@singledispatch
+def scale(x: Union[IntoSeriesT, pd.DataFrame], ddof: int = 1, to_native: bool = True) -> IntoSeriesT:
+    build.assert_count(ddof, arg_name = 'ddof')
+    build.assert_logical(to_native, arg_name = 'to_native')
+
+    x = nw.from_native(x, series_only = True)
     z = (x - x.mean()) / x.std(ddof = ddof)
+    if to_native: return z.to_native()
     return z
 
-def min_max(x: IntoSeriesT) -> IntoSeriesT:
-  mn = (x - x.min()) / (x.max() - x.min())
-  return mn
+@scale.register(pd.Series)
+@scale.register(pd.DataFrame)
+def scale_pandas(x: Union[pd.Series, pd.DataFrame], ddof: int = 1, to_native: bool = True) -> IntoSeriesT:
+    build.assert_count(ddof, arg_name = 'ddof')
+    build.assert_logical(to_native, arg_name = 'to_native')
+
+    z = (x - x.mean()) / x.std(ddof = ddof)
+
+    if to_native: return z
+    return nw.from_native(z, allow_series = True)
+
+
+# In[ ]:
+
+
+@singledispatch
+def min_max(x: Union[IntoSeriesT, pd.DataFrame], to_native: bool = True) -> IntoSeriesT:
+    build.assert_logical(to_native, arg_name = 'to_native')
+
+    x = nw.from_native(x, series_only = True)
+    z = (x - x.min()) / (x.max() - x.min())
+    if to_native: return z.to_native()
+    return z
+
+@min_max.register(pd.Series)
+@min_max.register(pd.DataFrame)
+def min_max_pandas(x: IntoSeriesT, ddof: int = 1, to_native: bool = True) -> IntoSeriesT:
+    build.assert_logical(to_native, arg_name = 'to_native')
+
+    z = (x - x.min()) / (x.max() - x.min())
+
+    if to_native: return z
+    return nw.from_native(z, allow_series = True)
 
 
 # ## 完全な空白列 and / or 行の除去
