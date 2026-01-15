@@ -29,7 +29,8 @@
 
 #### データフレームの列や行の削除
 
-[`py4stats.remove_empty()`](man/remove_empty_constant.md)  [`py4stats.remove_constant()`](man/remove_empty_constant.md)
+[`py4stats.remove_empty()`](man/remove_empty_constant.md)  
+[`py4stats.remove_constant()`](man/remove_empty_constant.md)
 
 [`py4stats.filtering_out()`](man/filtering_out.md)
 
@@ -48,6 +49,12 @@
 #### 簡易な欠測値の可視化
 
 [`py4stats.plot_miss_var()`](man/plot_miss_var.md)
+
+#### 数値変数の集計と標準化
+
+[`py4stats.weighted_mean()`](man/scale_wmean.md)
+[`py4stats.scale()`](man/scale_wmean.md)
+[`py4stats.min_max()`](man/scale_wmean.md)
 
 #### 論理関数
 
