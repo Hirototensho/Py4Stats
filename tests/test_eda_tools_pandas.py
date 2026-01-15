@@ -10,8 +10,15 @@ import matplotlib.pyplot as plt
 # from py4stats.eda_tools import _pandas as eda
 from py4stats.eda_tools import _pandas as eda_pd
 
+
 import pathlib
 tests_path = pathlib.Path(__file__).parent
+
+# ↓ FutureWarnin が pytest の結果を汚損しないための処理
+pytestmark = pytest.mark.filterwarnings(
+    "ignore:The pandas-based implementation of `eda_tools` is deprecated:FutureWarning"
+)
+
 
 # penguins = load_penguins() # サンプルデータの読み込み
 penguins = pd.read_csv(f'{tests_path}/fixtures/penguins.csv')
