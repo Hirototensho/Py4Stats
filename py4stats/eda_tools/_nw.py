@@ -2588,8 +2588,8 @@ def relocate(
     Args:
         data (IntoFrameT):
             Input DataFrame whose columns are to be reordered.
-            Any DataFrame type supported by narwhals can be used
-            (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table).
+            Any DataFrame-like object supported by narwhals
+            (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
         *args (Union[str, List[str], narwhals.Expr, narwhals.Selector]):
             Columns to relocate. Each element may be:
             - a column name (`str`)
@@ -2658,7 +2658,7 @@ def relocate(
         invalids = [v for i, v in enumerate(args) if not is_varid[i]]
         message = "Argment '*args' must be of type 'str', list of 'str', 'narwhals.Expr' or 'narwhals.Selector'\n"\
         + f"            The value(s) of {build.oxford_comma_and(invalids)} cannot be accepted.\n"\
-        + "            Examples of valid inputs: 'col1', ['col1', 'col2'], ncs.numeric(), nw.col('col1')"
+        + "            Examples of valid inputs: 'x', ['x', 'y'], ncs.numeric(), nw.col('x')"
 
         raise ValueError(message)
 
@@ -2689,7 +2689,7 @@ def relocate(
 
 def make_table_to_plot(
         data: IntoFrameT, 
-        sort_by: Literal['frequency', 'category'] = 'values',
+        sort_by: Literal['values', 'frequency'] = 'values',
         to_native: bool = True
         ) -> None:
     data_nw = nw.from_native(data)
@@ -2800,7 +2800,7 @@ def make_categ_barh(
 @pf.register_dataframe_method
 def plot_category(
     data: IntoFrameT,
-    sort_by: Literal['frequency', 'values'] = 'values',
+    sort_by: Literal['values', 'frequency'] = 'values',
     palette: Optional[sns.palettes._ColorPalette] = None,
     legend_type: Literal["horizontal", "vertical", "none"] = "horizontal",
     show_vline: bool = True,
