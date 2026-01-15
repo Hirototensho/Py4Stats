@@ -118,7 +118,7 @@ StatsKey = Literal["std_err", "statistics", "p_value", "conf_int"]
 
 # # 限界効果（margeff）を返せるモデルの最小要件（型チェッカ向け）
 # class _HasMargEff(Protocol):
-#     def get_margeff(self, *args: Any, **kwargs: Any) -> Any
+#     def get_margeff(self, *args: Any, **kwargs: Any) -> Any: ...
 
 
 # ## 回帰分析の結果をデータフレームに変換する関数
@@ -222,11 +222,10 @@ def tidy_regression(
         AssertionError:
             If `conf_level` is not in (0, 1).
     """
-    # 引数のアサーション ==================================================================================
+    # 引数のアサーション ----------------------------------------------------------------------------------
     build.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither', arg_name = 'conf_level')
     build.assert_logical(add_one_sided, arg_name = 'add_one_sided')
-    # ==================================================================================================
-    
+    # --------------------------------------------------------------------------------------------------
     tidied = summary_params_frame(x, alpha = 1 - conf_level, xname = name_of_term)
 
     tidied.index.name = 'term'
@@ -294,10 +293,8 @@ def tidy_test(
       AssertionError:
           If `conf_level` is not in (0, 1).
   """
-  # 引数のアサーション ==================================================================================
   build.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither', arg_name = 'conf_level')
-  # ==================================================================================================
-  
+
   if(x.distribution == 'F'):
     tidied = pd.DataFrame({
     'statistics':x.statistic,
@@ -366,53 +363,51 @@ def tidy_one_sided(x: Any, conf_level: float = 0.95, **kwargs: Any) -> pd.DataFr
 
 @tidy_one_sided.register(ContrastResults)
 def tidy_one_sided_t_test(x: ContrastResults, conf_level: float = 0.95) -> pd.DataFrame:
-    """Compute one-sided p-values and confidence bounds for a ContrastResults test.
+  """Compute one-sided p-values and confidence bounds for a ContrastResults test.
 
-    The function calls `tidy(x)` first and then overwrites:
-        - p_value
-        - conf_lower
-        - conf_higher
+  The function calls `tidy(x)` first and then overwrites:
+      - p_value
+      - conf_lower
+      - conf_higher
 
-    based on the distribution used in the test:
-        - 't': uses Student t distribution
-        - 'norm': uses standard normal distribution
+  based on the distribution used in the test:
+      - 't': uses Student t distribution
+      - 'norm': uses standard normal distribution
 
-    Args:
-        x (statsmodels.stats.contrast.ContrastResults):
-            Contrast test result.
-        conf_level (float):
-            One-sided confidence level. Must be in (0, 1).
+  Args:
+      x (statsmodels.stats.contrast.ContrastResults):
+          Contrast test result.
+      conf_level (float):
+          One-sided confidence level. Must be in (0, 1).
 
-    Returns:
-        pandas.DataFrame:
-            Updated tidy table with one-sided inference results.
+  Returns:
+      pandas.DataFrame:
+          Updated tidy table with one-sided inference results.
 
-    Raises:
-        NotImplementedError:
-            If `x.distribution` is not supported (not 't' or 'norm').
-    """
-    # 引数のアサーション ==================================================================================
-    build.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither', arg_name = 'conf_level')
-    # ==================================================================================================
-    tidied = tidy(x)
+  Raises:
+      NotImplementedError:
+          If `x.distribution` is not supported (not 't' or 'norm').
+  """
+  build.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither', arg_name = 'conf_level')
+  tidied = tidy(x)
 
-    # 仮説検定にt分布が用いられている場合
-    if(x.distribution == 't'):
-        tidied['p_value'] = t.sf(abs(tidied['statistics']), x.dist_args[0])
-        t_alpha = t.isf(1 - conf_level, df = x.dist_args[0])
-        tidied['conf_lower'] = tidied['estimate'] - t_alpha * tidied['std_err']
-        tidied['conf_higher'] = tidied['estimate'] + t_alpha * tidied['std_err']
+  # 仮説検定にt分布が用いられている場合
+  if(x.distribution == 't'):
+    tidied['p_value'] = t.sf(abs(tidied['statistics']), x.dist_args[0])
+    t_alpha = t.isf(1 - conf_level, df = x.dist_args[0])
+    tidied['conf_lower'] = tidied['estimate'] - t_alpha * tidied['std_err']
+    tidied['conf_higher'] = tidied['estimate'] + t_alpha * tidied['std_err']
 
-    # 仮説検定に正規分布が用いられている場合
-    elif(x.distribution == 'norm'):
-        tidied['p_value'] = norm.sf(abs(tidied['statistics']))
-        z_alpha = norm.isf(1 - conf_level)
-        tidied['conf_lower'] = tidied['estimate'] - z_alpha * tidied['std_err']
-        tidied['conf_higher'] = tidied['estimate'] + z_alpha * tidied['std_err']
-    else:
-        raise NotImplementedError(f'tidy mtethod for distribution {x.distribution} is not implemented.')
+  # 仮説検定に正規分布が用いられている場合
+  elif(x.distribution == 'norm'):
+    tidied['p_value'] = norm.sf(abs(tidied['statistics']))
+    z_alpha = norm.isf(1 - conf_level)
+    tidied['conf_lower'] = tidied['estimate'] - z_alpha * tidied['std_err']
+    tidied['conf_higher'] = tidied['estimate'] + z_alpha * tidied['std_err']
+  else:
+    raise NotImplementedError(f'tidy mtethod for distribution {x.distribution} is not implemented.')
 
-    return tidied
+  return tidied
 
 
 
@@ -490,9 +485,6 @@ def tidy_to_jp(tidied: pd.DataFrame, conf_level: float = 0.95) -> pd.DataFrame:
       pandas.DataFrame:
           A renamed DataFrame with Japanese column/index labels.
   """
-  # 引数のアサーション ==================================================================================
-  build.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither', arg_name = 'conf_level')
-  # ==================================================================================================
   tidied = tidied\
       .rename(columns = {
           'term':'説明変数',
@@ -669,22 +661,20 @@ def log_to_pct(est: Union[float, pd.Series, np.ndarray]) -> Union[float, pd.Seri
 from statsmodels.regression.linear_model import RegressionResultsWrapper
 import varname
 
-def assert_reg_reuslt(x: Any, arg_name: Optional[str] = None) -> None:
-    """Assert that inputs are statsmodels RegressionResultsWrapper objects.
+def assert_reg_reuslt(x: Any) -> None:
+  """Assert that inputs are statsmodels RegressionResultsWrapper objects.
 
-    Args:
-        x:
-            A list-like object expected to contain `RegressionResultsWrapper`.
+  Args:
+      x:
+          A list-like object expected to contain `RegressionResultsWrapper`.
 
-    Raises:
-        AssertionError:
-            If any element is not a `RegressionResultsWrapper`.
-    """
-    if(arg_name is None):
-        arg_name = varname.argname('x')
-    x = pd.Series(x)
-    condition =  x.apply(lambda x: isinstance(x, (RegressionResultsWrapper))).all()
-    assert condition, f"Argment '{arg_name}' must be of type '{RegressionResultsWrapper}'."
+  Raises:
+      AssertionError:
+          If any element is not a `RegressionResultsWrapper`.
+  """
+  x = pd.Series(x)
+  condition =  x.apply(lambda x: isinstance(x, (RegressionResultsWrapper))).all()
+  assert condition, f"Argment '{varname.argname('x')}' must be of type '{RegressionResultsWrapper}'."
 
 
 
@@ -748,13 +738,13 @@ def compare_ols(
     # 引数のアサーション ----------------------------------------------------------------------------------
     if model_name is not None:
         build.assert_character(model_name, arg_name = 'model_name')
-    
+
     build.assert_count(digits, arg_name = 'digits')
     build.assert_logical(add_stars, arg_name = 'add_stars')
     build.assert_character(line_break, arg_name = 'line_break')
     # --------------------------------------------------------------------------------------------------
     assert pandas.api.types.is_list_like(list_models), "argument 'list_models' is must be a list of models."
-    assert_reg_reuslt(list_models, arg_name = 'list_models')
+    assert_reg_reuslt(list_models)
 
     tidy_list = [tidy(mod) for mod in list_models]
 
@@ -1060,7 +1050,6 @@ def coefplot(
 
 
 from statsmodels.regression.linear_model import RegressionResultsWrapper
-
 @coefplot.register(RegressionResultsWrapper)
 def coefplot_regression(
     mod: Any,
@@ -1097,15 +1086,9 @@ def coefplot_regression(
 
     Returns:
         None
-        
     """
-    # 引数のアサーション ==================================================================================
     build.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither', arg_name = 'conf_level')
     build.assert_character(palette, arg_name = 'palette')
-    build.assert_logical(show_Intercept, arg_name = 'show_Intercept')
-    build.assert_logical(show_vline, arg_name = 'show_vline')
-    # ==================================================================================================
-    
 
     # 回帰係数の表を抽出
     tidy_ci_high = tidy(mod, conf_level = conf_level[0])
@@ -1207,7 +1190,7 @@ def coef_dot(
 
 
 def tidy_mfx(
-    x,
+    x: _HasMargEff,
     at: MfxAt = "overall",
     method: Literal['coef', 'dydx', 'eyex', 'dyex', 'eydx'] = "dydx",
     dummy: bool = False,
@@ -1341,7 +1324,7 @@ def compare_mfx(
                 Comparison table of marginal effects/coefficients.
         """
         assert pandas.api.types.is_list_like(list_models), "argument 'list_models' is must be a list of models."
-        assert_reg_reuslt(list_models, arg_name = 'list_models')
+        assert_reg_reuslt(list_models)
         # 限界効果の推定-------------
         if method == 'coef':
             tidy_list = [tidy(mod) for mod in list_models]
@@ -1389,7 +1372,7 @@ def compare_mfx(
 
 # 回帰分析の結果から回帰係数のグラフを作成する関数 --------
 def mfxplot(
-    mod,
+    mod: _HasMargEff,
     subset: Optional[Sequence[str]] = None,
     conf_level: Sequence[float] = (0.95, 0.99),
     at: MfxAt = "overall",
@@ -1430,13 +1413,6 @@ def mfxplot(
     Returns:
         None
     """
-    # 引数のアサーション ==================================================================================
-    build.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither', arg_name = 'conf_level')
-    build.assert_logical(dummy, arg_name = 'dummy')
-    build.assert_character(palette, arg_name = 'palette')
-    build.assert_logical(show_Intercept, arg_name = 'show_Intercept')
-    build.assert_logical(show_vline, arg_name = 'show_vline')
-    # ==================================================================================================
 
     # 回帰係数の表を抽出
     tidy_ci_high = tidy_mfx(
@@ -1550,8 +1526,8 @@ def Blinder_Oaxaca(
             - observed_diff
             - unobserved_diff
     """
-    assert_reg_reuslt(model1, arg_name = 'model1')
-    assert_reg_reuslt(model2, arg_name = 'model2')
+    assert_reg_reuslt(model1)
+    assert_reg_reuslt(model2)
 
     X_1 = pd.DataFrame(model1.model.exog, columns = model1.model.exog_names)
     X_2 = pd.DataFrame(model2.model.exog, columns = model2.model.exog_names)
@@ -1599,7 +1575,6 @@ def plot_Blinder_Oaxaca(
       diff_type, ['observed_diff', 'unobserved_diff'],
       multiple = True
       )
-  
   fig = None
   result = Blinder_Oaxaca(model1, model2)
   if isinstance(diff_type, list) == False:
