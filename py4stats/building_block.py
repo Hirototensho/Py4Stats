@@ -82,6 +82,7 @@ import numpy as np
 import scipy as sp
 # from varname import argname
 import varname
+import collections
 
 
 # ## 型ヒントの準備
@@ -219,6 +220,50 @@ def arg_match(
     return arg
 
 
+# ## 引数の要素数に関するアサーション
+
+
+
+def length(x):
+    if x is None:
+        return 0
+    if isinstance(x, str):
+        return 1
+    if isinstance(x, collections.abc.Sized):
+        return len(x)       # list, dict, pandas.Series, etc.
+    return 1
+
+
+
+
+def assert_length(
+        arg: Any, 
+        arg_name: str,
+        len_arg: Optional[int] = None,
+        len_min: int = 1,
+        len_max: Optional[int] = None
+        ):
+        arg_length = length(arg)
+        if len_arg is not None:
+            if arg_length != len_arg:
+                raise ValueError(
+                     f"Argment '{arg_name}' must have length {len_arg}, "
+                     f"but has length {arg_length}."
+                )
+        if len_max is not None:
+            if arg_length > len_max:
+                raise ValueError(
+                     f"Argment '{arg_name}' must have length <= {len_max}, "
+                     f"but has length {arg_length}."
+            )
+        if len_min is not None:
+            if arg_length < len_min:
+                raise ValueError(
+                     f"Argment '{arg_name}' must have length >= {len_min}, "
+                     f"but has length {arg_length}."
+            )
+
+
 # ## タイプチェックを行う関数
 
 
@@ -297,17 +342,28 @@ def make_assert_numeric(
   Returns:
       A function that asserts: numeric dtype and range condition.
   """
-  # def func(arg, lower = lower, upper = upper, inclusive = 'both', arg_name = None):
   def func(
-      arg: Any,
-      lower: float = lower,
-      upper: float = upper,
-      inclusive: Literal["both", "neither", "left", "right"] = "both",
-      arg_name: Optional[str] = None,
+        arg: Any,
+        lower: float = lower,
+        upper: float = upper,
+        inclusive: Literal["both", "neither", "left", "right"] = "both",
+        len_arg: Optional[int] = None,
+        len_min: int = 1,
+        len_max: Optional[int] = None,
+        arg_name: Optional[str] = None,
   ) -> None:
     if(arg_name is None):
       arg_name = varname.argname('arg')
 
+    # 引数の要素数に関するアサーション ============================================
+    assert_length(
+      arg, arg_name, 
+      len_arg = len_arg,
+      len_min = len_min,
+      len_max = len_max
+      )
+
+    # 引数の値に関するアサーション ============================================
     arg = pd.Series(arg)
 
     inclusive_dict = {
@@ -317,9 +373,6 @@ def make_assert_numeric(
       'right':'< x <='
     }
 
-    # assert predicate_fun(arg), f"Argment '{arg_name}' must be of" +\
-    #   f" type {oxford_comma_or(valid_type)}" + \
-    #   f" with value(s) {lower} {inclusive_dict[inclusive]} {upper}."
     if not predicate_fun(arg): 
        message = f"Argment '{arg_name}' must be of" +\
             f" type {oxford_comma_or(valid_type)}" + \
@@ -328,14 +381,6 @@ def make_assert_numeric(
 
     cond = arg.between(lower, upper, inclusive = inclusive)
     not_sutisfy = arg[~cond].index.astype(str).to_list()
-
-    # if(len(arg) > 1):
-    #   assert cond.all(),\
-    #   f"""Argment '{arg_name}' must have value {lower} {inclusive_dict[inclusive]} {upper}.
-    #             element {oxford_comma_and(not_sutisfy)} of '{arg_name}' not sutisfy the condtion."""
-    # else:
-    #   assert cond.all(),\
-    #   f"Argment '{arg_name}' must have value {lower} {inclusive_dict[inclusive]} {upper}."
 
     if(len(arg) > 1):
       if not cond.all():
@@ -349,8 +394,8 @@ def make_assert_numeric(
        message =  f"Argment '{arg_name}' must have value {lower} {inclusive_dict[inclusive]} {upper}."
        raise ValueError(message)
 
-    if(arg_name is None):
-        arg_name = varname.argname('arg')
+    # if(arg_name is None):
+    #     arg_name = varname.argname('arg')
   return func
 
 
