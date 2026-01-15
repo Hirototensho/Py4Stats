@@ -5,7 +5,6 @@
 ## Main Module
 
 ### `py4stats.eda_tools`
-***
 
 `py4stats.eda_tools` モジュールは、探索的データ解析と前処理に関する機能を提供します。複数の DataFrame バックエンドに対して共通の API を提供することを目的として、[`narwhals`](https://narwhals-dev.github.io/narwhals/) ライブラリを用いて実装されています。詳細は [Technical Notes: py4stats.eda_tools における narwhals ベースの実装](articles/narwhals_in_py4stats.md) を参照してください。
 
@@ -63,8 +62,8 @@
 [`py4stats.check_that()`](man/varidate.md) [`py4stats.check_viorate()`](man/varidate.md)
 
 
-### `py4stats.regression_tools`
 ***
+### `py4stats.regression_tools`
 
 `py4stats.regression_tools` は [`statsmodels`](https://www.statsmodels.org/stable/index.html) ライブラリで作成された回帰分析の結果についての表作成と可視化を補助する機能を提供するモジュールです。
 
@@ -100,8 +99,8 @@
 
 [`heckit_helper.heckitmfx_compute()`](man/heckitmfx_compute.md)
 
-### `py4stats.building_block`
 ***
+### `py4stats.building_block`
 
 `py4stats.regression_tools` の関数を [`py4etrics.heckit`](https://github.com/Py4Etrics/py4etrics) で実装された Heckit
  モデルに対応させるためのメソッドを実装したモジュールです。

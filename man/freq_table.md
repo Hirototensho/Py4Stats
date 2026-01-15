@@ -32,6 +32,9 @@ freq_table(
 　欠測値（NaN）を集計から除外するかどうかを表すブール値。初期設定は False です。
 - `sort`：**Deprecated.**.</br>
 　`sort_by` の使用を推奨しています。この引数は後方互換性のために保持されおり、指定された場合は `FutureWarning`が発生します。デフォルトは `None` です。
+- `to_native`（**bool**, optional）<br>
+  `True` の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。<br>
+  `False` の場合、`narwhals.DataFrame` を返します。デフォルトは `True` で、`to_native = False` は、主にライブラリ内部での利用や、`backend` に依存しない後続処理を行う場合を想定したオプションです。
 
 ## 返り値 Value
 

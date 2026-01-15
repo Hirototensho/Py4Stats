@@ -1,11 +1,11 @@
-# `py4stats.diagnose()`
+# `py4stats.diagnose()`: データフレームの概要
 
 ## 概要
 
 　R言語の [`dlookr::diagnose()`](https://choonghyunryu.github.io/dlookr/reference/diagnose.data.frame.html) を再現した関数で、データの全般的な状態についての要約を提供します。
 
 ``` python
-diagnose(data)
+diagnose(data: IntoFrameT, to_native: bool = True)
 ```
 
 ## 引数
@@ -13,6 +13,9 @@ diagnose(data)
 - `data`：**IntoFrameT**（必須）<br>
   入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト<br>
   （例：`pandas.DataFrame`、`polars.DataFrame`、`pyarrow.Table`）を指定できます。
+- `to_native`（**bool**, optional）<br>
+  `True` の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。<br>
+  `False` の場合、`narwhals.DataFrame` を返します。デフォルトは `True` です。
 
 ## 返り値
 
@@ -21,12 +24,14 @@ diagnose(data)
 - `missing_percent`：1列のなかで欠測値が占めている割合で`missing_percent = (missing_count / 行数) * 100` として計算されます。もし `missing_percent = 100` なら、その列は完全に空白です。
 - `unique_count`：その列で重複を除外したユニークな値の数。例えばある列の中身が「`a, a, b`」であればユニークな値は `a` と `b` の2つなので `unique_count = 2` です。もし `unique_count = 1` であれば、その行にはたった1種類の値しか含まれていないことが分かりますし、例えば都道府県を表す列の `unique_count` が47より多ければ、都道府県以外のものが混ざっていると考えられます。
 - `unique_rate`： サンプルに占めるユニークな値の割合。 `unique_rate = unique_count / 行数` で計算されます。`unique_rate = 1` であれば、全ての行に異なる値が入っています。一般的に、実数値の列は `unique_rate` が高くなりますが、年齢の「20代」や価格の「200円代」のように階級に分けられている場合には `unique_rate` が低くなります。
+- `to_native`（**bool**, optional）<br>
+  `True` の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。<br>
+  `False` の場合、`narwhals.DataFrame` を返します。デフォルトは `True` で、`to_native = False` は、主にライブラリ内部での利用や、`backend` に依存しない後続処理を行う場合を想定したオプションです。
 
 ## 使用例 Examples
 
 ``` python
 import py4stats as py4st
-import pandas as pd
 from palmerpenguins import load_penguins
 penguins = load_penguins() # サンプルデータの読み込み
 

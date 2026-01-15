@@ -31,6 +31,7 @@ from ._nw import (
     plot_mean_diff,
     plot_median_diff,
     plot_miss_var,
+    relocate,
     remove_constant,
     remove_empty,
     tabyl,

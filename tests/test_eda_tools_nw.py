@@ -11,6 +11,7 @@ import pyarrow as pa
 
 import narwhals
 import narwhals as nw
+import narwhals.selectors as ncs
 
 from py4stats.eda_tools import _nw as eda_nw
 
@@ -765,3 +766,41 @@ def test_plot_category_pa() -> None:
     eda_nw.plot_category(data_pa, sort_by = 'frequency', ax = ax)
 
     assert len(ax.patches) > 0
+
+# ================================================================
+# relocate
+# ================================================================
+
+def test_relocate_basic():
+    result1 = eda_nw.relocate(penguins, 'year', 'sex').columns.to_list()
+    expect1 = ['year', 'sex', 'species', 'island', 'bill_length_mm', 
+            'bill_depth_mm', 'flipper_length_mm', 'body_mass_g']
+    assert result1 == expect1
+
+def test_relocate_ncs():
+    result2 = eda_nw.relocate(penguins_pl, ncs.numeric()).columns
+    expect2 = ['bill_length_mm', 'bill_depth_mm', 'flipper_length_mm', 'body_mass_g',
+            'year', 'species', 'island', 'sex']
+    assert result2 == expect2
+
+def test_relocate_before():
+    result3 = eda_nw.relocate(
+        penguins_pa, 'year', before = 'island', to_native = False
+        ).columns
+    expect3 = ['species', 'year', 'island', 'bill_length_mm', 'bill_depth_mm',
+                'flipper_length_mm', 'body_mass_g', 'sex']
+    assert result3 == expect3
+
+def test_relocate_after():    
+    result4 = eda_nw.relocate(penguins, 'year', after = 'island').columns.to_list()
+    expect4 = ['species', 'island', 'year', 'bill_length_mm', 'bill_depth_mm',
+                'flipper_length_mm', 'body_mass_g', 'sex']
+
+    assert result4 == expect4
+
+def test_relocate_basic_error_on_invalid_selector():
+    with pytest.raises(ValueError) as excinfo:
+        eda_nw.relocate(penguins, 0, True)
+    # 仕様：候補があると "Did you mean ..." を含む
+    assert "Argment '*args' must be of type" in str(excinfo.value)
+    assert "'0' and 'True' cannot be accepted" in str(excinfo.value)

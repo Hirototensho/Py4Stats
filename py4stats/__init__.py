@@ -51,6 +51,7 @@ from .eda_tools._nw import (
     plot_median_diff,
     plot_miss_var,
     scale,
+    relocate,
     remove_constant,
     remove_empty,
     tabyl,
