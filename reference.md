@@ -85,6 +85,7 @@
 [`py4stats.coefplot()`](man/coefplot.md) [`py4stats.mfxplot()`](man/coefplot.md)
 
 #### 線形モデルを作表するためのバックエンド関数
+
 [`py4stats.tidy()`](man/tidy.md)[`py4stats.tidy_mfx()`](man/tidy.md)
 
 [`py4stats.tidy_test()`](man/tidy_test.md)
@@ -100,6 +101,9 @@
 
 ### `py4stats.heckit_helper`
 
+`py4stats.regression_tools` の関数を [`py4etrics.heckit`](https://github.com/Py4Etrics/py4etrics) で実装された Heckit
+ モデルに対応させるためのメソッドを実装したモジュールです。
+
 [`heckit_helper.Heckit_from_formula()`](man/Heckit_from_formula.md)
 
 [`heckit_helper.tidy_heckit()`](man/tidy_heckit.md)
@@ -109,8 +113,7 @@
 ***
 ### `py4stats.building_block`
 
-`py4stats.regression_tools` の関数を [`py4etrics.heckit`](https://github.com/Py4Etrics/py4etrics) で実装された Heckit
- モデルに対応させるためのメソッドを実装したモジュールです。
+`py4stats` ライブラリの実装に使用するアサーション関数やユーティリティ関数を提供します。`building_block` モジュール自体は外部から呼び出さずに使用することを想定しています。
 
 ### 引数のアサーション関数
 
