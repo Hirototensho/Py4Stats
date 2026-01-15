@@ -1330,9 +1330,47 @@ def diagnose_category(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
 # In[ ]:
 
 
-def weighted_mean(x: IntoSeriesT, w: IntoSeriesT) -> float:
+def weighted_mean(x: IntoSeriesT, w: IntoSeriesT, dropna:bool = False) -> float:
+  """Compute the weighted mean of a numeric series.
+
+  This function computes the weighted mean of a numeric vector `x`
+  using weights `w`. Both inputs are converted internally to a
+  narwhals Series to support multiple backends.
+
+  Args:
+      x (IntoSeriesT):
+          Numeric data for which the weighted mean is computed.
+          Any series-like object supported by narwhals can be used
+          (e.g., pandas.Series, polars.Series).
+      w (IntoSeriesT):
+          Numeric weights corresponding to `x`.
+          Must have the same length as `x`.
+      dropna (bool, optional):
+          If `True`, observations where either `x` or `w` is missing
+          (NaN) are removed before computing the weighted mean.
+          If `False`, missing values are not removed.
+          Defaults to `False`.
+
+  Returns:
+      float:
+          The weighted mean, computed as
+          ``sum(x * w) / sum(w)``.
+
+  Raises:
+      ValueError:
+          If `x` or `w` is not numeric.
+  """
   x = nw.from_native(x, series_only = True)
   w = nw.from_native(w, series_only = True)
+
+  if dropna:
+    non_nan = ~x.is_nan() & ~w.is_nan()
+    x = x.filter(non_nan)
+    w = w.filter(non_nan)
+
+  build.assert_numeric(x, arg_name = 'x')
+  build.assert_numeric(w, arg_name = 'w')
+
   wmean = (x * w).sum() / w.sum()
   return wmean
 
@@ -1342,17 +1380,54 @@ def weighted_mean(x: IntoSeriesT, w: IntoSeriesT) -> float:
 
 @singledispatch
 def scale(x: Union[IntoSeriesT, pd.DataFrame], ddof: int = 1, to_native: bool = True) -> IntoSeriesT:
+    """Standardize a numeric series by Z-score scaling.
+
+    This function standardizes numeric data by subtracting the mean
+    and dividing by the standard deviation:
+
+        ``(x - mean(x)) / std(x)``
+
+    For non-pandas inputs, the computation is performed using a
+    narwhals Series to ensure backend-agnostic behavior.
+
+    Args:
+        x (IntoSeriesT or pandas.DataFrame):
+            Numeric data to be standardized. Typically a series-like
+            object supported by narwhals (e.g., pandas.Series,
+            polars.Series). A pandas DataFrame is also supported via
+            a specialized implementation.
+        ddof (int, optional):
+            Delta degrees of freedom used in the calculation of the
+            standard deviation. Defaults to `1`.
+        to_native (bool, optional):
+            If `True`, return the result in the native type corresponding
+            to the input (e.g., pandas.Series or polars.Series).
+            If `False`, return a narwhals object.
+            Defaults to `True`.
+
+    Returns:
+        IntoSeriesT:
+            Standardized values with mean 0 and standard deviation 1.
+
+    Raises:
+        ValueError:
+            If `x` is not numeric.
+        ValueError:
+            If `ddof` is not a non-negative integer.
+    """
     build.assert_count(ddof, arg_name = 'ddof')
     build.assert_logical(to_native, arg_name = 'to_native')
 
     x = nw.from_native(x, series_only = True)
+
+    build.assert_numeric(x.drop_nulls(), arg_name = 'x')
+
     z = (x - x.mean()) / x.std(ddof = ddof)
     if to_native: return z.to_native()
     return z
 
-@scale.register(pd.Series)
 @scale.register(pd.DataFrame)
-def scale_pandas(x: Union[pd.Series, pd.DataFrame], ddof: int = 1, to_native: bool = True) -> IntoSeriesT:
+def scale_pandas(x: pd.DataFrame, ddof: int = 1, to_native: bool = True) -> IntoSeriesT:
     build.assert_count(ddof, arg_name = 'ddof')
     build.assert_logical(to_native, arg_name = 'to_native')
 
@@ -1367,16 +1442,48 @@ def scale_pandas(x: Union[pd.Series, pd.DataFrame], ddof: int = 1, to_native: bo
 
 @singledispatch
 def min_max(x: Union[IntoSeriesT, pd.DataFrame], to_native: bool = True) -> IntoSeriesT:
+    """Normalize a numeric series using min-max scaling.
+
+    This function rescales numeric data to the range [0, 1] using
+    min-max normalization:
+
+        ``(x - min(x)) / (max(x) - min(x))``
+
+    For non-pandas inputs, the computation is performed using a
+    narwhals Series to ensure backend-agnostic behavior.
+
+    Args:
+        x (IntoSeriesT or pandas.DataFrame):
+            Numeric data to be normalized. Typically a series-like
+            object supported by narwhals (e.g., pandas.Series,
+            polars.Series). A pandas DataFrame is also supported via
+            a specialized implementation.
+        to_native (bool, optional):
+            If `True`, return the result in the native type corresponding
+            to the input.
+            If `False`, return a narwhals object.
+            Defaults to `True`.
+
+    Returns:
+        IntoSeriesT:
+            Min-max normalized values in the range [0, 1].
+
+    Raises:
+        ValueError:
+            If `x` is not numeric.
+    """
     build.assert_logical(to_native, arg_name = 'to_native')
 
     x = nw.from_native(x, series_only = True)
+
+    build.assert_numeric(x.drop_nulls(), arg_name = 'x')
+
     z = (x - x.min()) / (x.max() - x.min())
     if to_native: return z.to_native()
     return z
 
-@min_max.register(pd.Series)
 @min_max.register(pd.DataFrame)
-def min_max_pandas(x: IntoSeriesT, ddof: int = 1, to_native: bool = True) -> IntoSeriesT:
+def min_max_pandas(x: pd.DataFrame, to_native: bool = True) -> IntoSeriesT:
     build.assert_logical(to_native, arg_name = 'to_native')
 
     z = (x - x.min()) / (x.max() - x.min())
