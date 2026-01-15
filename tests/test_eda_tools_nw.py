@@ -804,3 +804,65 @@ def test_relocate_basic_error_on_invalid_selector():
     # 仕様：候補があると "Did you mean ..." を含む
     assert "Argment '*args' must be of type" in str(excinfo.value)
     assert "'0' and 'True' cannot be accepted" in str(excinfo.value)
+
+# ================================================================
+# weighted_mean
+# ================================================================
+x = penguins.groupby('species')['bill_length_mm'].mean()
+w = penguins.groupby('species')['bill_length_mm'].count()
+grand_mean = penguins['bill_length_mm'].mean()
+
+
+def test_weighted_mean_pd():
+    assert np.isclose(eda_nw.weighted_mean(x, w), grand_mean)
+
+def test_weighted_mean_pl():
+    x_pl = pl.from_pandas(x)
+    w_pl = pl.from_pandas(w)
+    assert np.isclose(eda_nw.weighted_mean(x_pl, w_pl), grand_mean)
+
+def test_weighted_mean_pa():
+    data_pa = pa.Table.from_pydict({
+        'x':x.to_list(),
+        'w':w.to_list()
+    })
+
+    assert np.isclose(eda_nw.weighted_mean(data_pa['x'], data_pa['w']), grand_mean)
+
+# ================================================================
+# scale
+# ================================================================
+
+def test_scale_pd():
+    res = eda_nw.scale(penguins.select_dtypes('number'))
+    assert all(np.isclose(res.mean(), 0) & np.isclose(res.std(), 1))
+
+    res = eda_nw.scale(penguins['body_mass_g'])
+    assert np.isclose(res.mean(), 0) & np.isclose(res.std(), 1)
+
+def test_scale_pl():
+    res = eda_nw.scale(penguins_pl['body_mass_g']).to_pandas()
+    assert np.isclose(res.mean(), 0) & np.isclose(res.std(), 1)
+
+def test_scale_pa():
+    res = eda_nw.scale(penguins_pa['body_mass_g']).to_pandas()
+    assert np.isclose(res.mean(), 0) & np.isclose(res.std(), 1)
+
+# ================================================================
+# min_max
+# ================================================================
+
+def test_min_max_pd():
+    res = eda_nw.min_max(penguins.select_dtypes('number'))
+    assert all(np.isclose(res.min(), 0) & np.isclose(res.max(), 1))
+
+    res = eda_nw.min_max(penguins['body_mass_g'])
+    assert np.isclose(res.min(), 0) & np.isclose(res.max(), 1)
+
+def test_min_max_pl():
+    res = eda_nw.min_max(penguins_pl['body_mass_g']).to_pandas()
+    assert np.isclose(res.min(), 0) & np.isclose(res.max(), 1)
+
+def test_min_max_pa():
+    res = eda_nw.min_max(penguins_pa['body_mass_g']).to_pandas()
+    assert np.isclose(res.min(), 0) & np.isclose(res.max(), 1)

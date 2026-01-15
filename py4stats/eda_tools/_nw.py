@@ -1263,7 +1263,7 @@ def diagnose_category(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
     """
     build.assert_logical(to_native, arg_name = 'to_native')
 
-    data_nw = nw.from_native(data, allow_series = True)
+    data_nw = nw.from_native(data)
     res_is_dummy = is_dummy(data_nw)
     dummy_col = res_is_dummy[res_is_dummy].index.to_list()
     
@@ -1293,17 +1293,15 @@ def diagnose_category(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
         'count':df.select(nw.all().count()).row(0),
         'miss_pct':df.select(nw.all().null_count() * nw.lit(100 / N)).row(0),
         'unique':df.select(nw.all().n_unique()).row(0),
-        # 'mode':[df[v].value_counts().row(0)[0] for v in var_name],
         'mode':[
             freq_table(df, v, descending = True, to_native = False).row(0)[0] 
             for v in var_name
             ],
-        # 'mode_freq':[df[v].value_counts().row(0)[1] for v in var_name],
         'mode_freq':[
             freq_table(df, v, descending = True, to_native = False).row(0)[1] 
             for v in var_name
             ],
-        'std_entropy':[std_entropy(df[v]) for v in var_name]
+        'std_entropy':[std_entropy(s) for s in df.iter_columns()]
         # 'std_entropy':df.select(
         #     nw.all().map_batches(std_entropy, returns_scalar = True)
         #     ).row(0)
@@ -1333,16 +1331,58 @@ def diagnose_category(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
 
 
 def weighted_mean(x: IntoSeriesT, w: IntoSeriesT) -> float:
+  x = nw.from_native(x, series_only = True)
+  w = nw.from_native(w, series_only = True)
   wmean = (x * w).sum() / w.sum()
   return wmean
 
-def scale(x: IntoSeriesT, ddof: int = 1) -> IntoSeriesT:
+
+# In[ ]:
+
+
+@singledispatch
+def scale(x: Union[IntoSeriesT, pd.DataFrame], ddof: int = 1, to_native: bool = True) -> IntoSeriesT:
+    build.assert_count(ddof, arg_name = 'ddof')
+    build.assert_logical(to_native, arg_name = 'to_native')
+
+    x = nw.from_native(x, series_only = True)
     z = (x - x.mean()) / x.std(ddof = ddof)
+    if to_native: return z.to_native()
     return z
 
-def min_max(x: IntoSeriesT) -> IntoSeriesT:
-  mn = (x - x.min()) / (x.max() - x.min())
-  return mn
+@scale.register(pd.Series)
+@scale.register(pd.DataFrame)
+def scale_pandas(x: Union[pd.Series, pd.DataFrame], ddof: int = 1, to_native: bool = True) -> IntoSeriesT:
+    build.assert_count(ddof, arg_name = 'ddof')
+    build.assert_logical(to_native, arg_name = 'to_native')
+
+    z = (x - x.mean()) / x.std(ddof = ddof)
+
+    if to_native: return z
+    return nw.from_native(z, allow_series = True)
+
+
+# In[ ]:
+
+
+@singledispatch
+def min_max(x: Union[IntoSeriesT, pd.DataFrame], to_native: bool = True) -> IntoSeriesT:
+    build.assert_logical(to_native, arg_name = 'to_native')
+
+    x = nw.from_native(x, series_only = True)
+    z = (x - x.min()) / (x.max() - x.min())
+    if to_native: return z.to_native()
+    return z
+
+@min_max.register(pd.Series)
+@min_max.register(pd.DataFrame)
+def min_max_pandas(x: IntoSeriesT, ddof: int = 1, to_native: bool = True) -> IntoSeriesT:
+    build.assert_logical(to_native, arg_name = 'to_native')
+
+    z = (x - x.min()) / (x.max() - x.min())
+
+    if to_native: return z
+    return nw.from_native(z, allow_series = True)
 
 
 # ## 完全な空白列 and / or 行の除去
@@ -2588,8 +2628,8 @@ def relocate(
     Args:
         data (IntoFrameT):
             Input DataFrame whose columns are to be reordered.
-            Any DataFrame type supported by narwhals can be used
-            (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table).
+            Any DataFrame-like object supported by narwhals
+            (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
         *args (Union[str, List[str], narwhals.Expr, narwhals.Selector]):
             Columns to relocate. Each element may be:
             - a column name (`str`)
@@ -2658,7 +2698,7 @@ def relocate(
         invalids = [v for i, v in enumerate(args) if not is_varid[i]]
         message = "Argment '*args' must be of type 'str', list of 'str', 'narwhals.Expr' or 'narwhals.Selector'\n"\
         + f"            The value(s) of {build.oxford_comma_and(invalids)} cannot be accepted.\n"\
-        + "            Examples of valid inputs: 'col1', ['col1', 'col2'], ncs.numeric(), nw.col('col1')"
+        + "            Examples of valid inputs: 'x', ['x', 'y'], ncs.numeric(), nw.col('x')"
 
         raise ValueError(message)
 
@@ -2689,7 +2729,7 @@ def relocate(
 
 def make_table_to_plot(
         data: IntoFrameT, 
-        sort_by: Literal['frequency', 'category'] = 'values',
+        sort_by: Literal['values', 'frequency'] = 'values',
         to_native: bool = True
         ) -> None:
     data_nw = nw.from_native(data)
@@ -2772,7 +2812,8 @@ def make_categ_barh(
     ax.set_xlim(0, 1)
     ax.set_ylabel('')
     ax.set_xlabel('Percentage')
-    
+    ax.invert_yaxis()
+
     if show_vline:
         ax.axvline(0.5, color = "gray", linewidth = 1, linestyle = "--")
     
@@ -2800,7 +2841,7 @@ def make_categ_barh(
 @pf.register_dataframe_method
 def plot_category(
     data: IntoFrameT,
-    sort_by: Literal['frequency', 'values'] = 'values',
+    sort_by: Literal['values', 'frequency'] = 'values',
     palette: Optional[sns.palettes._ColorPalette] = None,
     legend_type: Literal["horizontal", "vertical", "none"] = "horizontal",
     show_vline: bool = True,
@@ -2909,7 +2950,10 @@ def plot_category(
 
     # カテゴリー変数のコーディング確認 ==================================
     cording = data_nw[variables[0]].unique().to_list()
-    is_common_cording = all([data_nw[v].unique().is_in(cording).all() for v in variables])
+    is_common_cording = all([
+        s.unique().is_in(cording).all() 
+        for s in data_nw.iter_columns()
+    ])
 
     if not is_common_cording:
         messages = "This function assumes that all columns contained in `data` share a common coding scheme."
@@ -2924,7 +2968,6 @@ def plot_category(
     
     list_values = table_to_plot['value'].unique().to_list()
 
-    # if sort_by == 'values':
     list_values.reverse()
     
     # if nw.is_ordered_categorical(table_to_plot['value']): 

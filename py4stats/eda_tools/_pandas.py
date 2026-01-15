@@ -121,6 +121,8 @@ import pandas as pd
 import numpy as np
 import scipy as sp
 
+import warnings
+
 
 # In[ ]:
 
@@ -148,6 +150,22 @@ except Exception:  # notebook等で未importでも落ちないように
     Axes = Any  # type: ignore
 
 DataLike = Union[pd.Series, pd.DataFrame]
+
+
+# ## FutureWarnin用関数の実装
+
+# In[ ]:
+
+
+# Pandas ベースの実装を将来的に廃止することを想定して `FutureWarning` を導入します。
+def future_warn_pandas_implementation(stacklevel: int = 3):
+    warnings.warn(
+        "The pandas-based implementation of `eda_tools` is deprecated and will be removed"
+        "in a future release. Please use the narwhals-based implementation via"
+        "`import py4stats as py4st`, which provides the same public API.",
+        FutureWarning,
+        stacklevel = stacklevel,
+    )
 
 
 # # `diagnose()`
@@ -189,6 +207,7 @@ def diagnose(self: pd.DataFrame) -> pd.DataFrame:
         AssertionError:
             If `self` is not a pandas.DataFrame.
     """
+    future_warn_pandas_implementation()
     assert isinstance(self, pd.DataFrame), '`self` must be a pandas.DataFrame.'
     self = self.copy()
     # 各種集計値の計算 ------------
@@ -262,6 +281,7 @@ def plot_miss_var_pd(
         The underlying missing-value statistics are computed by
         ``diagnose``, and the resulting plot reflects its output.
     """
+    future_warn_pandas_implementation()
     values = build.arg_match(
         values, ['missing_percent', 'missing_count'],
         arg_name = 'values'
@@ -328,6 +348,7 @@ def compare_df_cols(
       AssertionError:
           If `df_list` is not a list of pandas.DataFrame.
   """
+  future_warn_pandas_implementation()
   # 引数のアサーション ----------------------
   assert isinstance(df_list, list) & \
         all([isinstance(v, pd.DataFrame) for v in df_list]),\
@@ -412,6 +433,7 @@ def compare_df_stats(
       AssertionError:
           If `df_list` is not a list of pandas.DataFrame.
   """
+  future_warn_pandas_implementation()
   # 引数のアサーション ----------------------
   assert isinstance(df_list, list) & \
         all([isinstance(v, pd.DataFrame) for v in df_list]),\
@@ -491,6 +513,7 @@ def compare_df_record(
       This function assumes `df1` and `df2` have compatible columns.
       If you want strict checks, you may add assertions for shape/columns.
   """
+  future_warn_pandas_implementation()
   all_columns = df1.columns
   number_col = df1.select_dtypes(include = 'number').columns
   nonnum_col = df1.select_dtypes(exclude = 'number').columns
@@ -542,6 +565,7 @@ def compare_group_means(
       Constant columns are removed using `remove_constant` before comparison.
       Means/variances use `numeric_only=True`.
   """
+  future_warn_pandas_implementation()
   group1 = remove_constant(group1)
   group2 = remove_constant(group2)
 
@@ -596,6 +620,7 @@ def compare_group_median(
         Constant columns are removed using `remove_constant` before comparison.
         Medians use `numeric_only=True`.
     """
+  future_warn_pandas_implementation()
   group1 = remove_constant(group1)
   group2 = remove_constant(group2)
 
@@ -637,6 +662,7 @@ def plot_mean_diff(
   Returns:
       None
   """
+  future_warn_pandas_implementation()
   stats_diff = build.arg_match(
       stats_diff, ['norm_diff', 'abs_diff', 'rel_diff']
       )
@@ -678,6 +704,7 @@ def plot_median_diff(
   Returns:
       None
   """
+  future_warn_pandas_implementation()
   stats_diff = build.arg_match(
       stats_diff, ['abs_diff', 'rel_diff']
       )
@@ -725,6 +752,7 @@ def remove_empty(
       pandas.DataFrame:
           DataFrame after removing empty columns/rows.
   """
+  future_warn_pandas_implementation()
   df_shape = self.shape
 
   # 空白列の除去 ------------------------------
@@ -781,6 +809,7 @@ def remove_constant(
       pandas.DataFrame:
           DataFrame after removing constant columns.
   """
+  future_warn_pandas_implementation()
   df_shape = self.shape
   # データフレーム(self) の行が定数かどうかを判定
   constant_col = self.nunique(dropna = dropna) == 1
@@ -834,6 +863,7 @@ def filtering_out(
         AssertionError:
             If `contains`/`starts_with`/`ends_with` is provided but not a string.
   """
+  future_warn_pandas_implementation()
   axis = str(axis)
   axis = build.arg_match(axis, ['1', 'columns', '0', 'index'], arg_name = 'axis')
   self = self.copy()
@@ -886,6 +916,7 @@ def crosstab2(
     dropna: bool = True,
     normalize: Union[bool, Literal["all", "index", "columns"]] = False,
 ) -> pd.DataFrame:
+    future_warn_pandas_implementation()
     if values is not None:
         values_vec = data[values]
     else:
@@ -933,6 +964,7 @@ def freq_table(
             - cumfreq: cumulative counts
             - cumperc: cumulative proportions
     """
+    future_warn_pandas_implementation()
     count = self.value_counts(
         subset = subset, sort = sort, ascending = ascending,
         normalize=False, dropna = dropna
@@ -1002,6 +1034,7 @@ def tabyl(
             Crosstab table. If `normalize` is not False, cells contain strings like
             `"count (xx.x%)"`. Otherwise counts (as strings after formatting).
     """
+    future_warn_pandas_implementation()
     if(not isinstance(normalize, bool)):
       normalize = build.arg_match(
           normalize, ['index', 'columns', 'all'],
@@ -1069,10 +1102,12 @@ def is_dummy(
             - If Series input: returns bool.
             - If DataFrame input: returns a boolean Series per column.
     """
+    future_warn_pandas_implementation()
     return set(self) == set(cording)
 
 @is_dummy.register(pd.DataFrame)
 def _(self: pd.DataFrame, cording: Sequence[Any] = (0, 1)) -> pd.Series:
+    future_warn_pandas_implementation()
     return self.apply(is_dummy, cording = cording)
 
 
@@ -1082,16 +1117,19 @@ def _(self: pd.DataFrame, cording: Sequence[Any] = (0, 1)) -> pd.Series:
 # カテゴリカル変数についての集計関数 --------------
 # 情報エントロピーと、その値を0から1に標準化したもの --------------
 def entropy(X: ArrayLike, base: float = 2.0, axis: int = 0) -> float:
+    future_warn_pandas_implementation()
     vc = pd.Series(X).value_counts(normalize = True, sort = False)
     res = sp.stats.entropy(pk = vc,  base = base, axis = axis)
     return res
 
 def std_entropy(X: ArrayLike, axis: int = 0) -> float:
+    future_warn_pandas_implementation()
     K = pd.Series(X).nunique()
     res = entropy(X, base = K) if K > 1 else 0.0
     return res
 
 def freq_mode(x: pd.Series, normalize: bool = False) -> Union[int, float]:
+    future_warn_pandas_implementation()
     res = x.value_counts(normalize = normalize, dropna = False).iloc[0]
     return res
 
@@ -1119,6 +1157,7 @@ def diagnose_category(data: pd.DataFrame) -> pd.DataFrame:
             - pct_mode: mode percentage
             - std_entropy: standardized entropy (0-1)
     """
+    future_warn_pandas_implementation()
     # 01のダミー変数はロジカル変数に変換
     data = data.copy()
     data.loc[:, is_dummy(data)] = (data.loc[:, is_dummy(data)] == 1)
@@ -1151,14 +1190,17 @@ def diagnose_category(data: pd.DataFrame) -> pd.DataFrame:
 
 
 def weighted_mean(x: pd.Series, w: pd.Series) -> float:
+  future_warn_pandas_implementation()
   wmean = (x * w).sum() / w.sum()
   return wmean
 
 def scale(x: pd.Series, ddof: int = 1) -> pd.Series:
+    future_warn_pandas_implementation()
     z = (x - x.mean()) / x.std(ddof = ddof)
     return z
 
 def min_max(x: pd.Series) -> pd.Series:
+  future_warn_pandas_implementation()
   mn = (x - x.min()) / (x.max() - x.min())
   return mn
 
@@ -1177,6 +1219,7 @@ def make_rank_table(
     values: str,
     aggfunc: Union[str, Callable[..., Any]] = "sum",
 ) -> pd.DataFrame:
+    future_warn_pandas_implementation()
     # ピボットテーブルを使って、カテゴリー group（例：メーカー）ごとの values （例：販売額）の合計を計算
     p_table = pd.pivot_table(
         data = data,
@@ -1237,6 +1280,7 @@ def Pareto_plot(
     Returns:
         None
     """
+    future_warn_pandas_implementation()
     # 引数のアサーション
     if(top_n is not None): build.assert_count(top_n, lower = 1)
     build.assert_numeric(xlab_rotation)
@@ -1344,7 +1388,7 @@ def mean_qi(
       AssertionError:
           If `width` is not in (0, 1).
   """
-
+  future_warn_pandas_implementation()
   build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
   if(isinstance(self, pd.DataFrame)):
     self = self.select_dtypes([int, float])
@@ -1395,6 +1439,7 @@ def median_qi(
       AssertionError:
           If `width` is not in (0, 1).
   """
+  future_warn_pandas_implementation()
   build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
   if(isinstance(self, pd.DataFrame)):
     self = self.select_dtypes([int, float])
@@ -1446,6 +1491,7 @@ def mean_ci(
       Uses t critical value with df = n - 1:
       `t.isf((1 - width) / 2, df=n-1)`.
   """
+  future_warn_pandas_implementation()
   build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
   if(isinstance(self, pd.DataFrame)):
     self = self.select_dtypes([int, float])
@@ -1546,6 +1592,7 @@ def is_number(self, na_default = True):
 
 
 def set_n_miss(x, n = 10, method = 'random', random_state = None, na_value = pd.NA):
+  future_warn_pandas_implementation()
   method = build.arg_match(method, ['random', 'first', 'last'])
   build.assert_count(n, upper = len(x))
 
@@ -1569,6 +1616,7 @@ def set_n_miss(x, n = 10, method = 'random', random_state = None, na_value = pd.
 
 
 def set_prop_miss(x, prop = 0.1, method = 'random', random_state = None, na_value = pd.NA):
+  future_warn_pandas_implementation()
   method = build.arg_match(method, ['random', 'first', 'last'])
   build.assert_numeric(prop, lower = 0, upper = 1)
 
@@ -1682,6 +1730,7 @@ def check_that(
       AssertionError:
           If rule expressions are not strings, or the evaluation result is not boolean.
   """
+  future_warn_pandas_implementation()
   if(isinstance(rule_dict, pd.Series)): rule_dict = rule_dict.to_dict()
 
   [build.assert_character(x, arg_name = 'rule_dict') for x in rule_dict.values()]
@@ -1746,6 +1795,7 @@ def check_viorate(
       AssertionError:
           If rule expressions are not strings, or the evaluation result is not boolean.
   """
+  future_warn_pandas_implementation()
   if(isinstance(rule_dict, pd.Series)): rule_dict = rule_dict.to_dict()
   [build.assert_character(x, arg_name = 'rule_dict') for x in rule_dict.values()]
 
