@@ -497,6 +497,16 @@ def test_Pareto_plot() -> None:
         )
     assert len(ax.patches) > 0
 
+    fig, ax = plt.subplots()
+    eda_nw.Pareto_plot(
+        penguins_modify, 
+        values = 'bill_length_mm',
+        group = 'group',
+        aggfunc = lambda x: x.std(),
+        ax = ax
+        )
+    assert len(ax.patches) > 0
+
 def test_make_rank_table_nw_error_on_non_exist_col():
     with pytest.raises(ValueError) as excinfo:
         eda_nw.make_rank_table(penguins, 'non_exists', 'body_mass_g')
