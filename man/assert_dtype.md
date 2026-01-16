@@ -1,5 +1,4 @@
-# 引数のデータ型によるアサーション
-## `building_block.assert_character()` `building_block.assert_logical()` `building_block.assert_numeric()` `building_block.assert_integer()` `building_block.assert_count()` `building_block.assert_float()`
+# データ型による引数のアサーション
 
 ## 概要
 
@@ -11,7 +10,11 @@ assert_character(
     arg_name: Optional[str] = None,
     len_arg: Optional[int] = None,
     len_min: int = 1,
-    len_max: Optional[int] = None
+    len_max: Optional[int] = None,
+    any_missing: bool = False,
+    all_missing: bool = False,
+    nullable: bool = False,
+    scalar_only: bool = False
     )
 
 assert_logical(
@@ -19,7 +22,11 @@ assert_logical(
     arg_name: Optional[str] = None,
     len_arg: Optional[int] = None,
     len_min: int = 1,
-    len_max: Optional[int] = None
+    len_max: Optional[int] = None,
+    any_missing: bool = False,
+    all_missing: bool = False,
+    nullable: bool = False,
+    scalar_only: bool = False
     )
 
 assert_numeric(
@@ -30,7 +37,11 @@ assert_numeric(
     inclusive: Literal["both", "neither", "left", "right"] = "both",
     len_arg: Optional[int] = None,
     len_min: int = 1,
-    len_max: Optional[int] = None
+    len_max: Optional[int] = None,
+    any_missing: bool = False,
+    all_missing: bool = False,
+    nullable: bool = False,
+    scalar_only: bool = False
     )
 
 assert_integer(
@@ -41,7 +52,11 @@ assert_integer(
     inclusive: Literal["both", "neither", "left", "right"] = "both",
     len_arg: Optional[int] = None,
     len_min: int = 1,
-    len_max: Optional[int] = None
+    len_max: Optional[int] = None,
+    any_missing: bool = False,
+    all_missing: bool = False,
+    nullable: bool = False,
+    scalar_only: bool = False
     )
 
 assert_count(
@@ -52,8 +67,11 @@ assert_count(
     inclusive: Literal["both", "neither", "left", "right"] = "both",
     len_arg: Optional[int] = None,
     len_min: int = 1,
-    len_max: Optional[int] = None
-    arg_name = None
+    len_max: Optional[int] = None,
+    any_missing: bool = False,
+    all_missing: bool = False,
+    nullable: bool = False,
+    scalar_only: bool = False
     )
 
 assert_float(
@@ -64,7 +82,11 @@ assert_float(
     inclusive: Literal["both", "neither", "left", "right"] = "both",
     len_arg: Optional[int] = None,
     len_min: int = 1,
-    len_max: Optional[int] = None
+    len_max: Optional[int] = None,
+    any_missing: bool = False,
+    all_missing: bool = False,
+    nullable: bool = False,
+    scalar_only: bool = False
     )
 ```
 
@@ -79,21 +101,37 @@ assert_float(
 ## 引数 Argument
 
 - `arg`（必須）**array-like**</br>
-　適正かどうかを判断したい引数　
+　適正かどうかを判断したい引数。検証対象となる引数。スカラー値、または array-like オブジェクト（例：list、NumPy 配列、pandas Series）を指定できます。
 - `arg_name`：**str**</br>
-　エラーメッセージに表示する引数の名前。指定されなかった場合（初期設定）、引数 `arg` に代入されたオブジェクトの名称を表示します。なお、この機能は [`varname.argname()`](https://github.com/pwwang/python-varname?tab=readme-ov-file)関数を使って実装されています。
-- `lower`, `upper`：**int or float** `assert_numeric(), assert_integer(), assert_count(), assert_float()` のみ</br>
+　エラーメッセージに表示する引数の名前。`None` の場合、可能であれば `arg` に渡された変数名が自動的に推定されます。なお、この機能は [`varname.argname()`](https://github.com/pwwang/python-varname?tab=readme-ov-file)関数を使って実装されています。
+- `lower`, `upper`：**int or float**</br>
 　`arg` に代入されたオブジェクトの要素が取るべき値の最大値と最小値。
 - inclusive：**str**</br>
-　`'both', 'neither', 'left', 'right'` から選択できます。引数 `arg` に代入されたオブジェクトの要素を `x` とするとき、次の条件で値の範囲を判定します。
+　値の範囲チェックにおいて、境界値を含めるかどうかを表す文字列。</br>
+`'both', 'neither', 'left', 'right'` から選択できます。</br>
     - `'both'`：`lower <= x <= upper`
     - `'neither'`：`lower < x < upper`
     - `'left'`：`lower <= x < upper`
     - `'right'`：`lower < x <= upper`
+* `len_arg`: **int**</br>
+  引数の要素数：要素数をこの値と**正確に一致させたい場合**に指定します。指定した場合、引数はちょうどこの個数の要素をもつ必要があります。
+* `len_min`: **int**</br>
+  許容される最小の要素数。
+* `len_max`: **int**</br>
+  許容される最大の要素数。`None` の場合、上限は設けられません。
+* `any_missing`:**bool**</br>
+  `True` の場合、欠測値（例：`None`、`NaN`、`pd.NA` など）が引数 `arg` の**一部に含まれていても許容**されます。
+* `all_missing`: **bool**</br>
+  `True` の場合、すべての要素が欠測値であることを許容します。
+* `nullable`: **bool**</br>
+  `True` の場合、引数そのものが `None` であることを許容します。
+* `scalar_only`: **bool**</br>
+  `True` の場合、スカラー値のみを許容します。この場合、1要素であっても、list や配列などの array-like オブジェクトは受け付けません。
+
 
 ## 返り値 Value
 
-　引数 `arg` に代入されたオブジェクトの全ての要素が、アサーションの条件を満たしていれば何も返さず、そうでなければエラーメッセージを出力します。
+引数 `arg` に代入されたオブジェクトの全ての要素が、アサーションの条件を満たしていれば何も返さず、そうでなければエラーメッセージを出力します。
 
 ## 使用例 Examples
 

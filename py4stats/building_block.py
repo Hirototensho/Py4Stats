@@ -385,7 +385,58 @@ def make_assert_type(
       nullable: bool = False,
       scalar_only: bool = False
       ):
-    """
+    """Assert that an argument is specific type and satisfies value and shape constraints.
+    Args:
+        arg:
+            The argument to validate. Can be a scalar numeric value or an
+            array-like object containing numeric values.
+        arg_name:
+            Name of the argument, used in error messages. If None, the variable
+            name of ``arg`` is inferred when possible.
+        lower:
+            Lower bound for allowed values.
+        upper:
+            Upper bound for allowed values.
+        inclusive:
+            Specifies which bounds are inclusive when checking the value range.
+
+            - ``"both"``: ``lower <= x <= upper``
+            - ``"neither"``: ``lower < x < upper``
+            - ``"left"``: ``lower <= x < upper``
+            - ``"right"``: ``lower < x <= upper``
+        len_arg:
+            Exact number of elements required. If specified, the input must have
+            exactly this length.
+        len_min:
+            Minimum allowed number of elements.
+        len_max:
+            Maximum allowed number of elements.
+        any_missing:
+            If True, allows the presence of missing values.
+        all_missing:
+            If True, allows all values to be missing.
+        nullable:
+            If True, allows the argument itself to be None.
+        scalar_only:
+            If True, only scalar values are allowed. Array-like inputs (even
+            those with a single element) are rejected.
+
+    Raises:
+        ValueError:
+            If the argument is not numeric, violates the specified value range,
+            contains disallowed missing values, does not satisfy length
+            constraints, or does not conform to the scalar/array-like
+            requirements.
+
+    Notes:
+        - When ``scalar_only`` is False, the input is internally converted to a
+            ``pandas.Series`` for validation.
+        - All numeric values must satisfy the specified range constraints.
+            If multiple elements violate the condition, their positions are
+            reported in the error message.
+        - This function performs validation only and returns None if all checks
+            pass.
+
     Example:
         from py4stats import building_block as build
         x = [1, 2, 3]
@@ -484,7 +535,58 @@ def make_assert_numeric(
         nullable: bool = False,
         scalar_only: bool = False
   ) -> None:
-    """
+    """Assert that an argument is specific type and satisfies value and shape constraints.
+    Args:
+        arg:
+            The argument to validate. Can be a scalar numeric value or an
+            array-like object containing numeric values.
+        arg_name:
+            Name of the argument, used in error messages. If None, the variable
+            name of ``arg`` is inferred when possible.
+        lower:
+            Lower bound for allowed values.
+        upper:
+            Upper bound for allowed values.
+        inclusive:
+            Specifies which bounds are inclusive when checking the value range.
+
+            - ``"both"``: ``lower <= x <= upper``
+            - ``"neither"``: ``lower < x < upper``
+            - ``"left"``: ``lower <= x < upper``
+            - ``"right"``: ``lower < x <= upper``
+        len_arg:
+            Exact number of elements required. If specified, the input must have
+            exactly this length.
+        len_min:
+            Minimum allowed number of elements.
+        len_max:
+            Maximum allowed number of elements.
+        any_missing:
+            If True, allows the presence of missing values.
+        all_missing:
+            If True, allows all values to be missing.
+        nullable:
+            If True, allows the argument itself to be None.
+        scalar_only:
+            If True, only scalar values are allowed. Array-like inputs (even
+            those with a single element) are rejected.
+
+    Raises:
+        ValueError:
+            If the argument is not numeric, violates the specified value range,
+            contains disallowed missing values, does not satisfy length
+            constraints, or does not conform to the scalar/array-like
+            requirements.
+
+    Notes:
+        - When ``scalar_only`` is False, the input is internally converted to a
+            ``pandas.Series`` for validation.
+        - All numeric values must satisfy the specified range constraints.
+            If multiple elements violate the condition, their positions are
+            reported in the error message.
+        - This function performs validation only and returns None if all checks
+            pass.
+
     Example:
         from py4stats import building_block as build
         x = [1, 2, 3]
