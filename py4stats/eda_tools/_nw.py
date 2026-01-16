@@ -2828,7 +2828,7 @@ def relocate(
 
     if not all(is_varid):
         invalids = [v for i, v in enumerate(args) if not is_varid[i]]
-        message = "Argment '*args' must be of type 'str', list of 'str', 'narwhals.Expr' or 'narwhals.Selector'\n"\
+        message = "Argument '*args' must be of type 'str', list of 'str', 'narwhals.Expr' or 'narwhals.Selector'\n"\
         + f"            The value(s) of {build.oxford_comma_and(invalids)} cannot be accepted.\n"\
         + "            Examples of valid inputs: 'x', ['x', 'y'], ncs.numeric(), nw.col('x')"
 

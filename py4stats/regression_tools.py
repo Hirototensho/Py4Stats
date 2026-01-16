@@ -674,7 +674,7 @@ def assert_reg_reuslt(x: Any) -> None:
   """
   x = pd.Series(x)
   condition =  x.apply(lambda x: isinstance(x, (RegressionResultsWrapper))).all()
-  assert condition, f"Argment '{varname.argname('x')}' must be of type '{RegressionResultsWrapper}'."
+  assert condition, f"Argument '{varname.argname('x')}' must be of type '{RegressionResultsWrapper}'."
 
 
 

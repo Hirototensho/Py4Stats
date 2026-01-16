@@ -103,7 +103,7 @@ x = [1, 2, 3]
 y = ['A', 'B', 'C']
 
 build.assert_character(x, arg_name = 'x')
-#> ValueError: Argment 'x' must be of type 'str'.
+#> ValueError: Argument 'x' must be of type 'str'.
 
 build.assert_character(y, arg_name = 'y')
 ```
@@ -112,14 +112,14 @@ build.assert_character(y, arg_name = 'y')
 build.assert_numeric(x, arg_name = 'x')
 
 build.assert_numeric(y, arg_name = 'y')
-#> ValueError: Argment 'y' must be of type 'int' or 'float' with value(s) -inf <= x <= inf.
+#> ValueError: Argument 'y' must be of type 'int' or 'float' with value(s) -inf <= x <= inf.
 
 z = [0.1, 0.3, 0.6]
 build.assert_numeric(z, arg_name = 'z', lower = 0, upper = 1)
 
 z.extend([2, 3])
 build.assert_numeric(z, arg_name = 'z', lower = 0, upper = 1)
-#> ValueError: Argment 'z' must have value 0 <= x <= 1
+#> ValueError: Argument 'z' must have value 0 <= x <= 1
 #> element '3' and '4' of 'z' not sutisfy the condtion.
 
 z = 1
@@ -128,7 +128,7 @@ build.assert_numeric(
     lower = 0, upper = 1, 
     inclusive = 'left'
     )
-#> ValueError: Argment 'z' must have value 0 <= x < 1.
+#> ValueError: Argument 'z' must have value 0 <= x < 1.
 ```
 
 ## 参照

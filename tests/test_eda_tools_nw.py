@@ -812,7 +812,7 @@ def test_relocate_basic_error_on_invalid_selector():
     with pytest.raises(ValueError) as excinfo:
         eda_nw.relocate(penguins, 0, True)
     # 仕様：候補があると "Did you mean ..." を含む
-    assert "Argment '*args' must be of type" in str(excinfo.value)
+    assert "Argument '*args' must be of type" in str(excinfo.value)
     assert "'0' and 'True' cannot be accepted" in str(excinfo.value)
 
 # ================================================================

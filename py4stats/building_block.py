@@ -125,6 +125,36 @@ StrArrayLike = Union[str, Sequence[str], np.ndarray, pd.Series]
 ProbArrayLike = ArrayLike
 
 
+# ## `oxford_comma()`
+# 
+# 文字列のリストを与えると、英文の並列の形に変換する関数です。表記法については[Wikipedia Serial comma](https://en.wikipedia.org/wiki/Serial_comma)を参照し、コードについては[stack overflow:Grammatical List Join in Python [duplicate]](https://stackoverflow.com/questions/19838976/grammatical-list-join-in-python)を参照しました。
+# 
+# ```python
+# choices = ['apple', 'orange', 'grape']
+# oxford_comma_or(choices)
+# #> 'apple, orange or grape'
+# ```
+
+
+
+def oxford_comma(x: Union[str, Sequence[str]], sep_last: str = "and", quotation: bool = True) -> str:
+    if isinstance(x, str):
+      if(quotation): return f"'{x}'"
+      else: return x
+    else:
+      if(quotation): x = [f"'{s}'" for s in x]
+    if(len(x) == 1):
+      return f"{x[0]}"
+    else:
+      return ", ".join(x[:-1]) + f" {sep_last} " + x[-1]
+
+def oxford_comma_and(x: Union[str, Sequence[str]], quotation: bool = True) -> str:
+  return oxford_comma(x, quotation = quotation, sep_last = 'and')
+
+def oxford_comma_or(x: Union[str, Sequence[str]], quotation: bool = True) -> str:
+  return oxford_comma(x, quotation = quotation, sep_last = 'or')
+
+
 # ## 引数のアサーション
 
 
@@ -245,15 +275,64 @@ def assert_length(
         if len_arg is not None:
             if arg_length != len_arg:
                 raise ValueError(
-                     f"Argment '{arg_name}' must have length {len_arg}, "
+                     f"Argument '{arg_name}' must have length {len_arg}, "
                      f"but has length {arg_length}."
                 )
         if (len_max is not None) and (len_min is not None):
             if not(len_min <= arg_length <= len_max):
                 raise ValueError(
-                     f"Argment '{arg_name}' must have length {len_min} <= n <= {len_max}, "
+                     f"Argument '{arg_name}' must have length {len_min} <= n <= {len_max}, "
                      f"but has length {arg_length}."
             )
+
+
+
+
+def assert_scalar(arg: Any, arg_name:str = 'arg'):
+    if not isinstance(arg, str):
+        if isinstance(arg, collections.abc.Sized):
+            raise ValueError(
+                    f"Argument '{arg_name}' must be a scalar value, not an array-like object."
+                )
+
+
+# ## None, Null など引数の missing values を判定
+
+
+
+def is_pl_null(x: Any):
+    try:
+        import polars as pl
+        if x is pl.Null or isinstance(x, pl.datatypes.Null):
+            return True
+        else: return False
+    except Exception:
+        return False
+
+def is_missing(arg):
+    arg = pd.Series(arg)
+    result = arg.isna() | arg.apply(is_pl_null)
+    return result
+
+def assert_missing(
+        arg: Any, 
+        arg_name:str = 'arg', 
+        any_missing:bool = False,
+        all_missing:bool = False
+        ):
+    arg = pd.Series(arg)
+    missing = is_missing(arg)
+    not_sutisfy = arg[missing].index.astype(str).to_list()
+
+    if not all_missing and all(missing): 
+       raise ValueError(
+            f"Argument '{arg_name}' contains only missing values."
+        )
+
+    if not any_missing and any(missing): 
+       raise ValueError(
+            f"Argument '{arg_name}' contains missing values (element {oxford_comma_and(not_sutisfy)})."
+        )
 
 
 # ## タイプチェックを行う関数
@@ -297,13 +376,56 @@ def make_assert_type(
 
   def func(
       arg: Any, 
+      arg_name: Optional[str] = None,
       len_arg: Optional[int] = None,
       len_min: int = 1,
       len_max: Optional[int] = None,
-      arg_name: Optional[str] = None,
+      any_missing: bool = False,
+      all_missing: bool = False,
+      nullable: bool = False,
+      scalar_only: bool = False
       ):
+    """
+    Example:
+        from py4stats import building_block as build
+        x = [1, 2, 3]
+        y = ['A', 'B', 'C']
+
+        build.assert_character(x, arg_name = 'x')
+        #> ValueError: Argument 'x' must be of type 'str'.
+
+        build.assert_character(y, arg_name = 'y')
+
+        build.assert_numeric(x, arg_name = 'x')
+
+        build.assert_numeric(y, arg_name = 'y')
+        #> ValueError: Argument 'y' must be of type 'int' or 'float' with value(s) -inf <= x <= inf.
+
+        z = [0.1, 0.3, 0.6]
+        build.assert_numeric(z, arg_name = 'z', lower = 0, upper = 1)
+
+        z.extend([2, 3])
+        build.assert_numeric(z, arg_name = 'z', lower = 0, upper = 1)
+        #> ValueError: Argument 'z' must have value 0 <= x <= 1
+        #> element '3' and '4' of 'z' not sutisfy the condtion.
+
+        z = 1
+        build.assert_numeric(z, arg_name = 'z', lower = 0, upper = 1, inclusive = 'left')
+        #> ValueError: Argument 'z' must have value 0 <= x < 1.
+    """
     if(arg_name is None):
       arg_name = varname.argname('arg')
+
+
+    # 欠測値に関するアサーション ============================================
+    if (arg is None) and nullable: return
+    if scalar_only: assert_scalar(arg, arg_name = arg_name)
+
+    assert_missing(
+      arg, arg_name = arg_name, 
+      any_missing = any_missing,
+      all_missing = all_missing
+      )
 
     # 引数の要素数に関するアサーション ============================================
     assert_length(
@@ -314,7 +436,7 @@ def make_assert_type(
       )
 
     if not predicate_fun(arg):
-      messages = f"Argment '{arg_name}' must be of type {oxford_comma_or(valid_type)}." 
+      messages = f"Argument '{arg_name}' must be of type {oxford_comma_or(valid_type)}." 
       raise ValueError(messages)
 
   return func
@@ -356,7 +478,11 @@ def make_assert_numeric(
         inclusive: Literal["both", "neither", "left", "right"] = "both",
         len_arg: Optional[int] = None,
         len_min: int = 1,
-        len_max: Optional[int] = None
+        len_max: Optional[int] = None,
+        any_missing: bool = False,
+        all_missing: bool = False,
+        nullable: bool = False,
+        scalar_only: bool = False
   ) -> None:
     """
     Example:
@@ -365,30 +491,39 @@ def make_assert_numeric(
         y = ['A', 'B', 'C']
 
         build.assert_character(x, arg_name = 'x')
-        #> ValueError: Argment 'x' must be of type 'str'.
+        #> ValueError: Argument 'x' must be of type 'str'.
 
         build.assert_character(y, arg_name = 'y')
 
         build.assert_numeric(x, arg_name = 'x')
 
         build.assert_numeric(y, arg_name = 'y')
-        #> ValueError: Argment 'y' must be of type 'int' or 'float' with value(s) -inf <= x <= inf.
+        #> ValueError: Argument 'y' must be of type 'int' or 'float' with value(s) -inf <= x <= inf.
 
         z = [0.1, 0.3, 0.6]
         build.assert_numeric(z, arg_name = 'z', lower = 0, upper = 1)
 
         z.extend([2, 3])
         build.assert_numeric(z, arg_name = 'z', lower = 0, upper = 1)
-        #> ValueError: Argment 'z' must have value 0 <= x <= 1
+        #> ValueError: Argument 'z' must have value 0 <= x <= 1
         #> element '3' and '4' of 'z' not sutisfy the condtion.
 
         z = 1
         build.assert_numeric(z, arg_name = 'z', lower = 0, upper = 1, inclusive = 'left')
-        #> ValueError: Argment 'z' must have value 0 <= x < 1.
+        #> ValueError: Argument 'z' must have value 0 <= x < 1.
     """
     if(arg_name is None):
       arg_name = varname.argname('arg')
 
+    # 欠測値に関するアサーション ============================================
+    if (arg is None) and nullable: return
+    if scalar_only: assert_scalar(arg, arg_name = arg_name)
+
+    assert_missing(
+      arg, arg_name = arg_name, 
+      any_missing = any_missing,
+      all_missing = all_missing
+      )
     # 引数の要素数に関するアサーション ============================================
     assert_length(
       arg, arg_name, 
@@ -397,7 +532,7 @@ def make_assert_numeric(
       len_max = len_max
       )
 
-    # 引数の値に関するアサーション ============================================
+    # 引数の値に関するアサーション ===============================================
     arg = pd.Series(arg)
 
     inclusive_dict = {
@@ -408,7 +543,7 @@ def make_assert_numeric(
     }
 
     if not predicate_fun(arg): 
-       message = f"Argment '{arg_name}' must be of" +\
+       message = f"Argument '{arg_name}' must be of" +\
             f" type {oxford_comma_or(valid_type)}" + \
             f" with value(s) {lower} {inclusive_dict[inclusive]} {upper}."
        raise ValueError(message)
@@ -419,13 +554,13 @@ def make_assert_numeric(
     if(len(arg) > 1):
       if not cond.all():
         message = (
-            f"Argment '{arg_name}' must have value {lower} {inclusive_dict[inclusive]} {upper}\n"  +
+            f"Argument '{arg_name}' must have value {lower} {inclusive_dict[inclusive]} {upper}\n"  +
             f"element {oxford_comma_and(not_sutisfy)} of '{arg_name}' not sutisfy the condtion."
             )
         raise ValueError(message)
     else:
       if not cond.all():
-       message =  f"Argment '{arg_name}' must have value {lower} {inclusive_dict[inclusive]} {upper}."
+       message =  f"Argument '{arg_name}' must have value {lower} {inclusive_dict[inclusive]} {upper}."
        raise ValueError(message)
 
     # if(arg_name is None):
@@ -598,32 +733,4 @@ def pad_zero(x: Any, digits: int = 2) -> str:
 @np.vectorize
 def add_big_mark(s: Any) -> str:
     return f'{s:,}'
-
-
-# 　文字列のリストを与えると、英文の並列の形に変換する関数です。表記法については[Wikipedia Serial comma](https://en.wikipedia.org/wiki/Serial_comma)を参照し、コードについては[stack overflow:Grammatical List Join in Python [duplicate]](https://stackoverflow.com/questions/19838976/grammatical-list-join-in-python)を参照しました。
-# 
-# ```python
-# choices = ['apple', 'orange', 'grape']
-# oxford_comma_or(choices)
-# #> 'apple, orange or grape'
-# ```
-
-
-
-def oxford_comma(x: Union[str, Sequence[str]], sep_last: str = "and", quotation: bool = True) -> str:
-    if isinstance(x, str):
-      if(quotation): return f"'{x}'"
-      else: return x
-    else:
-      if(quotation): x = [f"'{s}'" for s in x]
-    if(len(x) == 1):
-      return f"{x[0]}"
-    else:
-      return ", ".join(x[:-1]) + f" {sep_last} " + x[-1]
-
-def oxford_comma_and(x: Union[str, Sequence[str]], quotation: bool = True) -> str:
-  return oxford_comma(x, quotation = quotation, sep_last = 'and')
-
-def oxford_comma_or(x: Union[str, Sequence[str]], quotation: bool = True) -> str:
-  return oxford_comma(x, quotation = quotation, sep_last = 'or')
 

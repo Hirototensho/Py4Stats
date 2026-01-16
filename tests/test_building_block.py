@@ -1,6 +1,8 @@
 # tests/test_bilding_block.py
 import pytest
 import pandas as pd
+import polars as pl
+
 from py4stats import building_block as build
 
 # =========================================================
@@ -97,10 +99,44 @@ def test_assert_length_len_max():
     l = ['a', 'b', 'c']
     with pytest.raises(ValueError):
         build.assert_length(l, arg_name = 'l', len_arg = 2)
+
 def test_assert_length_len_min():
     l = ['a', 'b', 'c']
     with pytest.raises(ValueError):
         build.assert_length(l, arg_name = 'l', len_arg = 4)
+
+# =========================================================
+# assert_scalar
+# =========================================================
+def test_assert_scalar_not_raise():
+    assert build.assert_scalar('x') is None
+    assert build.assert_scalar(1) is None
+    assert build.assert_scalar(True) is None
+
+def test_assert_scalar_raise():
+    with pytest.raises(ValueError):
+        build.assert_scalar(['x'])
+
+# =========================================================
+# assert_missing
+# =========================================================
+def test_assert_missing_any_missing_False():
+    arg = [1, 2 ,3, None, pd.NA]
+    with pytest.raises(ValueError) as excinfo:
+        build.assert_missing(arg, 'arg')
+    
+    assert "contains missing values (element '3' and '4')" in str(excinfo.value)
+
+def test_assert_missing_any_missing_True():
+    arg = [1, 2 ,3, None, pd.NA]
+    assert build.assert_missing(arg, 'arg', any_missing = True) is None
+
+def test_assert_missing_all_missing_False():
+    arg = [None, pd.NA, pl.Null]
+    with pytest.raises(ValueError) as excinfo:
+        build.assert_missing(arg, 'arg')
+    
+    assert "contains only missing values" in str(excinfo.value)
 
 # =========================================================
 # assert_* (raises on invalid)
