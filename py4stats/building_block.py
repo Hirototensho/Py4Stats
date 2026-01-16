@@ -221,6 +221,9 @@ def is_missing(arg):
     result = arg.isna() | arg.apply(is_pl_null)
     return result
 
+
+
+
 def assert_missing(
         arg: Any, 
         arg_name:str = 'arg', 
@@ -310,6 +313,8 @@ def arg_match(
     values: Sequence[str],
     arg_name: Optional[str] = None,
     multiple: bool = False,
+    any_missing: bool = False,
+    all_missing: bool = False,
     nullable: bool = False
 ) -> Union[str, List[str]]:
     """
@@ -320,6 +325,7 @@ def arg_match(
     - values: List of valid values.
     - arg_name : name of argument.
     - multiple: Whether multiple values are allowed for the arg.
+    - any_missing: If True, allows the presence of missing values.
     - nullable: If True, allows the argument itself to be None.
 
     Returns:
@@ -330,7 +336,15 @@ def arg_match(
 
     if (arg is None) and nullable: return
 
+    assert_missing(
+      arg, arg_name = arg_name, 
+      any_missing = any_missing,
+      all_missing = all_missing
+      )
+
     arg = pd.Series(arg)
+    if any_missing: 
+      arg = arg[~is_missing(arg)]
 
     if(multiple):
     # 複数選択可の場合
@@ -392,6 +406,10 @@ def make_assert_type(
       scalar_only: bool = False
       ):
     """Assert that an argument is specific type and satisfies value and shape constraints.
+        `assert_*` is a high-level assertion that combines
+        type checking, missing-value handling, length constraints,
+        and range validation for numeric arguments.
+
     Args:
         arg:
             The argument to validate. Can be a scalar or an
@@ -491,6 +509,11 @@ def make_assert_type(
       len_min = len_min,
       len_max = len_max
       )
+
+    arg = pd.Series(arg)
+
+    if any_missing: 
+      arg = arg[~is_missing(arg)]
 
     if not predicate_fun(arg):
       messages = f"Argument '{arg_name}' must be of type {oxford_comma_or(valid_type)}." 
@@ -642,6 +665,9 @@ def make_assert_numeric(
 
     # 引数の値に関するアサーション ===============================================
     arg = pd.Series(arg)
+
+    if any_missing: 
+      arg = arg[~is_missing(arg)]
 
     inclusive_dict = {
       'both':'<= x <=',

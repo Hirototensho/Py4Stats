@@ -87,6 +87,24 @@ def test_is_numeric(x, expected):
     assert build.is_numeric(x) is expected
 
 # =========================================================
+# length
+# =========================================================
+
+@pytest.mark.parametrize(
+    "x, expected",
+    [
+        (None, 0),
+        ('str', 1),
+        ([1], 1),
+        ([1, 2], 2),
+        ([1, 2, 3], 3),
+        ([1, pd.NA, None], 3)
+    ],
+)
+def test_length(x, expected):
+    assert build.length(x) is expected
+
+# =========================================================
 # assert_length
 # =========================================================
 
