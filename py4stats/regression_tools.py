@@ -116,10 +116,6 @@ Normalize = Union[bool, Literal["all", "index", "columns"]]
 # TableStyle = Literal["two_line", "one_line"]
 StatsKey = Literal["std_err", "statistics", "p_value", "conf_int"]
 
-# # 限界効果（margeff）を返せるモデルの最小要件（型チェッカ向け）
-# class _HasMargEff(Protocol):
-#     def get_margeff(self, *args: Any, **kwargs: Any) -> Any: ...
-
 
 # ## 回帰分析の結果をデータフレームに変換する関数
 
@@ -1226,7 +1222,7 @@ def coef_dot(
 
 
 def tidy_mfx(
-    x: _HasMargEff,
+    x: BinaryResultsWrapper,
     at: Literal['overall', 'mean', 'median', 'zero'] = "overall",
     method: Literal['coef', 'dydx', 'eyex', 'dyex', 'eydx'] = "dydx",
     dummy: bool = False,
