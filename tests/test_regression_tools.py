@@ -86,6 +86,14 @@ def test_gazer() -> None:
     expected_df = pd.read_csv(f'{tests_path}/fixtures/gazer.csv', index_col = 0)
     assert_frame_equal(output_df, expected_df)
 
+def test_gazer_change_stars() -> None:
+    output_df = reg.gazer(
+        reg.tidy(fit3),
+        stars = {'★★★':0.001, '★★':0.01, '★': 0.05, '.':0.1}
+    )
+    expected_df = pd.read_csv(f'{tests_path}/fixtures/gazer_stars.csv', index_col = 0)
+    assert_frame_equal(output_df, expected_df)
+
 def test_lineup_models() -> None:
     list_models = [fit1, fit2, fit3]
     gazer_list = [reg.gazer(reg.tidy(mod)) for mod in list_models]

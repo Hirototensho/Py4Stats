@@ -24,57 +24,73 @@ compare_mfx(
 
 ## 引数
 
-- `list_models`：推定結果を表示する分析結果のリスト（必須）。[`sm.glm()`](https://www.statsmodels.org/devel/generated/statsmodels.genmod.generalized_linear_model.GLM.html)で作成された一般化線形モデルの結果を `list_models = [fit1, fit2]` のようにリストとして指定してください。
+- `list_models`：</br>
+推定結果を表示する分析結果のリスト（必須）。[`sm.glm()`](https://www.statsmodels.org/devel/generated/statsmodels.genmod.generalized_linear_model.GLM.html)で作成された一般化線形モデルの結果を `list_models = [fit1, fit2]` のようにリストとして指定してください。
 
-- `model_name`：表頭に表示するモデルの名前。`['モデル1', 'モデル2']` のように文字列のリストを指定してください。初期設定では、自動的に `model 1, model 2, model 3 …` と連番が割り当てられます。
+- `model_name`：**list of str**</br>
+表頭に表示するモデルの名前。`['モデル1', 'モデル2']` のように文字列のリストを指定してください。初期設定では、自動的に `model 1, model 2, model 3 …` と連番が割り当てられます。
 
-- `subset = None`：表示する回帰係数のリスト。指定しない場合（初期設定）、モデルに含まれる全ての回帰係数が表示されます。内部では[`pandas.DataFrame.loc`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.loc.html)メソッドを用いて処理を行っているため、`['変数1', '変数2', ...]` のような文字列のリスト、`[True, False, True, ...]` のようなブール値のリストに対応しています。文字列のリストが指定された場合、リストの並び順に合わせて回帰係数が表示されます。
+- `subset`：**list of str**</br>
+    表示する回帰係数のリスト。指定しない場合（初期設定）、モデルに含まれる全ての回帰係数が表示されます。内部では[`pandas.DataFrame.loc`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.loc.html)メソッドを用いて処理を行っているため、`['変数1', '変数2', ...]` のような文字列のリスト、`[True, False, True, ...]` のようなブール値のリストに対応しています。文字列のリストが指定された場合、リストの並び順に合わせて回帰係数が表示されます。
 
-- `stats`：表中の丸括弧 ( ) 内に表示する統計値の設定。次の値が指定できます。
-    - `'p_value'` p-値（初期設定）
-    - `'std_err'` 標準誤差
+
+- `stats`：**str**</br>
+    表中の丸括弧 ( ) 内に表示する統計値の設定。次の値が指定できます。
+    - `'std_err'` 標準誤差（初期設定）
+    - `'p_value'` p-値
     - `'statistics'` t統計量
 
-- `add_stars`：回帰係数の統計的有意性を表すアスタリスク `*` を表示するかどうかを表すブール値。`add_stars = True`（初期設定）なら表示、`add_stars = False`なら非表示となります。`table_style` に `'two_line'` を指定した場合はアスタリスクは回帰係数の直後に表示され、`'one_line'` を指定した場合は `stats` で指定した統計値の後に表示されます。アスタリスクはp-値の値に応じて次のように表示されます。
+- `add_stars`：**bool**</br>
+    回帰係数の統計的有意性を表すアスタリスク `*` を表示するかどうかを表すブール値。`add_stars = True`（初期-設定）なら表示、`add_stars = False`なら非表示となります。`table_style` に `'two_line'` を指定した場合はアスタリスクは回帰係数の直後に表示され、`'one_line'` を指定した場合は `stats` で指定した統計値の後に表示されます。アスタリスクはp-値の値に応じて次のように表示されます。
+
+- `stars`：**dict**（`p_stars()` のみ）</br>
+　有意性を示す記号を key に、表示を切り替える閾値を値(value)にもつ辞書オブジェクト。初期設定の `stars = None` の場合、下記の方式で表示されます。
     - p ≤ 0.1 `*`
     - p ≤ 0.05 `**`
     - p ≤ 0.01 `***`
-    - p > 0.1 表示なし
+    - p > 0.1 表示なし</br>
+詳細は[`building_block.style_pvalue()`](man/style_pvalue.md) を参照してください。
 
-- `stats_glance`**list of str**：表の下部に追加する当てはまりの尺度の種類を表す文字列のリスト。リストの値には次の値を指定できます。なお、`None` もしくは空のリスト `[]` が指定された場合には非表示となります。
-    - `'prsquared'`：擬似決定係数
-    - `'LL-Null'`： Null model の対数尤度
-    - `'df_null'`, ：Null model の自由度 `= nobs - 1`
-    - `'logLik'` ：モデルの対数尤度
-    - `'AIC'`：赤池情報量基準
-    - `'BIC'`：ベイズ情報量基準 
-    - `'deviance'`：モデルの逸脱度  `= -2logLik`
+- `stats_glance`:**list of str**</br>
+- 表の下部に追加する当てはまりの尺度の種類を表す文字列のリスト。リストの値には次の値を指定できます。なお、`None` もしくは空のリスト `[ ]` が指定された場合には非表示となります。
+    - `'rsquared'`：決定係数
+    - `'rsquared_adj'`：自由度調整済み決定係数
     - `'nobs'`：サインプルサイズ
     - `'df'`：モデルの自由度（説明変数の数）
-    - `'df_resid'`：残差の自由度 
+    - `'sigma'`：回帰式の標準誤差
+    - `'F_values'`：全ての回帰係数がゼロであることを帰無仮説とするF検定の統計量
+    - `'p_values'`：F検定のP-値
+    - `'AIC'`：赤池情報量基準
+    - `'BIC'`：ベイズ情報量基準
 
-- `digits`：回帰係数と統計値について表示する小数点以下の桁数。初期設定は4です。
+- `digits`: **int**</br>
+    回帰係数と統計値について表示する小数点以下の桁数。初期設定は4です。
 
-- `table_style`：表の書式設定。次の値から選択できます（部分一致可）。
+- `table_style`: **str**</br>
+    表の書式を表す文字列。次の値から選択できます（部分一致可）。
     - `'two_line'`回帰係数と統計値を2行に分ける（初期設定）
     - `'one_line'`回帰係数と統計値を1行で表示する
    
-- `line_break`：`table_style = 'two_line'` とした場合に使用される改行記号。`table_style = 'one_line'` とした場合、この引数は無視されます。
+- `line_break`: **str**</br>
+    `table_style = 'two_line'` とした場合に使用される改行記号。`table_style = 'one_line'` とした場合、この引数は無視されます。
 
-- `at`：限界効果の集計方法。内部で使用している[`statsmodels.discrete.discrete_model.DiscreteResults.get_margeff()`](https://www.statsmodels.org/devel/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドに引数 `at` として渡されます。`method = 'coef'` を指定した場合、この引数は無視されます。
+- `at`: **str**</br>
+    限界効果の集計方法。内部で使用している[`statsmodels.discrete.discrete_model.DiscreteResults.get_margeff()`](https://www.statsmodels.org/devel/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドに引数 `at` として渡されます。`method = 'coef'` を指定した場合、この引数は無視されます。
     - `'overall'`：各観測値の限界効果の平均値を表示（初期設定）
     - `'mean'`：各説明変数の平均値における限界効果を表示
     - `'median'`：各説明変数の中央値における限界効果を表示
     - `'zero'`：各説明変数の値がゼロであるときの限界効果を表示
 
-- `method`：推定する限界効果の種類。内部で使用している[`statsmodels.discrete.discrete_model.DiscreteResults.get_margeff()`](https://www.statsmodels.org/devel/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドに引数 `method` として渡されます。ただし、`method = 'coef'` を指定した場合には限界効果を推定せずに回帰係数をそのまま表示します。
+- `method`: **str**</br>
+    推定する限界効果の種類。内部で使用している[`statsmodels.discrete.discrete_model.DiscreteResults.get_margeff()`](https://www.statsmodels.org/devel/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドに引数 `method` として渡されます。ただし、`method = 'coef'` を指定した場合には限界効果を推定せずに回帰係数をそのまま表示します。
     - `'coef'`：回帰係数の推定値を表示
     - `'dydx'`：限界効果の値を変換なしでそのまま表。（初期設定）
     - `'eyex'`：弾力性 d(lny)/d(lnx) の推定値を表示
     - `'dyex'`：準弾力性 dy /d(lnx) の推定値を表示
     - `'eydx'`：準弾力性 d(lny)/dx の推定値を表示
 
-- `dummy`：ダミー変数の限界効果の推定方法。もし False （初期設定）であれば、ダミー変数を連続な数値変数として扱います。もし、True であればダミー変数が0から1へと変化したときの予測値の変化を推定します。内部で使用している[`statsmodels.discrete.discrete_model.DiscreteResults.get_margeff()`](https://www.statsmodels.org/devel/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドに引数 `dummy` として渡されます。
+- `dummy`: **bool**</br>
+    ダミー変数の限界効果の推定方法を制御するブール値。もし False （初期設定）であれば、ダミー変数を連続な数値変数として扱います。もし、True であればダミー変数が0から1へと変化したときの予測値の変化を推定します。内部で使用している[`statsmodels.discrete.discrete_model.DiscreteResults.get_margeff()`](https://www.statsmodels.org/devel/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドに引数 `dummy` として渡されます。
 
 ## 使用例
 

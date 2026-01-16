@@ -11,6 +11,7 @@ import pyarrow as pa
 
 import narwhals
 import narwhals as nw
+import narwhals.selectors as ncs
 
 from py4stats.eda_tools import _nw as eda_nw
 
@@ -496,6 +497,16 @@ def test_Pareto_plot() -> None:
         )
     assert len(ax.patches) > 0
 
+    fig, ax = plt.subplots()
+    eda_nw.Pareto_plot(
+        penguins_modify, 
+        values = 'bill_length_mm',
+        group = 'group',
+        aggfunc = lambda x: x.std(),
+        ax = ax
+        )
+    assert len(ax.patches) > 0
+
 def test_make_rank_table_nw_error_on_non_exist_col():
     with pytest.raises(ValueError) as excinfo:
         eda_nw.make_rank_table(penguins, 'non_exists', 'body_mass_g')
@@ -718,3 +729,150 @@ def test_reducers() -> None:
     assert eda_nw.Max(a, b).tolist() == [10, 20, 30]
     assert eda_nw.Min(a, b).tolist() == [1, 2, 30]  # nan は無視される
     assert eda_nw.Median(a, b).iloc[0] == pytest.approx(5.5)
+
+# ================================================================
+# plot_category
+# ================================================================
+import itertools
+Q1 = [70 * ['Strongly agree'], 200 * ['Agree'], 235 * ['Disagree'], 149 * ['Strongly disagree']]
+Q2 = [74 * ['Strongly agree'], 209 * ['Agree'], 238 * ['Disagree'], 133 * ['Strongly disagree']]
+Q3 = [59 * ['Strongly agree'], 235 * ['Agree'], 220 * ['Disagree'], 140 * ['Strongly disagree']]
+Q4 = [40 * ['Strongly agree'], 72 * ['Agree'], 266 * ['Disagree'], 276 * ['Strongly disagree']]
+
+categ_list = ['Strongly disagree', 'Disagree', 'Agree', 'Strongly agree']
+data = pd.DataFrame({
+    'I read only if I have to.':list(itertools.chain.from_iterable(Q1)),
+    'Reading is one of my favorite hobbies.':list(itertools.chain.from_iterable(Q2)),
+    'I like talking about books with other people.':list(itertools.chain.from_iterable(Q3)),
+    'For me, reading is a waste of time.':list(itertools.chain.from_iterable(Q4))
+})
+
+def test_plot_category_pd() -> None:
+
+    data_pd = data.apply(pd.Categorical, categories = categ_list)
+
+    fig, ax = plt.subplots()
+    eda_nw.plot_category(data_pd, ax = ax)
+
+    assert len(ax.patches) > 0
+
+def test_plot_category_pl() -> None:
+
+    data_pl = pl.from_pandas(data)\
+    .with_columns(
+        pl.all().cast(pl.Enum(categ_list))
+    )
+
+    fig, ax = plt.subplots()
+    eda_nw.plot_category(data_pl, ax = ax)
+
+    assert len(ax.patches) > 0
+
+def test_plot_category_pa() -> None:
+
+    data_pa = pa.Table.from_pandas(data)
+
+    fig, ax = plt.subplots()
+    eda_nw.plot_category(data_pa, sort_by = 'frequency', ax = ax)
+
+    assert len(ax.patches) > 0
+
+# ================================================================
+# relocate
+# ================================================================
+
+def test_relocate_basic():
+    result1 = eda_nw.relocate(penguins, 'year', 'sex').columns.to_list()
+    expect1 = ['year', 'sex', 'species', 'island', 'bill_length_mm', 
+            'bill_depth_mm', 'flipper_length_mm', 'body_mass_g']
+    assert result1 == expect1
+
+def test_relocate_ncs():
+    result2 = eda_nw.relocate(penguins_pl, ncs.numeric()).columns
+    expect2 = ['bill_length_mm', 'bill_depth_mm', 'flipper_length_mm', 'body_mass_g',
+            'year', 'species', 'island', 'sex']
+    assert result2 == expect2
+
+def test_relocate_before():
+    result3 = eda_nw.relocate(
+        penguins_pa, 'year', before = 'island', to_native = False
+        ).columns
+    expect3 = ['species', 'year', 'island', 'bill_length_mm', 'bill_depth_mm',
+                'flipper_length_mm', 'body_mass_g', 'sex']
+    assert result3 == expect3
+
+def test_relocate_after():    
+    result4 = eda_nw.relocate(penguins, 'year', after = 'island').columns.to_list()
+    expect4 = ['species', 'island', 'year', 'bill_length_mm', 'bill_depth_mm',
+                'flipper_length_mm', 'body_mass_g', 'sex']
+
+    assert result4 == expect4
+
+def test_relocate_basic_error_on_invalid_selector():
+    with pytest.raises(ValueError) as excinfo:
+        eda_nw.relocate(penguins, 0, True)
+    # 仕様：候補があると "Did you mean ..." を含む
+    assert "Argument '*args' must be of type" in str(excinfo.value)
+    assert "'0' and 'True' cannot be accepted" in str(excinfo.value)
+
+# ================================================================
+# weighted_mean
+# ================================================================
+x = penguins.groupby('species')['bill_length_mm'].mean()
+w = penguins.groupby('species')['bill_length_mm'].count()
+grand_mean = penguins['bill_length_mm'].mean()
+
+
+def test_weighted_mean_pd():
+    assert np.isclose(eda_nw.weighted_mean(x, w), grand_mean)
+
+def test_weighted_mean_pl():
+    x_pl = pl.from_pandas(x)
+    w_pl = pl.from_pandas(w)
+    assert np.isclose(eda_nw.weighted_mean(x_pl, w_pl), grand_mean)
+
+def test_weighted_mean_pa():
+    data_pa = pa.Table.from_pydict({
+        'x':x.to_list(),
+        'w':w.to_list()
+    })
+
+    assert np.isclose(eda_nw.weighted_mean(data_pa['x'], data_pa['w']), grand_mean)
+
+# ================================================================
+# scale
+# ================================================================
+
+def test_scale_pd():
+    res = eda_nw.scale(penguins.select_dtypes('number'))
+    assert all(np.isclose(res.mean(), 0) & np.isclose(res.std(), 1))
+
+    res = eda_nw.scale(penguins['body_mass_g'])
+    assert np.isclose(res.mean(), 0) & np.isclose(res.std(), 1)
+
+def test_scale_pl():
+    res = eda_nw.scale(penguins_pl['body_mass_g']).to_pandas()
+    assert np.isclose(res.mean(), 0) & np.isclose(res.std(), 1)
+
+def test_scale_pa():
+    res = eda_nw.scale(penguins_pa['body_mass_g']).to_pandas()
+    assert np.isclose(res.mean(), 0) & np.isclose(res.std(), 1)
+
+# ================================================================
+# min_max
+# ================================================================
+
+def test_min_max_pd():
+    res = eda_nw.min_max(penguins.select_dtypes('number'))
+    assert all(np.isclose(res.min(), 0) & np.isclose(res.max(), 1))
+
+    res = eda_nw.min_max(penguins['body_mass_g'])
+    assert np.isclose(res.min(), 0) & np.isclose(res.max(), 1)
+
+def test_min_max_pl():
+    res = eda_nw.min_max(penguins_pl['body_mass_g']).to_pandas()
+    assert np.isclose(res.min(), 0) & np.isclose(res.max(), 1)
+
+def test_min_max_pa():
+    res = eda_nw.min_max(penguins_pa['body_mass_g']).to_pandas()
+    assert np.isclose(res.min(), 0) & np.isclose(res.max(), 1)

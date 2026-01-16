@@ -6,39 +6,50 @@
 
 ```python
 compare_ols(
-    list_models, 
-    model_name = None,
-    subset = None,
-    stats = 'std_err',
-    add_stars = True,
-    stats_glance = ['rsquared_adj', 'nobs', 'df'],
-    digits = 4, 
-    table_style = 'two_line',
-    line_break = '\n',
-    **kwargs
+    list_models: Sequence[RegressionResultsWrapper],
+    model_name: Optional[Sequence[str]] = None,
+    subset: Optional[Sequence[str]] = None,
+    stats: Literal["std_err", "statistics", "p_value", "conf_int"] = "std_err",
+    add_stars: bool = True,
+    stars: Optional[Mapping[str, float]] = None,
+    stats_glance: Optional[Sequence[str]] = ("rsquared_adj", "nobs", "df"),
+    digits: int = 4,
+    table_style: Literal["two_line", "one_line"] = "two_line",
+    line_break: str = "\n",
+    **kwargs: Any
 )
 ```
 
 ## 引数
 
-- `list_models`：推定結果を表示する分析結果のリスト（必須）。`sm.ols()` や `smf.ols()` で作成された回帰分析の結果を `list_models = [fit1, fit2]` のようにリストとして指定してください。
+- `list_models`：**Sequence[RegressionResultsWrapper]**</br>
+ 推定結果を表示する分析結果のリスト（必須）。`sm.ols()` や `smf.ols()` で作成された回帰分析の結果を `list_models = [fit1, fit2]` のようにリストとして指定してください。
 
-- `model_name`：表頭に表示するモデルの名前。`['モデル1', 'モデル2']` のように文字列のリストを指定してください。初期設定では、自動的に `model 1, model 2, model 3 …` と連番が割り当てられます。
+- `model_name`：**list of str**</br>
+表頭に表示するモデルの名前。`['モデル1', 'モデル2']` のように文字列のリストを指定してください。初期設定では、自動的に `model 1, model 2, model 3 …` と連番が割り当てられます。
 
-- `subset = None`：表示する回帰係数のリスト。指定しない場合（初期設定）、モデルに含まれる全ての回帰係数が表示されます。内部では[`pandas.DataFrame.loc`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.loc.html)メソッドを用いて処理を行っているため、`['変数1', '変数2', ...]` のような文字列のリスト、`[True, False, True, ...]` のようなブール値のリストに対応しています。文字列のリストが指定された場合、リストの並び順に合わせて回帰係数が表示されます。
+- `subset`：**list of str**</br>
+    表示する回帰係数のリスト。指定しない場合（初期設定）、モデルに含まれる全ての回帰係数が表示されます。内部では[`pandas.DataFrame.loc`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.loc.html)メソッドを用いて処理を行っているため、`['変数1', '変数2', ...]` のような文字列のリスト、`[True, False, True, ...]` のようなブール値のリストに対応しています。文字列のリストが指定された場合、リストの並び順に合わせて回帰係数が表示されます。
 
-- `stats`：表中の丸括弧 ( ) 内に表示する統計値の設定。次の値が指定できます。
-    - `'p_value'` p-値（初期設定）
-    - `'std_err'` 標準誤差
+- `stats`：**str**</br>
+    表中の丸括弧 ( ) 内に表示する統計値の設定。次の値が指定できます。
+    - `'std_err'` 標準誤差（初期設定）
+    - `'p_value'` p-値
     - `'statistics'` t統計量
 
-- `add_stars`：回帰係数の統計的有意性を表すアスタリスク `*` を表示するかどうかを表すブール値。`add_stars = True`（初期設定）なら表示、`add_stars = False`なら非表示となります。`table_style` に `'two_line'` を指定した場合はアスタリスクは回帰係数の直後に表示され、`'one_line'` を指定した場合は `stats` で指定した統計値の後に表示されます。アスタリスクはp-値の値に応じて次のように表示されます。
+- `add_stars`：**bool**</br>
+    回帰係数の統計的有意性を表すアスタリスク `*` を表示するかどうかを表すブール値。`add_stars = True`（初期-設定）なら表示、`add_stars = False`なら非表示となります。`table_style` に `'two_line'` を指定した場合はアスタリスクは回帰係数の直後に表示され、`'one_line'` を指定した場合は `stats` で指定した統計値の後に表示されます。アスタリスクはp-値の値に応じて次のように表示されます。
+
+- `stars`：**dict**（`p_stars()` のみ）</br>
+　有意性を示す記号を key に、表示を切り替える閾値を値(value)にもつ辞書オブジェクト。初期設定の `stars = None` の場合、下記の方式で表示されます。
     - p ≤ 0.1 `*`
     - p ≤ 0.05 `**`
     - p ≤ 0.01 `***`
-    - p > 0.1 表示なし
+    - p > 0.1 表示なし</br>
+詳細は[`building_block.style_pvalue()`](man/style_pvalue.md) を参照してください。
 
-- `stats_glance`**list of str**：表の下部に追加する当てはまりの尺度の種類を表す文字列のリスト。リストの値には次の値を指定できます。なお、`None` もしくは空のリスト `[ ]` が指定された場合には非表示となります。
+- `stats_glance`:**list of str**</br>
+- 表の下部に追加する当てはまりの尺度の種類を表す文字列のリスト。リストの値には次の値を指定できます。なお、`None` もしくは空のリスト `[ ]` が指定された場合には非表示となります。
     - `'rsquared'`：決定係数
     - `'rsquared_adj'`：自由度調整済み決定係数
     - `'nobs'`：サインプルサイズ
@@ -49,13 +60,16 @@ compare_ols(
     - `'AIC'`：赤池情報量基準
     - `'BIC'`：ベイズ情報量基準
 
-- `digits`：回帰係数と統計値について表示する小数点以下の桁数。初期設定は4です。
+- `digits`: **int**</br>
+    回帰係数と統計値について表示する小数点以下の桁数。初期設定は4です。
 
-- `table_style`：表の書式設定。次の値から選択できます（部分一致可）。
+- `table_style`: **str**</br>
+    表の書式を表す文字列。次の値から選択できます（部分一致可）。
     - `'two_line'`回帰係数と統計値を2行に分ける（初期設定）
     - `'one_line'`回帰係数と統計値を1行で表示する
    
-- `line_break`：`table_style = 'two_line'` とした場合に使用される改行記号。`table_style = 'one_line'` とした場合、この引数は無視されます。
+- `line_break`: **str**</br>
+    `table_style = 'two_line'` とした場合に使用される改行記号。`table_style = 'one_line'` とした場合、この引数は無視されます。
 
 ## 使用例 Examples
 
@@ -122,7 +136,7 @@ compare_tab2
 | nobs                 | 342             | 342               | 333              |
 | df                   | 3               | 4                 | 5                |
 
-`table_style = ’two_line’` のときに使用される改行記号は `line_break` で指定できます。[`great_tables`](https://posit-dev.github.io/great-tables/articles/intro.html) モジュールの `GT()` 関数と併用する場合など、html 形式で出力する場合には `line_break = '<br>' ` を指定します。
+`table_style = 'two_line'` のときに使用される改行記号は `line_break` で指定できます。[`great_tables`](https://posit-dev.github.io/great-tables/articles/intro.html) モジュールの `GT()` 関数と併用する場合など、html 形式で出力する場合には `line_break = '<br>' ` を指定します。
 
 ``` python
 from great_tables import GT, md, html
@@ -141,6 +155,38 @@ GT(compare_tab3.reset_index())\
   .tab_source_note(source_note = '( ) の値は標準誤差')
 ```
 <img width="532" alt="compare_tab_gt" src="https://github.com/Hirototensho/Py4Stats/assets/55335752/51b64eaa-fb2f-45e9-ac03-16f9bd5dd3d6">
+
+#### 有意性の表示規則の変更
+
+`py4stats` の `v0.2.0` 以降は、`stars` 引数で有意性の表示規則を変更できるようになりました。
+
+```python
+stars_dict = {'★★★':0.001, '★★':0.01, '★': 0.05, '.':0.1}
+
+reg.compare_ols(
+    list_models = [fit3],
+    model_name = ['model 3'],
+    stars = stars_dict
+    )
+```
+
+| term                 | model 3        |
+|:---------------------|:---------------|
+| Intercept            | 843.9812 ★     |
+|                      | (403.5956)     |
+| species[T.Chinstrap] | -245.1516 ★★   |
+|                      | (84.5952)      |
+| species[T.Gentoo]    | 1,443.3525 ★★★ |
+|                      | (107.7844)     |
+| sex[T.male]          | 437.2007 ★★★   |
+|                      | (49.1098)      |
+| bill_length_mm       | 26.5366 ★★★    |
+|                      | (7.2436)       |
+| bill_depth_mm        | 87.9328 ★★★    |
+|                      | (20.2192)      |
+| rsquared_adj         | 0.8613         |
+| nobs                 | 333            |
+| df                   | 5              |
 
 #### 回帰係数の sbusetting
 

@@ -2,7 +2,7 @@
 
 ## 概要
 
-R言語の [`naniar::gg_miss_var()`](https://naniar.njtierney.com/reference/gg_miss_var.html) をオマージュした関数で、DataFrameの各変数について欠測値の量を横棒グラフとして可視化します。欠損値統計の計算には [`py4stats.diagnose()`](diagnose.md) を使用しています。
+R言語の [`naniar::gg_miss_var()`](https://naniar.njtierney.com/reference/gg_miss_var.html) をオマージュした関数で、データフレームの各変数について欠測値の量を横棒グラフとして可視化します。欠損値統計の計算には [`py4stats.diagnose()`](diagnose.md) を使用しています。
 
 ``` python
 plot_miss_var(
@@ -17,6 +17,8 @@ plot_miss_var(
     **kwargs: Any
 )
 ``` 
+
+## 引数 Argument
 
 - `data`：**IntoFrameT**（必須）<br>
   入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト<br>
@@ -38,7 +40,7 @@ plot_miss_var(
 - `palette`：**list of str**</br>
 　グラフの描画に使用する色コード。棒グラフの色に対応します。
 
-## 使用例
+## 使用例 Example
 
 ``` python
 import py4stats as py4st

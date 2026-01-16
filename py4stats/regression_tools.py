@@ -661,20 +661,30 @@ def log_to_pct(est: Union[float, pd.Series, np.ndarray]) -> Union[float, pd.Seri
 from statsmodels.regression.linear_model import RegressionResultsWrapper
 import varname
 
-def assert_reg_reuslt(x: Any) -> None:
-  """Assert that inputs are statsmodels RegressionResultsWrapper objects.
+def assert_reg_reuslt(arg: Any, arg_name: str = 'list_models') -> None:
+    """Assert that inputs are statsmodels RegressionResultsWrapper objects.
 
-  Args:
-      x:
-          A list-like object expected to contain `RegressionResultsWrapper`.
+    Args:
+        arg:
+            A list-like object expected to contain `RegressionResultsWrapper`.
 
-  Raises:
-      AssertionError:
-          If any element is not a `RegressionResultsWrapper`.
-  """
-  x = pd.Series(x)
-  condition =  x.apply(lambda x: isinstance(x, (RegressionResultsWrapper))).all()
-  assert condition, f"Argment '{varname.argname('x')}' must be of type '{RegressionResultsWrapper}'."
+    Raises:
+        AssertionError:
+            If any element is not a `RegressionResultsWrapper`.
+    """
+    if(arg_name is None):
+        arg_name = varname.argname('arg')
+    arg = pd.Series(arg)
+
+    condition =  arg.apply(lambda x: isinstance(x, (RegressionResultsWrapper)))
+
+    # assert condition, f"Argument '{arg_name}' must be of type '{RegressionResultsWrapper}'."
+    not_sutisfy = arg[~condition].index.astype(str).to_list()
+    if not condition.all():
+        raise ValueError(
+            f"Argument '{arg_name}' must be of type '{RegressionResultsWrapper}.'\n"
+            f"element {build.oxford_comma_and(not_sutisfy)} of '{arg_name}' not sutisfy the condtion."
+        )
 
 
 
@@ -685,13 +695,14 @@ def compare_ols(
     list_models: Sequence[RegressionResultsWrapper],
     model_name: Optional[Sequence[str]] = None,
     subset: Optional[Sequence[str]] = None,
-    stats: StatsKey = "std_err",
+    stats: Literal["std_err", "statistics", "p_value", "conf_int"] = "std_err",
     add_stars: bool = True,
+    stars: Optional[Mapping[str, float]] = None,
     stats_glance: Optional[Sequence[str]] = ("rsquared_adj", "nobs", "df"),
     digits: int = 4,
     table_style: Literal["two_line", "one_line"] = "two_line",
     line_break: str = "\n",
-    **kwargs: Any,
+    **kwargs: Any
 ) -> pd.DataFrame:
     """Create a side-by-side comparison table for multiple regression models.
 
@@ -718,6 +729,8 @@ def compare_ols(
                 - 'std_err', 'statistics', 'p_value', 'conf_int'
             add_stars (bool):
                 If True, append significance stars based on p-values.
+            stars: Mapping from star label to cutoff (upper bound). If None (defaults) to
+                    {'***': 0.01, '**': 0.05, '*': 0.1}.
             stats_glance (Sequence[str] | None):
                 Fit statistics to append at the bottom. If None, do not append.
             digits (int):
@@ -736,15 +749,15 @@ def compare_ols(
                 Comparison table indexed by term names.
     """
     # 引数のアサーション ----------------------------------------------------------------------------------
-    if model_name is not None:
-        build.assert_character(model_name, arg_name = 'model_name')
-
+    build.assert_character(model_name, arg_name = 'model_name', nullable = True)
     build.assert_count(digits, arg_name = 'digits')
     build.assert_logical(add_stars, arg_name = 'add_stars')
     build.assert_character(line_break, arg_name = 'line_break')
     # --------------------------------------------------------------------------------------------------
-    assert pandas.api.types.is_list_like(list_models), "argument 'list_models' is must be a list of models."
-    assert_reg_reuslt(list_models)
+    if not pandas.api.types.is_list_like(list_models):
+            raise ValueError("argument 'list_models' is must be a list of models.")
+
+    assert_reg_reuslt(list_models, arg_name = 'list_models')
 
     tidy_list = [tidy(mod) for mod in list_models]
 
@@ -754,8 +767,12 @@ def compare_ols(
 
     # tidy_list の各要素に gazer() 関数を適用
     gazer_list = [gazer(
-        df, digits = digits, stats = stats, add_stars = add_stars,
-        table_style = table_style, line_break = line_break,
+        df, digits = digits, 
+        stats = stats, 
+        add_stars = add_stars,
+        stars = stars,
+        table_style = table_style, 
+        line_break = line_break,
         **kwargs
         ) for df in tidy_list]
 
@@ -835,6 +852,7 @@ def gazer(
     stats: StatsKey = "std_err",
     digits: int = 4,
     add_stars: bool = True,
+    stars: Optional[Mapping[str, float]] = None,
     # p_min: float = 0.01,
     table_style: str = "two_line",  # match_arg が部分一致なので Literal にしない方が安全
     line_break: str = "\n",
@@ -861,6 +879,8 @@ def gazer(
             Number of decimal places for formatting.
         add_stars (bool):
             If True, append significance stars based on `p_value`.
+        stars: Mapping from star label to cutoff (upper bound). If None (defaults) to
+            {'***': 0.01, '**': 0.05, '*': 0.1}.
         table_style (str):
             Formatting style. Partial matching may be allowed by `build.match_arg`.
         line_break (str):
@@ -874,20 +894,20 @@ def gazer(
     """
     # 引数に妥当な値が指定されているかを検証
     stats = build.arg_match(
-        stats, ['std_err', 'statistics', 'p_value', 'conf_int'],
-        arg_name = 'stats'
+        stats, arg_name = 'stats',
+        values = ['std_err', 'statistics', 'p_value', 'conf_int']
         )
     # こちらは部分一致可としています。
     table_style = build.match_arg(
-        table_style, ['two_line', 'one_line'],
-        arg_name = 'table_style'
+        table_style, arg_name = 'table_style',
+        values = ['two_line', 'one_line'],
         )
     build.assert_logical(add_stars, arg_name = 'add_stars')
     build.assert_count(digits, arg_name = 'digits')
     # --------------------
     res = res_tidy.copy()
     # 有意性を表すアスタリスクを作成します
-    res['stars'] = ' ' + build.p_stars(res['p_value'])
+    res['stars'] = ' ' + build.p_stars(res['p_value'], stars = stars)
 
     # # `estimate` と `stats` を見やすいフォーマットに変換します。
     # res[[estimate, stats]] = res[[estimate, stats]]\
@@ -974,8 +994,8 @@ def make_glance_tab(
     # 引数に妥当な値が指定されているかを検証
     stats_glance = build.arg_match(
                 stats_glance,
-                values = union_set.to_list(),
                 arg_name = 'stats_glance',
+                values = union_set.to_list(),
                 multiple = True
                 )
 
@@ -1145,6 +1165,22 @@ def coef_dot(
     Returns:
         None
     """
+    # 引数のアサーション ==============================================
+    build.assert_logical(show_Intercept, arg_name = 'show_Intercept')
+    build.assert_logical(show_vline, arg_name = 'show_vline')
+
+    columne_value = tidy_ci_high.columns
+    estimate = build.arg_match(
+        estimate, arg_name = 'estimate',values = columne_value
+    )
+    conf_lower = build.arg_match(
+        conf_lower, arg_name = 'conf_lower',values = columne_value
+    )
+    conf_higher = build.arg_match(
+        conf_higher, arg_name = 'conf_higher',values = columne_value
+    )
+    # ==============================================================
+
     tidy_ci_high = tidy_ci_high.copy()
     tidy_ci_low = tidy_ci_low.copy()
 
@@ -1191,7 +1227,7 @@ def coef_dot(
 
 def tidy_mfx(
     x: _HasMargEff,
-    at: MfxAt = "overall",
+    at: Literal['overall', 'mean', 'median', 'zero'] = "overall",
     method: Literal['coef', 'dydx', 'eyex', 'dyex', 'eydx'] = "dydx",
     dummy: bool = False,
     conf_level: float = 0.95,
@@ -1229,13 +1265,19 @@ def tidy_mfx(
   """
   # 引数に妥当な値が指定されているかを検証
   build.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither', arg_name = 'conf_level')
-  at = build.arg_match(at, ['overall', 'mean', 'median', 'zero'], arg_name = 'at')
+  build.assert_logical(dummy, arg_name = 'dummy')
+
+  at = build.arg_match(
+    at, arg_name = 'at',
+    values = ['overall', 'mean', 'median', 'zero']
+    )
 
   method = build.arg_match(
       method,
       values = ['coef', 'dydx', 'eyex', 'dyex', 'eydx'],
       arg_name = 'method'
       )
+
   # 限界効果の推定
   est_margeff = x.get_margeff(dummy = dummy, at = at, method = method, **kwargs)
   tab = est_margeff.summary_frame()
@@ -1256,7 +1298,6 @@ def tidy_mfx(
             'Conf. Int. Low':'conf_lower',
             'Cont. Int. Hi.':'conf_higher'
             })
-
   # conf_level に 0.95 以外の値が指定されていた場合は、信頼区間を個別に推定して値を書き換えます。
   if(conf_level != 0.95):
     CI = est_margeff.conf_int(alpha = 1 - conf_level)
@@ -1268,15 +1309,46 @@ def tidy_mfx(
 
 
 
+from statsmodels.discrete.discrete_model import BinaryResultsWrapper
+def assert_glm_with_get_margeff(arg: Any, arg_name: str = 'list_models') -> None:
+    """Assert that inputs are statsmodels BinaryResultsWrapper objects.
+
+    Args:
+        arg:
+            A list-like object expected to contain `BinaryResultsWrapper`.
+
+    Raises:
+        AssertionError:
+            If any element is not a `BinaryResultsWrapper` or not have 'get_margeff' method.
+    """
+    if(arg_name is None):
+        arg_name = varname.argname('arg')
+    arg = pd.Series(arg)
+
+    condition =  arg.apply(
+        lambda x: isinstance(x, BinaryResultsWrapper) & hasattr(x, 'get_margeff')
+        )
+    not_sutisfy = arg[~condition].index.astype(str).to_list()
+    if not condition.all():
+        raise ValueError(
+            f"Argument '{arg_name}' must be of type '{BinaryResultsWrapper}'\n"
+            "that have 'get_margeff' method. "
+            f"element {build.oxford_comma_and(not_sutisfy)} of '{arg_name}' not sutisfy the condtion."
+        )
+
+
+
+
 # 複数のロジットモデルを比較する表を作成する関数
 def compare_mfx(
-    list_models: Sequence[RegressionResultsWrapper],
+    list_models: Sequence[BinaryResultsWrapper],
     model_name: Optional[Sequence[str]] = None,
     subset: Optional[Sequence[str]] = None,
-    stats: StatsKey = "std_err",
+    stats: Literal["std_err", "statistics", "p_value", "conf_int"] = "std_err",
     add_stars: bool = True,
+    stars: Optional[Mapping[str, float]] = None,
     stats_glance: Optional[Sequence[str]] = ("prsquared", "nobs", "df"),
-    at: MfxAt = "overall",
+    at: Literal['overall', 'mean', 'median', 'zero'] = "overall",
     method: Literal['coef', 'dydx', 'eyex', 'dyex', 'eydx'] = "dydx",
     dummy: bool = False,
     digits: int = 4,
@@ -1302,6 +1374,8 @@ def compare_mfx(
                 - 'std_err', 'statistics', 'p_value', 'conf_int'
             add_stars (bool):
                 Whether to append significance stars.
+            stars: Mapping from star label to cutoff (upper bound). If None (defaults) to
+                    {'***': 0.01, '**': 0.05, '*': 0.1}.
             stats_glance (Sequence[str] | None):
                 Fit statistics to append at the bottom. If None, do not append.
             at (str):
@@ -1323,8 +1397,25 @@ def compare_mfx(
             pandas.DataFrame:
                 Comparison table of marginal effects/coefficients.
         """
-        assert pandas.api.types.is_list_like(list_models), "argument 'list_models' is must be a list of models."
-        assert_reg_reuslt(list_models)
+        # 引数のアサーション ==============================================
+        if not pandas.api.types.is_list_like(list_models):
+            raise ValueError("argument 'list_models' is must be a list of models.")
+
+        assert_glm_with_get_margeff(list_models, arg_name = 'list_models')
+
+        build.assert_character(model_name, arg_name = 'model_name', nullable = True)
+        build.assert_count(digits, arg_name = 'digits')
+
+        stats = build.arg_match(
+            stats,  arg_name = 'stats',
+            values = ["std_err", "statistics", "p_value", "conf_int"],
+        )
+        at = build.arg_match(
+            at,  arg_name = 'at',
+            values = ['overall', 'mean', 'median', 'zero']
+        )
+        build.assert_logical(add_stars, arg_name = 'add_stars')
+        # ==============================================================
         # 限界効果の推定-------------
         if method == 'coef':
             tidy_list = [tidy(mod) for mod in list_models]
@@ -1341,8 +1432,12 @@ def compare_mfx(
             # tidy_list の各要素に gazer() 関数を適用
         gazer_list = [gazer(
             df, estimate = 'estimate',
-            digits = digits, stats = stats, add_stars = add_stars,
-            table_style = table_style, line_break = line_break,
+            digits = digits, 
+            stats = stats, 
+            stars = stars,
+            add_stars = add_stars,
+            table_style = table_style, 
+            line_break = line_break,
             **kwargs
             ) for df in tidy_list]
 
@@ -1372,10 +1467,10 @@ def compare_mfx(
 
 # 回帰分析の結果から回帰係数のグラフを作成する関数 --------
 def mfxplot(
-    mod: _HasMargEff,
+    mod: BinaryResultsWrapper,
     subset: Optional[Sequence[str]] = None,
     conf_level: Sequence[float] = (0.95, 0.99),
-    at: MfxAt = "overall",
+    at: Literal['overall', 'mean', 'median', 'zero'] = "overall",
     method: Literal['coef', 'dydx', 'eyex', 'dyex', 'eydx'] = "dydx",
     dummy: bool = False,
     palette: Sequence[str] = ("#1b69af", "#629CE7"),
@@ -1413,6 +1508,9 @@ def mfxplot(
     Returns:
         None
     """
+    # 引数のアサーション ==============================================
+    assert_glm_with_get_margeff(mod)
+    # ==============================================================
 
     # 回帰係数の表を抽出
     tidy_ci_high = tidy_mfx(
@@ -1526,8 +1624,8 @@ def Blinder_Oaxaca(
             - observed_diff
             - unobserved_diff
     """
-    assert_reg_reuslt(model1)
-    assert_reg_reuslt(model2)
+    assert_reg_reuslt(model1, arg_name = 'model1')
+    assert_reg_reuslt(model2, arg_name = 'model1')
 
     X_1 = pd.DataFrame(model1.model.exog, columns = model1.model.exog_names)
     X_2 = pd.DataFrame(model2.model.exog, columns = model2.model.exog_names)

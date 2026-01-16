@@ -1,11 +1,8 @@
 # Function reference
 
-<!--注意 main ブランチにマージする際に、`blob/experiment/narwhals/` を `blob/main/` に変更すること。-->
-
 ## Main Module
 
 ### `py4stats.eda_tools`
-***
 
 `py4stats.eda_tools` モジュールは、探索的データ解析と前処理に関する機能を提供します。複数の DataFrame バックエンドに対して共通の API を提供することを目的として、[`narwhals`](https://narwhals-dev.github.io/narwhals/) ライブラリを用いて実装されています。詳細は [Technical Notes: py4stats.eda_tools における narwhals ベースの実装](articles/narwhals_in_py4stats.md) を参照してください。
 
@@ -20,6 +17,8 @@
 
 [`py4stats.Pareto_plot()`](man/Pareto_plot.md)
 
+[`py4stats.plot_category()`](man/plot_category.md)
+
 ### 数値変数の点推定と区間推定
 
 [`py4stats.mean_qi()`](man/point_range.md)
@@ -28,7 +27,8 @@
 
 #### データフレームの列や行の削除
 
-[`py4stats.remove_empty()`](man/remove_empty_constant.md)  [`py4stats.remove_constant()`](man/remove_empty_constant.md)
+[`py4stats.remove_empty()`](man/remove_empty_constant.md)  
+[`py4stats.remove_constant()`](man/remove_empty_constant.md)
 
 [`py4stats.filtering_out()`](man/filtering_out.md)
 
@@ -48,6 +48,12 @@
 
 [`py4stats.plot_miss_var()`](man/plot_miss_var.md)
 
+#### 数値変数の集計と標準化
+
+[`py4stats.weighted_mean()`](man/scale_wmean.md)
+[`py4stats.scale()`](man/scale_wmean.md)
+[`py4stats.min_max()`](man/scale_wmean.md)
+
 #### 論理関数
 
 [`py4stats.is_number()`](man/predicate_str.md)
@@ -61,8 +67,8 @@
 [`py4stats.check_that()`](man/varidate.md) [`py4stats.check_viorate()`](man/varidate.md)
 
 
-### `py4stats.regression_tools`
 ***
+### `py4stats.regression_tools`
 
 `py4stats.regression_tools` は [`statsmodels`](https://www.statsmodels.org/stable/index.html) ライブラリで作成された回帰分析の結果についての表作成と可視化を補助する機能を提供するモジュールです。
 
@@ -77,6 +83,7 @@
 [`py4stats.coefplot()`](man/coefplot.md) [`py4stats.mfxplot()`](man/coefplot.md)
 
 #### 線形モデルを作表するためのバックエンド関数
+
 [`py4stats.tidy()`](man/tidy.md)[`py4stats.tidy_mfx()`](man/tidy.md)
 
 [`py4stats.tidy_test()`](man/tidy_test.md)
@@ -92,17 +99,19 @@
 
 ### `py4stats.heckit_helper`
 
+`py4stats.regression_tools` の関数を [`py4etrics.heckit`](https://github.com/Py4Etrics/py4etrics) ライブラリで実装された Heckit モデルに対応させるためのメソッドを提供します。
+
 [`heckit_helper.Heckit_from_formula()`](man/Heckit_from_formula.md)
 
 [`heckit_helper.tidy_heckit()`](man/tidy_heckit.md)
 
 [`heckit_helper.heckitmfx_compute()`](man/heckitmfx_compute.md)
 
-### `py4stats.building_block`
 ***
+### `py4stats.building_block`
 
-`py4stats.regression_tools` の関数を [`py4etrics.heckit`](https://github.com/Py4Etrics/py4etrics) で実装された Heckit
- モデルに対応させるためのメソッドを実装したモジュールです。
+`py4stats` ライブラリの実装に使用するアサーション関数やユーティリティ関数を提供します。
+`building_block` モジュール自体は外部から呼び出すことなく内部実装に使用することを想定しています。
 
 ### 引数のアサーション関数
 

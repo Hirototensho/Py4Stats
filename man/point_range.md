@@ -34,11 +34,14 @@ mean_ci(
 
 ## 引数 Argument
 
-- `data`：**IntoFrameT or SeriesT**（必須）
+- `data`：**IntoFrameT or IntoSeriesT**（必須）<br>
   入力データ。narwhals が受け入れ可能な DataFrame もしくは Series 互換オブジェクト
   （例：`pandas.DataFrame`、`polars.DataFrame`、`pyarrow.Table`）を指定できます。
 - `width`：**float**<br>
 　分位点区間の幅、もしくは信頼区間の計算に用いる信頼係数。
+- `to_native`（**bool**, optional）<br>
+  `True` の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。<br>
+  `False` の場合、`narwhals.DataFrame` を返します。デフォルトは `True` で、`to_native = False` は、主にライブラリ内部での利用や、`backend` に依存しない後続処理を行う場合を想定したオプションです。
 
 ## 使用例 Examples
 

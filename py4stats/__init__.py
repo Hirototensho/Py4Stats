@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# from py4stats import *
 
 from .regression_tools import (
     Blinder_Oaxaca, 
@@ -46,10 +45,12 @@ from .eda_tools._nw import (
     mean_qi,
     median_qi,
     min_max,
+    plot_category,
     plot_mean_diff,
     plot_median_diff,
     plot_miss_var,
     scale,
+    relocate,
     remove_constant,
     remove_empty,
     tabyl,
@@ -122,5 +123,5 @@ __all__ = [
     ]
 
 __author__ = 'Hiroto Tensho'
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 __copyright__ = 'Copyright (c) 2024-2026 Hiroto Tensho'

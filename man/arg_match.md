@@ -6,23 +6,32 @@
 
 ``` python
 arg_match(
-    arg, 
-    values, 
-    arg_name = None, 
-    multiple = False
+    arg: Union[str, Sequence[str], pd.Series, np.ndarray],
+    values: Sequence[str],
+    arg_name: Optional[str] = None,
+    multiple: bool = False,
+    any_missing: bool = False,
+    all_missing: bool = False,
+    nullable: bool = False
     )
 ``` 
 
 ## 引数 Argument
 
 - `arg`（必須）**str or list of str**</br>
-　適正かどうかを判断したい引数の値　
+　適正かどうかを判断したい引数の値
 - `values`（必須）：**list of str**</br>
 　引数 `arg` の適正な値のリスト
 - `arg_name`：**str**</br>
 　エラーメッセージに表示する引数の名前。指定されなかった場合（初期設定）、引数 `arg` に代入されたオブジェクトの名称を表示します。なお、この機能は [`varname.argname()`](https://github.com/pwwang/python-varname?tab=readme-ov-file)関数を使って実装されています。
 - `multiple`：**bool**</br>
 　引数の値として複数の値を許容するかどうかを示すブール値。`arg` にリストが代入された場合、`multiple = False`（初期設定）であれば最初の値のみを出力し、`multiple = True` であればリストの値を全て出力します。
+* `any_missing`:**bool**</br>
+  `True` の場合、欠測値（例：`None`、`NaN`、`pd.NA` など）が引数 `arg` の**一部に含まれていても許容**されます。
+* `all_missing`: **bool**</br>
+  `True` の場合、すべての要素が欠測値であることを許容します。
+- `nullable`: **bool**</br>
+  `True` の場合、引数そのものが `None` であることを許容します。
 
 ## 返り値 Value
 
@@ -36,7 +45,7 @@ from py4stats import building_block as build
 
 def my_faivarit(fruits):
   fruits = build.arg_match(
-      fruits, 
+      fruits, arg_name = 'fruits',
       values = ['apple', 'orange', 'grape'], 
       multiple = False
       )
@@ -63,7 +72,7 @@ my_faivarit(['apple', 'orange'])
 # multiple = True として再度関数を定義
 def my_faivarit2(fruits):
   fruits = build.arg_match(
-      fruits, 
+      fruits, arg_name = 'fruits',
       values = ['apple', 'orange', 'grape'], 
       multiple = True
       )

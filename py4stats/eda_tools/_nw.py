@@ -7,7 +7,227 @@
 from __future__ import annotations
 
 
-# # `eda_tools_nw`： `narwhals` ライブラリを使った実験的実装
+# # `eda_tools`：データセットを要約する関数群 `narwhals` ライブラリを使った実装
+
+# `eda_tools._nw` モジュールに実装された主要な関数の依存関係
+# 
+# ``` python
+# ## 1. 基本診断（欠測・ユニーク数など）
+# 
+# diagnose()                                   # 各列の dtype / 欠測 / ユニーク数を要約
+# ├─ build.assert_logical()                    # 引数チェック
+# ├─ get_dtypes()                              # 列ごとの dtype 抽出（backend非依存）
+# └─ narwhals 集計処理
+# 
+# get_dtypes()                                 # DataFrame の dtype を Series として取得
+# 
+# ## 2. 欠測値の可視化
+# 
+# plot_miss_var()                              # 変数別欠測率・欠測数の横棒グラフ
+# ├─ build.arg_match()                         # values 引数の選択検証
+# ├─ build.assert_logical()
+# ├─ diagnose()                                # 欠測統計の計算
+# └─ matplotlib barh 描画
+# 
+# ## 3. DataFrame 間の比較（構造・統計）
+# 
+# ### 列構造（dtype）比較
+# 
+# compare_df_cols()                            # 複数DF間で列 dtype を比較
+# ├─ is_FrameT()                               # DataFrame 互換判定
+# ├─ build.arg_match()                         # return_match 指定
+# ├─ build.assert_logical()
+# ├─ get_dtypes()
+# └─ pandas.concat / nunique
+# 
+# is_FrameT()                                  # narwhals.from_native 可否判定
+# 
+# ### 統計量の近接性比較
+# 
+# compare_df_stats()                           # 平均などの統計量の近さで比較
+# ├─ is_FrameT()
+# ├─ build.arg_match()
+# ├─ _compute_stats()                          # 数値列の統計量計算
+# ├─ itertools.combinations()                  # DF ペア生成
+# └─ numpy.isclose()
+# 
+# _compute_stats()                             # 数値列のみを選び stats を計算
+# 
+# ### レコード単位比較
+# 
+# compare_df_record()                          # 行×列レベルで df1 と df2 を比較
+# ├─ build.assert_logical()
+# ├─ build.arg_match()                         # columns = 'all' / 'common'
+# ├─ build.oxford_comma_and()                  # エラーメッセージ整形
+# ├─ numpy.isclose()                           # 数値列比較
+# └─ 等値比較（非数値）
+# 
+# ## 4. グループ間比較（平均・中央値）
+# 
+# compare_group_means()                        # グループ平均と差分指標
+# ├─ build.assert_character()
+# ├─ remove_constant()                         # 定数列除去
+# ├─ narwhals.mean / var
+# └─ 差分指標（norm / abs / rel）
+# 
+# compare_group_median()                       # グループ中央値と差分
+# ├─ build.assert_character()
+# ├─ remove_constant()
+# └─ abs / rel 差分計算
+# 
+# plot_mean_diff()                             # 平均差のステムプロット
+# ├─ build.arg_match()
+# ├─ compare_group_means()
+# └─ matplotlib stem
+# 
+# plot_median_diff()                           # 中央値差のステムプロット
+# ├─ build.arg_match()
+# ├─ compare_group_median()
+# └─ matplotlib stem
+# 
+# 
+# ## 5. クロス集計・度数表
+# 
+# crosstab()                                   # backend非依存クロス集計
+# ├─ build.assert_logical()
+# ├─ build.arg_match()                         # normalize
+# ├─ narwhals.pivot()
+# └─ 周辺合計・正規化処理
+# 
+# freq_table()                                 # 度数・割合・累積度数表
+# ├─ build.arg_match()                         # sort_by
+# ├─ build.assert_logical()
+# ├─ FutureWarning 処理（sort）
+# └─ group_by + 集計
+# 
+# tabyl()                                      # janitor::tabyl 風クロス集計
+# ├─ build.assert_*()
+# ├─ crosstab()                                # 分割表
+# ├─ build.style_number()
+# ├─ build.style_percent()
+# └─ 文字列結合（"count (xx%)"）
+# 
+# ## 6. カテゴリー変数の診断
+# 
+# diagnose_category()                          # カテゴリー変数専用サマリ
+# ├─ build.assert_logical()
+# ├─ is_dummy()                                # ダミー変数検出
+# ├─ freq_table()                              # モード算出
+# ├─ std_entropy()                             # 標準化エントロピー
+# └─ narwhals 集計
+# 
+# is_dummy()                                   # ダミー変数判定（汎用）
+# ├─ is_dummy_series()                         # Series 用
+# └─ is_dummy_data_frame()                     # DataFrame 用
+# 
+# entropy()                                    # Shannon エントロピー
+# └─ scipy.stats.entropy
+# 
+# std_entropy()                                # 正規化エントロピー
+# └─ entropy()
+# 
+# ## 7. 欠測・定数・不要列の除去
+# 
+# missing_percent()                            # 行・列ごとの欠測率
+# 
+# remove_empty()                               # 空白行・列の除去
+# ├─ missing_percent()
+# ├─ build.assert_*()
+# └─ 条件付きフィルタ
+# 
+# remove_constant()                            # 定数列の除去
+# ├─ build.assert_logical()
+# └─ n_unique 判定
+# 
+# filtering_out()                              # 列名・行名のパターン除外
+# ├─ build.arg_match()                         # axis
+# ├─ build.assert_character()
+# └─ pandas.str.contains 系
+# 
+# ## 8. 数値変換・スケーリング
+# 
+# weighted_mean()                              # 重み付き平均
+# ├─ build.assert_numeric()
+# └─ sum(x*w)/sum(w)
+# 
+# scale()                                     # Z-score 標準化
+# ├─ build.assert_count()
+# ├─ build.assert_numeric()
+# └─ mean / std
+# 
+# min_max()                                   # Min-Max 正規化
+# ├─ build.assert_numeric()
+# └─ (x-min)/(max-min)
+# 
+# ## 9. パレート図
+# Pareto_plot()                               # パレート図（頻度 or 集計）
+# ├─ build.assert_*()
+# ├─ freq_table() / make_rank_table()
+# ├─ make_Pareto_plot()
+# └─ matplotlib 描画
+# 
+# make_rank_table()                           # 集計→順位→累積比率
+# 
+# make_Pareto_plot()                          # パレート図描画専用
+# 
+# ## 10. カテゴリー積み上げ棒グラフ
+# 
+# plot_category()                             # カテゴリー積み上げ棒
+# ├─ build.arg_match()
+# ├─ make_table_to_plot()                     # 描画用テーブル作成
+# ├─ make_categ_barh()                        # 描画処理
+# └─ seaborn / matplotlib
+# 
+# make_table_to_plot()                        # freq_table を縦結合
+# ├─ freq_table()
+# ├─ relocate()
+# └─ 累積比率計算
+# 
+# make_categ_barh()                           # 積み上げ棒描画
+# └─ matplotlib + seaborn
+# 
+# ## 11. 区間推定（QI / CI）
+# 
+# mean_qi()                                  # 平均 + 分位区間
+# ├─ build.assert_numeric()
+# ├─ build.arg_match()
+# ├─ mean_qi_data_frame()
+# └─ mean_qi_series()
+# 
+# median_qi()                                # 中央値 + 分位区間
+# ├─ build.assert_numeric()
+# ├─ build.arg_match()
+# ├─ median_qi_data_frame()
+# └─ median_qi_series()
+# 
+# mean_ci()                                  # 平均 + t信頼区間
+# ├─ build.assert_numeric()
+# ├─ mean_ci_data_frame()
+# └─ mean_ci_series()
+# 
+# ## 12. ルールベース検証
+# 
+# check_that()                               # ルール評価の要約
+# └─ check_that_pandas()
+# 
+# check_viorate()                            # 行ごとの違反判定
+# └─ check_viorate_pandas()
+# 
+# is_complete()                            # 欠損のない行を判定
+# 
+# Sum(), Mean(), Max(), Min(), Median()  # 行方向の合計・平均・中央値などを計算
+# └─ pd.concat(...).sum() など
+# 
+# ## 13. 列操作ユーティリティ
+# 
+# relocate()                                 # 列順の再配置
+# ├─ arrange_colnames()
+# ├─ build.assert_character()
+# └─ narwhals.select()
+# 
+# arrange_colnames()                         # 列名リストの並び替えロジック
+# 
+# ```
 
 # In[ ]:
 
@@ -23,6 +243,7 @@ import pandas as pd
 import numpy as np
 import scipy as sp
 import itertools
+import narwhals
 import narwhals as nw
 import narwhals.selectors as ncs
 from narwhals.typing import FrameT, IntoFrameT, SeriesT, IntoSeriesT
@@ -88,6 +309,15 @@ def diagnose(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
     - missing_count / missing_percent
     - unique_count / unique_rate
 
+    Args:
+        data (IntoFrameT):
+            Input DataFrame. Any DataFrame type supported by narwhals
+            (e.g. pandas, polars, pyarrow) can be used.
+        to_native (bool, optional):
+            If True, convert the result to the native DataFrame type of the
+            selected backend. If False, return a narwhals DataFrame.
+            Defaults to True.
+
     Returns:
         pandas.DataFrame:
             Summary table indexed by original column names with columns:
@@ -111,7 +341,8 @@ def diagnose(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
         'columns':data_nw.columns,
         'dtype':list_dtypes,
         'missing_count':data_nw.null_count().row(0),
-        'unique_count':[data_nw[col].n_unique() for col in data_nw.columns]
+        # 'unique_count':[data_nw[col].n_unique() for col in data_nw.columns]
+        'unique_count':[s.n_unique() for s in data_nw.iter_columns()]
     }, backend = data_nw.implementation)\
     .with_columns(
         (100 * nw.col('missing_count') / n).alias('missing_percent'),
@@ -189,8 +420,8 @@ def plot_miss_var(
         ``diagnose``, and the resulting plot reflects its output.
     """
     values = build.arg_match(
-        values, ['missing_percent', 'missing_count'],
-        arg_name = 'values'
+        values, arg_name = 'values',
+        values = ['missing_percent', 'missing_count']
     )
     build.assert_logical(sort, arg_name = 'sort')
     build.assert_logical(miss_only, arg_name = 'miss_only')
@@ -243,60 +474,61 @@ def compare_df_cols(
     df_name = None,
     dropna:bool = False,
 ) -> pd.DataFrame:
-  """Compare dtypes of columns with the same names across multiple DataFrames.
+    """Compare dtypes of columns with the same names across multiple DataFrames.
 
-  Args:
-      df_list (list[pandas.DataFrame]):
-          List of DataFrames to compare.
-      return_match (str):
-          Which rows to return.
-          - 'all': return all columns.
-          - 'match': return only columns whose dtypes match across all DataFrames.
-          - 'mismatch': return only columns whose dtypes do not match.
-      df_name (list[str] or None):
-          Names for each DataFrame (used as column names in the output).
-          If None, auto-generated as ['df1', 'df2', ...].
-      dropna (bool):
-          Passed to `nunique(dropna=...)` when checking whether dtypes match.
+    Args:
+        df_list (list[IntoFrameT]):
+            List of input DataFrame(s). Any DataFrame-like object supported by narwhals
+            (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
+        return_match (str):
+            Which rows to return.
+            - 'all': return all columns.
+            - 'match': return only columns whose dtypes match across all DataFrames.
+            - 'mismatch': return only columns whose dtypes do not match.
+        df_name (list[str] or None):
+            Names for each DataFrame (used as column names in the output).
+            If None, auto-generated as ['df1', 'df2', ...].
+        dropna (bool):
+            Passed to `nunique(dropna=...)` when checking whether dtypes match.
 
-  Returns:
-      pandas.DataFrame:
-          A table with index = column names (`term`) and one column per DataFrame
-          containing the dtype. Additional column:
-          - match_dtype (bool): True if all dtypes are identical across DataFrames.
+    Returns:
+        pandas.DataFrame:
+            A table with index = column names (`term`) and one column per DataFrame
+            containing the dtype. Additional column:
+            - match_dtype (bool): True if all dtypes are identical across DataFrames.
 
-  Raises:
-      AssertionError:
-          If `df_list` is not a list of pandas.DataFrame.
-  """
-  # 引数のアサーション ----------------------
-  assert isinstance(df_list, list) & \
+    Raises:
+        AssertionError:
+            If `df_list` is not a list of pandas.DataFrame.
+    """
+    # 引数のアサーション ----------------------
+    assert isinstance(df_list, list) & \
         all([is_FrameT(v) for v in df_list]), \
         "argument 'df_list' is must be a list of DataFrame."
 
-  return_match = build.arg_match(
-      return_match, ['all', 'match', 'mismatch'],
-      arg_name = 'return_match'
-      )
-  build.assert_logical(dropna, arg_name = 'dropna')
-  # --------------------------------------
-  # df_name が指定されていなければ、自動で作成します。
-  if df_name is None:
-      df_name = [f'df{i + 1}' for i in range(len(df_list))]
+    return_match = build.arg_match(
+        return_match, values = ['all', 'match', 'mismatch'],
+        arg_name = 'return_match'
+        )
+    build.assert_logical(dropna, arg_name = 'dropna')
+    # --------------------------------------
+    # df_name が指定されていなければ、自動で作成します。
+    if df_name is None:
+        df_name = [f'df{i + 1}' for i in range(len(df_list))]
 
-  df_list = [nw.from_native(v) for v in df_list]
-  dtype_list = [get_dtypes(v) for v in df_list]
-  res = pd.concat(dtype_list, axis = 1)
-  res.columns = df_name
-  res.index.name = 'term'
-  res['match_dtype'] = res.nunique(axis = 1, dropna = dropna) == 1
+    df_list = [nw.from_native(v) for v in df_list]
+    dtype_list = [get_dtypes(v) for v in df_list]
+    res = pd.concat(dtype_list, axis = 1)
+    res.columns = df_name
+    res.index.name = 'term'
+    res['match_dtype'] = res.nunique(axis = 1, dropna = dropna) == 1
 
-  if(return_match == 'match'):
-    res = res[res['match_dtype']]
-  elif(return_match == 'mismatch'):
-    res = res[~res['match_dtype']]
+    if(return_match == 'match'):
+        res = res[res['match_dtype']]
+    elif(return_match == 'mismatch'):
+        res = res[~res['match_dtype']]
 
-  return res
+    return res
 
 
 # ### 平均値などの統計値の近接性で比較するバージョン
@@ -324,8 +556,9 @@ def compare_df_stats(
     DataFrames using `numpy.isclose`.
 
     Args:
-        df_list (List[IntoFrameT]):
-            List of DataFrames to compare.
+        df_list (list[IntoFrameT]):
+            Input DataFrame(s). Any DataFrame-like object supported by narwhals
+            (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
         return_match (str):
             Which rows to return.
             - 'all': return all columns.
@@ -360,9 +593,8 @@ def compare_df_stats(
             "argument 'df_list' is must be a list of DataFrame."
 
     return_match = build.arg_match(
-        return_match,
-        ['all', 'match', 'mismatch'],
-        arg_name = 'return_match'
+        return_match, arg_name = 'return_match',
+        values = ['all', 'match', 'mismatch']
         )
     # --------------------------------------
     # df_name が指定されていなければ、自動で作成します。
@@ -423,7 +655,8 @@ def compare_df_record(
 
     Args:
         df1 (IntoFrameT):
-            First DataFrame-like object.
+            First DataFrame-like object. Any DataFrame-like object supported by narwhals
+            (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
         df2 (IntoFrameT):
             Second DataFrame-like object.
         rtol (float, optional):
@@ -478,8 +711,8 @@ def compare_df_record(
     build.assert_logical(to_native, arg_name = 'to_native')
 
     columns = build.arg_match(
-        columns, ['common', 'all'],
-        arg_name = 'columns'
+        columns,  arg_name = 'columns',
+        values = ['common', 'all']
         )
 
     assert df1.shape[0] == df2.shape[0], (
@@ -568,9 +801,10 @@ def compare_group_means(
     """Compare group-wise means and derived difference metrics.
 
     Args:
-        group1 (pandas.DataFrame):
-            Data for group 1.
-        group2 (pandas.DataFrame):
+        group1 (IntoFrameT):
+            Data for group 1.Any DataFrame-like object supported by narwhals
+            (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
+        group2 (IntoFrameT):
             Data for group 2.
         group_names (list[str]):
             Names used for output columns. Must be length 2.
@@ -629,7 +863,8 @@ def compare_group_median(
 
     Args:
         group1 (IntoFrameT):
-            Data for group 1.
+            Data for group 1.Any DataFrame-like object supported by narwhals
+            (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
         group2 (IntoFrameT):
             Data for group 2.
         group_names (list[str]):
@@ -676,38 +911,39 @@ def plot_mean_diff(
     stats_diff: Literal["norm_diff", "abs_diff", "rel_diff"] = "norm_diff",
     ax: Optional[Axes] = None,
 ) -> None:
-  """Plot group mean differences for each variable as a stem plot.
+    """Plot group mean differences for each variable as a stem plot.
 
-  Args:
-      group1 (IntoFrameT):
-          Data for group 1.
-      group2 (IntoFrameT):
-          Data for group 2.
-      stats_diff (str):
-          Which difference metric to plot.
-          - 'norm_diff': normalized difference using pooled variance
-          - 'abs_diff': absolute difference
-          - 'rel_diff': relative difference
-      ax (matplotlib.axes.Axes or None):
-          Axes to draw on. If None, a new figure/axes is created.
+    Args:
+        group1 (IntoFrameT):
+            Data for group 1.Any DataFrame-like object supported by narwhals
+            (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
+        group2 (IntoFrameT):
+            Data for group 2.
+        stats_diff (str):
+            Which difference metric to plot.
+            - 'norm_diff': normalized difference using pooled variance
+            - 'abs_diff': absolute difference
+            - 'rel_diff': relative difference
+        ax (matplotlib.axes.Axes or None):
+            Axes to draw on. If None, a new figure/axes is created.
 
-  Returns:
-      None
-  """
-  stats_diff = build.arg_match(
-      stats_diff, ['norm_diff', 'abs_diff', 'rel_diff'],
-      arg_name = 'stats_diff'
-      )
-  group_means = compare_group_means(group1, group2)
+    Returns:
+        None
+    """
+    stats_diff = build.arg_match(
+        stats_diff, arg_name = 'stats_diff',
+        values = ['norm_diff', 'abs_diff', 'rel_diff']
+        )
+    group_means = compare_group_means(group1, group2)
 
-  if ax is None:
-    fig, ax = plt.subplots()
+    if ax is None:
+        fig, ax = plt.subplots()
 
-  ax.stem(group_means[stats_diff], orientation = 'horizontal', basefmt = 'C7--');
+    ax.stem(group_means[stats_diff], orientation = 'horizontal', basefmt = 'C7--');
 
-  ax.set_yticks(range(len(group_means.index)), group_means.index)
+    ax.set_yticks(range(len(group_means.index)), group_means.index)
 
-  ax.invert_yaxis();
+    ax.invert_yaxis();
 
 
 # In[ ]:
@@ -719,35 +955,38 @@ def plot_median_diff(
     stats_diff: Literal["abs_diff", "rel_diff"] = "rel_diff",
     ax: Optional[Axes] = None,
 ) -> None:
-  """Plot group median differences for each variable as a stem plot.
+    """Plot group median differences for each variable as a stem plot.
 
-  Args:
-      group1 (IntoFrameT):
-          Data for group 1.
-      group2 (IntoFrameT):
-          Data for group 2.
-      stats_diff (str):
-          Which difference metric to plot.
-          - 'abs_diff': absolute difference
-          - 'rel_diff': relative difference
-      ax (matplotlib.axes.Axes or None):
-          Axes to draw on. If None, a new figure/axes is created.
+    Args:
+        group1 (IntoFrameT):
+            Data for group 1.Any DataFrame-like object supported by narwhals
+            (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
+        group2 (IntoFrameT):
+            Data for group 2.
+        stats_diff (str):
+            Which difference metric to plot.
+            - 'norm_diff': normalized difference using pooled variance
+            - 'abs_diff': absolute difference
+            - 'rel_diff': relative difference
+        ax (matplotlib.axes.Axes or None):
+            Axes to draw on. If None, a new figure/axes is created.
 
-  Returns:
-      None
-  """
-  stats_diff = build.arg_match(
-      stats_diff, ['abs_diff', 'rel_diff']
-      )
+    Returns:
+        None
+    """
+    stats_diff = build.arg_match(
+        stats_diff, values = ['abs_diff', 'rel_diff'],
+        arg_name = 'stats_diff'
+        )
 
-  group_median = compare_group_median(group1, group2)
+    group_median = compare_group_median(group1, group2)
 
-  if ax is None:
-    fig, ax = plt.subplots()
+    if ax is None:
+        fig, ax = plt.subplots()
 
-  ax.stem(group_median[stats_diff], orientation = 'horizontal', basefmt = 'C7--')
-  ax.set_yticks(range(len(group_median.index)), group_median.index)
-  ax.invert_yaxis();
+    ax.stem(group_median[stats_diff], orientation = 'horizontal', basefmt = 'C7--')
+    ax.set_yticks(range(len(group_median.index)), group_median.index)
+    ax.invert_yaxis();
 
 
 # ## クロス集計表ほか
@@ -774,7 +1013,7 @@ def crosstab(
     if not isinstance(normalize, bool):
         normalize = build.arg_match(
             normalize,
-            ['all', 'index', 'columns'],
+            values = ['all', 'index', 'columns'],
             arg_name = 'normalize'
         )
     # -----------------------------------------------------
@@ -860,52 +1099,92 @@ def crosstab(
 def freq_table(
     data: IntoFrameT,
     subset: Union[str, Sequence[str]],
-    sort: bool = True,
+    sort_by: Literal['frequency', 'values'] = 'frequency',
     descending: bool = False,
     dropna: bool = False,
     to_native: bool = True,
+    *,
+    sort: Optional[bool] = None
 ) -> IntoFrameT:
     """Compute frequency table for one or multiple columns.
 
     Args:
         data (IntoFrameT):
-            Input DataFrame.
+            Input DataFrame. Any DataFrame-like object supported by narwhals
+            (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
         subset (str or list[str]):
             Column(s) to count by. Passed to `DataFrame.value_counts(subset=...)`.
-        sort (bool):
-            Whether to sort counts.
-        ascending (bool):
-            Sort order.
+        sort_by (Literal['frequency', 'values']):
+            Sorting rule for the output table.
+            - 'frequency': sort by frequency. (default)
+            - 'values': sort by the category values.
+        descending (bool):
+            Sort order. Defaults to False.
         dropna (bool):
             Whether to drop NaN from counts.
+        to_native (bool, optional):
+            If True, convert the result to the native DataFrame type of the
+            selected backend. If False, return a narwhals DataFrame.
+            Defaults to True.
+        sort (bool):
+            **Deprecated.** Use `sort_by` instead.
+            This argument is kept for backward compatibility. If provided, a
+            `FutureWarning` is emitted. When both `sort` and `sort_by`
+            are provided, `sort_by` takes precedence and `sort` is ignored.
+            Defaults to None.
 
     Returns:
-        pandas.DataFrame:
+        IntoFrameT:
             Frequency table with columns:
             - freq: counts
             - perc: proportions
             - cumfreq: cumulative counts
             - cumperc: cumulative proportions
     """
-    # 引数のアサーション ----------------------------------------
-    build.assert_logical(sort, arg_name = 'sort')
+    # 引数のアサーション ========================================
+    sort_by = build.arg_match(
+        sort_by, arg_name = 'sort_by',
+        values = ['frequency', 'values']
+        )
+
     build.assert_logical(descending, arg_name = 'descending')
     build.assert_logical(dropna, arg_name = 'dropna')
     build.assert_logical(to_native, arg_name = 'to_native')
-    # ---------------------------------------------------------
+    # =========================================================
 
-    df = nw.from_native(data)
+    # sort の非推奨処理 ========================================
+    if sort is not None:
+        build.assert_logical(sort, arg_name = 'sort')
+        warnings.warn(
+            "`sort` argument of `freq_table()` is deprecated and will be removed in a future release of Py4Stats. "
+            "Please use the `sort_by` argument instead (e.g., sort_by='frequency' or sort_by='values').",
+            category = FutureWarning,
+            stacklevel = 2,
+        )
+    # =========================================================
+
+    data_nw = nw.from_native(data)
+
     if dropna:
-        df = df.drop_nulls(subset)
+        data_nw = data_nw.drop_nulls(subset)
 
-    result = df.with_columns(__n=nw.lit(1))\
+    result = data_nw.with_columns(__n=nw.lit(1))\
         .group_by(nw.col(subset))\
         .agg(nw.col('__n').sum().alias('freq'))
 
-    if sort:
-        result = result.sort('freq', descending = descending)
-    else:
-        result = result.sort(subset, descending = descending)
+    # sort 引数を使った処理将来廃止予定 ============================
+    if sort is not None:
+        if sort:
+            result = result.sort('freq', descending = descending)
+        else:
+            result = result.sort(subset, descending = descending)
+    # =========================================================
+
+    match sort_by:
+        case 'frequency':
+            result = result.sort('freq', descending = descending)
+        case 'values':
+            result = result.sort(subset, descending = descending)
 
     result = result.with_columns(
             (nw.col('freq') / nw.col('freq').sum()).alias('perc'),
@@ -944,7 +1223,8 @@ def tabyl(
 
     Args:
         data (IntoFrameT):
-            Input DataFrame.
+            Input DataFrame. Any DataFrame-like object supported by narwhals
+            (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
         index (str):
             Column name used for row categories.
         columns (str):
@@ -966,17 +1246,19 @@ def tabyl(
             Crosstab table. If `normalize` is not False, cells contain strings like
             `"count (xx.x%)"`. Otherwise counts (as strings after formatting).
     """
+    # 引数のアサーション ==============================================
     build.assert_logical(margins, arg_name = 'margins')
     build.assert_character(margins_name, arg_name = 'margins_name')
     build.assert_logical(dropna, arg_name = 'dropna')
     build.assert_count(digits, arg_name = 'digits')
+    # ==============================================================
 
     data_nw = nw.from_native(data)
 
     if(not isinstance(normalize, bool)):
       normalize = build.arg_match(
-          normalize, ['index', 'columns', 'all'],
-          arg_name = 'normalize'
+          normalize, arg_name = 'normalize',
+          values = ['index', 'columns', 'all']
           )
 
     # index または columns に bool 値が指定されていると後続処理でエラーが生じるので、
@@ -1040,8 +1322,9 @@ def is_dummy(
     """Check whether values consist only of dummy codes.
 
     Args:
-        data (pandas.Series or pandas.DataFrame):
-            Input data.
+        data (IntoFrameT, IntoSeriesT):
+            Input data. Any DataFrame-like or Series-like object supported by narwhals
+            (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
         cording (list):
             Allowed set of dummy codes (default: [0, 1]).
 
@@ -1200,7 +1483,7 @@ def diagnose_category(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
     """
     build.assert_logical(to_native, arg_name = 'to_native')
 
-    data_nw = nw.from_native(data, allow_series = True)
+    data_nw = nw.from_native(data)
     res_is_dummy = is_dummy(data_nw)
     dummy_col = res_is_dummy[res_is_dummy].index.to_list()
 
@@ -1230,17 +1513,15 @@ def diagnose_category(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
         'count':df.select(nw.all().count()).row(0),
         'miss_pct':df.select(nw.all().null_count() * nw.lit(100 / N)).row(0),
         'unique':df.select(nw.all().n_unique()).row(0),
-        # 'mode':[df[v].value_counts().row(0)[0] for v in var_name],
         'mode':[
             freq_table(df, v, descending = True, to_native = False).row(0)[0] 
             for v in var_name
             ],
-        # 'mode_freq':[df[v].value_counts().row(0)[1] for v in var_name],
         'mode_freq':[
             freq_table(df, v, descending = True, to_native = False).row(0)[1] 
             for v in var_name
             ],
-        'std_entropy':[std_entropy(df[v]) for v in var_name]
+        'std_entropy':[std_entropy(s) for s in df.iter_columns()]
         # 'std_entropy':df.select(
         #     nw.all().map_batches(std_entropy, returns_scalar = True)
         #     ).row(0)
@@ -1269,17 +1550,166 @@ def diagnose_category(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
 # In[ ]:
 
 
-def weighted_mean(x: IntoSeriesT, w: IntoSeriesT) -> float:
+def weighted_mean(x: IntoSeriesT, w: IntoSeriesT, dropna:bool = False) -> float:
+  """Compute the weighted mean of a numeric series.
+
+  This function computes the weighted mean of a numeric vector `x`
+  using weights `w`. Both inputs are converted internally to a
+  narwhals Series to support multiple backends.
+
+  Args:
+      x (IntoSeriesT):
+          Numeric data for which the weighted mean is computed.
+          Any series-like object supported by narwhals can be used
+          (e.g., pandas.Series, polars.Series).
+      w (IntoSeriesT):
+          Numeric weights corresponding to `x`.
+          Must have the same length as `x`.
+      dropna (bool, optional):
+          If `True`, observations where either `x` or `w` is missing
+          (NaN) are removed before computing the weighted mean.
+          If `False`, missing values are not removed.
+          Defaults to `False`.
+
+  Returns:
+      float:
+          The weighted mean, computed as
+          ``sum(x * w) / sum(w)``.
+
+  Raises:
+      ValueError:
+          If `x` or `w` is not numeric.
+  """
+  x = nw.from_native(x, series_only = True)
+  w = nw.from_native(w, series_only = True)
+
+  if dropna:
+    non_nan = ~x.is_nan() & ~w.is_nan()
+    x = x.filter(non_nan)
+    w = w.filter(non_nan)
+
+  build.assert_numeric(x, arg_name = 'x')
+  build.assert_numeric(w, arg_name = 'w')
+
   wmean = (x * w).sum() / w.sum()
   return wmean
 
-def scale(x: IntoSeriesT, ddof: int = 1) -> IntoSeriesT:
+
+# In[ ]:
+
+
+@singledispatch
+def scale(x: Union[IntoSeriesT, pd.DataFrame], ddof: int = 1, to_native: bool = True) -> IntoSeriesT:
+    """Standardize a numeric series by Z-score scaling.
+
+    This function standardizes numeric data by subtracting the mean
+    and dividing by the standard deviation:
+
+        ``(x - mean(x)) / std(x)``
+
+    For non-pandas inputs, the computation is performed using a
+    narwhals Series to ensure backend-agnostic behavior.
+
+    Args:
+        x (IntoSeriesT or pandas.DataFrame):
+            Numeric data to be standardized. Typically a series-like
+            object supported by narwhals (e.g., pandas.Series,
+            polars.Series). A pandas DataFrame is also supported via
+            a specialized implementation.
+        ddof (int, optional):
+            Delta degrees of freedom used in the calculation of the
+            standard deviation. Defaults to `1`.
+        to_native (bool, optional):
+            If `True`, return the result in the native type corresponding
+            to the input (e.g., pandas.Series or polars.Series).
+            If `False`, return a narwhals object.
+            Defaults to `True`.
+
+    Returns:
+        IntoSeriesT:
+            Standardized values with mean 0 and standard deviation 1.
+
+    Raises:
+        ValueError:
+            If `x` is not numeric.
+        ValueError:
+            If `ddof` is not a non-negative integer.
+    """
+    build.assert_count(ddof, arg_name = 'ddof')
+    build.assert_logical(to_native, arg_name = 'to_native')
+
+    x = nw.from_native(x, series_only = True)
+
+    build.assert_numeric(x.drop_nulls(), arg_name = 'x')
+
     z = (x - x.mean()) / x.std(ddof = ddof)
+    if to_native: return z.to_native()
     return z
 
-def min_max(x: IntoSeriesT) -> IntoSeriesT:
-  mn = (x - x.min()) / (x.max() - x.min())
-  return mn
+@scale.register(pd.DataFrame)
+def scale_pandas(x: pd.DataFrame, ddof: int = 1, to_native: bool = True) -> IntoSeriesT:
+    build.assert_count(ddof, arg_name = 'ddof')
+    build.assert_logical(to_native, arg_name = 'to_native')
+
+    z = (x - x.mean()) / x.std(ddof = ddof)
+
+    if to_native: return z
+    return nw.from_native(z, allow_series = True)
+
+
+# In[ ]:
+
+
+@singledispatch
+def min_max(x: Union[IntoSeriesT, pd.DataFrame], to_native: bool = True) -> IntoSeriesT:
+    """Normalize a numeric series using min-max scaling.
+
+    This function rescales numeric data to the range [0, 1] using
+    min-max normalization:
+
+        ``(x - min(x)) / (max(x) - min(x))``
+
+    For non-pandas inputs, the computation is performed using a
+    narwhals Series to ensure backend-agnostic behavior.
+
+    Args:
+        x (IntoSeriesT or pandas.DataFrame):
+            Numeric data to be normalized. Typically a series-like
+            object supported by narwhals (e.g., pandas.Series,
+            polars.Series). A pandas DataFrame is also supported via
+            a specialized implementation.
+        to_native (bool, optional):
+            If `True`, return the result in the native type corresponding
+            to the input.
+            If `False`, return a narwhals object.
+            Defaults to `True`.
+
+    Returns:
+        IntoSeriesT:
+            Min-max normalized values in the range [0, 1].
+
+    Raises:
+        ValueError:
+            If `x` is not numeric.
+    """
+    build.assert_logical(to_native, arg_name = 'to_native')
+
+    x = nw.from_native(x, series_only = True)
+
+    build.assert_numeric(x.drop_nulls(), arg_name = 'x')
+
+    z = (x - x.min()) / (x.max() - x.min())
+    if to_native: return z.to_native()
+    return z
+
+@min_max.register(pd.DataFrame)
+def min_max_pandas(x: pd.DataFrame, to_native: bool = True) -> IntoSeriesT:
+    build.assert_logical(to_native, arg_name = 'to_native')
+
+    z = (x - x.min()) / (x.max() - x.min())
+
+    if to_native: return z
+    return nw.from_native(z, allow_series = True)
 
 
 # ## 完全な空白列 and / or 行の除去
@@ -1334,8 +1764,9 @@ def remove_empty(
     """Remove fully (or mostly) empty columns and/or rows.
 
     Args:
-        data (pandas.DataFrame):
-            Input DataFrame.
+        data (IntoFrameT):
+            Input DataFrame. Any DataFrame-like object supported by narwhals
+            (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
         cols (bool):
             If True, remove empty columns.
         rows (bool):
@@ -1346,6 +1777,10 @@ def remove_empty(
             - cutoff=1 removes only completely empty columns/rows.
         quiet (bool):
             If False, print removal summary.
+        to_native (bool, optional):
+            If True, convert the result to the native DataFrame type of the
+            selected backend. If False, return a narwhals DataFrame.
+            Defaults to True.
 
     Returns:
         pandas.DataFrame:
@@ -1404,12 +1839,17 @@ def remove_constant(
     """Remove constant columns (columns with only one unique value).
 
     Args:
-        data (pandas.DataFrame):
-            Input DataFrame.
+        data (IntoFrameT):
+            Input DataFrame. Any DataFrame-like object supported by narwhals
+            (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
         quiet (bool):
             If False, print removal summary.
         dropna (bool):
             Passed to `nunique(dropna=...)`. If False, NaN is counted as a value.
+        to_native (bool, optional):
+            If True, convert the result to the native DataFrame type of the
+            selected backend. If False, return a narwhals DataFrame.
+            Defaults to True.
 
     Returns:
         pandas.DataFrame:
@@ -1463,7 +1903,8 @@ def filtering_out(
 
     Args:
         data (IntoFrameT):
-            Input DataFrame.
+            Input DataFrame. Any DataFrame-like object supported by narwhals
+            (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
         contains (str or None):
             Exclude labels that contain this substring.
         starts_with (str or None):
@@ -1477,7 +1918,10 @@ def filtering_out(
             - 0 or 'index': filter rows by index (row labels).
             This option is only supported when the input DataFrame has
             an explicit index attribute (e.g. pandas.DataFrame).
-
+        to_native (bool, optional):
+            If True, convert the result to the native DataFrame type of the
+            selected backend. If False, return a narwhals DataFrame.
+            Defaults to True.
 
     Returns:
         IntoFrameT:
@@ -1496,7 +1940,7 @@ def filtering_out(
     """
     # 引数のアサーション ==============================================
     axis = str(axis)
-    axis = build.arg_match(axis, ['1', 'columns', '0', 'index'], arg_name = 'axis')
+    axis = build.arg_match(axis, arg_name = 'axis', values = ['1', 'columns', '0', 'index'])
     build.assert_logical(to_native, arg_name = 'to_native')
     # ==============================================================
     data_nw = nw.from_native(data)
@@ -1554,14 +1998,12 @@ def filtering_out(
 # In[ ]:
 
 
-# パレート図を作成する関数
-@pf.register_dataframe_method
 def Pareto_plot(
     data: IntoFrameT,
     group: str,
     values: Optional[str] = None,
     top_n: Optional[int] = None,
-    aggfunc: Callable[..., Any] = nw.mean,
+    aggfunc: Callable[..., Any] = np.mean,
     ax: Optional[Axes] = None,
     fontsize: int = 12,
     xlab_rotation: Union[int, float] = 0,
@@ -1574,17 +2016,25 @@ def Pareto_plot(
 
     Args:
         data (IntoFrameT):
-            Input data.
+            Input DataFrame. Any DataFrame-like object supported by narwhals
+            (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
         group (str):
             Grouping column (x-axis categories).
         values (str or None):
             Value column to aggregate. If None, uses counts.
         top_n (int or None):
             If specified, plot only top-N categories.
-        aggfunc (str or callable):
-            Aggregation function used when `values` is provided.
+        aggfunc (callable):
+            Aggregation function used to compute a single summary value for each group.
+            This argument accepts either a general callable (e.g., ``numpy.mean`` or a
+            user-defined function) that takes a one-dimensional array-like object
+            containing the values of a group and returns a single scalar, or a function
+            from ``narwhals.functions`` (e.g., ``narwhals.mean``, ``narwhals.sum``),
+            which will be applied directly within the narwhals
+            ``group_by().agg()`` workflow.
+            Defaults to ``numpy.mean``.
         ax (matplotlib.axes.Axes or None):
-            Axes to draw the bar chart on. If None, a new figure/axes is created.
+            Axes to draw the bar chart on. If None, a new figure/axes is created.    
         fontsize (int):
             Base font size.
         xlab_rotation (float or int):
@@ -1594,25 +2044,44 @@ def Pareto_plot(
 
     Returns:
         None
+
+    Notes:
+       The aggregation function is expected to return a single scalar value for
+        each group. If the function returns an array-like object or multiple
+        values, the resulting output may be invalid or lead to unexpected
+        behavior.
     """
+
     # 引数のアサーション ===================================================================
     build.assert_numeric(fontsize, arg_name = 'fontsize', lower = 0, inclusive = 'right')
     build.assert_numeric(xlab_rotation, arg_name = 'xlab_rotation')
     build.assert_character(palette, arg_name = 'palette')
     # ===================================================================================
-
-    # 指定された変数でのランクを表すデータフレームを作成
     data_nw = nw.from_native(data)
+    # 指定された変数でのランクを表すデータフレームを作成
     if values is None:
-        shere_rank = freq_table(data_nw, group, dropna = True, descending = True, to_native = False)
+        shere_rank = freq_table(
+            data_nw, group, dropna = True, 
+            sort_by = 'frequency',
+            descending = True, 
+            to_native = False
+            )
         cumlative = 'cumfreq'
+        # None のままだと `.top_k()` メソッドの使用に問題が生じるため
+        values = 'freq' 
     else:
         shere_rank = make_rank_table(
             data_nw.to_pandas(), 
-            group, values, aggfunc = aggfunc,
+            group, 
+            values, 
+            aggfunc = aggfunc,
             to_native = False
             )
         cumlative = 'cumshare'
+
+    if top_n is not None:
+        build.assert_count(top_n, lower = 1, arg_name = 'top_n')
+        shere_rank = shere_rank.top_k(k = top_n, by = values)
 
     shere_rank = shere_rank.to_pandas().set_index(group)
 
@@ -1628,22 +2097,38 @@ def make_rank_table(
     data: pd.DataFrame,
     group: str,
     values: str,
-    aggfunc: Callable[..., Any] = nw.mean,
+    aggfunc: Callable[..., Any] = np.mean,
     to_native: bool = True,
 ) -> pd.DataFrame:
     data_nw = nw.from_native(data)
 
     # 引数のアサーション ===================================================================
     col_names = data_nw.columns
-    group = build.arg_match(group, values = col_names, arg_name = 'group', multiple = True)
+    build.assert_scalar(group, arg_name = 'group')
+    build.assert_scalar(values, arg_name = 'values')
+    group = build.arg_match(group, values = col_names, arg_name = 'group')
     values = build.arg_match(values, values = col_names, arg_name = 'values')
     # ===================================================================================
-    rank_table = data_nw\
-        .group_by(group)\
-        .agg(aggfunc(values))\
-        .sort(values, descending = True)\
-        .with_columns(share = nw.col(values) / nw.col(values).sum())\
-        .with_columns(cumshare = nw.col('share').cum_sum())
+
+    if aggfunc.__module__ == 'narwhals.functions':
+        stat_table = data_nw.group_by(group)\
+                .agg(aggfunc(values))
+    else:
+        group_value = data_nw[group].unique()
+
+        stat_values = [
+            aggfunc(data_nw.filter(nw.col(group) == g)[values].drop_nulls().to_native()) 
+            for g in group_value
+            ]
+
+        stat_table = nw.from_dict({
+            group:group_value, values:stat_values
+            }, backend = data_nw.implementation
+            )
+
+    rank_table = stat_table.sort(values, descending = True)\
+            .with_columns(share = nw.col(values) / nw.col(values).sum())\
+            .with_columns(cumshare = nw.col('share').cum_sum())
 
     if to_native:
         return rank_table.to_native()
@@ -1659,7 +2144,6 @@ def make_Pareto_plot(
     group: str,
     cumlative: str,
     values: Optional[str] = None,
-    top_n: Optional[int] = None,
     ax: Optional[Axes] = None,
     fontsize: int = 12,
     xlab_rotation: Union[int, float] = 0,
@@ -1669,12 +2153,6 @@ def make_Pareto_plot(
     # グラフの描画
     if ax is None:
         fig, ax = plt.subplots()
-
-    # yで指定された変数の棒グラフ
-    # top_n が指定されていた場合、上位 top_n 件を抽出します。
-    if top_n is not None:
-        build.assert_count(top_n, lower = 1, arg_name = 'top_n')
-        shere_rank = shere_rank.head(top_n)
 
     if values is None:
         ax.bar(shere_rank.index, shere_rank['freq'], color = palette[0])
@@ -1762,12 +2240,15 @@ def mean_qi(
 
     Args:
         data (IntoFrameT, IntoSeriesT):
-            Input data.
+            Input data. Any DataFrame-like or Series-like object supported by narwhals
+            (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
         width (float):
             Upper quantile to use (must be in (0, 1)).
             Lower quantile is computed as `1 - width`.
-        point_fun (str):
-            Currently kept for API compatibility. (Not used in computation.)
+        to_native (bool, optional):
+            If True, convert the result to the native DataFrame type of the
+            selected backend. If False, return a narwhals DataFrame.
+            Defaults to True.
 
     Returns:
         IntoFrameT:
@@ -1784,8 +2265,8 @@ def mean_qi(
     build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
     build.assert_logical(to_native, arg_name = 'to_native')
     interpolation = build.arg_match(
-        interpolation, interpolation_values,
-        arg_name = 'interpolation'
+        interpolation, arg_name = 'interpolation',
+        values = interpolation_values
         )
     # =======================================================================
 
@@ -1856,12 +2337,15 @@ def median_qi(
 
     Args:
         data (IntoFrameT, IntoSeriesT):
-            Input data.
+            Input data. Any DataFrame-like or Series-like object supported by narwhals
+            (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
         width (float):
             Upper quantile to use (must be in (0, 1)).
             Lower quantile is computed as `1 - width`.
-        point_fun (str):
-            Currently kept for API compatibility. (Not used in computation.)
+        to_native (bool, optional):
+            If True, convert the result to the native DataFrame type of the
+            selected backend. If False, return a narwhals DataFrame.
+            Defaults to True.
 
     Returns:
         IntoFrameT:
@@ -1878,8 +2362,8 @@ def median_qi(
     build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
     build.assert_logical(to_native, arg_name = 'to_native')
     interpolation = build.arg_match(
-        interpolation, interpolation_values,
-        arg_name = 'interpolation'
+        interpolation, arg_name = 'interpolation',
+        values = interpolation_values
         )
     # =======================================================================
 
@@ -1949,9 +2433,14 @@ def mean_ci(
 
     Args:
         data (IntoFrameT, IntoSeriesT):
-            Input data.
+            Input data. Any DataFrame-like or Series-like object supported by narwhals
+            (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
         width (float):
             Confidence level in (0, 1) (e.g., 0.95).
+        to_native (bool, optional):
+            If True, convert the result to the native DataFrame type of the
+            selected backend. If False, return a narwhals DataFrame.
+            Defaults to True.
 
     Returns:
         IntoFrameT:
@@ -2145,7 +2634,8 @@ def check_that(
 
     Args:
         data (IntoFrameT):
-            Data to validate.
+            Input DataFrame. Any DataFrame-like object supported by narwhals
+            (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
         rule_dict (dict or pandas.Series):
             Mapping from rule name to expression string (for `DataFrame.eval`).
             If a Series is given, it is converted to dict.
@@ -2249,8 +2739,8 @@ def check_viorate(
     """Return row-wise rule violation indicators for each rule.
 
     Args:
-        data (IntoFrameT):
-            Data to validate.
+        Input DataFrame. Any DataFrame-like object supported by narwhals
+            (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
         rule_dict (dict or pandas.Series):
             Mapping from rule name to expression string (for `DataFrame.eval`).
             If a Series is given, it is converted to dict.
@@ -2283,7 +2773,7 @@ def check_viorate_pandas(
   """Return row-wise rule violation indicators for each rule.
 
   Args:
-      data (pandas.DataFrame):
+      data (pd.DataFrame):
           Data to validate.
       rule_dict (dict or pandas.Series):
           Mapping from rule name to expression string (for `DataFrame.eval`).
@@ -2349,4 +2839,513 @@ def Min(*arg: List[pd.Series]):
     return pd.concat(arg, axis = 'columns').min(axis = 'columns')
 def Median(*arg: List[pd.Series]): 
     return pd.concat(arg, axis = 'columns').median(axis = 'columns')
+
+
+# ## set missing values in Series
+
+# In[ ]:
+
+
+def set_miss(
+    x: IntoSeriesT, 
+    n: Optional[int] = None,
+    prop: Optional[float] = None, 
+    method: Literal['random', 'first', 'last'] = 'random', 
+    random_state: Optional[int] = None, 
+    to_native: bool = True
+    ):
+  x_nw = nw.from_native(x, series_only = True)
+
+  # 引数のアサーション =======================================================
+  if not((n is not None) ^ (prop is not None)):
+    raise ValueError("Exactly one of `n` and `prop` must be specified.")
+
+  build.assert_logical(to_native, arg_name = 'to_native')
+
+  n_miss = x_nw.null_count()
+  p_miss = n_miss / x_nw.shape[0]
+
+  method = build.arg_match(
+    method, arg_name = 'method',
+    values = ['random', 'first', 'last']
+    )
+  build.assert_count(
+     n, arg_name = 'n',
+     lower = 0, upper = len(x), 
+     nullable = True, scalar_only = True
+     )
+  build.assert_numeric(
+     prop, arg_name = 'prop',
+     lower = 0, upper = 1, 
+     nullable = True, scalar_only = True
+     )
+  # =======================================================================
+
+  x_np = x_nw.to_numpy()
+  if hasattr(x, 'index'):
+    idx = x.index.to_series()
+  else:
+    idx = pd.Series(np.arange(len(x_nw)))
+
+  non_miss = idx[
+    ~x_nw.is_nan() | ~x_nw.is_null()
+  ]
+
+  if n is not None: 
+    # build.assert_count(n, lower = 0, upper = len(x), nullable = True)
+    n_to_miss = np.max([n - n_miss, 0])
+    if n_to_miss <=0:
+      warnings.warn(
+         f"Already contained {n_miss}(>= n) missing value(s) in 'x', "
+        "no additional missing values were added.",
+        category = UserWarning,
+        stacklevel = 2
+      )
+      return x
+
+  elif prop is not None: 
+    # build.assert_numeric(prop, lower = 0, upper = 1)
+    n_non_miss = non_miss.shape[0]
+
+    n_to_miss = int(np.max([
+      np.ceil(n_non_miss * (prop - p_miss)), 0
+      ]))
+
+    if prop <= p_miss:
+      warnings.warn(
+        f"Already contained {p_miss:.3f}(>= prop) missing value(s) in 'x', "
+        "no additional missing values were added.",
+        category = UserWarning,
+        stacklevel = 2
+      )
+      return x  
+
+  match method:
+    case 'random':
+        index_to_na = non_miss.sample(n = n_to_miss, random_state = random_state)
+    case 'first':
+        index_to_na = non_miss.head(n_to_miss)
+    case 'last':
+        index_to_na = non_miss.tail(n_to_miss)
+
+  x_np[index_to_na] = np.nan
+  result = nw.Series.from_numpy(
+      name = x_nw.name,
+      values = x_np,
+      backend = x_nw.implementation
+  )
+
+  if to_native: return result.to_native()
+  return result
+
+
+# # `relocate()`
+
+# In[ ]:
+
+
+def arrange_colnames(colnames, selected, before = None, after = None):
+    unselected = [i for i in colnames if i not in selected]
+    if before is None and after is None:
+        arranged = selected + unselected
+
+    if before is not None:
+        idx = unselected.index(before)
+        col_pre = unselected[:idx]
+        col_behind = unselected[idx:]
+        arranged = col_pre + selected + col_behind
+
+    if after is not None:
+        idx = unselected.index(after) + 1
+        col_pre = unselected[:idx]
+        col_behind = unselected[idx:]
+        arranged = col_pre + selected + col_behind
+
+    return arranged
+
+
+# In[ ]:
+
+
+def relocate(
+        data: IntoFrameT, 
+        *args: Union[str, List[str], narwhals.Expr, narwhals.selectors.Selector], 
+        before: Optional[str] = None,
+        after: Optional[str] = None,
+        to_native: bool = True
+        ) -> IntoFrameT:
+    """Reorder columns in a DataFrame without dropping any columns.
+
+    This function reorders columns in a DataFrame by relocating selected
+    columns to a new position, while keeping all other columns intact.
+    Selected columns can be specified by column names, lists of names,
+    or narwhals expressions/selectors.
+
+    By default, the selected columns are moved to the front of the DataFrame.
+    Alternatively, they can be placed immediately before or after a specified
+    reference column.
+
+    Internally, the input is converted to a narwhals DataFrame to support
+    multiple backends (e.g., pandas, polars, pyarrow), and the reordered
+    DataFrame is returned in its native type by default.
+
+    Args:
+        data (IntoFrameT):
+            Input DataFrame whose columns are to be reordered.
+            Any DataFrame-like object supported by narwhals
+            (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
+        *args (Union[str, List[str], narwhals.Expr, narwhals.Selector]):
+            Columns to relocate. Each element may be:
+            - a column name (`str`)
+            - a list of column names
+            - a narwhals expression
+            - a narwhals selector
+            The order of columns specified here is preserved in the output.
+        before (Optional[str], optional):
+            Name of a column before which the selected columns should be placed.
+            Cannot be specified together with `after`. Defaults to `None`.
+        after (Optional[str], optional):
+            Name of a column after which the selected columns should be placed.
+            Cannot be specified together with `before`. Defaults to `None`.
+        to_native (bool, optional):
+            If `True`, return the result as the native DataFrame type
+            corresponding to the input (e.g., pandas or polars).
+            If `False`, return a narwhals DataFrame. Defaults to `True`.
+
+    Returns:
+        IntoFrameT:
+            A DataFrame with the same columns as `data`, reordered according
+            to the specified rules.
+
+    Raises:
+        ValueError:
+            If `*args` contains unsupported types.
+        ValueError:
+            If both `before` and `after` are specified.
+        ValueError:
+            If `before` or `after` is not a valid column name.
+
+    Notes:
+        - This function only changes the order of columns; no columns are
+          added or removed.
+        - If neither `before` nor `after` is specified, the selected columns
+          are moved to the beginning of the DataFrame.
+        - Column order among the selected columns follows the order specified
+          in `*args`.
+
+    Examples:
+        >>> import py4stats as py4st
+        >>> import narwhals.selectors as ncs
+        >>> from palmerpenguins import load_penguins
+        >>> penguins = load_penguins()
+
+        Move columns to the front:
+        >>> py4st.relocate(penguins, "year", "sex")
+
+        Relocate columns using a selector:
+        >>> py4st.relocate(penguins, ncs.numeric())
+
+        Place columns before a specific column:
+        >>> py4st.relocate(penguins, "year", before="island")
+    """
+    # 引数のアサーション ======================================
+    build.assert_logical(to_native, arg_name = 'to_native')
+
+    is_varid = [
+        isinstance(v, str) or
+        (build.is_character(v) and isinstance(v, list)) or
+        isinstance(v, nw.expr.Expr)
+        for v in args
+        ]
+
+    if not all(is_varid):
+        invalids = [v for i, v in enumerate(args) if not is_varid[i]]
+        message = "Argument '*args' must be of type 'str', list of 'str', 'narwhals.Expr' or 'narwhals.Selector'\n"\
+        + f"            The value(s) of {build.oxford_comma_and(invalids)} cannot be accepted.\n"\
+        + "            Examples of valid inputs: 'x', ['x', 'y'], ncs.numeric(), nw.col('x')"
+
+        raise ValueError(message)
+
+    build.assert_character(before, arg_name = 'before', nullable = True, scalar_only = True)
+    build.assert_character(after, arg_name = 'after', nullable = True, scalar_only = True)
+
+    if (before is not None) and (after is not None):
+        raise ValueError("Please specify either 'before' or 'after'.")
+    # ======================================================
+
+    data_nw = nw.from_native(data)
+    colnames = data_nw.columns
+    selected = data_nw.select(args).columns
+    arranged = arrange_colnames(colnames, selected, before, after)
+
+    result = data_nw.select(nw.col(arranged))
+
+    if to_native: return result.to_native()
+    return result
+
+
+# # カテゴリー変数の積み上げ棒グラフ
+
+# In[ ]:
+
+
+def make_table_to_plot(
+        data: IntoFrameT, 
+        sort_by: Literal['values', 'frequency'] = 'values',
+        to_native: bool = True
+        ) -> None:
+    data_nw = nw.from_native(data)
+
+    variables = data_nw.columns
+    def foo(v):
+        res_ft = freq_table(
+                data_nw, v, 
+                dropna = True, 
+                sort_by = sort_by,
+                descending = sort_by == 'frequency',
+                to_native = False
+            ).rename({v:'value'})\
+            .with_columns(
+                bottom = nw.col('cumperc').shift(n = 1).fill_null(0)
+                )
+
+        res_ft = res_ft.with_columns(nw.lit(v).alias('variable'))
+
+        return res_ft
+
+    table_to_plot = nw.concat(
+        [foo(v) for v in variables],
+        how = 'vertical'
+    )
+    table_to_plot = relocate(table_to_plot, nw.col('variable'), to_native = False)
+    if to_native: return table_to_plot.to_native()
+    return table_to_plot
+
+
+# In[ ]:
+
+
+import seaborn as sns
+from matplotlib import patches as mpatches
+from matplotlib.ticker import FuncFormatter
+
+def make_categ_barh(
+        table_to_plot, 
+        list_values,
+        palette: Optional[Sequence] = None,
+        legend_type: Literal['horizontal', 'vertical', 'none'] = 'horizontal',
+        show_vline: bool = True,
+        ax: Optional[Axes] = None
+        ):
+    table_to_plot = table_to_plot.to_pandas() # seaborn が Pandas のみ対応しているため
+    k_categ = len(list_values)
+    ## カラーパレットの生成 ==========================
+    if palette is None:
+        palette = sns.diverging_palette(
+            h_neg = 183, h_pos = 64, 
+            s = 70, l = 75, 
+            n = k_categ, 
+            as_cmap = False
+        )
+
+    value = list_values[0]
+    patch_list = []
+
+    if ax is None:
+        fig, ax = plt.subplots()
+    ## 積み上げ棒グラフの作成 =========================
+    for i, value in enumerate(list_values):
+
+        ax.barh(
+            y = table_to_plot.query('value == @value')['variable'], 
+            width = table_to_plot.query('value == @value')['perc'],
+            left = table_to_plot.query('value == @value')['bottom'],
+            color = palette[i]
+        )
+
+        patch = mpatches.Patch(color = palette[i], label = value)
+        patch_list.append(patch)
+
+    ## 軸ラベルと垂直線の設定 =========================
+    ax.xaxis.set_major_formatter(
+        FuncFormatter(lambda x, pos: f"{abs(100 * x):.0f}%")
+        )
+
+    ax.set_xlim(0, 1)
+    ax.set_ylabel('')
+    ax.set_xlabel('Percentage')
+    ax.invert_yaxis()
+
+    if show_vline:
+        ax.axvline(0.5, color = "gray", linewidth = 1, linestyle = "--")
+
+    ## 凡例の設定 ===============================
+    if legend_type != 'none':
+        if legend_type == 'horizontal':
+            arg_dict = {
+                'loc': 'upper center',
+                'bbox_to_anchor': (0.5, -0.1),
+                'ncol':k_categ,
+                'reverse': True
+            }
+        else:
+            arg_dict = {
+                'loc': 'upper left',
+                'bbox_to_anchor': (1, 1),
+                'ncol': 1
+            }
+        plt.legend(handles = patch_list, frameon = False, **arg_dict);
+
+
+# In[ ]:
+
+
+@pf.register_dataframe_method
+def plot_category(
+    data: IntoFrameT,
+    sort_by: Literal['values', 'frequency'] = 'values',
+    palette: Optional[sns.palettes._ColorPalette] = None,
+    legend_type: Literal["horizontal", "vertical", "none"] = "horizontal",
+    show_vline: bool = True,
+    ax: Optional[Axes] = None,
+) -> None:
+    """Plot 100% stacked horizontal bar charts for categorical variables.
+
+    This function summarizes multiple categorical variables and visualizes
+    their response distributions as 100% stacked horizontal bar charts
+    (one bar per variable). It is suitable for Likert-style survey items and
+    other categorical response data where all variables share a common
+    coding scheme.
+
+    Internally, the function aggregates the input data into a plotting table
+    using `make_table_to_plot()`, then renders the stacked bars via
+    `make_categ_barh()` with matplotlib.
+
+    Args:
+        data (IntoFrameT):
+            Input DataFrame containing categorical variables (one column per item).
+            Any DataFrame type supported by narwhals can be used
+            (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table).
+            All columns must share the same set of category labels.
+        sort_by (Literal["frequency", "values"], optional):
+            Rule used to order response categories before plotting.
+            - `"values"`: sort by the category values themselves.
+            - `"frequency"`: sort by response frequency (descending).
+            Defaults to `"values"`.
+        palette (Optional[sns.palettes._ColorPalette], optional):
+            Color palette used for the response categories.
+            If `None`, a default diverging palette is generated internally.
+            The length of the palette must match the number of categories.
+            Defaults to `None`.
+        legend_type (Literal["horizontal", "vertical", "none"], optional):
+            Placement and layout of the legend.
+            - `"horizontal"`: place the legend below the plot in a single row.
+            - `"vertical"`: place the legend to the right of the plot.
+            - `"none"`: do not draw a legend.
+            Defaults to `"horizontal"`.
+        show_vline (bool, optional):
+            If `True`, draw a vertical reference line at 0.5 (50%),
+            which can serve as a visual midpoint for proportions.
+            Defaults to `True`.
+        ax (Optional[matplotlib.axes.Axes], optional):
+            Matplotlib axes to draw the plot on. If `None`, a new figure
+            and axes are created. Defaults to `None`.
+
+    Returns:
+        None:
+            The function draws the plot on the provided or newly created
+            matplotlib axes and returns `None`.
+
+    Raises:
+        ValueError:
+            If the categorical variables in `data` do not share a common
+            coding scheme (i.e., their category labels are not identical).
+
+    Notes:
+        - When `sort_by="values"` is specified, the function relies on the presence of
+          explicit category order information (e.g., ordered categoricals in pandas
+          or Enum categories in polars) to determine the plotting order.
+        - **Recommended:** When using `sort_by="values"`, it is recommended to provide
+          the input as a `pandas.DataFrame` with columns of type `pd.Categorical`
+          (with an explicit order), or as a `polars.DataFrame` with columns defined
+          as `Enum` categories.
+        - For `polars.Categorical` columns, category order may not be preserved as
+          expected, and categories can be displayed in lexicographical order
+          (e.g., "Agree", "Disagree", "Strongly agree", "Strongly disagree").
+        - When a `pyarrow.Table` is provided as input, `sort_by="values"` may raise
+          an error due to limitations of dictionary-encoded types in pyarrow.
+          In such cases, use `sort_by="frequency"` instead.
+        - Missing values are dropped when computing category frequencies.
+        - Category order is determined by `sort_by` and then reversed before
+          plotting so that the first category appears at the bottom of the bar.
+        - The x-axis represents proportions in the range [0, 1], formatted
+          as percentages.
+        - This function assumes that `make_table_to_plot()` produces the
+          columns `"variable"`, `"value"`, `"perc"`, and `"bottom"`.
+
+    Examples:
+        >>> import py4stats as py4st
+        >>> import pandas as pd
+        >>> df = pd.DataFrame({
+        ...     "Q1": ["Agree", "Disagree", "Agree", "Strongly agree"],
+        ...     "Q2": ["Disagree", "Disagree", "Agree", "Agree"],
+        ... })
+        >>> py4st.plot_category(df, sort_by="values", legend_type="horizontal")
+    """
+    data_nw = nw.from_native(data)
+    variables = data_nw.columns
+    # 引数のアサーション ==============================================
+    legend_type = build.arg_match(
+      legend_type, values = ['horizontal', 'vertical', 'none'],
+      arg_name = 'legend_type'
+      )
+    build.assert_logical(show_vline, arg_name = 'sort')
+
+    if data_nw.implementation.is_pyarrow() and sort_by == "values":
+        raise ValueError(
+            "`sort_by='values&` is not supported in pyarrow.Table."
+            "Please try one of the following:\n"\
+            "             - Specify sort_by = 'frequency'\n"\
+            "             - Use a `pandas.DataFrame` and set the `pd.Categorical` column as an ordered category\n"\
+            "             - Use a `polars.DataFrame` and set the `Enum-type` column as an ordered category"\
+        )
+
+    # カテゴリー変数のコーディング確認 ==================================
+    cording = data_nw[variables[0]].unique().to_list()
+    is_common_cording = all([
+        s.unique().is_in(cording).all() 
+        for s in data_nw.iter_columns()
+    ])
+
+    if not is_common_cording:
+        messages = "This function assumes that all columns contained in `data` share a common coding scheme."
+        raise ValueError(messages)
+
+    # データの集計 ==================================================
+
+    table_to_plot = make_table_to_plot(
+        data_nw, sort_by = sort_by,
+        to_native = False
+        )
+
+    list_values = table_to_plot['value'].unique().to_list()
+
+    list_values.reverse()
+
+    # if nw.is_ordered_categorical(table_to_plot['value']): 
+    #     list_values = table_to_plot['value'].cat.get_categories().to_list() 
+    #     list_values.reverse() 
+    # else: 
+    #     list_values = table_to_plot['value'].unique().to_list() 
+    #     list_values.reverse()
+
+    # グラフの作図 ==================================================
+    make_categ_barh(
+        table_to_plot,
+        list_values = list_values,
+        palette = palette,
+        legend_type = legend_type,
+        show_vline = show_vline,
+        ax = ax
+    )
 
