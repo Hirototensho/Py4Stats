@@ -202,10 +202,10 @@ NumberLike = Union[int, float, np.number]
 ArrayLike = Union[NumberLike, Sequence[NumberLike], np.ndarray, pd.Series]
 
 # 文字列配列っぽい入力
-StrArrayLike = Union[str, Sequence[str], np.ndarray, pd.Series]
+# StrArrayLike = Union[str, Sequence[str], np.ndarray, pd.Series]
 
 # p-value などは 0..1 の数値配列として扱うことが多い
-ProbArrayLike = ArrayLike
+# ProbArrayLike = ArrayLike
 
 
 # ## `oxford_comma()`
@@ -462,6 +462,11 @@ def is_float(x: Any) -> bool:
 
 
 
+
+
+
+
+
 def make_assert_type(
     predicate_fun: Callable[[Any], bool],
     valid_type: Sequence[str],
@@ -615,6 +620,49 @@ assert_logical = make_assert_type(is_logical, valid_type = ['bool'])
 
 
 
+def assert_value_range(
+    arg, arg_name:str,
+    lower: float = -float("inf"),
+    upper: float = float("inf"),
+    inclusive: Literal["both", "neither", "left", "right"] = "both",
+    range_massage: str = '-inf <= x <= inf'
+    ):
+    arg = pd.Series(arg)
+
+    cond = arg.between(lower, upper, inclusive = inclusive)
+
+    not_sutisfy = arg[~cond].index.astype(str).to_list()
+    if(len(arg) > 1):
+      if not cond.all():
+        message = (
+            f"Argument '{arg_name}' must have value {range_massage}\n"  +
+            f"element {oxford_comma_and(not_sutisfy)} of '{arg_name}' not sutisfy the condtion."
+            )
+        raise ValueError(message)
+    else:
+      if not cond.all():
+       message =  f"Argument '{arg_name}' must have value {range_massage}."
+       raise ValueError(message)
+
+
+
+
+def assert_numeric_dtype(
+        arg:Any, 
+        arg_name: str,
+        predicate_fun: Callable[[Any], bool],
+        valid_type: Sequence[str],
+        range_massage:str = '-inf <= x <= inf'
+        ):
+        if not predicate_fun(arg): 
+            message = f"Argument '{arg_name}' must be of" +\
+                f" type {oxford_comma_or(valid_type)}" + \
+                f" with value(s) {range_massage}."
+            raise ValueError(message)
+
+
+
+
 def make_assert_numeric(
     predicate_fun: Callable[[Any], bool],
     valid_type: Sequence[str],
@@ -758,30 +806,23 @@ def make_assert_numeric(
       'left':'<= x <',
       'right':'< x <='
     }
+    range_massage = f"{lower} {inclusive_dict.get(inclusive)} {upper}"
+    # 引数の型に関するアサーション ===============================================
 
-    if not predicate_fun(arg): 
-       message = f"Argument '{arg_name}' must be of" +\
-            f" type {oxford_comma_or(valid_type)}" + \
-            f" with value(s) {lower} {inclusive_dict[inclusive]} {upper}."
-       raise ValueError(message)
+    assert_numeric_dtype(
+        arg, arg_name = arg_name,
+        predicate_fun = predicate_fun,
+        valid_type = valid_type,
+        range_massage = range_massage
+        )
+    # 引数値の範囲に関するアサーション ============================================
+    assert_value_range(
+      arg, arg_name = arg_name, 
+      lower = lower, upper = upper,
+      inclusive = inclusive,
+      range_massage = range_massage
+      )
 
-    cond = arg.between(lower, upper, inclusive = inclusive)
-    not_sutisfy = arg[~cond].index.astype(str).to_list()
-
-    if(len(arg) > 1):
-      if not cond.all():
-        message = (
-            f"Argument '{arg_name}' must have value {lower} {inclusive_dict[inclusive]} {upper}\n"  +
-            f"element {oxford_comma_and(not_sutisfy)} of '{arg_name}' not sutisfy the condtion."
-            )
-        raise ValueError(message)
-    else:
-      if not cond.all():
-       message =  f"Argument '{arg_name}' must have value {lower} {inclusive_dict[inclusive]} {upper}."
-       raise ValueError(message)
-
-    # if(arg_name is None):
-    #     arg_name = varname.argname('arg')
   return func
 
 
