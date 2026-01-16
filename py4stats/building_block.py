@@ -155,99 +155,6 @@ def oxford_comma_or(x: Union[str, Sequence[str]], quotation: bool = True) -> str
   return oxford_comma(x, quotation = quotation, sep_last = 'or')
 
 
-# ## 引数のアサーション
-
-
-
-def match_arg(arg: str, values: Sequence[str], arg_name: str = "argument") -> str:
-    """
-    Simulates the functionality of R's match.arg() function with partial matching in Python.
-
-    Args:
-    - arg: The arg to match against the values (partially).
-    - values: List of valid values.
-
-    Returns:
-    - The matched arg if found in values (partially), otherwise raises an ArgumentError.
-    """
-    if(arg in values):
-      return arg
-    else:
-      matches = [c for c in values if arg.lower() in c.lower()]
-      if len(matches) == 1:
-          return matches[0]
-      elif len(matches) > 1:
-          raise ValueError(
-              f"""'{arg}' is ambiguous arg for '{arg_name}'. Matches multiple values: {', '.join(matches)}.
-              '{arg_name}' must be one of {oxford_comma_or(values)}."""
-              )
-      else:
-          raise ValueError(f"'{arg_name}' must be one of {oxford_comma_or(values)}, not '{arg}'.")
-
-
-
-
-def arg_match0(arg: str, values: Sequence[str], arg_name: Optional[str] = None) -> str:
-    """
-    Simulates the functionality of R's rlang::arg_match() function with partial matching in Python.
-
-    Args:
-    - arg: The arg to match against the values.
-    - values: List of valid values.
-
-    Returns:
-    - The matched arg if found in values, otherwise raises an ArgumentError.
-    """
-    if(arg_name is None):
-      arg_name = varname.argname('arg')
-
-    if(arg in values):
-      return arg
-    else:
-      matches = [c for c in values if arg.lower() in c.lower()]
-      if len(matches) >= 1:
-       raise ValueError(
-            f"""'{arg_name}' must be one of {oxford_comma_or(values)}, not '{arg}'.
-             Did you mean {oxford_comma_or(matches)}?"""
-        )
-      else:
-        raise ValueError(f"'{arg_name}' must be one of {oxford_comma_or(values)}, not '{arg}'.")
-
-
-
-
-# from varname import argname
-def arg_match(
-    arg: Union[str, Sequence[str], pd.Series, np.ndarray],
-    values: Sequence[str],
-    arg_name: Optional[str] = None,
-    multiple: bool = False,
-) -> MatchArgReturn:
-  """
-  Simulates the functionality of R's rlang::arg_match() function with partial matching in Python.
-
-  Args:
-  - arg: The list or str of arg to match against the values.
-  - values: List of valid values.
-  - arg_name : name of argument.
-  - multiple: Whether multiple values are allowed for the arg.
-
-  Returns:
-  - The matched arg if found in values, otherwise raises an ArgumentError.
-  """
-  if(arg_name is None):
-      arg_name = varname.argname('arg')
-
-  arg = pd.Series(arg)
-  if(multiple):
-    # 複数選択可の場合
-    arg = [arg_match0(val, values = values, arg_name = arg_name) for val in arg]
-    return arg
-  else:
-    arg = arg_match0(arg[0], values = values, arg_name = arg_name)
-    return arg
-
-
 # ## 引数の要素数に関するアサーション
 
 
@@ -335,6 +242,105 @@ def assert_missing(
         )
 
 
+# ## 選択式のアサーション
+
+
+
+def match_arg(arg: str, values: Sequence[str], arg_name: str = "argument") -> str:
+    """
+    Simulates the functionality of R's match.arg() function with partial matching in Python.
+
+    Args:
+    - arg: The arg to match against the values (partially).
+    - values: List of valid values.
+
+    Returns:
+    - The matched arg if found in values (partially), otherwise raises an ArgumentError.
+    """
+    if(arg in values):
+      return arg
+    else:
+      matches = [c for c in values if arg.lower() in c.lower()]
+      if len(matches) == 1:
+          return matches[0]
+      elif len(matches) > 1:
+          raise ValueError(
+              f"""'{arg}' is ambiguous arg for '{arg_name}'. Matches multiple values: {', '.join(matches)}.
+              '{arg_name}' must be one of {oxford_comma_or(values)}."""
+              )
+      else:
+          raise ValueError(f"'{arg_name}' must be one of {oxford_comma_or(values)}, not '{arg}'.")
+
+
+
+
+
+def arg_match0(arg: str, values: Sequence[str], arg_name: Optional[str] = None) -> str:
+    """
+    Simulates the functionality of R's rlang::arg_match() function with partial matching in Python.
+
+    Args:
+    - arg: The arg to match against the values.
+    - values: List of valid values.
+
+    Returns:
+    - The matched arg if found in values, otherwise raises an ArgumentError.
+    """
+    if(arg_name is None):
+      arg_name = varname.argname('arg')
+
+    if(arg in values):
+      return arg
+    else:
+      matches = [c for c in values if arg.lower() in c.lower()]
+      if len(matches) >= 1:
+       raise ValueError(
+            f"""'{arg_name}' must be one of {oxford_comma_or(values)}, not '{arg}'.
+             Did you mean {oxford_comma_or(matches)}?"""
+        )
+      else:
+        raise ValueError(f"'{arg_name}' must be one of {oxford_comma_or(values)}, not '{arg}'.")
+
+
+
+
+
+def arg_match(
+    arg: Union[str, Sequence[str], pd.Series, np.ndarray],
+    values: Sequence[str],
+    arg_name: Optional[str] = None,
+    multiple: bool = False,
+    nullable: bool = False
+) -> Union[str, List[str]]:
+    """
+    Simulates the functionality of R's rlang::arg_match() function with partial matching in Python.
+
+    Args:
+    - arg: The list or str of arg to match against the values.
+    - values: List of valid values.
+    - arg_name : name of argument.
+    - multiple: Whether multiple values are allowed for the arg.
+    - nullable: If True, allows the argument itself to be None.
+
+    Returns:
+    - The matched arg if found in values, otherwise raises an ArgumentError.
+    """
+    if(arg_name is None):
+        arg_name = varname.argname('arg')
+
+    if (arg is None) and nullable: return
+
+    arg = pd.Series(arg)
+
+    if(multiple):
+    # 複数選択可の場合
+        arg = [arg_match0(val, values = values, arg_name = arg_name) for val in arg]
+        return arg
+    else:
+        arg = arg_match0(arg[0], values = values, arg_name = arg_name)
+        return arg
+
+
 # ## タイプチェックを行う関数
 
 
@@ -388,7 +394,7 @@ def make_assert_type(
     """Assert that an argument is specific type and satisfies value and shape constraints.
     Args:
         arg:
-            The argument to validate. Can be a scalar numeric value or an
+            The argument to validate. Can be a scalar or an
             array-like object containing numeric values.
         arg_name:
             Name of the argument, used in error messages. If None, the variable

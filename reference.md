@@ -1,7 +1,5 @@
 # Function reference
 
-<!--注意 main ブランチにマージする際に、`blob/experiment/narwhals/` を `blob/main/` に変更すること。-->
-
 ## Main Module
 
 ### `py4stats.eda_tools`
@@ -101,8 +99,7 @@
 
 ### `py4stats.heckit_helper`
 
-`py4stats.regression_tools` の関数を [`py4etrics.heckit`](https://github.com/Py4Etrics/py4etrics) で実装された Heckit
- モデルに対応させるためのメソッドを実装したモジュールです。
+`py4stats.regression_tools` の関数を [`py4etrics.heckit`](https://github.com/Py4Etrics/py4etrics) ライブラリで実装された Heckit モデルに対応させるためのメソッドを提供します。
 
 [`heckit_helper.Heckit_from_formula()`](man/Heckit_from_formula.md)
 
