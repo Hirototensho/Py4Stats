@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 
-# # `eda_tools`：データセットを要約する関数群
+# # `eda_tools`：データセットを要約する関数群 `narwhals` ライブラリによる旧実装
 
 # `eda_tools` モジュールに実装された主要な関数の依存関係
 # 

@@ -7,7 +7,227 @@
 from __future__ import annotations
 
 
-# # `eda_tools_nw`： `narwhals` ライブラリを使った実験的実装
+# # `eda_tools`：データセットを要約する関数群 `narwhals` ライブラリを使った実装
+
+# `eda_tools._nw` モジュールに実装された主要な関数の依存関係
+# 
+# ``` python
+# ## 1. 基本診断（欠測・ユニーク数など）
+# 
+# diagnose()                                   # 各列の dtype / 欠測 / ユニーク数を要約
+# ├─ build.assert_logical()                    # 引数チェック
+# ├─ get_dtypes()                              # 列ごとの dtype 抽出（backend非依存）
+# └─ narwhals 集計処理
+# 
+# get_dtypes()                                 # DataFrame の dtype を Series として取得
+# 
+# ## 2. 欠測値の可視化
+# 
+# plot_miss_var()                              # 変数別欠測率・欠測数の横棒グラフ
+# ├─ build.arg_match()                         # values 引数の選択検証
+# ├─ build.assert_logical()
+# ├─ diagnose()                                # 欠測統計の計算
+# └─ matplotlib barh 描画
+# 
+# ## 3. DataFrame 間の比較（構造・統計）
+# 
+# ### 列構造（dtype）比較
+# 
+# compare_df_cols()                            # 複数DF間で列 dtype を比較
+# ├─ is_FrameT()                               # DataFrame 互換判定
+# ├─ build.arg_match()                         # return_match 指定
+# ├─ build.assert_logical()
+# ├─ get_dtypes()
+# └─ pandas.concat / nunique
+# 
+# is_FrameT()                                  # narwhals.from_native 可否判定
+# 
+# ### 統計量の近接性比較
+# 
+# compare_df_stats()                           # 平均などの統計量の近さで比較
+# ├─ is_FrameT()
+# ├─ build.arg_match()
+# ├─ _compute_stats()                          # 数値列の統計量計算
+# ├─ itertools.combinations()                  # DF ペア生成
+# └─ numpy.isclose()
+# 
+# _compute_stats()                             # 数値列のみを選び stats を計算
+# 
+# ### レコード単位比較
+# 
+# compare_df_record()                          # 行×列レベルで df1 と df2 を比較
+# ├─ build.assert_logical()
+# ├─ build.arg_match()                         # columns = 'all' / 'common'
+# ├─ build.oxford_comma_and()                  # エラーメッセージ整形
+# ├─ numpy.isclose()                           # 数値列比較
+# └─ 等値比較（非数値）
+# 
+# ## 4. グループ間比較（平均・中央値）
+# 
+# compare_group_means()                        # グループ平均と差分指標
+# ├─ build.assert_character()
+# ├─ remove_constant()                         # 定数列除去
+# ├─ narwhals.mean / var
+# └─ 差分指標（norm / abs / rel）
+# 
+# compare_group_median()                       # グループ中央値と差分
+# ├─ build.assert_character()
+# ├─ remove_constant()
+# └─ abs / rel 差分計算
+# 
+# plot_mean_diff()                             # 平均差のステムプロット
+# ├─ build.arg_match()
+# ├─ compare_group_means()
+# └─ matplotlib stem
+# 
+# plot_median_diff()                           # 中央値差のステムプロット
+# ├─ build.arg_match()
+# ├─ compare_group_median()
+# └─ matplotlib stem
+# 
+# 
+# ## 5. クロス集計・度数表
+# 
+# crosstab()                                   # backend非依存クロス集計
+# ├─ build.assert_logical()
+# ├─ build.arg_match()                         # normalize
+# ├─ narwhals.pivot()
+# └─ 周辺合計・正規化処理
+# 
+# freq_table()                                 # 度数・割合・累積度数表
+# ├─ build.arg_match()                         # sort_by
+# ├─ build.assert_logical()
+# ├─ FutureWarning 処理（sort）
+# └─ group_by + 集計
+# 
+# tabyl()                                      # janitor::tabyl 風クロス集計
+# ├─ build.assert_*()
+# ├─ crosstab()                                # 分割表
+# ├─ build.style_number()
+# ├─ build.style_percent()
+# └─ 文字列結合（"count (xx%)"）
+# 
+# ## 6. カテゴリー変数の診断
+# 
+# diagnose_category()                          # カテゴリー変数専用サマリ
+# ├─ build.assert_logical()
+# ├─ is_dummy()                                # ダミー変数検出
+# ├─ freq_table()                              # モード算出
+# ├─ std_entropy()                             # 標準化エントロピー
+# └─ narwhals 集計
+# 
+# is_dummy()                                   # ダミー変数判定（汎用）
+# ├─ is_dummy_series()                         # Series 用
+# └─ is_dummy_data_frame()                     # DataFrame 用
+# 
+# entropy()                                    # Shannon エントロピー
+# └─ scipy.stats.entropy
+# 
+# std_entropy()                                # 正規化エントロピー
+# └─ entropy()
+# 
+# ## 7. 欠測・定数・不要列の除去
+# 
+# missing_percent()                            # 行・列ごとの欠測率
+# 
+# remove_empty()                               # 空白行・列の除去
+# ├─ missing_percent()
+# ├─ build.assert_*()
+# └─ 条件付きフィルタ
+# 
+# remove_constant()                            # 定数列の除去
+# ├─ build.assert_logical()
+# └─ n_unique 判定
+# 
+# filtering_out()                              # 列名・行名のパターン除外
+# ├─ build.arg_match()                         # axis
+# ├─ build.assert_character()
+# └─ pandas.str.contains 系
+# 
+# ## 8. 数値変換・スケーリング
+# 
+# weighted_mean()                              # 重み付き平均
+# ├─ build.assert_numeric()
+# └─ sum(x*w)/sum(w)
+# 
+# scale()                                     # Z-score 標準化
+# ├─ build.assert_count()
+# ├─ build.assert_numeric()
+# └─ mean / std
+# 
+# min_max()                                   # Min-Max 正規化
+# ├─ build.assert_numeric()
+# └─ (x-min)/(max-min)
+# 
+# ## 9. パレート図
+# Pareto_plot()                               # パレート図（頻度 or 集計）
+# ├─ build.assert_*()
+# ├─ freq_table() / make_rank_table()
+# ├─ make_Pareto_plot()
+# └─ matplotlib 描画
+# 
+# make_rank_table()                           # 集計→順位→累積比率
+# 
+# make_Pareto_plot()                          # パレート図描画専用
+# 
+# ## 10. カテゴリー積み上げ棒グラフ
+# 
+# plot_category()                             # カテゴリー積み上げ棒
+# ├─ build.arg_match()
+# ├─ make_table_to_plot()                     # 描画用テーブル作成
+# ├─ make_categ_barh()                        # 描画処理
+# └─ seaborn / matplotlib
+# 
+# make_table_to_plot()                        # freq_table を縦結合
+# ├─ freq_table()
+# ├─ relocate()
+# └─ 累積比率計算
+# 
+# make_categ_barh()                           # 積み上げ棒描画
+# └─ matplotlib + seaborn
+# 
+# ## 11. 区間推定（QI / CI）
+# 
+# mean_qi()                                  # 平均 + 分位区間
+# ├─ build.assert_numeric()
+# ├─ build.arg_match()
+# ├─ mean_qi_data_frame()
+# └─ mean_qi_series()
+# 
+# median_qi()                                # 中央値 + 分位区間
+# ├─ build.assert_numeric()
+# ├─ build.arg_match()
+# ├─ median_qi_data_frame()
+# └─ median_qi_series()
+# 
+# mean_ci()                                  # 平均 + t信頼区間
+# ├─ build.assert_numeric()
+# ├─ mean_ci_data_frame()
+# └─ mean_ci_series()
+# 
+# ## 12. ルールベース検証
+# 
+# check_that()                               # ルール評価の要約
+# └─ check_that_pandas()
+# 
+# check_viorate()                            # 行ごとの違反判定
+# └─ check_viorate_pandas()
+# 
+# is_complete()                            # 欠損のない行を判定
+# 
+# Sum(), Mean(), Max(), Min(), Median()  # 行方向の合計・平均・中央値などを計算
+# └─ pd.concat(...).sum() など
+# 
+# ## 13. 列操作ユーティリティ
+# 
+# relocate()                                 # 列順の再配置
+# ├─ arrange_colnames()
+# ├─ build.assert_character()
+# └─ narwhals.select()
+# 
+# arrange_colnames()                         # 列名リストの並び替えロジック
+# 
+# ```
 
 # In[ ]:
 

@@ -6,73 +6,156 @@
 from __future__ import annotations
 
 
-# # `py4stats` のプログラミングを補助する関数群
+# # `building_block`: `py4stats` のプログラミングを補助する関数群
 # 
-# `eda_tools` や `regression_tools` で共通して使う関数をここにまとめておきます。`building_block` モジュール自体は外部から呼び出さずに使用することを想定しています。
+# `py4stats` ライブラリの実装に使用するアサーション関数やユーティリティ関数を提供します。
+# `building_block` モジュール自体は外部から呼び出すことなく内部実装に使用することを想定しています。
 
+# ## 関数の依存関係 
+# 
 # `building_block` モジュールに実装された主要な関数の依存関係
 # 
 # ```python
-# arg_match()                       # 文字列やリストの引数を有効値と突き合わせてチェック
-# └─ arg_match0()                  # 単一値の照合処理を担当
-#    └─ oxford_comma_or()         # 候補が複数ある場合のメッセージ整形に使用
-#        └─ oxford_comma()        # 英語表現の並列化（Oxford comma）
+# ## 1. 文字列列挙（Oxford comma）
 # 
-# match_arg()                      # Rの match.arg に類似、部分一致で引数を照合
-# └─ oxford_comma_or()            # 候補の整形出力（上記と共通）
-# 
-# make_assert_type()              # 型アサート用関数の function factory（文字列・論理型用など）
-# └─ predicate_fun()             # 呼び出し側が指定する型チェック関数（例: is_character）
-# 
-# make_assert_numeric()           # 数値アサート関数のfunction factory（範囲チェック付き）
-# └─ oxford_comma_or()           # エラーメッセージに候補を整形表示
+# oxford_comma()                    # 文字列（列）を英文の並列表現に整形
+# ├─ oxford_comma_and()             # "and" を使った並列表現
+# │  └─ oxford_comma()
+# └─ oxford_comma_or()              # "or" を使った並列表現
 #    └─ oxford_comma()
 # 
-# p_stars()                        # p値にアスタリスク（***など）を付与
-# ├─ assert_numeric()            # 入力値チェック
-# └─ pd.cut()                    # 範囲に応じたカテゴリ化
+# ## 2. 長さ・スカラー性の基本ユーティリティ
+# length()                          # 引数の「要素数」を汎用的に取得
 # 
-# style_pvalue()                  # p値の整形出力（しきい値による置き換え）
-# ├─ assert_numeric()
+# assert_length()                   # 引数の長さ制約（len, min/max）を検証
+# └─ length()
+# 
+# assert_scalar()                   # 配列的オブジェクトでないことを検証
+# 
+# ## 3. 欠測値（None / NA / Null）関連
+# is_pl_null()                      # polars の Null 判定（存在すれば）
+# 
+# is_missing()                      # pandas / polars を含む欠測値判定
+# ├─ is_pl_null()
+# └─ (pd.Series.isna)
+# 
+# assert_missing()                  # 欠測値の許容ルールを検証
+# ├─ is_missing()
+# └─ oxford_comma_and()             # エラーメッセージ用
+#    └─ oxford_comma()
+# 
+# ## 4. 選択式引数（match.arg 系）
+# 
+# match_arg()                       # 単一文字列の部分一致マッチ（R風）
+# ├─ oxford_comma_or()
+# │  └─ oxford_comma()
+# └─ (部分一致ロジック)
+# 
+# arg_match0()                      # 単一要素専用の厳密マッチ＋候補提示
+# ├─ varname.argname()              # 引数名の自動取得
+# └─ oxford_comma_or()
+#    └─ oxford_comma()
+# 
+# arg_match()                       # 単数 / 複数対応の高水準マッチ関数
+# ├─ varname.argname()
+# ├─ assert_missing()               # 欠測値の扱いを統一
+# │  └─ is_missing()
+# ├─ is_missing()                   # any_missing 時のフィルタ
+# └─ arg_match0()
+# 
+# ## 5. dtype 判定（predicate 関数）
+# 
+# is_character()                    # 文字列型かどうか
+# is_logical()                      # bool 型かどうか
+# is_numeric()                      # 数値型かどうか
+# is_integer()                      # 整数型かどうか
+# is_float()                        # 浮動小数点型かどうか
+# ### （いずれも **assert_* 系の材料**）
+# 
+# ## 6. 汎用 assert ファクトリ（型のみ）
+# 
+# make_assert_type()                # 型チェック用 assert_* を生成
+# └─ func()                         # 実体：複合アサーション
+#    ├─ assert_scalar()             # scalar_only 制約
+#    ├─ assert_missing()            # 欠測値制約
+#    ├─ assert_length()             # 要素数制約
+#    ├─ is_missing()                # 欠測除外（any_missing）
+#    └─ oxford_comma_or()           # エラーメッセージ整形
+# 
+# assert_character()                # 文字列型アサーション
+# └─ make_assert_type(is_character)
+# 
+# assert_logical()                  # bool 型アサーション
+# └─ make_assert_type(is_logical)
+# 
+# ## 7. 数値用 assert ファクトリ（範囲チェック込み）
+# 
+# make_assert_numeric()             # 数値＋範囲チェック用 assert_* を生成
+# └─ func()
+#    ├─ assert_scalar()             # scalar_only 制約
+#    ├─ assert_missing()            # 欠測値制約
+#    ├─ assert_length()             # 要素数制約
+#    ├─ is_missing()                # 欠測除外（any_missing）
+#    ├─ oxford_comma_or()           # 型エラー文
+#    └─ oxford_comma_and()          # 位置つき範囲エラー文
+# 
+# assert_numeric()                  # 数値型（int / float）＋範囲
+# └─ make_assert_numeric(is_numeric)
+# 
+# assert_integer()                  # 整数型アサーション
+# └─ make_assert_numeric(is_integer)
+# 
+# assert_count()                    # 非負整数（カウント用）
+# └─ make_assert_numeric(is_integer)
+# 
+# assert_float()                    # float 専用アサーション
+# └─ make_assert_numeric(is_float)
+# 
+# ## 8. p-value / 数値スタイリング
+# 
+# ### p-value 表現
+# 
+# p_stars()                         # p値を有意水準の★表記に変換
+# ├─ assert_numeric()               # p値の妥当性検証
+# └─ pd.cut()                       # 区間分類
+# 
+# style_pvalue()                    # p値を文字列表現に整形
+# ├─ assert_numeric()               # p値の範囲検証
+# ├─ assert_count()                 # 小数点桁数検証
+# └─ (mask / round / astype)
+# 
+# ### 数値フォーマット（vectorize）
+# 
+# num_comma()                       # 桁区切り付き数値フォーマット
 # ├─ assert_count()
-# ├─ pd.Series()
-# └─ pandas.mask()               # 条件によって文字列を変換
+# └─ arg_match()                    # 区切り記号の検証
 # 
-# style_number()                  # 数値を桁区切り付きで文字列整形
-# ├─ assert_numeric()
+# num_currency()                    # 通貨表記フォーマット
 # ├─ assert_count()
-# └─ arg_match()                 # 区切り記号の妥当性チェック
+# └─ arg_match()
 # 
-# style_currency()                # 金額表記に整形（通貨記号 + 整数）
+# num_percent()                     # パーセント表記（単純）
+# 
+# ### pandas.Series ベース整形
+# 
+# style_number()                    # 数値列の桁区切り整形
 # ├─ assert_numeric()
 # ├─ assert_count()
 # └─ arg_match()
 # 
-# style_percent()                 # パーセント表記に整形（単位変換含む）
+# style_currency()                  # 数値列の通貨表記
+# ├─ assert_numeric()
+# ├─ assert_count()
+# └─ arg_match()
+# 
+# style_percent()                   # 数値列の百分率表記
 # ├─ assert_numeric()
 # └─ assert_count()
 # 
-# num_comma()                     # 数値をコンマ区切り付きで整形（ベクトル化関数）
-# └─ arg_match()
+# ## 9. その他ユーティリティ
 # 
-# num_currency()                 # 金額整形（num_commaと同様）
-# └─ arg_match()
-# 
-# pad_zero()                      # 小数点以下のゼロを桁数に応じて補完（文字列化）
-# （依存なし）
-# 
-# add_big_mark()                 # 桁区切りを追加（f'{:,}'形式）
-# （依存なし）
-# 
-# oxford_comma_and()              # A, B and C のような整形
-# └─ oxford_comma()
-# 
-# oxford_comma_or()               # A, B or C のような整形
-# └─ oxford_comma()
-# 
-# oxford_comma()                  # 英文の並列表記として候補リストを整形
-# （依存なし）
-# 
+# pad_zero()                        # 小数点以下のゼロ埋め
+# add_big_mark()                    # 3桁区切りの追加
 # ```
 
 
