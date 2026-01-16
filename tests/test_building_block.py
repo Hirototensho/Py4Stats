@@ -4,6 +4,7 @@ import pandas as pd
 import polars as pl
 
 from py4stats import building_block as build
+from contextlib import nullcontext
 
 # =========================================================
 # match_arg / arg_match0 / arg_match
@@ -157,7 +158,54 @@ def test_assert_missing_all_missing_False():
     assert "contains only missing values" in str(excinfo.value)
 
 # =========================================================
-# assert_* (raises on invalid)
+# assert_numeric_dtype (raises on invalid)
+# =========================================================
+@pytest.mark.parametrize(
+    "arg, predicate_fun, expectation",
+    [
+        pytest.param([1, 0.1], build.is_numeric, nullcontext(), id = "numeric_ok"),
+        pytest.param([1, '0.1'], build.is_numeric, pytest.raises(ValueError), id = "numeric_ng"),
+        pytest.param([1, 0.1], build.is_float, nullcontext(), id = "float_ok"),
+        pytest.param([1, 2], build.is_float, pytest.raises(ValueError), id = "float_ng"),
+        pytest.param([1, 2], build.is_integer, nullcontext(), id = "int_ok"),
+        pytest.param([1, 0.1], build.is_integer, pytest.raises(ValueError), id = "int_ng"),
+    ],
+)
+def test_assert_numeric_dtype(arg, predicate_fun, expectation):
+    with expectation:
+        build.assert_numeric_dtype(
+            arg, arg_name = 'x', 
+            predicate_fun = predicate_fun, 
+            valid_type = ['test']
+        )
+
+# =========================================================
+# assert_value_range
+# =========================================================
+@pytest.mark.parametrize(
+    "lower, upper, inclusive, expectation",
+    [
+        pytest.param(0, 3, "both", nullcontext(), id = "range_0_3_b"),
+        pytest.param(1, 3, "both", pytest.raises(ValueError, match = "element '0'"), id = "range_1_3_b"),
+        pytest.param(0, 3, "right", pytest.raises(ValueError, match = "element '0'"), id = "range_1_3_r"),
+        pytest.param(0, 2, "right", pytest.raises(ValueError, match = "element '0' and '3'"), id = "range_0_2_b"),
+        pytest.param(0, 3, "left", pytest.raises(ValueError, match = "element '3'"), id = "range_0_3_l"),
+        pytest.param(-1, 4, "neither", nullcontext(), id = "range_-1_4_n"),
+        pytest.param(1, 4, "neither", pytest.raises(ValueError, match = "element '0' and '1'"), id = "range_-1_4_n"),
+    ],
+)
+def test_assert_value_range(lower, upper, inclusive, expectation):
+    x = [0, 1, 2, 3]
+    with expectation:
+        build.assert_value_range(
+                arg = x, arg_name = 'x',
+                lower = lower,
+                upper = upper,
+                inclusive = inclusive
+                )
+
+# =========================================================
+# assert_dtypes (raises on invalid)
 # =========================================================
 
 def test_assert_character_raises():
@@ -189,6 +237,28 @@ def test_assert_count_requires_nonnegative_integer():
     with pytest.raises(ValueError):
         build.assert_count([-1, 1], arg_name="n")
 
+# =========================================================
+# assert_numeric (value range message)
+# =========================================================
+
+@pytest.mark.parametrize(
+    "lower, upper, inclusive, expectation",
+    [
+        pytest.param(0, 1, "both", pytest.raises(ValueError, match = "0 <= x <= 1"), id = "an_0_1_b"),
+        pytest.param(0, 4, "left", pytest.raises(ValueError, match = "0 <= x < 4"), id = "an_0_4_l"),
+        pytest.param(-9, 1, "right", pytest.raises(ValueError, match = "-9 < x <= 1"), id = "an_9_1_r"),
+        pytest.param(0, 1, "neither", pytest.raises(ValueError, match = "0 < x < 1"), id = "an_0_1_n"),
+
+    ],
+)
+def test_assert_numeric_massage(lower, upper, inclusive, expectation):
+    with expectation:
+        build.assert_numeric(
+                arg = 50, arg_name = 'x',
+                lower = lower,
+                upper = upper,
+                inclusive = inclusive
+                )
 
 # =========================================================
 # p_stars / style_pvalue

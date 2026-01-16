@@ -10,7 +10,7 @@
 
 ## 対応している DataFrame バックエンドについて
 
-　`py4stats.eda_tools` モジュールの関数は、第一引数として `[narwhals.from_native()`](https://narwhals-dev.github.io/narwhals/api-reference/narwhals/#narwhals.from_native) によって `nw.DataFrame` 型へ変換可能な DataFrame オブジェクトを受け取ります。
+　`py4stats.eda_tools` モジュールの関数は、第一引数として [`narwhals.from_native()`](https://narwhals-dev.github.io/narwhals/api-reference/narwhals/#narwhals.from_native) によって `nw.DataFrame` 型へ変換可能な DataFrame オブジェクトを受け取ります。
 
 具体的には、以下のようなバックエンドを想定しています。
 
@@ -18,9 +18,51 @@
 - `polars.DataFrame`（簡易的な動作確認のみ）
 - `pyarrow.Table`（簡易的な動作確認のみ）
 
-本ライブラリの動作確認は、基本的に `pandas.DataFrame` を用いて実施しています。そのため、`polars` や `pyarrow` を使用した場合には、バックエンド固有の仕様差や未検証の挙動により、一部の関数でエラーが発生する可能性があります。
+本ライブラリの動作確認は、基本的に `pandas.DataFrame` を用いて実施しています。そのため、`polars` や `pyarrow` を使用した場合には、バックエンド固有の仕様差や未検証の挙動により、一部の関数でエラーが発生する可能性があります。そのような挙動が確認された場合は、**Issue 等での報告を歓迎**します。
 
-そのような挙動が確認された場合は、Issue 等での報告を歓迎します。
+　また、バックエンド別の実装状況については [eda_tools開発状況](eda_tools開発状況.md) も参照して下さい。
+
+## narwhals を用いた関数の返り値の型について
+
+`py4stats.eda_tools` モジュールの関数のうち、[`py4stats.diagnose()`](../man/diagnose.md) など、第一引数にデータフレームを取る関数の返り値の型は、`to_native` 引数の値によって変化します。<br>
+　初期設定である `to_nativ = True` の場合には、第一引数に入力されたデータフレームと同じ型のデータフレームが出力され、`to_nativ = False` の場合には `narwhals.DataFrame` 型のデータフレームが出力されます。`to_nativ = False` のオプションは、主にライブラリ内部での利用や、データフレームのバックエンドに依存しない後続処理を行いたい場合を想定したオプションです。
+
+``` python
+import py4stats as py4st
+import pandas as pd
+import polars as pl
+import pyarrow as pa
+import wooldridge
+mroz_pd = wooldridge.data('mroz')       # pd.DataFrame
+mroz_pl = pl.from_pandas(mroz_pd)       # pl.DataFrame
+mroz_pa = pa.Table.from_pandas(mroz_pd) # pyarrow.lib.Table
+```
+
+``` python
+# to_nativ = True の場合(初期設定): 入力されたデータフレームと同じ型
+
+print(type(py4st.diagnose(mroz_pd, to_native = True)))
+#> <class 'pandas.core.frame.DataFrame'>
+
+print(type(py4st.diagnose(mroz_pl, to_native = True)))
+#> <class 'polars.dataframe.frame.DataFrame'>
+
+print(type(py4st.diagnose(mroz_pa, to_native = True)))
+#> <class 'pyarrow.lib.Table'>
+```
+
+``` python
+# to_nativ = False の場合: narwhals.DataFrame 型
+
+print(type(py4st.diagnose(mroz_pd, to_native = False)))
+#> <class 'narwhals.dataframe.DataFrame'>
+
+print(type(py4st.diagnose(mroz_pl, to_native = False)))
+#> <class 'narwhals.dataframe.DataFrame'>
+
+print(type(py4st.diagnose(mroz_pa, to_native = False)))
+#> <class 'narwhals.dataframe.DataFrame'>
+```
 
 ## narwhals を用いた実装方針について
 
@@ -54,6 +96,4 @@ py4st.diagnose(df)
 
 ## 今後について
 
-　`py4stats.eda_tools` モジュールは、今後も narwhals ベースの実装を主軸として
-改良・拡張を行っていく予定です。
-　一方で、従来の pandas ベース実装についても、互換性や参照用の実装として当面は保持される予定です。バックエンドごとの挙動差や制限事項については、必要に応じて本ドキュメントを更新していきます。
+　`py4stats.eda_tools` モジュールは、今後も narwhals ベースの実装を主軸として改良・拡張を行っていく予定です。一方で、従来の pandas ベースの実装については、互換性のために当面は保持される予定ですが、機能追加は行わない予定です。バックエンドごとの挙動差や制限事項については、必要に応じて本ドキュメントを更新していきます。

@@ -608,7 +608,6 @@ def test_plot_miss_var_pd() -> None:
     eda_nw.plot_miss_var(penguins, ax = ax)
     assert len(ax.patches) > 0
 
-
 def test_plot_miss_var_pl() -> None:
     fig, ax = plt.subplots()
     eda_nw.plot_miss_var(penguins_pl, ax = ax)
@@ -618,6 +617,7 @@ def test_plot_miss_var_pa() -> None:
     fig, ax = plt.subplots()
     eda_nw.plot_miss_var(penguins_pa, ax = ax)
     assert len(ax.patches) > 0
+
 # =======================================================================
 # string/regex helpers: is_number / is_ymd / is_ymd_like
 # =======================================================================

@@ -1,5 +1,5 @@
 ## eda_toolsの開発状況
-2026年1月11日
+2026年1月17日
 
 **eda_toolsの開発状況**
 | functions            | Input            | Pandas   | Polars   | Pyarrow   | 補足                                       |
@@ -30,15 +30,15 @@
 | mean_ci              | DataFrame/Series | ✅       | ✅       | ✅        |                                            |
 | mean_qi              | DataFrame/Series | ✅       | ✅       | ✅        |                                            |
 | median_qi            | DataFrame/Series | ✅       | ✅       | ✅        |                                            |
-| min_max              | Series           | 🔼       | 🔼       | 🔼        |                                            |
+| min_max              | Series           | ✅       | ✅       | ✅        |                                            |
 | plot_mean_diff       | DataFrame        | 🔼       | 🔼       | 🔼        |                                            |
 | plot_median_diff     | DataFrame        | 🔼       | 🔼       | 🔼        |                                            |
 | plot_miss_var        | DataFrame        | ✅       | ✅       | ✅        |                                            |
-| scale                | Series           | 🔼       | 🔼       | 🔼        |                                            |
+| scale                | Series           | ✅       | ✅       | ✅        |                                            |
 | remove_constant      | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | remove_empty         | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | tabyl                | DataFrame        | ✅       | ✅       | ⭕️        | Pyarrow は Polars 依存の実装               |
-| weighted_mean        | Series           | 🔼       | 🔼       | 🔼        |                                            |
+| weighted_mean        | Series           | ✅       | ✅       | ✅        |                                            |
 
 ## 凡例
 
