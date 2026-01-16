@@ -1831,14 +1831,14 @@ def Pareto_plot(
         values, the resulting output may be invalid or lead to unexpected
         behavior.
     """
+
     # 引数のアサーション ===================================================================
     build.assert_numeric(fontsize, arg_name = 'fontsize', lower = 0, inclusive = 'right')
     build.assert_numeric(xlab_rotation, arg_name = 'xlab_rotation')
     build.assert_character(palette, arg_name = 'palette')
     # ===================================================================================
-
-    # 指定された変数でのランクを表すデータフレームを作成
     data_nw = nw.from_native(data)
+    # 指定された変数でのランクを表すデータフレームを作成
     if values is None:
         shere_rank = freq_table(
             data_nw, group, dropna = True, 
@@ -1884,6 +1884,8 @@ def make_rank_table(
 
     # 引数のアサーション ===================================================================
     col_names = data_nw.columns
+    build.assert_scalar(group, arg_name = 'group')
+    build.assert_scalar(values, arg_name = 'values')
     group = build.arg_match(group, values = col_names, arg_name = 'group')
     values = build.arg_match(values, values = col_names, arg_name = 'values')
     # ===================================================================================
@@ -2647,6 +2649,16 @@ def set_miss(
     method, ['random', 'first', 'last'], 
     arg_name = 'method'
     )
+  build.assert_count(
+     n, arg_name = 'n',
+     lower = 0, upper = len(x), 
+     nullable = True, scalar_only = True
+     )
+  build.assert_numeric(
+     prop, arg_name = 'prop',
+     lower = 0, upper = 1, 
+     nullable = True, scalar_only = True
+     )
   # =======================================================================
 
   x_np = x_nw.to_numpy()
@@ -2660,7 +2672,7 @@ def set_miss(
   ]
 
   if n is not None: 
-    build.assert_count(n, lower = 0, upper = len(x))
+    # build.assert_count(n, lower = 0, upper = len(x), nullable = True)
     n_to_miss = np.max([n - n_miss, 0])
     if n_to_miss <=0:
       warnings.warn(
@@ -2672,7 +2684,7 @@ def set_miss(
       return x
 
   elif prop is not None: 
-    build.assert_numeric(prop, lower = 0, upper = 1)
+    # build.assert_numeric(prop, lower = 0, upper = 1)
     n_non_miss = non_miss.shape[0]
 
     n_to_miss = int(np.max([
@@ -2834,13 +2846,11 @@ def relocate(
 
         raise ValueError(message)
 
+    build.assert_character(before, arg_name = 'before', nullable = True, scalar_only = True)
+    build.assert_character(after, arg_name = 'after', nullable = True, scalar_only = True)
+
     if (before is not None) and (after is not None):
         raise ValueError("Please specify either 'before' or 'after'.")
-
-    if before is not None:
-        build.assert_character(before, arg_name = 'before')
-    if after is not None:
-        build.assert_character(after, arg_name = 'after')
     # ======================================================
 
     data_nw = nw.from_native(data)
