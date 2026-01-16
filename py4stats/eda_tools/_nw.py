@@ -420,8 +420,8 @@ def plot_miss_var(
         ``diagnose``, and the resulting plot reflects its output.
     """
     values = build.arg_match(
-        values, ['missing_percent', 'missing_count'],
-        arg_name = 'values'
+        values, arg_name = 'values',
+        values = ['missing_percent', 'missing_count']
     )
     build.assert_logical(sort, arg_name = 'sort')
     build.assert_logical(miss_only, arg_name = 'miss_only')
@@ -507,7 +507,7 @@ def compare_df_cols(
         "argument 'df_list' is must be a list of DataFrame."
 
     return_match = build.arg_match(
-        return_match, ['all', 'match', 'mismatch'],
+        return_match, values = ['all', 'match', 'mismatch'],
         arg_name = 'return_match'
         )
     build.assert_logical(dropna, arg_name = 'dropna')
@@ -593,9 +593,8 @@ def compare_df_stats(
             "argument 'df_list' is must be a list of DataFrame."
 
     return_match = build.arg_match(
-        return_match,
-        ['all', 'match', 'mismatch'],
-        arg_name = 'return_match'
+        return_match, arg_name = 'return_match',
+        values = ['all', 'match', 'mismatch']
         )
     # --------------------------------------
     # df_name が指定されていなければ、自動で作成します。
@@ -712,8 +711,8 @@ def compare_df_record(
     build.assert_logical(to_native, arg_name = 'to_native')
 
     columns = build.arg_match(
-        columns, ['common', 'all'],
-        arg_name = 'columns'
+        columns,  arg_name = 'columns',
+        values = ['common', 'all']
         )
 
     assert df1.shape[0] == df2.shape[0], (
@@ -932,8 +931,8 @@ def plot_mean_diff(
         None
     """
     stats_diff = build.arg_match(
-        stats_diff, ['norm_diff', 'abs_diff', 'rel_diff'],
-        arg_name = 'stats_diff'
+        stats_diff, arg_name = 'stats_diff',
+        values = ['norm_diff', 'abs_diff', 'rel_diff']
         )
     group_means = compare_group_means(group1, group2)
 
@@ -976,7 +975,8 @@ def plot_median_diff(
         None
     """
     stats_diff = build.arg_match(
-        stats_diff, ['abs_diff', 'rel_diff']
+        stats_diff, values = ['abs_diff', 'rel_diff'],
+        arg_name = 'stats_diff'
         )
 
     group_median = compare_group_median(group1, group2)
@@ -1013,7 +1013,7 @@ def crosstab(
     if not isinstance(normalize, bool):
         normalize = build.arg_match(
             normalize,
-            ['all', 'index', 'columns'],
+            values = ['all', 'index', 'columns'],
             arg_name = 'normalize'
         )
     # -----------------------------------------------------
@@ -1143,8 +1143,8 @@ def freq_table(
     """
     # 引数のアサーション ========================================
     sort_by = build.arg_match(
-        sort_by, ['frequency', 'values'],
-        arg_name = 'sort_by'
+        sort_by, arg_name = 'sort_by',
+        values = ['frequency', 'values']
         )
 
     build.assert_logical(descending, arg_name = 'descending')
@@ -1257,8 +1257,8 @@ def tabyl(
 
     if(not isinstance(normalize, bool)):
       normalize = build.arg_match(
-          normalize, ['index', 'columns', 'all'],
-          arg_name = 'normalize'
+          normalize, arg_name = 'normalize',
+          values = ['index', 'columns', 'all']
           )
 
     # index または columns に bool 値が指定されていると後続処理でエラーが生じるので、
@@ -1940,7 +1940,7 @@ def filtering_out(
     """
     # 引数のアサーション ==============================================
     axis = str(axis)
-    axis = build.arg_match(axis, ['1', 'columns', '0', 'index'], arg_name = 'axis')
+    axis = build.arg_match(axis, arg_name = 'axis', values = ['1', 'columns', '0', 'index'])
     build.assert_logical(to_native, arg_name = 'to_native')
     # ==============================================================
     data_nw = nw.from_native(data)
@@ -2265,8 +2265,8 @@ def mean_qi(
     build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
     build.assert_logical(to_native, arg_name = 'to_native')
     interpolation = build.arg_match(
-        interpolation, interpolation_values,
-        arg_name = 'interpolation'
+        interpolation, arg_name = 'interpolation',
+        values = interpolation_values
         )
     # =======================================================================
 
@@ -2362,8 +2362,8 @@ def median_qi(
     build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
     build.assert_logical(to_native, arg_name = 'to_native')
     interpolation = build.arg_match(
-        interpolation, interpolation_values,
-        arg_name = 'interpolation'
+        interpolation, arg_name = 'interpolation',
+        values = interpolation_values
         )
     # =======================================================================
 
@@ -2866,8 +2866,8 @@ def set_miss(
   p_miss = n_miss / x_nw.shape[0]
 
   method = build.arg_match(
-    method, ['random', 'first', 'last'], 
-    arg_name = 'method'
+    method, arg_name = 'method',
+    values = ['random', 'first', 'last']
     )
   build.assert_count(
      n, arg_name = 'n',
@@ -3296,7 +3296,7 @@ def plot_category(
     variables = data_nw.columns
     # 引数のアサーション ==============================================
     legend_type = build.arg_match(
-      legend_type, ['horizontal', 'vertical', 'none'],
+      legend_type, values = ['horizontal', 'vertical', 'none'],
       arg_name = 'legend_type'
       )
     build.assert_logical(show_vline, arg_name = 'sort')

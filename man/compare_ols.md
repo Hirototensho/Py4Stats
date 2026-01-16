@@ -33,8 +33,8 @@ compare_ols(
 
 - `stats`：**str**</br>
     表中の丸括弧 ( ) 内に表示する統計値の設定。次の値が指定できます。
-    - `'p_value'` p-値（初期設定）
-    - `'std_err'` 標準誤差
+    - `'std_err'` 標準誤差（初期設定）
+    - `'p_value'` p-値
     - `'statistics'` t統計量
 
 - `add_stars`：**bool**</br>
@@ -60,13 +60,16 @@ compare_ols(
     - `'AIC'`：赤池情報量基準
     - `'BIC'`：ベイズ情報量基準
 
-- `digits`：回帰係数と統計値について表示する小数点以下の桁数。初期設定は4です。
+- `digits`: **int**</br>
+    回帰係数と統計値について表示する小数点以下の桁数。初期設定は4です。
 
-- `table_style`：表の書式設定。次の値から選択できます（部分一致可）。
+- `table_style`: **str**</br>
+    表の書式を表す文字列。次の値から選択できます（部分一致可）。
     - `'two_line'`回帰係数と統計値を2行に分ける（初期設定）
     - `'one_line'`回帰係数と統計値を1行で表示する
    
-- `line_break`：`table_style = 'two_line'` とした場合に使用される改行記号。`table_style = 'one_line'` とした場合、この引数は無視されます。
+- `line_break`: **str**</br>
+    `table_style = 'two_line'` とした場合に使用される改行記号。`table_style = 'one_line'` とした場合、この引数は無視されます。
 
 ## 使用例 Examples
 
@@ -133,7 +136,7 @@ compare_tab2
 | nobs                 | 342             | 342               | 333              |
 | df                   | 3               | 4                 | 5                |
 
-`table_style = ’two_line’` のときに使用される改行記号は `line_break` で指定できます。[`great_tables`](https://posit-dev.github.io/great-tables/articles/intro.html) モジュールの `GT()` 関数と併用する場合など、html 形式で出力する場合には `line_break = '<br>' ` を指定します。
+`table_style = 'two_line'` のときに使用される改行記号は `line_break` で指定できます。[`great_tables`](https://posit-dev.github.io/great-tables/articles/intro.html) モジュールの `GT()` 関数と併用する場合など、html 形式で出力する場合には `line_break = '<br>' ` を指定します。
 
 ``` python
 from great_tables import GT, md, html
@@ -152,6 +155,38 @@ GT(compare_tab3.reset_index())\
   .tab_source_note(source_note = '( ) の値は標準誤差')
 ```
 <img width="532" alt="compare_tab_gt" src="https://github.com/Hirototensho/Py4Stats/assets/55335752/51b64eaa-fb2f-45e9-ac03-16f9bd5dd3d6">
+
+#### 有意性の表示規則の変更
+
+`py4stats` の `v0.2.0` 以降は、`stars` 引数で有意性の表示規則を変更できるようになりました。
+
+```python
+stars_dict = {'★★★':0.001, '★★':0.01, '★': 0.05, '.':0.1}
+
+reg.compare_ols(
+    list_models = [fit3],
+    model_name = ['model 3'],
+    stars = stars_dict
+    )
+```
+
+| term                 | model 3        |
+|:---------------------|:---------------|
+| Intercept            | 843.9812 ★     |
+|                      | (403.5956)     |
+| species[T.Chinstrap] | -245.1516 ★★   |
+|                      | (84.5952)      |
+| species[T.Gentoo]    | 1,443.3525 ★★★ |
+|                      | (107.7844)     |
+| sex[T.male]          | 437.2007 ★★★   |
+|                      | (49.1098)      |
+| bill_length_mm       | 26.5366 ★★★    |
+|                      | (7.2436)       |
+| bill_depth_mm        | 87.9328 ★★★    |
+|                      | (20.2192)      |
+| rsquared_adj         | 0.8613         |
+| nobs                 | 333            |
+| df                   | 5              |
 
 #### 回帰係数の sbusetting
 
