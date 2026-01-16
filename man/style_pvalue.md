@@ -7,11 +7,11 @@
 
 ``` python
 style_pvalue(
-    p_value, 
-    digits = 3, 
-    prepend_p = False, 
-    p_min = 0.001, 
-    p_max = 0.9
+    p_value: ArrayLike,
+    digits: int = 3,
+    prepend_p: bool = False,
+    p_min: float = 0.001,
+    p_max: float = 0.9
     )
 
 p_stars(
@@ -32,7 +32,7 @@ p_stars(
 - `p_max`：**int**（`style_pvalue()` のみ）</br>
 　p-値を実数値で表示する最大値。`p_value` がこの値を下回る場合、`’>p_max’` もしくは `’p>p_max’` の形で表示されます。
 - `stars`：**dict**（`p_stars()` のみ）</br>
-　有意性を示す記号を key に、表示を切り替える閾値を値にもつ辞書オブジェクト。使用方法は下記を参照して下さい。
+　有意性を示す記号を key に、表示を切り替える閾値を値(value)にもつ辞書オブジェクト。初期設定の `stars = None` の場合、`{'***': 0.01, '**': 0.05, '*': 0.1}` が使用されます。詳細は下記を参照して下さい。
 
 ## 返り値 Value
 

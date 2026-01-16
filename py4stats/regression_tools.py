@@ -685,8 +685,9 @@ def compare_ols(
     list_models: Sequence[RegressionResultsWrapper],
     model_name: Optional[Sequence[str]] = None,
     subset: Optional[Sequence[str]] = None,
-    stats: StatsKey = "std_err",
+    stats: Literal["std_err", "statistics", "p_value", "conf_int"] = "std_err",
     add_stars: bool = True,
+    stars: Optional[Mapping[str, float]] = None,
     stats_glance: Optional[Sequence[str]] = ("rsquared_adj", "nobs", "df"),
     digits: int = 4,
     table_style: Literal["two_line", "one_line"] = "two_line",
@@ -718,6 +719,8 @@ def compare_ols(
                 - 'std_err', 'statistics', 'p_value', 'conf_int'
             add_stars (bool):
                 If True, append significance stars based on p-values.
+            stars: Mapping from star label to cutoff (upper bound). If None (defaults) to
+                    {'***': 0.01, '**': 0.05, '*': 0.1}.
             stats_glance (Sequence[str] | None):
                 Fit statistics to append at the bottom. If None, do not append.
             digits (int):
@@ -754,8 +757,12 @@ def compare_ols(
 
     # tidy_list の各要素に gazer() 関数を適用
     gazer_list = [gazer(
-        df, digits = digits, stats = stats, add_stars = add_stars,
-        table_style = table_style, line_break = line_break,
+        df, digits = digits, 
+        stats = stats, 
+        add_stars = add_stars,
+        stars = stars,
+        table_style = table_style, 
+        line_break = line_break,
         **kwargs
         ) for df in tidy_list]
 
@@ -835,6 +842,7 @@ def gazer(
     stats: StatsKey = "std_err",
     digits: int = 4,
     add_stars: bool = True,
+    stars: Optional[Mapping[str, float]] = None,
     # p_min: float = 0.01,
     table_style: str = "two_line",  # match_arg が部分一致なので Literal にしない方が安全
     line_break: str = "\n",
@@ -861,6 +869,8 @@ def gazer(
             Number of decimal places for formatting.
         add_stars (bool):
             If True, append significance stars based on `p_value`.
+        stars: Mapping from star label to cutoff (upper bound). If None (defaults) to
+            {'***': 0.01, '**': 0.05, '*': 0.1}.
         table_style (str):
             Formatting style. Partial matching may be allowed by `build.match_arg`.
         line_break (str):
@@ -887,7 +897,7 @@ def gazer(
     # --------------------
     res = res_tidy.copy()
     # 有意性を表すアスタリスクを作成します
-    res['stars'] = ' ' + build.p_stars(res['p_value'])
+    res['stars'] = ' ' + build.p_stars(res['p_value'], stars = stars)
 
     # # `estimate` と `stats` を見やすいフォーマットに変換します。
     # res[[estimate, stats]] = res[[estimate, stats]]\
@@ -1273,8 +1283,9 @@ def compare_mfx(
     list_models: Sequence[RegressionResultsWrapper],
     model_name: Optional[Sequence[str]] = None,
     subset: Optional[Sequence[str]] = None,
-    stats: StatsKey = "std_err",
+    stats: Literal["std_err", "statistics", "p_value", "conf_int"] = "std_err",
     add_stars: bool = True,
+    stars: Optional[Mapping[str, float]] = None,
     stats_glance: Optional[Sequence[str]] = ("prsquared", "nobs", "df"),
     at: MfxAt = "overall",
     method: Literal['coef', 'dydx', 'eyex', 'dyex', 'eydx'] = "dydx",
@@ -1302,6 +1313,8 @@ def compare_mfx(
                 - 'std_err', 'statistics', 'p_value', 'conf_int'
             add_stars (bool):
                 Whether to append significance stars.
+            stars: Mapping from star label to cutoff (upper bound). If None (defaults) to
+                    {'***': 0.01, '**': 0.05, '*': 0.1}.
             stats_glance (Sequence[str] | None):
                 Fit statistics to append at the bottom. If None, do not append.
             at (str):
@@ -1341,8 +1354,12 @@ def compare_mfx(
             # tidy_list の各要素に gazer() 関数を適用
         gazer_list = [gazer(
             df, estimate = 'estimate',
-            digits = digits, stats = stats, add_stars = add_stars,
-            table_style = table_style, line_break = line_break,
+            digits = digits, 
+            stats = stats, 
+            stars = stars,
+            add_stars = add_stars,
+            table_style = table_style, 
+            line_break = line_break,
             **kwargs
             ) for df in tidy_list]
 

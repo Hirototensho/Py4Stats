@@ -6,39 +6,50 @@
 
 ```python
 compare_ols(
-    list_models, 
-    model_name = None,
-    subset = None,
-    stats = 'std_err',
-    add_stars = True,
-    stats_glance = ['rsquared_adj', 'nobs', 'df'],
-    digits = 4, 
-    table_style = 'two_line',
-    line_break = '\n',
-    **kwargs
+    list_models: Sequence[RegressionResultsWrapper],
+    model_name: Optional[Sequence[str]] = None,
+    subset: Optional[Sequence[str]] = None,
+    stats: Literal["std_err", "statistics", "p_value", "conf_int"] = "std_err",
+    add_stars: bool = True,
+    stars: Optional[Mapping[str, float]] = None,
+    stats_glance: Optional[Sequence[str]] = ("rsquared_adj", "nobs", "df"),
+    digits: int = 4,
+    table_style: Literal["two_line", "one_line"] = "two_line",
+    line_break: str = "\n",
+    **kwargs: Any
 )
 ```
 
 ## 引数
 
-- `list_models`：推定結果を表示する分析結果のリスト（必須）。`sm.ols()` や `smf.ols()` で作成された回帰分析の結果を `list_models = [fit1, fit2]` のようにリストとして指定してください。
+- `list_models`：**Sequence[RegressionResultsWrapper]**</br>
+ 推定結果を表示する分析結果のリスト（必須）。`sm.ols()` や `smf.ols()` で作成された回帰分析の結果を `list_models = [fit1, fit2]` のようにリストとして指定してください。
 
-- `model_name`：表頭に表示するモデルの名前。`['モデル1', 'モデル2']` のように文字列のリストを指定してください。初期設定では、自動的に `model 1, model 2, model 3 …` と連番が割り当てられます。
+- `model_name`：**list of str**</br>
+表頭に表示するモデルの名前。`['モデル1', 'モデル2']` のように文字列のリストを指定してください。初期設定では、自動的に `model 1, model 2, model 3 …` と連番が割り当てられます。
 
-- `subset = None`：表示する回帰係数のリスト。指定しない場合（初期設定）、モデルに含まれる全ての回帰係数が表示されます。内部では[`pandas.DataFrame.loc`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.loc.html)メソッドを用いて処理を行っているため、`['変数1', '変数2', ...]` のような文字列のリスト、`[True, False, True, ...]` のようなブール値のリストに対応しています。文字列のリストが指定された場合、リストの並び順に合わせて回帰係数が表示されます。
+- `subset`：**list of str**</br>
+    表示する回帰係数のリスト。指定しない場合（初期設定）、モデルに含まれる全ての回帰係数が表示されます。内部では[`pandas.DataFrame.loc`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.loc.html)メソッドを用いて処理を行っているため、`['変数1', '変数2', ...]` のような文字列のリスト、`[True, False, True, ...]` のようなブール値のリストに対応しています。文字列のリストが指定された場合、リストの並び順に合わせて回帰係数が表示されます。
 
-- `stats`：表中の丸括弧 ( ) 内に表示する統計値の設定。次の値が指定できます。
+- `stats`：**str**</br>
+    表中の丸括弧 ( ) 内に表示する統計値の設定。次の値が指定できます。
     - `'p_value'` p-値（初期設定）
     - `'std_err'` 標準誤差
     - `'statistics'` t統計量
 
-- `add_stars`：回帰係数の統計的有意性を表すアスタリスク `*` を表示するかどうかを表すブール値。`add_stars = True`（初期設定）なら表示、`add_stars = False`なら非表示となります。`table_style` に `'two_line'` を指定した場合はアスタリスクは回帰係数の直後に表示され、`'one_line'` を指定した場合は `stats` で指定した統計値の後に表示されます。アスタリスクはp-値の値に応じて次のように表示されます。
+- `add_stars`：**bool**</br>
+    回帰係数の統計的有意性を表すアスタリスク `*` を表示するかどうかを表すブール値。`add_stars = True`（初期-設定）なら表示、`add_stars = False`なら非表示となります。`table_style` に `'two_line'` を指定した場合はアスタリスクは回帰係数の直後に表示され、`'one_line'` を指定した場合は `stats` で指定した統計値の後に表示されます。アスタリスクはp-値の値に応じて次のように表示されます。
+
+- `stars`：**dict**（`p_stars()` のみ）</br>
+　有意性を示す記号を key に、表示を切り替える閾値を値(value)にもつ辞書オブジェクト。初期設定の `stars = None` の場合、下記の方式で表示されます。
     - p ≤ 0.1 `*`
     - p ≤ 0.05 `**`
     - p ≤ 0.01 `***`
-    - p > 0.1 表示なし
+    - p > 0.1 表示なし</br>
+詳細は[`building_block.style_pvalue()`](man/style_pvalue.md) を参照してください。
 
-- `stats_glance`**list of str**：表の下部に追加する当てはまりの尺度の種類を表す文字列のリスト。リストの値には次の値を指定できます。なお、`None` もしくは空のリスト `[ ]` が指定された場合には非表示となります。
+- `stats_glance`:**list of str**</br>
+- 表の下部に追加する当てはまりの尺度の種類を表す文字列のリスト。リストの値には次の値を指定できます。なお、`None` もしくは空のリスト `[ ]` が指定された場合には非表示となります。
     - `'rsquared'`：決定係数
     - `'rsquared_adj'`：自由度調整済み決定係数
     - `'nobs'`：サインプルサイズ

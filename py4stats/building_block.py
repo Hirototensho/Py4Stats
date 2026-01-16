@@ -417,7 +417,7 @@ def arg_match(
     if(arg_name is None):
         arg_name = varname.argname('arg')
 
-    if (arg is None) and nullable: return
+    if (arg is None) and nullable: return None
 
     assert_missing(
       arg, arg_name = arg_name, 
@@ -576,7 +576,7 @@ def make_assert_type(
 
 
     # 欠測値に関するアサーション ============================================
-    if (arg is None) and nullable: return
+    if (arg is None) and nullable: return None
     if scalar_only: assert_scalar(arg, arg_name = arg_name)
 
     assert_missing(
@@ -730,7 +730,7 @@ def make_assert_numeric(
       arg_name = varname.argname('arg')
 
     # 欠測値に関するアサーション ============================================
-    if (arg is None) and nullable: return
+    if (arg is None) and nullable: return None
     if scalar_only: assert_scalar(arg, arg_name = arg_name)
 
     assert_missing(
@@ -797,18 +797,16 @@ assert_float = make_assert_numeric(is_float, valid_type = ['float'])
 
 
 
-# def p_stars(p_value, stars = {'***':0.01, '**':0.05, '*':0.1}):
 def p_stars(
     p_value: ProbArrayLike,
-    # stars: Optional[Mapping[str, float]] = None,
-    stars = {'***':0.01, '**':0.05, '*':0.1}
+    stars: Optional[Mapping[str, float]] = None,
 ) -> pd.Series:
     """
     Map p-values to significance stars.
 
     Args:
         p_value: Scalar or array-like of p-values.
-        stars: Mapping from star label to cutoff (upper bound). Defaults to
+        stars: Mapping from star label to cutoff (upper bound). If None (defaults) to
             {'***': 0.01, '**': 0.05, '*': 0.1}.
 
     Returns:
@@ -846,11 +844,11 @@ def p_stars(
 
 # def style_pvalue(p_value, digits = 3, prepend_p = False, p_min = 0.001, p_max = 0.9):
 def style_pvalue(
-    p_value: ProbArrayLike,
+    p_value: ArrayLike,
     digits: int = 3,
     prepend_p: bool = False,
     p_min: float = 0.001,
-    p_max: float = 0.9,
+    p_max: float = 0.9
 ) -> pd.Series:
   """
   Format p-values into strings with optional clipping and prefix.
