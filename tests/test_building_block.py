@@ -205,6 +205,28 @@ def test_assert_value_range(lower, upper, inclusive, expectation):
                 )
 
 # =========================================================
+# make_range_massage
+# =========================================================
+
+@pytest.mark.parametrize(
+    "lower, upper, inclusive, expectation",
+    [
+        pytest.param(0, 1, "both", '0 <= x <= 1', id = "an_0_1_b"),
+        pytest.param(0, 4, "left", "0 <= x < 4", id = "an_0_4_l"),
+        pytest.param(-9, 1, "right", "-9 < x <= 1", id = "an_9_1_r"),
+        pytest.param(0, 1, "neither", "0 < x < 1", id = "an_0_1_n"),
+
+    ],
+)
+def test_make_range_massage(lower, upper, inclusive, expectation):
+    res = build.make_range_massage(
+            lower = lower,
+            upper = upper,
+            inclusive = inclusive
+            )
+    assert res == expectation
+
+# =========================================================
 # assert_dtypes (raises on invalid)
 # =========================================================
 
@@ -237,28 +259,7 @@ def test_assert_count_requires_nonnegative_integer():
     with pytest.raises(ValueError):
         build.assert_count([-1, 1], arg_name="n")
 
-# =========================================================
-# assert_numeric (value range message)
-# =========================================================
 
-@pytest.mark.parametrize(
-    "lower, upper, inclusive, expectation",
-    [
-        pytest.param(0, 1, "both", pytest.raises(ValueError, match = "0 <= x <= 1"), id = "an_0_1_b"),
-        pytest.param(0, 4, "left", pytest.raises(ValueError, match = "0 <= x < 4"), id = "an_0_4_l"),
-        pytest.param(-9, 1, "right", pytest.raises(ValueError, match = "-9 < x <= 1"), id = "an_9_1_r"),
-        pytest.param(0, 1, "neither", pytest.raises(ValueError, match = "0 < x < 1"), id = "an_0_1_n"),
-
-    ],
-)
-def test_assert_numeric_massage(lower, upper, inclusive, expectation):
-    with expectation:
-        build.assert_numeric(
-                arg = 50, arg_name = 'x',
-                lower = lower,
-                upper = upper,
-                inclusive = inclusive
-                )
 
 # =========================================================
 # p_stars / style_pvalue

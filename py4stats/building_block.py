@@ -462,11 +462,6 @@ def is_float(x: Any) -> bool:
 
 
 
-
-
-
-
-
 def make_assert_type(
     predicate_fun: Callable[[Any], bool],
     valid_type: Sequence[str],
@@ -620,15 +615,37 @@ assert_logical = make_assert_type(is_logical, valid_type = ['bool'])
 
 
 
+def make_range_massage(
+    lower: float = -float("inf"),
+    upper: float = float("inf"),
+    inclusive: Literal["both", "neither", "left", "right"] = "both"
+) -> str:
+    arg_match(
+        inclusive, arg_name = 'inclusive',
+        values = ["both", "neither", "left", "right"]
+    )
+    inclusive_dict = {
+      'both':'<= x <=',
+      'neither':'< x <',
+      'left':'<= x <',
+      'right':'< x <='
+    }
+    range_massage = f"{lower} {inclusive_dict.get(inclusive)} {upper}"
+    return range_massage
+
+
+
+
 def assert_value_range(
     arg, arg_name:str,
     lower: float = -float("inf"),
     upper: float = float("inf"),
     inclusive: Literal["both", "neither", "left", "right"] = "both",
-    range_massage: str = '-inf <= x <= inf'
+    # range_massage: str = '-inf <= x <= inf'
     ):
     arg = pd.Series(arg)
 
+    range_massage = make_range_massage(lower, upper, inclusive = inclusive)
     cond = arg.between(lower, upper, inclusive = inclusive)
 
     not_sutisfy = arg[~cond].index.astype(str).to_list()
@@ -652,8 +669,12 @@ def assert_numeric_dtype(
         arg_name: str,
         predicate_fun: Callable[[Any], bool],
         valid_type: Sequence[str],
-        range_massage:str = '-inf <= x <= inf'
+        lower: float = -float("inf"),
+        upper: float = float("inf"),
+        inclusive: Literal["both", "neither", "left", "right"] = "both"
         ):
+        range_massage = make_range_massage(lower, upper, inclusive = inclusive)
+
         if not predicate_fun(arg): 
             message = f"Argument '{arg_name}' must be of" +\
                 f" type {oxford_comma_or(valid_type)}" + \
@@ -813,14 +834,16 @@ def make_assert_numeric(
         arg, arg_name = arg_name,
         predicate_fun = predicate_fun,
         valid_type = valid_type,
-        range_massage = range_massage
+        lower = lower, upper = upper,
+        inclusive = inclusive
+        # range_massage = range_massage
         )
     # 引数値の範囲に関するアサーション ============================================
     assert_value_range(
       arg, arg_name = arg_name, 
       lower = lower, upper = upper,
       inclusive = inclusive,
-      range_massage = range_massage
+    #   range_massage = range_massage
       )
 
   return func
