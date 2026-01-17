@@ -288,11 +288,11 @@ def plot_miss_var_pd(
     )
     build.assert_logical(sort, arg_name = 'sort')
     build.assert_logical(miss_only, arg_name = 'miss_only')
-
+    
     diagnose_tab = diagnose(data)
     if sort: diagnose_tab = diagnose_tab.sort_values(values)
     if miss_only: diagnose_tab = diagnose_tab.query('missing_percent > 0')
-
+    
     # グラフの描画
     if ax is None:
         fig, ax = plt.subplots()
