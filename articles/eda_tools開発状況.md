@@ -4,14 +4,14 @@
 **eda_toolsの開発状況**
 | functions            | Input            | Pandas   | Polars   | Pyarrow   | 補足                                       |
 |:---------------------|:-----------------|:---------|:---------|:----------|:-------------------------------------------|
-| Max                  | pd.Series        | ✅       | ❌       | ❌        | pd.DataFrame.eval() での使用を想定した関数 |
-| Mean                 | pd.Series        | ✅       | ❌       | ❌        | pd.DataFrame.eval() での使用を想定した関数 |
-| Median               | pd.Series        | ✅       | ❌       | ❌        | pd.DataFrame.eval() での使用を想定した関数 |
-| Min                  | pd.Series        | ✅       | ❌       | ❌        | pd.DataFrame.eval() での使用を想定した関数 |
+| Mean                 | pd.Series        | ✅       | ❌       | ❌        | pd.DataFrame.eval() での使用を想定した関数     |
+| Median               | pd.Series        | ✅       | ❌       | ❌        | pd.DataFrame.eval() での使用を想定した関数     |
+| Max                  | pd.Series        | ✅       | ❌       | ❌        | pd.DataFrame.eval() での使用を想定した関数     |
+| Min                  | pd.Series        | ✅       | ❌       | ❌        | pd.DataFrame.eval() での使用を想定した関数     |
 | Pareto_plot          | DataFrame        | ✅       | ✅       | ✅        |                                            |
-| Sum                  | pd.Series        | ✅       | ❌       | ❌        | pd.DataFrame.eval() での使用を想定した関数 |
-| check_that           | DataFrame        | ✅       | ⭕️       | ⭕️        | Pandas 依存の実装                          |
-| check_viorate        | DataFrame        | ✅       | ⭕️       | ⭕️        | Pandas 依存の実装                          |
+| Sum                  | pd.Series        | ✅       | ❌       | ❌        | pd.DataFrame.eval() での使用を想定した関数     |
+| check_that           | DataFrame        | ✅       | ⭕️       | ⭕️        | 実装に pd.DataFrame.eval() を使用            |
+| check_viorate        | DataFrame        | ✅       | ⭕️       | ⭕️        | 実装に pd.DataFrame.eval() を使用            |
 | compare_df_cols      | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | compare_df_record    | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | compare_df_stats     | DataFrame        | ✅       | ✅       | ✅        |                                            |
@@ -22,7 +22,7 @@
 | diagnose_category    | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | filtering_out        | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | freq_table           | DataFrame        | ✅       | ✅       | ✅        |                                            |
-| implies_exper        | pd.Series        | ✅       | ❌       | ❌        | pd.DataFrame.eval() での使用を想定した関数 |
+| implies_exper        | pd.Series        | ✅       | ❌       | ❌        | pd.DataFrame.eval() での使用を想定した関数     |
 | is_dummy             | DataFrame/Series | ✅       | 🔼       | 🔼        |                                            |
 | is_number            | Series           | ✅       | 🔼       | 🔼        |                                            |
 | is_ymd_like          | Series           | ✅       | 🔼       | 🔼        |                                            |
@@ -37,7 +37,7 @@
 | scale                | Series           | ✅       | ✅       | ✅        |                                            |
 | remove_constant      | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | remove_empty         | DataFrame        | ✅       | ✅       | ✅        |                                            |
-| tabyl                | DataFrame        | ✅       | ✅       | ⭕️        | Pyarrow は Polars 依存の実装               |
+| tabyl                | DataFrame        | ✅       | ✅       | ⭕️        | Pyarrow は Polars 依存の実装                 |
 | weighted_mean        | Series           | ✅       | ✅       | ✅        |                                            |
 
 ## 凡例
