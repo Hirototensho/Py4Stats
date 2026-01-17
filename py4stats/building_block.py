@@ -615,7 +615,7 @@ assert_logical = make_assert_type(is_logical, valid_type = ['bool'])
 
 
 
-def make_range_massage(
+def make_range_message(
     lower: float = -float("inf"),
     upper: float = float("inf"),
     inclusive: Literal["both", "neither", "left", "right"] = "both"
@@ -630,8 +630,8 @@ def make_range_massage(
       'left':'<= x <',
       'right':'< x <='
     }
-    range_massage = f"{lower} {inclusive_dict.get(inclusive)} {upper}"
-    return range_massage
+    range_message = f"{lower} {inclusive_dict.get(inclusive)} {upper}"
+    return range_message
 
 
 
@@ -641,24 +641,24 @@ def assert_value_range(
     lower: float = -float("inf"),
     upper: float = float("inf"),
     inclusive: Literal["both", "neither", "left", "right"] = "both",
-    # range_massage: str = '-inf <= x <= inf'
+    # range_message: str = '-inf <= x <= inf'
     ):
     arg = pd.Series(arg)
 
-    range_massage = make_range_massage(lower, upper, inclusive = inclusive)
+    range_message = make_range_message(lower, upper, inclusive = inclusive)
     cond = arg.between(lower, upper, inclusive = inclusive)
 
     not_sutisfy = arg[~cond].index.astype(str).to_list()
     if(len(arg) > 1):
       if not cond.all():
         message = (
-            f"Argument '{arg_name}' must have value {range_massage}\n"  +
+            f"Argument '{arg_name}' must have value {range_message}\n"  +
             f"element {oxford_comma_and(not_sutisfy)} of '{arg_name}' not sutisfy the condtion."
             )
         raise ValueError(message)
     else:
       if not cond.all():
-       message =  f"Argument '{arg_name}' must have value {range_massage}."
+       message =  f"Argument '{arg_name}' must have value {range_message}."
        raise ValueError(message)
 
 
@@ -673,12 +673,12 @@ def assert_numeric_dtype(
         upper: float = float("inf"),
         inclusive: Literal["both", "neither", "left", "right"] = "both"
         ):
-        range_massage = make_range_massage(lower, upper, inclusive = inclusive)
+        range_message = make_range_message(lower, upper, inclusive = inclusive)
 
         if not predicate_fun(arg): 
             message = f"Argument '{arg_name}' must be of" +\
                 f" type {oxford_comma_or(valid_type)}" + \
-                f" with value(s) {range_massage}."
+                f" with value(s) {range_message}."
             raise ValueError(message)
 
 
@@ -736,8 +736,10 @@ def make_assert_numeric(
             - ``"left"``: ``lower <= x < upper``
             - ``"right"``: ``lower < x <= upper``
         len_arg:
-            Exact number of elements required. If specified, the input must have
-            exactly this length.
+            Exact number of elements required. 
+            If specified, the argument must contain exactly this number of elements.
+            The element count is evaluated on the original input and includes missing
+            values (e.g., ``None``, ``NaN``).
         len_min:
             Minimum allowed number of elements.
         len_max:
@@ -802,11 +804,15 @@ def make_assert_numeric(
     if (arg is None) and nullable: return None
     if scalar_only: assert_scalar(arg, arg_name = arg_name)
 
+    arg = pd.Series(arg)
+
     assert_missing(
       arg, arg_name = arg_name, 
       any_missing = any_missing,
       all_missing = all_missing
       )
+
+
     # 引数の要素数に関するアサーション ============================================
     assert_length(
       arg, arg_name, 
@@ -815,20 +821,11 @@ def make_assert_numeric(
       len_max = len_max
       )
 
-    # 引数の値に関するアサーション ===============================================
-    arg = pd.Series(arg)
-
+    # 引数の型に関するアサーション ===============================================
+    # 欠損値の除外は型ベースの検証のためだけに行います。
+    # （長さおよび形状のチェックは元の入力に対して実行されます）
     if any_missing: 
       arg = arg[~is_missing(arg)]
-
-    inclusive_dict = {
-      'both':'<= x <=',
-      'neither':'< x <',
-      'left':'<= x <',
-      'right':'< x <='
-    }
-    range_massage = f"{lower} {inclusive_dict.get(inclusive)} {upper}"
-    # 引数の型に関するアサーション ===============================================
 
     assert_numeric_dtype(
         arg, arg_name = arg_name,
@@ -836,14 +833,12 @@ def make_assert_numeric(
         valid_type = valid_type,
         lower = lower, upper = upper,
         inclusive = inclusive
-        # range_massage = range_massage
         )
     # 引数値の範囲に関するアサーション ============================================
     assert_value_range(
       arg, arg_name = arg_name, 
       lower = lower, upper = upper,
       inclusive = inclusive,
-    #   range_massage = range_massage
       )
 
   return func

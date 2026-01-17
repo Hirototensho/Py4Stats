@@ -205,7 +205,7 @@ def test_assert_value_range(lower, upper, inclusive, expectation):
                 )
 
 # =========================================================
-# make_range_massage
+# make_range_message
 # =========================================================
 
 @pytest.mark.parametrize(
@@ -218,8 +218,8 @@ def test_assert_value_range(lower, upper, inclusive, expectation):
 
     ],
 )
-def test_make_range_massage(lower, upper, inclusive, expectation):
-    res = build.make_range_massage(
+def test_make_range_message(lower, upper, inclusive, expectation):
+    res = build.make_range_message(
             lower = lower,
             upper = upper,
             inclusive = inclusive
