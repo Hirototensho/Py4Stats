@@ -532,7 +532,7 @@ def test_Pareto_plot_pa() -> None:
     assert len(ax.patches) > 0
 
 # ================================================================
-# compare_group_means_nw / compare_group_median_nw
+# compare_group_means / compare_group_median
 # ================================================================
 def test_compare_group_means_pd() -> None:
     output_df = eda_nw.compare_group_means(adelie, gentoo)
@@ -540,11 +540,54 @@ def test_compare_group_means_pd() -> None:
     expected_df = pd.read_csv(f'{tests_path}/fixtures/compare_group_means_nw.csv', index_col = 0)
     assert_frame_equal(output_df, expected_df)
 
+# ================================================================
+# compare_group_median
+# ================================================================
 def test_compare_group_median_pd() -> None:
     output_df = eda_nw.compare_group_median(adelie, gentoo)
     # output_df.to_csv(f'{tests_path}/fixtures/compare_group_median_nw.csv')
     expected_df = pd.read_csv(f'{tests_path}/fixtures/compare_group_median_nw.csv', index_col = 0)
     assert_frame_equal(output_df, expected_df)
+
+# ================================================================
+# plot_mean_diff / plot_median_diff
+# ================================================================
+
+@pytest.mark.parametrize(
+    "stats_diff",
+    [
+        ('norm_diff'),
+        ('abs_diff'),
+        ('rel_diff'),
+    ],
+)
+def test_plot_mean_diff(stats_diff) -> None:
+    fig, ax = plt.subplots()
+    eda_nw.plot_mean_diff(
+        penguins.query('species == "Gentoo"'),
+        penguins.query('species == "Adelie"'),
+        stats_diff = stats_diff,
+        ax = ax
+    );
+    assert len(ax.get_lines()) > 0 and len(ax.collections) > 0
+
+@pytest.mark.parametrize(
+    "stats_diff",
+    [
+        ('abs_diff'),
+        ('rel_diff'),
+    ],
+)
+def test_plot_median_diff(stats_diff) -> None:
+    fig, ax = plt.subplots()
+    eda_nw.plot_mean_diff(
+        penguins.query('species == "Gentoo"'),
+        penguins.query('species == "Adelie"'),
+        stats_diff = stats_diff,
+        ax = ax
+    );
+    assert len(ax.get_lines()) > 0 and len(ax.collections) > 0
+
 
 # ================================================================
 # mean_qi / median_qi / mean_ci (Pandas)

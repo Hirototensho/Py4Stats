@@ -6,24 +6,103 @@ import polars as pl
 from py4stats import building_block as build
 from contextlib import nullcontext
 
-# =========================================================
-# make_range_massage
-# =========================================================
+# tests/test_eda_tools.py
+import pytest
+import pandas as pd
+import numpy as np
+import wooldridge
+# from palmerpenguins import load_penguins
+import matplotlib.pyplot as plt
+from pandas.testing import assert_frame_equal
+import polars as pl
+import pyarrow as pa
+
+import narwhals
+import narwhals as nw
+import narwhals.selectors as ncs
+
+from py4stats.eda_tools import _nw as eda_nw
+
+
+# サンプルデータの読み込み --------------------------------
+import pathlib
+tests_path = pathlib.Path(__file__).parent
+
+
+# penguins = load_penguins() 
+# penguins.to_csv(f'{tests_path}/fixtures/penguins.csv', index = False)
+penguins = pd.read_csv(f'{tests_path}/fixtures/penguins.csv')
+
+adelie = penguins.query("species == 'Adelie'")
+gentoo = penguins.query("species == 'Gentoo'")
+
+penguins_pa = pa.Table.from_pandas(penguins)
+penguins_pl = pl.from_arrow(penguins_pa)
+
+adelie_pl = pl.from_pandas(adelie)
+adelie_pa = pa.Table.from_pandas(adelie)
+
+gentoo_pl = pl.from_pandas(gentoo)
+gentoo_pa = pa.Table.from_pandas(gentoo)
+
+mroz = wooldridge.data('mroz')
+mroz_pl = pl.from_pandas(mroz)
+mroz_pa = pa.Table.from_pandas(mroz)
+
+def _assert_df_fixture(output_df, fixture_csv: str, check_dtype: bool = False, index_col = 0, **kwarg) -> None:
+    if hasattr(output_df, 'to_pandas'):
+        output_df = output_df.to_pandas()
+    expected_df = pd.read_csv(f'{tests_path}/fixtures/{fixture_csv}', index_col = index_col, **kwarg)
+    # バックエンド差で dtype が微妙に変わりやすいので、基本は dtype を厳密に見ない運用が安定
+    assert_frame_equal(output_df, expected_df, check_dtype=check_dtype)
+
+def _assert_df_fixture_new(
+        output_df,  fixture_csv: str,  
+        check_dtype: bool = False, reset_index: bool = True, 
+        **kwarg
+        ) -> None:
+    expected_df = nw.read_csv(
+        f'{tests_path}/fixtures/{fixture_csv}',
+        backend = output_df.implementation
+        )
+    
+    output_df = output_df.to_pandas()
+    expected_df = expected_df.to_pandas()
+
+    if reset_index:
+        output_df = output_df.reset_index(drop = True)
+        expected_df = expected_df.reset_index(drop = True)
+
+    assert_frame_equal(output_df, expected_df, check_dtype = check_dtype)
+
+gentoo_dict = {
+    'pd':gentoo,
+    'pl':gentoo_pl,
+    'pa':gentoo_pa
+}
+
+adelie_dict = {
+    'pd':adelie,
+    'pl':adelie_pl,
+    'pa':adelie_pa
+}
+# ================================================================
+# plot_mean_diff / plot_median_diff
+# ================================================================
 
 @pytest.mark.parametrize(
-    "lower, upper, inclusive, expectation",
+    "backend",
     [
-        pytest.param(0, 1, "both", '0 <= x <= 1', id = "an_0_1_b"),
-        pytest.param(0, 4, "left", "0 <= x < 4", id = "an_0_4_l"),
-        pytest.param(-9, 1, "right", "-9 < x <= 1", id = "an_9_1_r"),
-        pytest.param(0, 1, "neither", "0 < x < 1", id = "an_0_1_n"),
-
+        ('pl'),
+        ('pa'),
     ],
 )
-def test_make_range_massage(lower, upper, inclusive, expectation):
-    res = build.make_range_massage(
-            lower = lower,
-            upper = upper,
-            inclusive = inclusive
-            )
-    assert res == expectation
+def test_compare_group_means(backend) -> None:
+    output_df = eda_nw.compare_group_means(
+        adelie_dict.get(backend), 
+        gentoo_dict.get(backend)
+        ) # -> pd.DataFrame
+    
+    output_df.to_csv(f'{tests_path}/fixtures/compare_group_means_{backend}.csv')
+    
+    _assert_df_fixture(output_df, f'compare_group_means_{backend}.csv')

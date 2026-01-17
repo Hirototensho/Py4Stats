@@ -512,8 +512,10 @@ def make_assert_type(
             - ``"left"``: ``lower <= x < upper``
             - ``"right"``: ``lower < x <= upper``
         len_arg:
-            Exact number of elements required. If specified, the input must have
-            exactly this length.
+            Exact number of elements required. 
+            If specified, the argument must contain exactly this number of elements.
+            The element count is evaluated on the original input and includes missing
+            values (e.g., ``None``, ``NaN``).
         len_min:
             Minimum allowed number of elements.
         len_max:
@@ -579,6 +581,8 @@ def make_assert_type(
     if (arg is None) and nullable: return None
     if scalar_only: assert_scalar(arg, arg_name = arg_name)
 
+    arg = pd.Series(arg)
+
     assert_missing(
       arg, arg_name = arg_name, 
       any_missing = any_missing,
@@ -592,8 +596,6 @@ def make_assert_type(
       len_min = len_min,
       len_max = len_max
       )
-
-    arg = pd.Series(arg)
 
     if any_missing: 
       arg = arg[~is_missing(arg)]
