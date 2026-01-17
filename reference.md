@@ -70,7 +70,7 @@
 ***
 ### `py4stats.regression_tools`
 
-`py4stats.regression_tools` は [`statsmodels`](https://www.statsmodels.org/stable/index.html) ライブラリで作成された回帰分析の結果についての表作成と可視化を補助する機能を提供するモジュールです。
+`py4stats.regression_tools` は [`statsmodels`](https://www.statsmodels.org/stable/index.html) ライブラリで作成された回帰分析の結果についての可視化と表作成を補助する機能を提供するモジュールです。
 
 #### 線形モデルの比較
 
