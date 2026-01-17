@@ -17,7 +17,7 @@
 | compare_df_stats     | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | compare_group_means  | DataFrame        | ✅       | ⭕️       | ⭕️        | 出力が pd.DataFram に限定                    |
 | compare_group_median | DataFrame        | ✅       | ⭕️       | ⭕️        | 出力が pd.DataFram に限定                    |
-| crosstab             | DataFrame        | ✅       | ✅       | ✅        |                                            |
+| crosstab             | DataFrame        | ✅       | ✅       | ⭕️        | Pyarrow は Polars 依存の実装                 |
 | diagnose             | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | diagnose_category    | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | filtering_out        | DataFrame        | ✅       | ✅       | ✅        |                                            |
@@ -37,7 +37,7 @@
 | scale                | Series           | ✅       | ✅       | ✅        |                                            |
 | remove_constant      | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | remove_empty         | DataFrame        | ✅       | ✅       | ✅        |                                            |
-| tabyl                | DataFrame        | ✅       | ✅       | ⭕️        | Pyarrow は Polars 依存の実装                 |
+| tabyl                | DataFrame        | ✅       | ⭕️       | ⭕️        | 一部の処理が Pandas 依存                      |
 | weighted_mean        | Series           | ✅       | ✅       | ✅        |                                            |
 
 ## 凡例

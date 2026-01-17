@@ -1205,6 +1205,7 @@ def freq_table(
 
 
 @pf.register_dataframe_method
+
 def tabyl(
     data: IntoFrameT,
     index: str,
@@ -1214,6 +1215,7 @@ def tabyl(
     normalize: Union[bool, Literal["index", "columns", "all"]] = "index",
     dropna: bool = False,
     digits: int = 1,
+    to_native: bool = True,
     **kwargs: Any
 ) -> pd.DataFrame:
     """Create a crosstab with counts and (optionally) percentages in parentheses.
@@ -1251,6 +1253,7 @@ def tabyl(
     build.assert_character(margins_name, arg_name = 'margins_name')
     build.assert_logical(dropna, arg_name = 'dropna')
     build.assert_count(digits, arg_name = 'digits')
+    build.assert_logical(to_native, arg_name = 'to_native')
     # ==============================================================
     
     data_nw = nw.from_native(data)
@@ -1271,6 +1274,7 @@ def tabyl(
     args_dict = locals()
     args_dict.pop('normalize')
     args_dict.pop('data')
+    args_dict.pop('to_native')
     
     c_tab1 = crosstab(
         data = data_nw,
@@ -1281,7 +1285,6 @@ def tabyl(
     
     c_tab1 = c_tab1.apply(build.style_number, digits = 0)
     # return c_tab1
-    
 
     if(normalize != False):
         # 回答率クロス集計表（最終的な表では括弧内の数字）
@@ -1301,11 +1304,21 @@ def tabyl(
         c_tab1 = c_tab1.astype('str')
         # 1つめのクロス集計表も文字列化して、↑で計算したパーセントに丸括弧と%記号を追加したものを文字列として結合します。
         c_tab1.loc[idx, col] = c_tab1.astype('str').loc[idx, col] + ' (' + c_tab2 + ')'
-
+    
     return c_tab1
 
+    # if to_native and data_nw.implementation.is_pandas():
+    #    return c_tab1
+    
+    # c_tab1 = c_tab1.reset_index()
+    # dict_list = [c_tab1.loc[i, :].to_dict() for i in c_tab1.index]
+    # result = nw.from_dicts(dict_list, backend = data_nw.implementation)
+    
+    # if to_native: return result.to_native()
+    # return result
 
-# ## `diagnose_category()`：カテゴリー変数専用の要約関数
+
+# <!-- ## `diagnose_category()`：カテゴリー変数専用の要約関数 -->
 
 # In[ ]:
 
@@ -2116,8 +2129,15 @@ def make_rank_table(
     else:
         group_value = data_nw[group].unique()
 
+        # stat_values = [
+        #     aggfunc(data_nw.filter(nw.col(group) == g)[values].drop_nulls().to_native()) 
+        #     for g in group_value
+        #     ]
         stat_values = [
-            aggfunc(data_nw.filter(nw.col(group) == g)[values].drop_nulls().to_native()) 
+            aggfunc(
+                data_nw.filter(nw.col(group) == g)[values]
+                .drop_nulls().to_native()
+                ) 
             for g in group_value
             ]
             
