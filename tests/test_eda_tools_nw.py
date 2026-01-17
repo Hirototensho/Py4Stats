@@ -40,6 +40,21 @@ mroz = wooldridge.data('mroz')
 mroz_pl = pl.from_pandas(mroz)
 mroz_pa = pa.Table.from_pandas(mroz)
 
+penguins_dict = {
+    'pd':penguins,
+    'pl':penguins_pl,
+    'pa':penguins_pa
+}
+
+adelie_dict = {
+    'pd':adelie,
+    'pl':adelie_pl,
+    'pa':adelie_pa
+}
+# =========================================================
+# テスト用関数の定義
+# =========================================================
+
 def _assert_df_fixture(output_df, fixture_csv: str, check_dtype: bool = False, index_col = 0, **kwarg) -> None:
     if hasattr(output_df, 'to_pandas'):
         output_df = output_df.to_pandas()
@@ -534,21 +549,41 @@ def test_Pareto_plot_pa() -> None:
 # ================================================================
 # compare_group_means / compare_group_median
 # ================================================================
-def test_compare_group_means_pd() -> None:
-    output_df = eda_nw.compare_group_means(adelie, gentoo)
-    # output_df.to_csv(f'{tests_path}/fixtures/compare_group_means_nw.csv')
-    expected_df = pd.read_csv(f'{tests_path}/fixtures/compare_group_means_nw.csv', index_col = 0)
-    assert_frame_equal(output_df, expected_df)
+@pytest.mark.parametrize(
+    "backend",
+    [
+        ('pd'),
+        ('pl'),
+        ('pa'),
+    ],
+)
+def test_compare_group_means(backend) -> None:
+    output_df = eda_nw.compare_group_means(
+        adelie_dict.get(backend), 
+        gentoo_dict.get(backend)
+        ) # -> pd.DataFrame
+    
+    # output_df.to_csv(f'{tests_path}/fixtures/compare_group_means_{backend}.csv')
+    
+    _assert_df_fixture(output_df, f'compare_group_means_{backend}.csv')
 
-# ================================================================
-# compare_group_median
-# ================================================================
-def test_compare_group_median_pd() -> None:
-    output_df = eda_nw.compare_group_median(adelie, gentoo)
-    # output_df.to_csv(f'{tests_path}/fixtures/compare_group_median_nw.csv')
-    expected_df = pd.read_csv(f'{tests_path}/fixtures/compare_group_median_nw.csv', index_col = 0)
-    assert_frame_equal(output_df, expected_df)
-
+@pytest.mark.parametrize(
+    "backend",
+    [
+        ('pd'),
+        ('pl'),
+        ('pa'),
+    ],
+)
+def test_compare_group_median(backend) -> None:
+    output_df = eda_nw.compare_group_median(
+        adelie_dict.get(backend), 
+        gentoo_dict.get(backend)
+        ) # -> pd.DataFrame
+    
+    # output_df.to_csv(f'{tests_path}/fixtures/compare_group_median_{backend}.csv')
+    
+    _assert_df_fixture(output_df, f'compare_group_median_{backend}.csv')
 # ================================================================
 # plot_mean_diff / plot_median_diff
 # ================================================================

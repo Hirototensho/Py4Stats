@@ -89,10 +89,10 @@ adelie_dict = {
 # ================================================================
 # plot_mean_diff / plot_median_diff
 # ================================================================
-
 @pytest.mark.parametrize(
     "backend",
     [
+        ('pd'),
         ('pl'),
         ('pa'),
     ],
@@ -103,6 +103,24 @@ def test_compare_group_means(backend) -> None:
         gentoo_dict.get(backend)
         ) # -> pd.DataFrame
     
-    output_df.to_csv(f'{tests_path}/fixtures/compare_group_means_{backend}.csv')
+    # output_df.to_csv(f'{tests_path}/fixtures/compare_group_means_{backend}.csv')
     
     _assert_df_fixture(output_df, f'compare_group_means_{backend}.csv')
+
+@pytest.mark.parametrize(
+    "backend",
+    [
+        ('pd'),
+        ('pl'),
+        ('pa'),
+    ],
+)
+def test_compare_group_median(backend) -> None:
+    output_df = eda_nw.compare_group_median(
+        adelie_dict.get(backend), 
+        gentoo_dict.get(backend)
+        ) # -> pd.DataFrame
+    
+    # output_df.to_csv(f'{tests_path}/fixtures/compare_group_median_{backend}.csv')
+    
+    _assert_df_fixture(output_df, f'compare_group_median_{backend}.csv')
