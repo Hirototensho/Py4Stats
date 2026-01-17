@@ -44,13 +44,13 @@ stat_values = [
 
 ただ、現時点で [`narwhals.GroupBy`](https://narwhals-dev.github.io/narwhals/api-reference/group_by/) クラスに実装されているメソッドは `.agg()` しかなく、開発が進めばより柔軟な関数適用が可能になるのではないかと期待しています。
 
-## narwhals におけるバックエンドとその書き換え（欺瞞？）
+## narwhals におけるバックエンドとその書き換え
 
 ### バックエンドの基本的な理解
 
 narwhals におけるバックエンドによる型変換の基本的な理解として（不正確かもしれませんが）、`nw.from_native(data)` の実行時に `data` の型に応じて backend が記録され、`.to_native()` メソッドを呼び出すと、記録された backend に応じて元の型に変換されます。
 
-backend の情報は `.select()` などのメソッドを使って `data_nw` を加工しても保持され、これによって引数として入力された `input_pd` と同じ型のデータフレームを、結果として返すことが可能になっています。
+backend の情報は `.select()` `.filter()` などのメソッドを使って `data_nw` を加工しても保持され、これによって入力された `input_pd` と同じ型のデータフレームを返すことが可能になっています。
 
 ```python
 data_nw = nw.from_native(input_pd) # ここで backend が記録される
@@ -74,42 +74,45 @@ result = data_nw2.to_native()  # -> pl.DataFrame が出力される
 1. 処理が依存しているバックエンドのオブジェクト（e.g. pd.DataFrame）として出力する〔推奨〕
 2. narwhals の仕様を迂回してバックエンドを書き換える〔非推奨ですが次節で考察〕
 
-これら2つの可能性の間での選択は、技術的な問題であると同時にユーザーとのコミュニケーションの問題です。入力と同型のデータフレームを返す関数の中に pd.DataFrame を返す関数が混ざっていることをユーザーにどう説明するのか。あるいは、narwhals の仕様を迂回をしたことで非効率性や列レベルの型安全性の問題が生じたとして、それをユーザーにどう説明するのか、という問いです。
-
+これら2つの可能性の間での選択は、技術的な問題であると同時にユーザーとのコミュニケーションの問題です。入力と同型のデータフレームを返す関数の中に pd.DataFrame を返す関数が混ざっていることをユーザーにどう説明するのか。あるいは、narwhals の仕様を迂回をしたことで非効率性やカラムレベルでデータ型（dtype）の一貫性が失われる問題が生じたとして、それをユーザーにどう説明するのか、という問いです。
 
 ### バックエンドの書き換え
 
 いま、`some_computation()` として実装された処理の一部が Pandas に依存しており、結果が `result_pd` という pd.DataFrame 型のオブジェクトとして得られているとします。このとき、`result_pd` をもとのデータフレーム `data_pl` と同型にする方法の1つとして、`result_pd` を `pd.Series.to_dict()` などを使って辞書のリスト（list of dict）に変換したのち、`nw.from_dicts()` を使って `data_pl` と同じバックエンドをもつ `nw.DataFrame` に変換するという方法があります。
 
+以上の変換の実例を見てみましょう。まずは、`data_pl`
+
 ``` python
-data_nw_pl = nw.from_native(data_pl)
-data_pd = data_nw_pl.to_pandas()
-print(type(data_pd))
-#> <class 'pandas.core.frame.DataFrame'>
+data_pl = pl.from_pandas(load_penguins())[:10, :2]
 
-dict_list = [data_pd.loc[i, :].to_dict() for i in data_pd.index]
-result_nw_pl = nw.from_dicts(dict_list, backend = 'polars')
-result_pl = result_nw_pl.to_native()
-
-print(type(result_pl))
+data_pl = data_pl.with_columns(
+        pl.all().cast(pl.Categorical)
+    )
+print(type(data_pl))
 #> <class 'polars.dataframe.frame.DataFrame'>
+print(data_pl.schema)
+#> Schema({'species': Categorical, 'island': Categorical})
 
-print(result_pl.schema)
-#> Schema({'species': String, 'island': String})
+data_nw_pl = nw.from_native(data_pl) # ここでバックエンドを記録、後ほど復元に使います。
 
-data_nw_pl = nw.from_native(data_pl)
-data_pd = data_nw_pl.to_pandas()
-print(type(data_pd))
+# 何かしらの処理の結果 pd.DataFrame に変換されたとする
+result_pd = data_nw_pl.to_pandas()
+print(type(result_pd))
 #> <class 'pandas.core.frame.DataFrame'>
 ```
 
+次に、pl.DataFrame 型をもつ `result_pd` を pl.DataFrame に変換します。
+
+ここでポイントとなるのが、`nw.from_dicts()` 関数の引数の (1)`schema` 引数と、(2)`backend`引数に、それぞれ `data_nw_pl` から取得した値を入力することで、`result_pl` の列が `data_pl` と同じく `Categorical` 型になるようにしています(これを指定しないと、String 型として解釈されてしまいます)。
+
 ``` python
 # Pandas -> polars の変換
-dict_list = [data_pd.loc[i, :].to_dict() for i in data_pd.index]
+dict_list = [result_pd.loc[i, :].to_dict() for i in result_pd.index]
+
 result_nw_pl = nw.from_dicts(
     dict_list, 
-    schema = data_nw_pl.schema,
-    backend = data_nw_pl.implementation
+    schema = data_nw_pl.schema,         # (1)
+    backend = data_nw_pl.implementation # (2)
     )
 result_pl = result_nw_pl.to_native()
 
@@ -117,35 +120,48 @@ print(type(result_pl))
 #> <class 'polars.dataframe.frame.DataFrame'>
 
 print(result_pl.schema)
-#> Schema({'species': String, 'island': String})
+#> Schema({'species': Categorical, 'island': Categorical})
 ```
 
-同じく Series であれば、`nw.Series.from_iterable()` 関数を使うことで、次のようにバックエンドを書き換えることができます。
+また、Series については、`nw.Series.from_iterable()` 関数を使うことで、次のようにバックエンドを書き換えることができます。
 
 ```python
-type(x_pl)
-#> polars.series.series.Series
+x_pl = data_pl['island']
+print(type(x_pl))
+#> <class 'polars.series.series.Series'>
+print(x_pl.dtype)
+#> Categorical
 
 x_nw = nw.from_native(x_pl, allow_series = True)
 x_pd = x_nw.to_pandas()
-#> pandas.core.series.Series
-
-x_nw2 = nw.Series.from_iterable(
-    name = x_pd.name,
-    values = x_pd.to_list(),
-    backend = x_nw.implementation
-)
-type(x_nw2.to_native())
-#> polars.series.series.Series
+print(type(x_pd))
+#> <class 'pandas.core.series.Series'>
 ```
 
-ただし、上記のような方法でバックエンドの書き換えは可能ですが、
-バックエンドの書き換え
+```python
+x_pl2 = nw.Series.from_iterable(
+    name = x_pd.name,
+    values = x_pd.to_list(),
+    backend = x_nw.implementation,
+    dtype = x_nw.dtype
+).to_native()
 
-1. データフレームの型は保持されても、変数の型は保持されない
-2. `result_pd` がよほど小さいデータフレームでない限り時間がかかる
+print(type(x_pl2))
+#> <class 'polars.series.series.Series'>
+print(x_pl2.dtype)
+#> Categorical
+```
 
-といった問題があります。特に、`pd.Categorical`、 `pl.Categorical` あるいは `pl.Enum` といったカテゴリー変数は文字列型に変換されてしまい、データフレームのカラムレベルでは型安全ではありません。したがって、上記のような処理は、**他に方法がないときの最終手段**として位置付けるべきでしょう。
+narwhals の仕様を迂回してバックエンドを書き換えることは可能ですが、この方法には次のような問題があります。
+ただし、以上のような方法でバックエンドの書き換えは可能ですが、
+
+1. 小さいデータフレームでない限り時間がかかる
+    - 恐らく、dict_list を作成するための for ループによるもの
+2. 上記の (1) に代入する正しい schema が用意できないと、カラムレベルでデータ型の一貫性保証できない。
+
+特に2番目の問題点については、集計処理によって列名が変わった場合には正しい schema(≒ {列名:dtype} の辞書オブジェクト)を用意することが難しくなります。そして、schema を指定できないと、`pd.Categorical`、`pl.Categorical` あるいは `pl.Enum` といったカテゴリー変数は文字列型に変換されてしまい、データ型の一貫性が失われます。
+
+カラムレベルで型の一貫性が失われると、返り値が入力値とは異なる型になるよりも把握しづらく、また挙動の予測が難しいため、上記のような処理は採用するとしていも、**他に方法がないときの最終手段**として扱うべきでしょう。
 
 
 
