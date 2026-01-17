@@ -1204,8 +1204,126 @@ def freq_table(
 # In[ ]:
 
 
-@pf.register_dataframe_method
+# @pf.register_dataframe_method
 
+# def tabyl(
+#     data: IntoFrameT,
+#     index: str,
+#     columns: str,
+#     margins: bool = True,
+#     margins_name: str = 'All',
+#     normalize: Union[bool, Literal["index", "columns", "all"]] = "index",
+#     dropna: bool = False,
+#     digits: int = 1,
+#     # to_native: bool = True,
+#     **kwargs: Any
+# ) -> pd.DataFrame:
+#     """Create a crosstab with counts and (optionally) percentages in parentheses.
+
+#     This function produces a table similar to `janitor::tabyl()` (R), where the
+#     main cell is a count and percentages can be appended like: `count (xx.x%)`.
+
+#     Args:
+#         data (IntoFrameT):
+#             Input DataFrame. Any DataFrame-like object supported by narwhals
+#             (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
+#         index (str):
+#             Column name used for row categories.
+#         columns (str):
+#             Column name used for column categories.
+#         margins (bool):
+#             Add margins (totals) if True.
+#         margins_name (str):
+#             Name of the margin row/column.
+#         normalize (bool or {'index','columns','all'}):
+#             If False, return counts only.
+#             Otherwise, compute percentages normalized by the specified axis.
+#         dropna (bool):
+#             Whether to drop NaN from counts.
+#         digits (int):
+#             Number of decimal places for percentages.
+
+#     Returns:
+#         pandas.DataFrame:
+#             Crosstab table. If `normalize` is not False, cells contain strings like
+#             `"count (xx.x%)"`. Otherwise counts (as strings after formatting).
+#     """
+#     # 引数のアサーション ==============================================
+#     build.assert_logical(margins, arg_name = 'margins')
+#     build.assert_character(margins_name, arg_name = 'margins_name')
+#     build.assert_logical(dropna, arg_name = 'dropna')
+#     build.assert_count(digits, arg_name = 'digits')
+#     # build.assert_logical(to_native, arg_name = 'to_native')
+#     # ==============================================================
+
+#     data_nw = nw.from_native(data)
+
+#     if(not isinstance(normalize, bool)):
+#       normalize = build.arg_match(
+#           normalize, arg_name = 'normalize',
+#           values = ['index', 'columns', 'all']
+#           )
+
+#     # index または columns に bool 値が指定されていると後続処理でエラーが生じるので、
+#     # 文字列型に cast します。
+#     data_nw = data_nw[[index, columns]].with_columns(
+#        ncs.boolean().cast(nw.String)
+#     )
+
+#     # 度数クロス集計表（最終的な表では左側の数字）
+#     args_dict = locals()
+#     args_dict.pop('normalize')
+#     args_dict.pop('data')
+#     # args_dict.pop('to_native')
+
+#     c_tab1 = crosstab(
+#         data = data_nw,
+#         normalize = False,
+#         to_native = False,
+#         **args_dict
+#        ).to_pandas().set_index(index)
+
+#     c_tab1 = c_tab1.apply(build.style_number, digits = 0)
+#     # return c_tab1
+
+#     if(normalize != False):
+#         # 回答率クロス集計表（最終的な表では括弧内の数字）
+#         c_tab2 = crosstab(
+#             data = data_nw, 
+#             normalize = normalize, 
+#             to_native = False,
+#             **args_dict
+#            ).to_pandas().set_index(index)
+
+#         # 2つめのクロス集計表の回答率をdigitsで指定した桁数のパーセントに換算し、文字列化します。
+#         c_tab2 = c_tab2.apply(build.style_percent, digits = digits)
+
+#         # return c_tab2
+#         col = c_tab2.columns
+#         idx = c_tab2.index
+#         c_tab1 = c_tab1.astype('str')
+#         # 1つめのクロス集計表も文字列化して、↑で計算したパーセントに丸括弧と%記号を追加したものを文字列として結合します。
+#         c_tab1.loc[idx, col] = c_tab1.astype('str').loc[idx, col] + ' (' + c_tab2 + ')'
+
+#     return c_tab1
+
+#     # if to_native and data_nw.implementation.is_pandas():
+#     #    return c_tab1
+
+#     # c_tab1 = c_tab1.reset_index()
+#     # dict_list = [c_tab1.loc[i, :].to_dict() for i in c_tab1.index]
+#     # result = nw.from_dicts(dict_list, backend = data_nw.implementation)
+
+#     # if to_native: return result.to_native()
+#     # return result
+
+
+# <!-- ## `diagnose_category()`：カテゴリー変数専用の要約関数 -->
+
+# In[ ]:
+
+
+@pf.register_dataframe_method
 def tabyl(
     data: IntoFrameT,
     index: str,
@@ -1215,9 +1333,9 @@ def tabyl(
     normalize: Union[bool, Literal["index", "columns", "all"]] = "index",
     dropna: bool = False,
     digits: int = 1,
-    # to_native: bool = True,
+    to_native: bool = True,
     **kwargs: Any
-) -> pd.DataFrame:
+) -> IntoFrameT:
     """Create a crosstab with counts and (optionally) percentages in parentheses.
 
     This function produces a table similar to `janitor::tabyl()` (R), where the
@@ -1242,9 +1360,13 @@ def tabyl(
             Whether to drop NaN from counts.
         digits (int):
             Number of decimal places for percentages.
+        to_native (bool, optional):
+            If True, convert the result to the native DataFrame type of the
+            selected backend. If False, return a narwhals DataFrame.
+            Defaults to True.
 
     Returns:
-        pandas.DataFrame:
+        IntoFrameT:
             Crosstab table. If `normalize` is not False, cells contain strings like
             `"count (xx.x%)"`. Otherwise counts (as strings after formatting).
     """
@@ -1274,7 +1396,7 @@ def tabyl(
     args_dict = locals()
     args_dict.pop('normalize')
     args_dict.pop('data')
-    # args_dict.pop('to_native')
+    args_dict.pop('to_native')
 
     c_tab1 = crosstab(
         data = data_nw,
@@ -1283,8 +1405,7 @@ def tabyl(
         **args_dict
        ).to_pandas().set_index(index)
 
-    c_tab1 = c_tab1.apply(build.style_number, digits = 0)
-    # return c_tab1
+    c_tab1 = c_tab1.apply(build.style_number, digits = 0) # .astype('str')
 
     if(normalize != False):
         # 回答率クロス集計表（最終的な表では括弧内の数字）
@@ -1298,27 +1419,22 @@ def tabyl(
         # 2つめのクロス集計表の回答率をdigitsで指定した桁数のパーセントに換算し、文字列化します。
         c_tab2 = c_tab2.apply(build.style_percent, digits = digits)
 
-        # return c_tab2
         col = c_tab2.columns
         idx = c_tab2.index
-        c_tab1 = c_tab1.astype('str')
         # 1つめのクロス集計表も文字列化して、↑で計算したパーセントに丸括弧と%記号を追加したものを文字列として結合します。
-        c_tab1.loc[idx, col] = c_tab1.astype('str').loc[idx, col] + ' (' + c_tab2 + ')'
-
-    return c_tab1
-
-    # if to_native and data_nw.implementation.is_pandas():
-    #    return c_tab1
-
-    # c_tab1 = c_tab1.reset_index()
-    # dict_list = [c_tab1.loc[i, :].to_dict() for i in c_tab1.index]
-    # result = nw.from_dicts(dict_list, backend = data_nw.implementation)
-
-    # if to_native: return result.to_native()
-    # return result
+        c_tab1.loc[idx, col] = c_tab1.loc[idx, col] + ' (' + c_tab2 + ')'
 
 
-# <!-- ## `diagnose_category()`：カテゴリー変数専用の要約関数 -->
+    if to_native and data_nw.implementation.is_pandas():
+       return c_tab1
+
+    c_tab1 = c_tab1.reset_index()
+    dict_list = [c_tab1.loc[i, :].to_dict() for i in c_tab1.index]
+    result = nw.from_dicts(dict_list, backend = data_nw.implementation)
+
+    if to_native: return result.to_native()
+    return result
+
 
 # In[ ]:
 

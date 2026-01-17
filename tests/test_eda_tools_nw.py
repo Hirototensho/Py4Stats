@@ -242,12 +242,18 @@ def test_tabyl_pd():
 
 
 def test_tabyl_pl():
-    output_df = eda_nw.tabyl(penguins_pl, 'island', 'species', normalize = 'index')
+    output_df = eda_nw.tabyl(
+            penguins_pl, 'island', 'species', 
+            normalize = 'index', to_native = False
+        ).to_pandas()
     # output_df.to_csv(f'{tests_path}/fixtures/tabyl_pl.csv', index = True)
     _assert_df_record(output_df, 'tabyl_pl.csv', dtype = {'All':str})
 
 def test_tabyl_pa():
-    output_df = eda_nw.tabyl(penguins_pa, 'island', 'species', normalize = 'index')
+    output_df = eda_nw.tabyl(
+        penguins_pa, 'island', 'species', 
+        normalize = 'index', to_native = False
+    ).to_pandas()
     # output_df.to_csv(f'{tests_path}/fixtures/tabyl_pa.csv', index = True)
     _assert_df_record(output_df, 'tabyl_pa.csv', dtype = {'All':str})
 
