@@ -21,7 +21,9 @@ check_viorate(data, rule_dict, **kwargs)
   （例：`pandas.DataFrame`、`polars.DataFrame`、`pyarrow.Table`）を指定できます。
 - `rule_dict`**dict or pd.Series of str**（必須）<br>
 　`pandas.eval()` メソッドで実行した結果が論理値となるような expression の文字列を値とする辞書オブジェクト。詳細は使用例も参照してください。
-
+- `to_native`（**bool**, optional）<br>
+  `True` の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。<br>
+  `False` の場合、`narwhals.DataFrame` を返します。デフォルトは `True` で、`to_native = False` は、主にライブラリ内部での利用や、`backend` に依存しない後続処理を行う場合を想定したオプションです。
 - `**kwargs`<br>
 　[`pandas.eval()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.eval.html) に渡す追加の引数。
 
@@ -45,8 +47,8 @@ retailers.columns = retailers.columns.to_series().str.replace('.', '_', regex = 
 rule_dict =  {
     'to':'turnover > 0',                                     # 売上高は厳密に正である
     'sc':'staff_costs / staff < 50',                         # 従業員1人当たりの人件費は50,000ギルダー未満である
-    'cd1':'staff_costs > 0 | ~(staff > 0)',                  # 従業員がいる場合、人件費は厳密に正である
-    'cd2':py4st.implies_exper('staff > 0', 'staff_costs > 0'), # 従業員がいる場合、人件費は厳密に正である
+    'cd1':'staff_costs > 0 | ~(staff > 0)',                    # 従業員がいる場合、人件費は厳密に正である
+    'cd2':py4st.implies_exper('staff > 0', 'staff_costs > 0'), # cd1 の別表現
     'bs':'turnover + other_rev == total_rev',                # 売上高とその他の収入の合計は総収入に等しい
     'mn':'profit.mean() > 0'                                 # セクター全体の平均的な利益はゼロよりも大きい
     }
@@ -64,14 +66,13 @@ pd.Series(rule_dict)
 
 ```python
 print(py4st.check_that(retailers, rule_dict))
-#>       item  passes  fails  coutna                         expression
-#> name                                                                
-#> to      60      56      0       4                       turnover > 0
-#> sc      60      39      5      16           staff_costs / staff < 50
-#> cd1     60      44      0      16     staff_costs > 0 | ~(staff > 0)
-#> cd2     60      44      0      16     staff_costs > 0 | ~(staff > 0)
-#> bs      60      19      4      37  turnover + other_rev == total_rev
-#> mn       1       1      0       0                  profit.mean() > 0
+#>   rule  item  passes  fails  coutna                         expression
+#> 0   to    60      56      0       4                       turnover > 0
+#> 1   sc    60      39      5      16           staff_costs / staff < 50
+#> 2  cd1    60      44      0      16     staff_costs > 0 | ~(staff > 0)
+#> 3  cd2    60      44      0      16     staff_costs > 0 | ~(staff > 0)
+#> 4   bs    60      19      4      37  turnover + other_rev == total_rev
+#> 5   mn     1       1      0       0                  profit.mean() > 0
 ```
 
 前述の通り、`py4st.check_that()` 関数ではルール検証を `pandas.eval()` メソッドで実行しているため、検証ルールに自作関数や外部のモジュールからインポート関数を使うには、関数名の前に `@` をつけて `@func(…)` と記述し、また `**kwargs` 引数に `local_dict = locals()` と指定してください。  
@@ -91,10 +92,10 @@ rule_dict2 =  {
 print(py4st.check_that(
     retailers, rule_dict2, local_dict = locals()
     ))
-#>              item  passes  fails  coutna                                    expression
-#> name                                                                                  
-#> to_num          1       1      0       0                   @is_numeric_dtype(turnover)
-#> rev_complete   60      23      0      37  @is_complete(turnover, total_rev, other_rev)
+#>            rule  item  passes  fails  coutna                                    expression
+#> 0        to_num     1       1      0       0                   @is_numeric_dtype(turnover)
+#> 1  rev_complete    60      23      0      37  @is_complete(turnover, total_rev, other_rev)
+
 ```
 
 `py4st.check_viorate()` の使い方も `py4st.check_that()` と同様ですが、`py4st.check_that()` がデータセット全体での検証結果を出力するのに対し、`py4st.check_viorate()` ではレコード別の検証結果を表示します。`py4st.check_viorate()` から出力されるデータフレームでは、各列が検証ルールに、各行が元データの観測値に対応し、当該ルールが満たされていない場合、True と表示されます。また、`any` 列は複数あるルールのいずれか1つでも満たされていないことを、`all` 列は全てのルールが満たされていないことを示します。
@@ -128,7 +129,11 @@ print(retailers.loc[df_viorate['to'], 'size':'turnover'])
 
 ## Notes
 
-本関数の実装は、 `pd.DataFrame.eval()` メソッドに依存しているため、代入されたデータフレームのバックエンドに関わらず `pd.DataFrame` が出力されます。
+本関数の内部実装は、 `pd.DataFrame.eval()` メソッドに依存しているため、実行時間の面で必ずしも最適化されていません。
+
+## 参考文献
+
+- Loo, Mark van der, and Edwin de Jonge. (2022). 『統計的データクリーニングの理論と実践: Rによるデータ編集/欠測補完システム』. 共立出版. 地道 正行, 髙橋 雅夫, 藤野 友和, 安川 武彦〔訳〕
 
 ***
 [Return to **Function reference**.](../reference.md)

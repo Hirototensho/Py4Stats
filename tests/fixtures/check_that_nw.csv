@@ -1,4 +1,4 @@
-,rule,item,passes,fails,coutna,expression
+,rule,item,passes,fails,countna,expression
 0,to,60,56,0,4,turnover > 0
 1,sc,60,39,5,16,staff_costs / staff < 50
 2,cd1,60,44,0,16,staff_costs > 0 | ~(staff > 0)

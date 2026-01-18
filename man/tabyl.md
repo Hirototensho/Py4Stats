@@ -29,6 +29,8 @@ tabyl(
 　集計に使用するデータフレームの変数名（必須）。
 - `margins`：**bool**</br>
 　行または列の合計を追加するかどうかを表すブール値。初期設定は True です。
+- `margins_name`：**bool**</br>
+　行や列の合計の名前。初期設定は `'All'` です。
 - `dropna`：**bool**</br>
 　 欠測値（NaN）を集計から除外するかどうかを表すブール値。初期設定は False です。
 - `normalize`：**str**</br>
@@ -36,11 +38,11 @@ tabyl(
     - `index` 各セルの度数を行の和で割り、横方向の相対度数の和が100%になるように計算します。
     - `columns` 各セルの度数を行の列で割り、縦方向の相対度数の和が100%になるように計算します。
     - `all` 各セルの度数を総度数で割り、全てのセルの相対度数の和が100%になるように計算します。
-
-以上の引数は全て、内部で使用している [`pandas.crosstab`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.contains.html#pandas.Series.str.contains) の同名の引数と同じ意味を持ちます。
-
 - `digits`：**int**</br>
 　丸括弧`( )`に表示する相対度数の小数点以下の桁数。初期設定は1です。
+- `to_native`（**bool**, optional）<br>
+  `True` の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。<br>
+  `False` の場合、`narwhals.DataFrame` を返します。デフォルトは `True` で、`to_native = False` は、主にライブラリ内部での利用や、`backend` に依存しない後続処理を行う場合を想定したオプションです。
 
 ## 使用例
 

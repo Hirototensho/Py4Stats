@@ -749,19 +749,19 @@ def test_is_number_nw_extend_pd() -> None:
     assert (eda_nw.is_number(s) == expect).all()
 
 # =========================================================
-# check_that_nw / check_viorate_nw
+# check_that
 # =========================================================
 
 def test_check_that_basic() -> None:
     d = pd.DataFrame({"x": [1, 2, 3], "y": [1, 0, 1]})
     rules = {"x_pos": "x > 0", "y_is1": "y == 1"}
     out = eda_nw.check_that(d, rules)
-    assert set(out.columns) == {'rule', "item", "passes", "fails", "coutna", "expression"}
+    assert set(out.columns) == {'rule', "item", "passes", "fails", "countna", "expression"}
     out = out.set_index('rule')
     assert out.loc["x_pos", "fails"] == 0
     assert out.loc["y_is1", "fails"] == 1
 
-def test_check_viorate_nw_flags_rows() -> None:
+def test_check_viorate_flags_rows() -> None:
     d = pd.DataFrame({"x": [1, -1, 2]})
     rules = {"x_pos": "x > 0"}
     out = eda_nw.check_viorate(d, rules)
@@ -774,6 +774,8 @@ def test_check_viorate_nw_flags_rows() -> None:
 # retailers = pd.read_csv(URL, sep = ';')
 # retailers.columns = retailers.columns.to_series().str.replace('.', '_', regex = False)
 retailers = pd.read_csv(f'{tests_path}/fixtures/retailers.csv', index_col = 0)
+retailers_pl = pl.from_pandas(retailers)
+retailers_pa = pa.Table.from_pandas(retailers)
 
 rule_dict =  {
     'to':'turnover > 0',                                     # 売上高は厳密に正である
@@ -784,17 +786,41 @@ rule_dict =  {
     'mn':'profit.mean() > 0'                                 # セクター全体の平均的な利益はゼロよりも大きい
     }
 
-def test_check_that_nw_pd() -> None:
+def test_check_that_pd() -> None:
     output_df = eda_nw.check_that(retailers, rule_dict)
     # output_df.to_csv(f'{tests_path}/fixtures/check_that_nw.csv')
     expected_df = pd.read_csv(f'{tests_path}/fixtures/check_that_nw.csv', index_col = 0)
     assert_frame_equal(output_df, expected_df)
 
-def test_check_viorate() -> None:
+def test_check_that_pl() -> None:
+    output_df = eda_nw.check_that(retailers_pl, rule_dict, to_native = False)
+    # output_df.write_csv(f'{tests_path}/fixtures/check_that_pl.csv')
+    _assert_df_fixture_new(output_df, 'check_that_pl.csv')
+
+def test_check_that_pa() -> None:
+    output_df = eda_nw.check_that(retailers_pa, rule_dict, to_native = False)
+    # output_df.write_csv(f'{tests_path}/fixtures/check_that_pa.csv')
+    _assert_df_fixture_new(output_df, 'check_that_pa.csv')
+
+# =========================================================
+# check_that
+# =========================================================
+
+def test_check_viorate_pd() -> None:
     output_df = eda_nw.check_viorate(retailers, rule_dict)
     # output_df.to_csv(f'{tests_path}/fixtures/check_viorate_nw.csv')
     expected_df = pd.read_csv(f'{tests_path}/fixtures/check_viorate_nw.csv', index_col = 0)
     assert_frame_equal(output_df, expected_df)
+
+def test_check_viorate_pl() -> None:
+    output_df = eda_nw.check_viorate(retailers_pl, rule_dict, to_native = False)
+    # output_df.write_csv(f'{tests_path}/fixtures/check_viorate_pl.csv')
+    _assert_df_fixture_new(output_df, 'check_viorate_pl.csv')
+
+def test_check_viorate_pa() -> None:
+    output_df = eda_nw.check_viorate(retailers_pa, rule_dict, to_native = False)
+    # output_df.write_csv(f'{tests_path}/fixtures/check_viorate_pa.csv')
+    _assert_df_fixture_new(output_df, 'check_viorate_pa.csv')
 
 # ================================================================
 # implies_exper / is_complete / reducers (Sum/Mean/Max/Min/Median)
