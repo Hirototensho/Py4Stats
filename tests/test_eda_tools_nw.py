@@ -752,11 +752,12 @@ def test_is_number_nw_extend_pd() -> None:
 # check_that_nw / check_viorate_nw
 # =========================================================
 
-def test_check_that_nw_basic() -> None:
+def test_check_that_basic() -> None:
     d = pd.DataFrame({"x": [1, 2, 3], "y": [1, 0, 1]})
     rules = {"x_pos": "x > 0", "y_is1": "y == 1"}
     out = eda_nw.check_that(d, rules)
-    assert set(out.columns) == {"item", "passes", "fails", "coutna", "expression"}
+    assert set(out.columns) == {'rule', "item", "passes", "fails", "coutna", "expression"}
+    out = out.set_index('rule')
     assert out.loc["x_pos", "fails"] == 0
     assert out.loc["y_is1", "fails"] == 1
 
