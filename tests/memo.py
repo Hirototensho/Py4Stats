@@ -132,16 +132,18 @@ def _assert_df_eq(
 #         )
 
 @pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
-def test_freq_table(backend) -> None:
+
+def test_compare_group_means(backend) -> None:
     path = f'{tests_path}/fixtures/compare_group_means_{backend}.csv'
-    
-    output_df = eda_nw.freq_table(
-        penguins_dict.get(backend), 
-        'species', to_native = False
-        )
+
+    output_df = eda_nw.compare_group_means(
+        adelie_dict.get(backend), 
+        gentoo_dict.get(backend), 
+        to_native = False
+        ) # -> pd.DataFrame
     
     _assert_df_eq(
-        output_df, 
-        path_fixture = path, 
-        update_fixture = True
+            output_df, 
+            path_fixture = path, 
+            update_fixture = False
         )

@@ -143,7 +143,7 @@ def _assert_df_eq(
 
 @pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
 def test_diagnose(backend) -> None:
-    path = f'{tests_path}/fixtures/compare_group_means_{backend}.csv'
+    path = f'{tests_path}/fixtures/diagnose_{backend}.csv'
     
     output_df = eda_nw.diagnose(penguins_dict.get(backend), to_native = False)
     
@@ -158,7 +158,7 @@ def test_diagnose(backend) -> None:
 
 @pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
 def test_freq_table(backend) -> None:
-    path = f'{tests_path}/fixtures/compare_group_means_{backend}.csv'
+    path = f'{tests_path}/fixtures/freq_table_{backend}.csv'
     
     output_df = eda_nw.freq_table(
         penguins_dict.get(backend), 
@@ -567,43 +567,37 @@ def test_Pareto_plot_pa() -> None:
 # ================================================================
 # compare_group_means / compare_group_median
 # ================================================================
-@pytest.mark.parametrize(
-    "backend",
-    [
-        ('pd'),
-        ('pl'),
-        ('pa'),
-    ],
-)
+@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
+
 def test_compare_group_means(backend) -> None:
+    path = f'{tests_path}/fixtures/compare_group_means_{backend}.csv'
+
     output_df = eda_nw.compare_group_means(
         adelie_dict.get(backend), 
         gentoo_dict.get(backend), 
         to_native = False
-        ).to_pandas() # -> pd.DataFrame
+        ) # -> pd.DataFrame
     
-    # output_df.to_csv(f'{tests_path}/fixtures/compare_group_means_{backend}.csv')
-    
-    _assert_df_fixture(output_df, f'compare_group_means_{backend}.csv')
+    _assert_df_eq(
+            output_df, path_fixture = path, 
+            update_fixture = False
+        )
 
-@pytest.mark.parametrize(
-    "backend",
-    [
-        ('pd'),
-        ('pl'),
-        ('pa'),
-    ],
-)
+@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
 def test_compare_group_median(backend) -> None:
+    path = f'{tests_path}/fixtures/compare_group_median_{backend}.csv'
+
     output_df = eda_nw.compare_group_median(
         adelie_dict.get(backend), 
-        gentoo_dict.get(backend),
+        gentoo_dict.get(backend), 
         to_native = False
-        ).to_pandas() # -> pd.DataFrame
+        ) # -> pd.DataFrame
     
-    # output_df.to_csv(f'{tests_path}/fixtures/compare_group_median_{backend}.csv')
+    _assert_df_eq(
+            output_df, path_fixture = path, 
+            update_fixture = False
+        )
     
-    _assert_df_fixture(output_df, f'compare_group_median_{backend}.csv')
 # ================================================================
 # plot_mean_diff / plot_median_diff
 # ================================================================
