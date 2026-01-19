@@ -102,27 +102,34 @@ def _assert_df_record(output_df, fixture_csv: str, index_col = 0, **kwarg) -> No
 # =========================================================
 from narwhals import testing as nw_test
 
+def _assert_df_eq(
+        output_df,  path_fixture: str,  
+        check_dtype: bool = False, 
+        reset_index: bool = True, 
+        update_fixture: bool = False,
+        **kwarg
+        ) -> None:
+    
+    if not isinstance(output_df, nw.DataFrame):
+        output_df = nw.from_native(output_df)
+
+    if update_fixture:
+        output_df.write_csv(path_fixture)
+
+    expected_df = nw.read_csv(path_fixture, backend = output_df.implementation)
+    
+    output_df = output_df.to_pandas()
+    expected_df = expected_df.to_pandas()
+
+    if reset_index:
+        output_df = output_df.reset_index(drop = True)
+        expected_df = expected_df.reset_index(drop = True)
+
+    assert_frame_equal(output_df, expected_df, check_dtype = check_dtype)
+
 # 私の手元にある環境では、`narwhals.testing.assert_frame_equal()` が読み込めないので、
-# 以下の関数はまだ使えません。
+# 以下のコードはまだ使えません。
 
-# def _assert_df_eq(
-#         output_df,  
-#         path_fixture: str,  
-#         update_fixture: bool = False, 
-#         check_dtype: bool = True, 
-#         **kwarg
-#         ) -> None:
-    
-#     output_df = nw.from_native(output_df)
-
-#     if update_fixture:
-#         output_df.write_csv(f'{tests_path}/fixtures/{path_fixture}')
-
-#     expected_df = nw.read_csv(
-#         f'{tests_path}/fixtures/{path_fixture}',
-#         backend = output_df.implementation
-#         )
-    
 #     nw_test.assert_frame_equal(
 #         left = output_df, 
 #         right = expected_df, 
@@ -133,38 +140,36 @@ from narwhals import testing as nw_test
 # =========================================================
 # diagnose
 # =========================================================
-def test_diagnose_pd():
-    output_df = eda_nw.diagnose(penguins, to_native = False)
-    # output_df.write_csv(f'{tests_path}/fixtures/diagnose_nw.csv')
-    _assert_df_fixture_new(output_df, 'diagnose_nw.csv')
 
-def test_diagnose_pl():
-    output_df = eda_nw.diagnose(penguins_pl, to_native = False)
-    # output_df.write_csv(f'{tests_path}/fixtures/diagnose_pl.csv')
-    _assert_df_fixture_new(output_df, 'diagnose_pl.csv')
-
-def test_diagnose_pa():
-    output_df = eda_nw.diagnose(penguins_pa, to_native = False)
-    _assert_df_fixture_new(output_df, 'diagnose_pl.csv')
-
+@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
+def test_diagnose(backend) -> None:
+    path = f'{tests_path}/fixtures/compare_group_means_{backend}.csv'
+    
+    output_df = eda_nw.diagnose(penguins_dict.get(backend), to_native = False)
+    
+    _assert_df_eq(
+        output_df, 
+        path_fixture = path, 
+        update_fixture = False
+        )
 # =========================================================
 # freq_tabl/ crosstab
 # =========================================================
-def test_freq_table_pd():
-    output_df = eda_nw.freq_table(penguins, 'species', to_native = False)
-    # output_df.write_csv(f'{tests_path}/fixtures/freq_table_nw.csv')
-    _assert_df_fixture_new(output_df, 'freq_table_nw.csv')
 
-def test_freq_table_pl():
-    output_df = eda_nw.freq_table(penguins_pl, 'species', to_native = False)
-    # output_df.write_csv(f'{tests_path}/fixtures/freq_table_pl.csv')
-    _assert_df_fixture_new(output_df, 'freq_table_pl.csv')
-
-
-def test_freq_table_pa():
-    output_df = eda_nw.freq_table(penguins_pa, 'species', to_native = False)
-    # output_df.write_csv(f'{tests_path}/fixtures/freq_table_pa.csv')
-    _assert_df_fixture_new(output_df, 'freq_table_pa.csv')
+@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
+def test_freq_table(backend) -> None:
+    path = f'{tests_path}/fixtures/compare_group_means_{backend}.csv'
+    
+    output_df = eda_nw.freq_table(
+        penguins_dict.get(backend), 
+        'species', to_native = False
+        )
+    
+    _assert_df_eq(
+        output_df, 
+        path_fixture = path, 
+        update_fixture = False
+        )
 
 # =========================================================
 # crosstab

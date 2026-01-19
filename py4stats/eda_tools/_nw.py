@@ -288,13 +288,27 @@ DataLike = Union[pd.Series, pd.DataFrame]
 
 def get_dtypes(data: IntoFrameT) -> pd.Series:
     data_nw = nw.from_native(data)
-    if hasattr(data, 'dtypes'):
-        list_dtypes = data.dtypes
-    else:
-        list_dtypes = [str(data_nw.schema[col]) for col in data_nw.columns]
+    implement = data_nw.implementation
 
-    s_dtypes = pd.Series(list_dtypes, index = data_nw.columns).astype(str)
-    return s_dtypes
+    if isinstance(data, nw.DataFrame):
+        list_dtypes = list(data.schema.values())
+    else:
+        match str(implement):
+            case 'pandas':
+                list_dtypes = data.dtypes.to_list()
+            case 'polars':
+                list_dtypes = list(data.schema.values())
+            case 'pyarrow':
+                list_dtypes = data.schema.types
+            case _: # どのケースにも一致しない場合
+                list_dtypes = list(data_nw.schema.values())
+
+    list_dtypes = pd.Series(
+        [str(v) for v in list_dtypes],
+        index = data_nw.columns
+        )
+
+    return list_dtypes
 
 
 # In[ ]:
@@ -335,7 +349,7 @@ def diagnose(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
     data_nw = nw.from_native(data)
 
     n = data_nw.shape[0]
-    list_dtypes = get_dtypes(data).to_list()
+    list_dtypes = get_dtypes(data)
 
     result = nw.from_dict({
         'columns':data_nw.columns,

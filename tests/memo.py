@@ -75,6 +75,12 @@ def _assert_df_fixture_new(
 
     assert_frame_equal(output_df, expected_df, check_dtype = check_dtype)
 
+penguins_dict = {
+    'pd':penguins,
+    'pl':penguins_pl,
+    'pa':penguins_pa
+}
+
 gentoo_dict = {
     'pd':gentoo,
     'pl':gentoo_pl,
@@ -89,3 +95,53 @@ adelie_dict = {
 # ================================================================
 # plot_mean_diff / plot_median_diff
 # ================================================================
+
+def _assert_df_eq(
+        output_df,  path_fixture: str,  
+        check_dtype: bool = False, 
+        reset_index: bool = True, 
+        update_fixture: bool = False,
+        **kwarg
+        ) -> None:
+    
+    if not isinstance(output_df, nw.DataFrame):
+        output_df = nw.from_native(output_df)
+
+    if update_fixture:
+        output_df.write_csv(path_fixture)
+
+    expected_df = nw.read_csv(path_fixture, backend = output_df.implementation)
+    
+    output_df = output_df.to_pandas()
+    expected_df = expected_df.to_pandas()
+
+    if reset_index:
+        output_df = output_df.reset_index(drop = True)
+        expected_df = expected_df.reset_index(drop = True)
+
+    assert_frame_equal(output_df, expected_df, check_dtype = check_dtype)
+
+# 私の手元にある環境では、`narwhals.testing.assert_frame_equal()` が読み込めないので、
+# 以下のコードはまだ使えません。
+
+#     nw_test.assert_frame_equal(
+#         left = output_df, 
+#         right = expected_df, 
+#         check_dtype = check_dtype,
+#         **kwarg
+#         )
+
+@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
+def test_freq_table(backend) -> None:
+    path = f'{tests_path}/fixtures/compare_group_means_{backend}.csv'
+    
+    output_df = eda_nw.freq_table(
+        penguins_dict.get(backend), 
+        'species', to_native = False
+        )
+    
+    _assert_df_eq(
+        output_df, 
+        path_fixture = path, 
+        update_fixture = True
+        )
