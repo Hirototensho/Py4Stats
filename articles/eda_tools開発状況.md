@@ -15,15 +15,15 @@
 | compare_df_cols      | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | compare_df_record    | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | compare_df_stats     | DataFrame        | ✅       | ✅       | ✅        |                                            |
-| compare_group_means  | DataFrame        | ✅       | ⭕️       | ⭕️        | 出力が pd.DataFram に限定                    |
-| compare_group_median | DataFrame        | ✅       | ⭕️       | ⭕️        | 出力が pd.DataFram に限定                    |
+| compare_group_means  | DataFrame        | ✅       | ✅       | ✅        |                                            |
+| compare_group_median | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | crosstab             | DataFrame        | ✅       | ✅       | ⭕️        | Pyarrow は Polars 依存の実装                 |
 | diagnose             | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | diagnose_category    | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | filtering_out        | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | freq_table           | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | implies_exper        | pd.Series        | ✅       | ❌       | ❌        | pd.DataFrame.eval() での使用を想定した関数     |
-| is_dummy             | DataFrame/Series | ✅       | 🔼       | 🔼        |                                            |
+| is_dummy             | DataFrame/Series | ✅       | ✅       | ✅        |                                            |
 | is_number            | Series           | ✅       | ✅       | ✅        |                                            |
 | is_ymd_like          | Series           | ✅       | ✅       | ✅        |                                            |
 | is_ymd               | Series           | ✅       | ✅       | ✅        |                                            |
