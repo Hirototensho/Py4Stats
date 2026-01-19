@@ -341,7 +341,6 @@ def diagnose(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
         'columns':data_nw.columns,
         'dtype':list_dtypes,
         'missing_count':data_nw.null_count().row(0),
-        # 'unique_count':[data_nw[col].n_unique() for col in data_nw.columns]
         'unique_count':[s.n_unique() for s in data_nw.iter_columns()]
     }, backend = data_nw.implementation)\
     .with_columns(
@@ -2659,7 +2658,31 @@ def mean_ci_series(
 
 @pf.register_series_method
 def is_kanzi(data:IntoSeriesT, na_default:bool = True, to_native: bool = True) -> IntoSeriesT:
-    """与えられた文字列が ymd 形式の日付かどうかを判定する関数"""
+    """
+    Check whether each element contains Kanji characters.
+
+    This method returns a boolean Series indicating whether each string
+    element contains at least one Kanji character (Unicode range U+4E00–U+9FFF).
+
+    Args:
+        data:
+            Input Series containing string-like values.
+        na_default:
+            Boolean value to use for missing values (e.g., ``None``, ``NaN``).
+       to_native (bool, optional):
+            If True, convert the result to the native Series type of the
+            selected backend. If False, return a narwhals Series.
+            Defaults to True.
+
+    Returns:
+        Series of boolean values indicating whether each element contains
+        Kanji characters.
+
+    Notes:
+        - The check is performed using a regular expression.
+        - Missing values are filled with ``na_default`` before returning
+          the result.
+    """
     build.assert_logical(to_native, arg_name = 'to_native')
     build.assert_logical(na_default, arg_name = 'na_default')
 
@@ -2671,12 +2694,38 @@ def is_kanzi(data:IntoSeriesT, na_default:bool = True, to_native: bool = True) -
     return result
 
 
+
 # In[ ]:
 
 
 @pf.register_series_method
 def is_ymd(data:IntoSeriesT, na_default:bool = True, to_native: bool = True) -> IntoSeriesT:
-    """与えられた文字列が ymd 形式の日付かどうかを判定する関数"""
+    """
+    Check whether each element matches a YYYY-MM-DD date format.
+
+    This method tests whether each string matches the pattern
+    ``YYYY-M-D`` or ``YYYY-MM-DD`` using a regular expression.
+    No validation of actual calendar dates is performed.
+
+    Args:
+        data:
+            Input Series containing string-like values.
+        na_default:
+            Boolean value to use for missing values (e.g., ``None``, ``NaN``).
+        to_native (bool, optional):
+            If True, convert the result to the native Series type of the
+            selected backend. If False, return a narwhals Series.
+            Defaults to True.
+
+    Returns:
+        Series of boolean values indicating whether each element matches
+        the YYYY-MM-DD pattern.
+
+    Notes:
+        - This function checks only the string pattern, not date validity.
+        - Missing values are filled with ``na_default`` before returning
+          the result.
+    """
     build.assert_logical(to_native, arg_name = 'to_native')
     build.assert_logical(na_default, arg_name = 'na_default')
 
@@ -2690,9 +2739,39 @@ def is_ymd(data:IntoSeriesT, na_default:bool = True, to_native: bool = True) -> 
     if to_native: return result.to_native()
     return result
 
+
+# In[ ]:
+
+
 @pf.register_series_method
 def is_ymd_like(data:IntoSeriesT, na_default:bool = True, to_native: bool = True) -> IntoSeriesT:
-    """与えられた文字列が ymd 形式っぽい日付かどうかを判定する関数"""
+    """
+    Check whether each element resembles a date in year-month-day order.
+
+    This method detects strings that resemble date-like expressions such as
+    ``2023-1-5``, ``2023年1月5日``, or similar variants using a regular
+    expression.
+
+    Args:
+        data:
+            Input Series containing string-like values.
+        na_default:
+            Boolean value to use for missing values.
+        to_native (bool, optional):
+            If True, convert the result to the native Series type of the
+            selected backend. If False, return a narwhals Series.
+            Defaults to True.
+
+    Returns:
+        Series of boolean values indicating whether each element resembles
+        a year-month-day style date.
+
+    Notes:
+        - The check is based on a regular expression and does not validate
+          whether the date actually exists.
+        - Missing values are filled with ``na_default`` before returning
+          the result.
+    """
     build.assert_logical(to_native, arg_name = 'to_native')
     build.assert_logical(na_default, arg_name = 'na_default')
 
@@ -2712,7 +2791,35 @@ def is_ymd_like(data:IntoSeriesT, na_default:bool = True, to_native: bool = True
 
 @pf.register_series_method
 def is_number(data:IntoSeriesT, na_default:bool = True, to_native: bool = True) -> IntoSeriesT:
-    """文字列が数字であるかどうかを判定する関数"""
+    """
+    Check whether each element represents a numeric value.
+
+    This method evaluates whether each string element can be interpreted
+    as a number, including integers and scientific notation, while excluding
+    alphabetic characters, kana, kanji, phone-number-like patterns, and
+    other non-numeric forms.
+
+    Args:
+        data:
+            Input Series containing string-like values.
+        na_default:
+            Boolean value to use for missing values.
+        to_native (bool, optional):
+            If True, convert the result to the native Series type of the
+            selected backend. If False, return a narwhals Series.
+            Defaults to True.
+
+    Returns:
+        Series of boolean values indicating whether each element represents
+        a numeric value.
+
+    Notes:
+        - This function uses multiple regular-expression-based heuristics
+          rather than numeric type casting.
+        - Scientific notation (e.g., ``1e-3``) is treated as numeric.
+        - Missing values are filled with ``na_default`` before returning
+          the result.
+    """
     build.assert_logical(to_native, arg_name = 'to_native')
     build.assert_logical(na_default, arg_name = 'na_default')
 
@@ -2723,10 +2830,14 @@ def is_number(data:IntoSeriesT, na_default:bool = True, to_native: bool = True) 
         'numeric':'[0-9]+',
         'phone':'[0-9]{0,4}(?: |-)[0-9]{0,4}(?: |-)[0-9]{0,4}',
         'alpha':'[A-z]+',
-        'ひらがな': r'[\u3041-\u309F]+',
-        'カタカナ':r'[\u30A1-\u30FF]+',
-        '半角カタカナ':r'[\uFF61-\uFF9F]+',
-        '漢字':r'[\u4E00-\u9FFF]+',
+        # 'ひらがな': r'[\u3041-\u309F]+',
+        # 'カタカナ':r'[\u30A1-\u30FF]+',
+        # '半角カタカナ':r'[\uFF61-\uFF9F]+',
+        # '漢字':r'[\u4E00-\u9FFF]+',
+        'ひらがな': '[\u3041-\u309F]+',
+        'カタカナ':'[\u30A1-\u30FF]+',
+        '半角カタカナ':'[\uFF61-\uFF9F]+',
+        '漢字':'[\u4E00-\u9FFF]+',
         'ymd_like':'[Script=Han]{0,2}[0-9]{1,4}(?:年|-)[0-9]{1,2}(?:月|-)[0-9]{1,2}(?:日)?'
     }
 
@@ -2894,12 +3005,18 @@ def check_that(
 
     Returns:
         IntoFrameT:
-            Summary table indexed by rule name with columns:
-            - rule: name of rules which taken from key of `rule_dict`..
-            - item: number of evaluated items (rows)
-            - passes: number of True
-            - fails: number of False
-            - countna: number of NA (after handling NA rows)
+            Summary with columns:
+            - rule: name of rules which taken from key of `rule_dict`
+            - item: number of evaluated items.
+                    For rules evaluated per record, this corresponds to the number of rows
+                    in the input data. For rules evaluated at the dataset level (e.g., rules
+                    based on aggregated values), this value is 1.
+            - passes: number of records that were evaluated and determined to satisfy the rule.
+            - fails: number of records that were evaluated and determined not to satisfy the rule.
+            - countna: number of records for which the rule could not be evaluated due to missing values.
+                        For record-level rules, if any variable used in the rule contains a missing
+                        value for a given record, the result is treated as NA, and that record is
+                        counted here.
             - expression: the rule expression string
 
     Raises:
@@ -2929,17 +3046,17 @@ def check_that(
                 "Each rule must evaluate to a boolean expression."
             )
 
-        # passes 長さがデータの行数と等しい場合 ==============================
-        # 当該 rule の計算に使用した変数に欠測値が含まれる場合、
-        # 欠測値が含まれるレコードから計算された passes は NaN 扱いとします。
-        # これは関連する変数に欠測値が含まれる場合でも data_pd.eval(rule) を返すことへの対応です。
+        # 欠測値の代入処理 ==============================================================
+        # passes の長さがデータの行数と等しく rule の計算に使用した変数に欠測値が含まれる場合、 
+        # そのレコードの passes は欠測値として扱います。これはそのレコードでは、
+        # rule の検証ができなかったものとして扱うためです。
         if build.length(passes) == N:
             use_in_rule = [col for col in col_names if col in rule]
 
             any_na = data_pd.loc[:, use_in_rule].isna().any(axis = 'columns')
 
             passes = passes.astype('boolean').mask(any_na, pd.NA)
-        # ===================================================================
+        # =============================================================================
         res_dict = {
                     'rule':name,
                     'item':len(passes),
@@ -3067,7 +3184,7 @@ def check_viorate(
     Returns:
         IntoFrameT:
             Boolean DataFrame with one column per rule indicating violations 
-            (True means violation)or rule evaluation failed due to a missing value. 
+            (True means violation) or rule evaluation failed due to a missing value. 
             Additional columns:
             - any: True if any rule is violated or failed to evaluation in the row.
             - all: True if all rules are violated or failed to evaluation in the row.

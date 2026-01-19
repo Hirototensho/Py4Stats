@@ -1165,15 +1165,15 @@ def coef_dot(
     build.assert_logical(show_Intercept, arg_name = 'show_Intercept')
     build.assert_logical(show_vline, arg_name = 'show_vline')
 
-    columne_value = tidy_ci_high.columns
+    columne_name = tidy_ci_high.columns
     estimate = build.arg_match(
-        estimate, arg_name = 'estimate',values = columne_value
+        estimate, arg_name = 'estimate', values = columne_name
     )
     conf_lower = build.arg_match(
-        conf_lower, arg_name = 'conf_lower',values = columne_value
+        conf_lower, arg_name = 'conf_lower', values = columne_name
     )
     conf_higher = build.arg_match(
-        conf_higher, arg_name = 'conf_higher',values = columne_value
+        conf_higher, arg_name = 'conf_higher', values = columne_name
     )
     # ==============================================================
 

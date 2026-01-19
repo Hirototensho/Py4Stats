@@ -24,7 +24,7 @@
 | freq_table           | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | implies_exper        | pd.Series        | ✅       | ❌       | ❌        | pd.DataFrame.eval() での使用を想定した関数     |
 | is_dummy             | DataFrame/Series | ✅       | 🔼       | 🔼        |                                            |
-| is_number            | Series           | ✅       | 🔼       | 🔼        |                                            |
+| is_number            | Series           | ✅       | 🔼       | 🔼        | Pyarrow では動作不良あり                      |
 | is_ymd_like          | Series           | ✅       | 🔼       | 🔼        |                                            |
 | is_ymd               | Series           | ✅       | 🔼       | 🔼        |                                            |
 | mean_ci              | DataFrame/Series | ✅       | ✅       | ✅        |                                            |

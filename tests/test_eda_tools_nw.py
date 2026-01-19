@@ -733,20 +733,74 @@ def test_is_number_nw_basic_pd() -> None:
     assert not out.iloc[3]
     assert not out.iloc[4]
 
-def test_is_number_nw_extend_pd() -> None:
-    s = pd.Series([
-        '123', "0.12", "1e+07", '-31', '2個', '1A',
-        "2024-03-03", "2024年3月3日", "24年3月3日", '令和6年3月3日',
-        '0120-123-456', '15ｹ', "apple", "不明", None, np.nan
-        ])
-
-    expect = pd.Series([
+## テストの準備 ----------------------
+expect_is_number = [
         True, True, True, True, False, False, 
         False, False, False, False, False, False,
         False, False, True, True
-    ])
+    ]
 
-    assert (eda_nw.is_number(s) == expect).all()
+expect_is_ymd = [
+    False, False, False, False, False, False, True, False, 
+    False, False, False, False, False, False, True, True]
+
+expect_is_ymd_like = [
+    False, False, False, False, False, False, True, True, 
+    True, True, False, False, False, False, True, True]
+
+expect_is_kanzi = [
+    False, False, False, False, True, False, False, True, 
+    True, True, False, False, False, True, True, True]
+
+s_pd = pd.Series([
+    '123', "0.12", "1e+07", '-31', '2個', '1A',
+    "2024-03-03", "2024年3月3日", "24年3月3日", '令和6年3月3日',
+    '0120-123-456', '15ｹ', "apple", "不明", None, np.nan
+    ])
+s_pl = pl.from_pandas(s_pd)
+s_pa = pa.Table.from_pandas(s_pd.to_frame(name = 'string'))['string']
+
+## Pandas ----------------------
+@pytest.mark.parametrize(
+    "func, expect",
+    [
+        (eda_nw.is_kanzi, expect_is_kanzi),
+        (eda_nw.is_ymd, expect_is_ymd),
+        (eda_nw.is_ymd_like, expect_is_ymd_like),
+        (eda_nw.is_number, expect_is_number),
+    ],
+)
+def test_predicate_str_pd(func, expect) -> None:
+    res = func(s_pd).to_list()
+    assert (res == expect)
+
+## pl ----------------------
+@pytest.mark.parametrize(
+    "func, expect",
+    [
+        (eda_nw.is_kanzi, expect_is_kanzi),
+        (eda_nw.is_ymd, expect_is_ymd),
+        (eda_nw.is_ymd_like, expect_is_ymd_like),
+        (eda_nw.is_number, expect_is_number),
+    ],
+)
+def test_predicate_str_pl(func, expect) -> None:
+    res = func(s_pl).to_list()
+    assert (res == expect)
+
+## pa ----------------------
+@pytest.mark.parametrize(
+    "func, expect",
+    [
+        (eda_nw.is_kanzi, expect_is_kanzi),
+        (eda_nw.is_ymd, expect_is_ymd),
+        (eda_nw.is_ymd_like, expect_is_ymd_like),
+        (eda_nw.is_number, expect_is_number),
+    ],
+)
+def test_predicate_str_pa(func, expect) -> None:
+    res = func(s_pa).to_pylist()
+    assert (res == expect)
 
 # =========================================================
 # check_that

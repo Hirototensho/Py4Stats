@@ -12,13 +12,20 @@ is_ymd_like(data, na_default = True)
 
 - `py4stats.is_number()`：与えられた文字列が数字かどうかを判定します。
 - `py4stats.is_ymd()`：与えられた文字列が `yyyy-mm-dd` フォーマットにそった値かどうかを判定します。
-- `py4stats.is_ymd_like()`：与えられた文字列が `yyyy-mm-dd` に近いフォーマットの値かどうかを判定します。
+- `py4stats.is_ymd_like()`：与えられた文字列が'2024年3月3日' のような `yyyy-mm-dd` に近いフォーマットの値かどうかを判定します。
 
 ## 引数
 
-- `data`：`pandas.Series`（必須）
+- `data`：**IntoSeriesT**（必須）
+- 入力データ。narwhals が受け入れ可能な Series 互換オブジェクト
+  （例：`pandas.Series`、`polars.DataFrame`、`pyarrow.Table`）を指定できます。
 - `na_default`：**bool**</br>
  　NA値に対して関数が返す値。`na_default = True` （初期設定）であれば `None` や  `NaN` には True を返し、`na_default = False` であれば  False が返します。
+- `to_native`（**bool**, optional）<br>
+  `True` の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。<br>
+  `False` の場合、`narwhals.DataFrame` を返します。デフォルトは `True` で、`to_native = False` は、主にライブラリ内部での利用や、`backend` に依存しない後続処理を行う場合を想定したオプションです。
+
+
 
 ## 使用例
 
@@ -94,5 +101,6 @@ print(data.loc[~py4st.is_number(data['摂食者数']), '摂食者数'])
 #> 380    不明
 #> Name: 摂食者数, dtype: object
 ```
+
 ***
 [Return to **Function reference**.](../reference.md)
