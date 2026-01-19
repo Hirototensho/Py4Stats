@@ -1168,7 +1168,11 @@ def plot_mean_diff(
         stats_diff, arg_name = 'stats_diff',
         values = ['norm_diff', 'abs_diff', 'rel_diff']
         )
-    group_means = compare_group_means(group1, group2)
+    group_means = compare_group_means(
+        group1, group2, 
+        columns = 'common',
+        to_native = False
+        ).to_pandas().set_index('valiable')
 
     if ax is None:
         fig, ax = plt.subplots()
@@ -1213,7 +1217,11 @@ def plot_median_diff(
         arg_name = 'stats_diff'
         )
 
-    group_median = compare_group_median(group1, group2)
+    group_median = compare_group_median(
+        group1, group2, 
+        columns = 'common',
+        to_native = False
+        ).to_pandas().set_index('valiable')
 
     if ax is None:
         fig, ax = plt.subplots()
