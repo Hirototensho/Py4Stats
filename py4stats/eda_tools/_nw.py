@@ -341,7 +341,6 @@ def diagnose(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
         'columns':data_nw.columns,
         'dtype':list_dtypes,
         'missing_count':data_nw.null_count().row(0),
-        # 'unique_count':[data_nw[col].n_unique() for col in data_nw.columns]
         'unique_count':[s.n_unique() for s in data_nw.iter_columns()]
     }, backend = data_nw.implementation)\
     .with_columns(
@@ -1204,6 +1203,125 @@ def freq_table(
 # In[ ]:
 
 
+# @pf.register_dataframe_method
+
+# def tabyl(
+#     data: IntoFrameT,
+#     index: str,
+#     columns: str,
+#     margins: bool = True,
+#     margins_name: str = 'All',
+#     normalize: Union[bool, Literal["index", "columns", "all"]] = "index",
+#     dropna: bool = False,
+#     digits: int = 1,
+#     # to_native: bool = True,
+#     **kwargs: Any
+# ) -> pd.DataFrame:
+#     """Create a crosstab with counts and (optionally) percentages in parentheses.
+
+#     This function produces a table similar to `janitor::tabyl()` (R), where the
+#     main cell is a count and percentages can be appended like: `count (xx.x%)`.
+
+#     Args:
+#         data (IntoFrameT):
+#             Input DataFrame. Any DataFrame-like object supported by narwhals
+#             (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
+#         index (str):
+#             Column name used for row categories.
+#         columns (str):
+#             Column name used for column categories.
+#         margins (bool):
+#             Add margins (totals) if True.
+#         margins_name (str):
+#             Name of the margin row/column.
+#         normalize (bool or {'index','columns','all'}):
+#             If False, return counts only.
+#             Otherwise, compute percentages normalized by the specified axis.
+#         dropna (bool):
+#             Whether to drop NaN from counts.
+#         digits (int):
+#             Number of decimal places for percentages.
+
+#     Returns:
+#         pandas.DataFrame:
+#             Crosstab table. If `normalize` is not False, cells contain strings like
+#             `"count (xx.x%)"`. Otherwise counts (as strings after formatting).
+#     """
+#     # 引数のアサーション ==============================================
+#     build.assert_logical(margins, arg_name = 'margins')
+#     build.assert_character(margins_name, arg_name = 'margins_name')
+#     build.assert_logical(dropna, arg_name = 'dropna')
+#     build.assert_count(digits, arg_name = 'digits')
+#     # build.assert_logical(to_native, arg_name = 'to_native')
+#     # ==============================================================
+
+#     data_nw = nw.from_native(data)
+
+#     if(not isinstance(normalize, bool)):
+#       normalize = build.arg_match(
+#           normalize, arg_name = 'normalize',
+#           values = ['index', 'columns', 'all']
+#           )
+
+#     # index または columns に bool 値が指定されていると後続処理でエラーが生じるので、
+#     # 文字列型に cast します。
+#     data_nw = data_nw[[index, columns]].with_columns(
+#        ncs.boolean().cast(nw.String)
+#     )
+
+#     # 度数クロス集計表（最終的な表では左側の数字）
+#     args_dict = locals()
+#     args_dict.pop('normalize')
+#     args_dict.pop('data')
+#     # args_dict.pop('to_native')
+
+#     c_tab1 = crosstab(
+#         data = data_nw,
+#         normalize = False,
+#         to_native = False,
+#         **args_dict
+#        ).to_pandas().set_index(index)
+
+#     c_tab1 = c_tab1.apply(build.style_number, digits = 0)
+#     # return c_tab1
+
+#     if(normalize != False):
+#         # 回答率クロス集計表（最終的な表では括弧内の数字）
+#         c_tab2 = crosstab(
+#             data = data_nw, 
+#             normalize = normalize, 
+#             to_native = False,
+#             **args_dict
+#            ).to_pandas().set_index(index)
+
+#         # 2つめのクロス集計表の回答率をdigitsで指定した桁数のパーセントに換算し、文字列化します。
+#         c_tab2 = c_tab2.apply(build.style_percent, digits = digits)
+
+#         # return c_tab2
+#         col = c_tab2.columns
+#         idx = c_tab2.index
+#         c_tab1 = c_tab1.astype('str')
+#         # 1つめのクロス集計表も文字列化して、↑で計算したパーセントに丸括弧と%記号を追加したものを文字列として結合します。
+#         c_tab1.loc[idx, col] = c_tab1.astype('str').loc[idx, col] + ' (' + c_tab2 + ')'
+
+#     return c_tab1
+
+#     # if to_native and data_nw.implementation.is_pandas():
+#     #    return c_tab1
+
+#     # c_tab1 = c_tab1.reset_index()
+#     # dict_list = [c_tab1.loc[i, :].to_dict() for i in c_tab1.index]
+#     # result = nw.from_dicts(dict_list, backend = data_nw.implementation)
+
+#     # if to_native: return result.to_native()
+#     # return result
+
+
+# <!-- ## `diagnose_category()`：カテゴリー変数専用の要約関数 -->
+
+# In[ ]:
+
+
 @pf.register_dataframe_method
 def tabyl(
     data: IntoFrameT,
@@ -1214,8 +1332,9 @@ def tabyl(
     normalize: Union[bool, Literal["index", "columns", "all"]] = "index",
     dropna: bool = False,
     digits: int = 1,
+    to_native: bool = True,
     **kwargs: Any
-) -> pd.DataFrame:
+) -> IntoFrameT:
     """Create a crosstab with counts and (optionally) percentages in parentheses.
 
     This function produces a table similar to `janitor::tabyl()` (R), where the
@@ -1240,9 +1359,13 @@ def tabyl(
             Whether to drop NaN from counts.
         digits (int):
             Number of decimal places for percentages.
+        to_native (bool, optional):
+            If True, convert the result to the native DataFrame type of the
+            selected backend. If False, return a narwhals DataFrame.
+            Defaults to True.
 
     Returns:
-        pandas.DataFrame:
+        IntoFrameT:
             Crosstab table. If `normalize` is not False, cells contain strings like
             `"count (xx.x%)"`. Otherwise counts (as strings after formatting).
     """
@@ -1251,6 +1374,7 @@ def tabyl(
     build.assert_character(margins_name, arg_name = 'margins_name')
     build.assert_logical(dropna, arg_name = 'dropna')
     build.assert_count(digits, arg_name = 'digits')
+    # build.assert_logical(to_native, arg_name = 'to_native')
     # ==============================================================
 
     data_nw = nw.from_native(data)
@@ -1271,6 +1395,7 @@ def tabyl(
     args_dict = locals()
     args_dict.pop('normalize')
     args_dict.pop('data')
+    args_dict.pop('to_native')
 
     c_tab1 = crosstab(
         data = data_nw,
@@ -1279,9 +1404,7 @@ def tabyl(
         **args_dict
        ).to_pandas().set_index(index)
 
-    c_tab1 = c_tab1.apply(build.style_number, digits = 0)
-    # return c_tab1
-
+    c_tab1 = c_tab1.apply(build.style_number, digits = 0) # .astype('str')
 
     if(normalize != False):
         # 回答率クロス集計表（最終的な表では括弧内の数字）
@@ -1295,17 +1418,23 @@ def tabyl(
         # 2つめのクロス集計表の回答率をdigitsで指定した桁数のパーセントに換算し、文字列化します。
         c_tab2 = c_tab2.apply(build.style_percent, digits = digits)
 
-        # return c_tab2
         col = c_tab2.columns
         idx = c_tab2.index
-        c_tab1 = c_tab1.astype('str')
         # 1つめのクロス集計表も文字列化して、↑で計算したパーセントに丸括弧と%記号を追加したものを文字列として結合します。
-        c_tab1.loc[idx, col] = c_tab1.astype('str').loc[idx, col] + ' (' + c_tab2 + ')'
+        c_tab1.loc[idx, col] = c_tab1.loc[idx, col] + ' (' + c_tab2 + ')'
 
-    return c_tab1
+    if to_native and data_nw.implementation.is_pandas():
+       return c_tab1
 
+    c_tab1 = c_tab1.reset_index()
+    # バックエンドの書き換え ==============================================
+    # これは推奨される実装ではない、安易に使い回さないこと。
+    dict_list = [c_tab1.loc[i, :].to_dict() for i in c_tab1.index]
+    result = nw.from_dicts(dict_list, backend = data_nw.implementation)
+    #==================================================================
+    if to_native: return result.to_native()
+    return result
 
-# ## `diagnose_category()`：カテゴリー変数専用の要約関数
 
 # In[ ]:
 
@@ -1403,7 +1532,7 @@ def std_entropy(x: IntoSeriesT, dropna: bool = False) -> float:
 
     if dropna: x_nw = x_nw.drop_nulls()
 
-    K = x.n_unique()
+    K = x_nw.n_unique()
     result = entropy(x_nw, base = K) if K > 1 else 0.0
 
     return result
@@ -2116,8 +2245,15 @@ def make_rank_table(
     else:
         group_value = data_nw[group].unique()
 
+        # stat_values = [
+        #     aggfunc(data_nw.filter(nw.col(group) == g)[values].drop_nulls().to_native()) 
+        #     for g in group_value
+        #     ]
         stat_values = [
-            aggfunc(data_nw.filter(nw.col(group) == g)[values].drop_nulls().to_native()) 
+            aggfunc(
+                data_nw.filter(nw.col(group) == g)[values]
+                .drop_nulls().to_native()
+                ) 
             for g in group_value
             ]
 
@@ -2522,7 +2658,31 @@ def mean_ci_series(
 
 @pf.register_series_method
 def is_kanzi(data:IntoSeriesT, na_default:bool = True, to_native: bool = True) -> IntoSeriesT:
-    """与えられた文字列が ymd 形式の日付かどうかを判定する関数"""
+    """
+    Check whether each element contains Kanji characters.
+
+    This method returns a boolean Series indicating whether each string
+    element contains at least one Kanji character (Unicode range U+4E00–U+9FFF).
+
+    Args:
+        data:
+            Input Series containing string-like values.
+        na_default:
+            Boolean value to use for missing values (e.g., ``None``, ``NaN``).
+       to_native (bool, optional):
+            If True, convert the result to the native Series type of the
+            selected backend. If False, return a narwhals Series.
+            Defaults to True.
+
+    Returns:
+        Series of boolean values indicating whether each element contains
+        Kanji characters.
+
+    Notes:
+        - The check is performed using a regular expression.
+        - Missing values are filled with ``na_default`` before returning
+          the result.
+    """
     build.assert_logical(to_native, arg_name = 'to_native')
     build.assert_logical(na_default, arg_name = 'na_default')
 
@@ -2534,12 +2694,38 @@ def is_kanzi(data:IntoSeriesT, na_default:bool = True, to_native: bool = True) -
     return result
 
 
+
 # In[ ]:
 
 
 @pf.register_series_method
 def is_ymd(data:IntoSeriesT, na_default:bool = True, to_native: bool = True) -> IntoSeriesT:
-    """与えられた文字列が ymd 形式の日付かどうかを判定する関数"""
+    """
+    Check whether each element matches a YYYY-MM-DD date format.
+
+    This method tests whether each string matches the pattern
+    ``YYYY-M-D`` or ``YYYY-MM-DD`` using a regular expression.
+    No validation of actual calendar dates is performed.
+
+    Args:
+        data:
+            Input Series containing string-like values.
+        na_default:
+            Boolean value to use for missing values (e.g., ``None``, ``NaN``).
+        to_native (bool, optional):
+            If True, convert the result to the native Series type of the
+            selected backend. If False, return a narwhals Series.
+            Defaults to True.
+
+    Returns:
+        Series of boolean values indicating whether each element matches
+        the YYYY-MM-DD pattern.
+
+    Notes:
+        - This function checks only the string pattern, not date validity.
+        - Missing values are filled with ``na_default`` before returning
+          the result.
+    """
     build.assert_logical(to_native, arg_name = 'to_native')
     build.assert_logical(na_default, arg_name = 'na_default')
 
@@ -2553,9 +2739,39 @@ def is_ymd(data:IntoSeriesT, na_default:bool = True, to_native: bool = True) -> 
     if to_native: return result.to_native()
     return result
 
+
+# In[ ]:
+
+
 @pf.register_series_method
 def is_ymd_like(data:IntoSeriesT, na_default:bool = True, to_native: bool = True) -> IntoSeriesT:
-    """与えられた文字列が ymd 形式っぽい日付かどうかを判定する関数"""
+    """
+    Check whether each element resembles a date in year-month-day order.
+
+    This method detects strings that resemble date-like expressions such as
+    ``2023-1-5``, ``2023年1月5日``, or similar variants using a regular
+    expression.
+
+    Args:
+        data:
+            Input Series containing string-like values.
+        na_default:
+            Boolean value to use for missing values.
+        to_native (bool, optional):
+            If True, convert the result to the native Series type of the
+            selected backend. If False, return a narwhals Series.
+            Defaults to True.
+
+    Returns:
+        Series of boolean values indicating whether each element resembles
+        a year-month-day style date.
+
+    Notes:
+        - The check is based on a regular expression and does not validate
+          whether the date actually exists.
+        - Missing values are filled with ``na_default`` before returning
+          the result.
+    """
     build.assert_logical(to_native, arg_name = 'to_native')
     build.assert_logical(na_default, arg_name = 'na_default')
 
@@ -2575,7 +2791,35 @@ def is_ymd_like(data:IntoSeriesT, na_default:bool = True, to_native: bool = True
 
 @pf.register_series_method
 def is_number(data:IntoSeriesT, na_default:bool = True, to_native: bool = True) -> IntoSeriesT:
-    """文字列が数字であるかどうかを判定する関数"""
+    """
+    Check whether each element represents a numeric value.
+
+    This method evaluates whether each string element can be interpreted
+    as a number, including integers and scientific notation, while excluding
+    alphabetic characters, kana, kanji, phone-number-like patterns, and
+    other non-numeric forms.
+
+    Args:
+        data:
+            Input Series containing string-like values.
+        na_default:
+            Boolean value to use for missing values.
+        to_native (bool, optional):
+            If True, convert the result to the native Series type of the
+            selected backend. If False, return a narwhals Series.
+            Defaults to True.
+
+    Returns:
+        Series of boolean values indicating whether each element represents
+        a numeric value.
+
+    Notes:
+        - This function uses multiple regular-expression-based heuristics
+          rather than numeric type casting.
+        - Scientific notation (e.g., ``1e-3``) is treated as numeric.
+        - Missing values are filled with ``na_default`` before returning
+          the result.
+    """
     build.assert_logical(to_native, arg_name = 'to_native')
     build.assert_logical(na_default, arg_name = 'na_default')
 
@@ -2586,10 +2830,14 @@ def is_number(data:IntoSeriesT, na_default:bool = True, to_native: bool = True) 
         'numeric':'[0-9]+',
         'phone':'[0-9]{0,4}(?: |-)[0-9]{0,4}(?: |-)[0-9]{0,4}',
         'alpha':'[A-z]+',
-        'ひらがな': r'[\u3041-\u309F]+',
-        'カタカナ':r'[\u30A1-\u30FF]+',
-        '半角カタカナ':r'[\uFF61-\uFF9F]+',
-        '漢字':r'[\u4E00-\u9FFF]+',
+        # 'ひらがな': r'[\u3041-\u309F]+',
+        # 'カタカナ':r'[\u30A1-\u30FF]+',
+        # '半角カタカナ':r'[\uFF61-\uFF9F]+',
+        # '漢字':r'[\u4E00-\u9FFF]+',
+        'ひらがな': '[\u3041-\u309F]+',
+        'カタカナ':'[\u30A1-\u30FF]+',
+        '半角カタカナ':'[\uFF61-\uFF9F]+',
+        '漢字':'[\u4E00-\u9FFF]+',
         'ymd_like':'[Script=Han]{0,2}[0-9]{1,4}(?:年|-)[0-9]{1,2}(?:月|-)[0-9]{1,2}(?:日)?'
     }
 
@@ -2621,12 +2869,121 @@ def is_number(data:IntoSeriesT, na_default:bool = True, to_native: bool = True) 
 # In[ ]:
 
 
-@pf.register_dataframe_method
+# @pf.register_dataframe_method
+# def check_that(
+#     data: IntoFrameT,
+#     rule_dict: Union[Mapping[str, str], pd.Series],
+#     **kwargs: Any,
+# ) -> pd.DataFrame:
+#     """Evaluate validation rules and summarize pass/fail counts.
+
+#     Each rule is an expression evaluated by `pd.DataFrame.eval(...)` and must return
+#     a boolean array-like of length equal to the number of rows, or a scalar bool.
+
+#     Args:
+#         data (IntoFrameT):
+#             Input DataFrame. Any DataFrame-like object supported by narwhals
+#             (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
+#         rule_dict (dict or pandas.Series):
+#             Mapping from rule name to expression string (for `DataFrame.eval`).
+#             If a Series is given, it is converted to dict.
+#         **kwargs:
+#             Keyword arguments forwarded to `DataFrame.eval(...)` (e.g., engine, parser).
+
+#     Returns:
+#         pandas.DataFrame:
+#             Summary table indexed by rule name with columns:
+#             - item: number of evaluated items (rows)
+#             - passes: number of True
+#             - fails: number of False
+#             - coutna: number of NA (after handling NA rows)
+#             - expression: the rule expression string
+
+#     Raises:
+#         AssertionError:
+#             If rule expressions are not strings, or the evaluation result is not boolean.
+#     """
+#     data_pd = nw.from_native(data).to_pandas()
+#     return check_that_pandas(data_pd, rule_dict = rule_dict, **kwargs)
+
+
+# In[ ]:
+
+
+# def check_that_pandas(
+#     data: pd.DataFrame,
+#     rule_dict: Union[Mapping[str, str], pd.Series],
+#     **kwargs: Any,
+# ) -> pd.DataFrame:
+#   """Evaluate validation rules and summarize pass/fail counts.
+
+#   Each rule is an expression evaluated by `DataFrame.eval(...)` and must return
+#   a boolean array-like of length equal to the number of rows, or a scalar bool.
+
+#   Args:
+#       data (pandas.DataFrame):
+#           Data to validate.
+#       rule_dict (dict or pandas.Series):
+#           Mapping from rule name to expression string (for `DataFrame.eval`).
+#           If a Series is given, it is converted to dict.
+#       **kwargs:
+#           Keyword arguments forwarded to `DataFrame.eval(...)` (e.g., engine, parser).
+
+#   Returns:
+#       pandas.DataFrame:
+#           Summary table indexed by rule name with columns:
+#           - item: number of evaluated items (rows)
+#           - passes: number of True
+#           - fails: number of False
+#           - coutna: number of NA (after handling NA rows)
+#           - expression: the rule expression string
+
+#   Raises:
+#       AssertionError:
+#           If rule expressions are not strings, or the evaluation result is not boolean.
+#   """
+#   if(isinstance(rule_dict, pd.Series)): rule_dict = rule_dict.to_dict()
+
+#   [build.assert_character(x, arg_name = 'rule_dict') for x in rule_dict.values()]
+
+#   result_list = []
+#   for i, name in enumerate(rule_dict):
+#     condition = data.eval(rule_dict[name], **kwargs)
+#     condition = pd.Series(condition)
+#     assert build.is_logical(condition),\
+#     f"Result of rule(s) must be of type 'bool'. But result of '{name}' is '{condition.dtype}'."
+
+#     if len(condition) == len(data):
+#       in_exper = [s in rule_dict[name] for s in data.columns]
+#       any_na = data.loc[:, in_exper].isna().any(axis = 'columns')
+#       condition = condition.astype('boolean')
+#       condition = condition.where(~any_na)
+
+#     res_df = pd.DataFrame({
+#         'item':len(condition),
+#         'passes':condition.sum(skipna = True),
+#         'fails':(~condition).sum(skipna = True),
+#         'coutna':condition.isna().sum(),
+#         'expression':rule_dict[name]
+#         }, index = [name])
+
+#     result_list.append(res_df)
+
+#   result_df = pd.concat(result_list)
+#   result_df.index.name = 'name'
+
+#   return result_df
+
+
+# In[ ]:
+
+
 def check_that(
     data: IntoFrameT,
     rule_dict: Union[Mapping[str, str], pd.Series],
+    to_native: bool = True,
     **kwargs: Any,
-) -> pd.DataFrame:
+) -> IntoFrameT:
     """Evaluate validation rules and summarize pass/fail counts.
 
     Each rule is an expression evaluated by `pd.DataFrame.eval(...)` and must return
@@ -2639,174 +2996,258 @@ def check_that(
         rule_dict (dict or pandas.Series):
             Mapping from rule name to expression string (for `DataFrame.eval`).
             If a Series is given, it is converted to dict.
+        to_native (bool, optional):
+            If True, convert the result to the native DataFrame type of the
+            selected backend. If False, return a narwhals DataFrame.
+            Defaults to True.
         **kwargs:
             Keyword arguments forwarded to `DataFrame.eval(...)` (e.g., engine, parser).
 
     Returns:
-        pandas.DataFrame:
-            Summary table indexed by rule name with columns:
-            - item: number of evaluated items (rows)
-            - passes: number of True
-            - fails: number of False
-            - coutna: number of NA (after handling NA rows)
+        IntoFrameT:
+            Summary with columns:
+            - rule: name of rules which taken from key of `rule_dict`
+            - item: number of evaluated items.
+                    For rules evaluated per record, this corresponds to the number of rows
+                    in the input data. For rules evaluated at the dataset level (e.g., rules
+                    based on aggregated values), this value is 1.
+            - passes: number of records that were evaluated and determined to satisfy the rule.
+            - fails: number of records that were evaluated and determined not to satisfy the rule.
+            - countna: number of records for which the rule could not be evaluated due to missing values.
+                        For record-level rules, if any variable used in the rule contains a missing
+                        value for a given record, the result is treated as NA, and that record is
+                        counted here.
             - expression: the rule expression string
 
     Raises:
-        AssertionError:
-            If rule expressions are not strings, or the evaluation result is not boolean.
+        ValueError:
+            If a rule expression does not evaluate to a boolean result.
     """
-    data_pd = nw.from_native(data).to_pandas()
-    return check_that_pandas(data_pd, rule_dict = rule_dict, **kwargs)
+    # 引数のアサーション ===============================================================
+    if hasattr(rule_dict, 'to_dict'): rule_dict = rule_dict.to_dict()
+    build.assert_character(rule_dict.values(), arg_name = 'rule_dict')
+    build.assert_logical(to_native, arg_name = 'to_native')
+    # ===============================================================================
+    data_nw = nw.from_native(data)
+    data_pd = data_nw.to_pandas()
+    col_names = data_nw.columns
+    N = data_nw.shape[0]
+
+    result_list = []
+    for name, rule in zip(rule_dict.keys(), rule_dict.values()):
+
+        passes = pd.Series(data_pd.eval(rule, **kwargs))
+
+        # `rule` 評価結果がブール値ではない場合、エラーを出す。
+        if not build.is_logical(passes):
+            raise ValueError(
+                "Result of rule evaluation must be boolean. "
+                f"But the result of rule '{name}' has dtype '{passes.dtype}'. "
+                "Each rule must evaluate to a boolean expression."
+            )
+
+        # 欠測値の代入処理 ==============================================================
+        # passes の長さがデータの行数と等しく rule の計算に使用した変数に欠測値が含まれる場合、 
+        # そのレコードの passes は欠測値として扱います。これはそのレコードでは、
+        # rule の検証ができなかったものとして扱うためです。
+        if build.length(passes) == N:
+            use_in_rule = [col for col in col_names if col in rule]
+
+            any_na = data_pd.loc[:, use_in_rule].isna().any(axis = 'columns')
+
+            passes = passes.astype('boolean').mask(any_na, pd.NA)
+        # =============================================================================
+        res_dict = {
+                    'rule':name,
+                    'item':len(passes),
+                    'passes':passes.sum(skipna = True),
+                    'fails':(~passes).sum(skipna = True),
+                    'countna':passes.isna().sum(),
+                    'expression':rule
+                    }
+
+        result_list.append(res_dict)
+
+    result = nw.from_dicts(result_list, backend = data_nw.implementation)
+
+    if to_native: return result.to_native()
+    return result
 
 
 # In[ ]:
 
 
-def check_that_pandas(
-    data: pd.DataFrame,
-    rule_dict: Union[Mapping[str, str], pd.Series],
-    **kwargs: Any,
-) -> pd.DataFrame:
-  """Evaluate validation rules and summarize pass/fail counts.
+# pf.register_dataframe_method
+# def check_viorate(
+#     data: IntoFrameT,
+#     rule_dict: Union[Mapping[str, str], pd.Series],
+#     **kwargs: Any,
+# ):
+#     """Return row-wise rule violation indicators for each rule.
 
-  Each rule is an expression evaluated by `DataFrame.eval(...)` and must return
-  a boolean array-like of length equal to the number of rows, or a scalar bool.
+#     Args:
+#         Input DataFrame. Any DataFrame-like object supported by narwhals
+#             (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
+#         rule_dict (dict or pandas.Series):
+#             Mapping from rule name to expression string (for `DataFrame.eval`).
+#             If a Series is given, it is converted to dict.
+#         **kwargs:
+#             Keyword arguments forwarded to `DataFrame.eval(...)`.
 
-  Args:
-      data (pandas.DataFrame):
-          Data to validate.
-      rule_dict (dict or pandas.Series):
-          Mapping from rule name to expression string (for `DataFrame.eval`).
-          If a Series is given, it is converted to dict.
-      **kwargs:
-          Keyword arguments forwarded to `DataFrame.eval(...)` (e.g., engine, parser).
+#     Returns:
+#         pandas.DataFrame:
+#             Boolean DataFrame with one column per rule indicating violations
+#             (True means violation). Additional columns:
+#             - any: True if any rule is violated in the row
+#             - all: True if all rules are violated in the row
 
-  Returns:
-      pandas.DataFrame:
-          Summary table indexed by rule name with columns:
-          - item: number of evaluated items (rows)
-          - passes: number of True
-          - fails: number of False
-          - coutna: number of NA (after handling NA rows)
-          - expression: the rule expression string
-
-  Raises:
-      AssertionError:
-          If rule expressions are not strings, or the evaluation result is not boolean.
-  """
-  if(isinstance(rule_dict, pd.Series)): rule_dict = rule_dict.to_dict()
-
-  [build.assert_character(x, arg_name = 'rule_dict') for x in rule_dict.values()]
-
-  result_list = []
-  for i, name in enumerate(rule_dict):
-    condition = data.eval(rule_dict[name], **kwargs)
-    condition = pd.Series(condition)
-    assert build.is_logical(condition),\
-    f"Result of rule(s) must be of type 'bool'. But result of '{name}' is '{condition.dtype}'."
-
-    if len(condition) == len(data):
-      in_exper = [s in rule_dict[name] for s in data.columns]
-      any_na = data.loc[:, in_exper].isna().any(axis = 'columns')
-      condition = condition.astype('boolean')
-      condition = condition.where(~any_na)
-
-    res_df = pd.DataFrame({
-        'item':len(condition),
-        'passes':condition.sum(skipna = True),
-        'fails':(~condition).sum(skipna = True),
-        'coutna':condition.isna().sum(),
-        'expression':rule_dict[name]
-        }, index = [name])
-
-    result_list.append(res_df)
-
-  result_df = pd.concat(result_list)
-  result_df.index.name = 'name'
-
-  return result_df
+#     Raises:
+#         AssertionError:
+#             If rule expressions are not strings, or the evaluation result is not boolean.
+#     """
+#     data_pd = nw.from_native(data).to_pandas()
+#     return check_viorate_pandas(data_pd, rule_dict = rule_dict, **kwargs)
 
 
 # In[ ]:
 
 
-pf.register_dataframe_method
+# def check_viorate_pandas(
+#     data: pd.DataFrame,
+#     rule_dict: Union[Mapping[str, str], pd.Series],
+#     **kwargs: Any,
+# ) -> pd.DataFrame:
+#   """Return row-wise rule violation indicators for each rule.
+
+#   Args:
+#       data (pd.DataFrame):
+#           Data to validate.
+#       rule_dict (dict or pandas.Series):
+#           Mapping from rule name to expression string (for `DataFrame.eval`).
+#           If a Series is given, it is converted to dict.
+#       **kwargs:
+#           Keyword arguments forwarded to `DataFrame.eval(...)`.
+
+#   Returns:
+#       pandas.DataFrame:
+#           Boolean DataFrame with one column per rule indicating violations
+#           (True means violation). Additional columns:
+#           - any: True if any rule is violated in the row
+#           - all: True if all rules are violated in the row
+
+#   Raises:
+#       AssertionError:
+#           If rule expressions are not strings, or the evaluation result is not boolean.
+#   """
+#   if(isinstance(rule_dict, pd.Series)): rule_dict = rule_dict.to_dict()
+#   [build.assert_character(x, arg_name = 'rule_dict') for x in rule_dict.values()]
+
+#   df_viorate = pd.DataFrame()
+#   for name in rule_dict.keys():
+#     condition = data.eval(rule_dict.get(name), **kwargs)
+#     assert build.is_logical(condition),\
+#     f"Result of rule(s) must be of type 'bool'. But result of '{name}' is '{condition.dtype}'."
+
+#     df_viorate[name] = ~condition
+
+#   df_viorate['any'] = df_viorate.any(axis = 'columns')
+#   df_viorate['all'] = df_viorate.all(axis = 'columns')
+
+#   return df_viorate
+
+
+# In[ ]:
+
+
 def check_viorate(
     data: IntoFrameT,
     rule_dict: Union[Mapping[str, str], pd.Series],
+    to_native: bool = True,
     **kwargs: Any,
-):
+) -> IntoFrameT:
     """Return row-wise rule violation indicators for each rule.
 
     Args:
-        Input DataFrame. Any DataFrame-like object supported by narwhals
+        data (IntoFrameT):
+            Input DataFrame. Any DataFrame-like object supported by narwhals
             (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
         rule_dict (dict or pandas.Series):
             Mapping from rule name to expression string (for `DataFrame.eval`).
             If a Series is given, it is converted to dict.
+        to_native (bool, optional):
+            If True, convert the result to the native DataFrame type of the
+            selected backend. If False, return a narwhals DataFrame.
+            Defaults to True.
         **kwargs:
             Keyword arguments forwarded to `DataFrame.eval(...)`.
 
     Returns:
-        pandas.DataFrame:
-            Boolean DataFrame with one column per rule indicating violations
-            (True means violation). Additional columns:
-            - any: True if any rule is violated in the row
-            - all: True if all rules are violated in the row
+        IntoFrameT:
+            Boolean DataFrame with one column per rule indicating violations 
+            (True means violation) or rule evaluation failed due to a missing value. 
+            Additional columns:
+            - any: True if any rule is violated or failed to evaluation in the row.
+            - all: True if all rules are violated or failed to evaluation in the row.
 
     Raises:
-        AssertionError:
-            If rule expressions are not strings, or the evaluation result is not boolean.
+        ValueError:
+            If a rule expression does not evaluate to a boolean result.
     """
-    data_pd = nw.from_native(data).to_pandas()
-    return check_viorate_pandas(data_pd, rule_dict = rule_dict, **kwargs)
+    # 引数のアサーション ===============================================================
+    if hasattr(rule_dict, 'to_dict'): rule_dict = rule_dict.to_dict()
+    build.assert_character(rule_dict.values(), arg_name = 'rule_dict')
+    build.assert_logical(to_native, arg_name = 'to_native')
+    # ===============================================================================
+    data_nw = nw.from_native(data)
+    data_pd = data_nw.to_pandas()
+    value_impl = data_nw.implementation
+    N = data_nw.shape[0]
+    col_names = data_nw.columns
 
+    result_dict = dict()
 
-# In[ ]:
+    for name, rule in zip(rule_dict.keys(), rule_dict.values()):
+        violation = ~data_pd.eval(rule, **kwargs)
 
+        # `rule` 評価結果がブール値ではない場合、エラーを出す。
+        if not build.is_logical(violation):
+            raise ValueError(
+                "Result of rule evaluation must be boolean. "
+                f"But the result of rule '{name}' has dtype '{violation.dtype}'. "
+                "Each rule must evaluate to a boolean expression."
+            )
 
-def check_viorate_pandas(
-    data: pd.DataFrame,
-    rule_dict: Union[Mapping[str, str], pd.Series],
-    **kwargs: Any,
-) -> pd.DataFrame:
-  """Return row-wise rule violation indicators for each rule.
+        # 恐らく起きないと思いますが、violation が長さ N（データのレコード数）のSeries か、
+        # スカラー値でなければ、nw.from_dict() でエラーが生じるので、
+        # 当てはまらない場合は補正します。
+        if isinstance(violation, pd.Series) and build.length(violation) != N:
+            violation = violation.iloc[0]
 
-  Args:
-      data (pd.DataFrame):
-          Data to validate.
-      rule_dict (dict or pandas.Series):
-          Mapping from rule name to expression string (for `DataFrame.eval`).
-          If a Series is given, it is converted to dict.
-      **kwargs:
-          Keyword arguments forwarded to `DataFrame.eval(...)`.
+        if not isinstance(violation, pd.Series) and build.length(violation) == 1:
+            violation = pd.Series(N * [violation])
 
-  Returns:
-      pandas.DataFrame:
-          Boolean DataFrame with one column per rule indicating violations
-          (True means violation). Additional columns:
-          - any: True if any rule is violated in the row
-          - all: True if all rules are violated in the row
+        result_dict.update({name: violation})
 
-  Raises:
-      AssertionError:
-          If rule expressions are not strings, or the evaluation result is not boolean.
-  """
-  if(isinstance(rule_dict, pd.Series)): rule_dict = rule_dict.to_dict()
-  [build.assert_character(x, arg_name = 'rule_dict') for x in rule_dict.values()]
+    # any と all 列の追加 =============================================================
+    result_pd = pd.DataFrame(result_dict)
+    result_dict.update({
+        'any': result_pd.any(axis = 'columns'),
+        'all': result_pd.all(axis = 'columns')
+    })
+    # ===============================================================================
+    # return result_dict
+    result = nw.from_dict(
+            result_dict, 
+            backend = value_impl
+        ).select(
+            nw.col(list(rule_dict.keys())),
+            nw.col('any', 'all')
+            ) 
+            # 列の並びを key の並びと一致させるため
 
-  df_viorate = pd.DataFrame()
-  for i, name in enumerate(rule_dict):
-    condition = data.eval(rule_dict[name], **kwargs)
-    assert build.is_logical(condition),\
-    f"Result of rule(s) must be of type 'bool'. But result of '{name}' is '{condition.dtype}'."
-
-    df_viorate[name] = ~condition
-
-  df_viorate['any'] = df_viorate.any(axis = 'columns')
-  df_viorate['all'] = df_viorate.all(axis = 'columns')
-
-  return df_viorate
+    # return result
+    if to_native: return result.to_native()
+    return result
 
 
 # ### helper function for pandas `DataFrame.eval()`
@@ -2892,7 +3333,6 @@ def set_miss(
   ]
 
   if n is not None: 
-    # build.assert_count(n, lower = 0, upper = len(x), nullable = True)
     n_to_miss = np.max([n - n_miss, 0])
     if n_to_miss <=0:
       warnings.warn(
@@ -2904,7 +3344,6 @@ def set_miss(
       return x
 
   elif prop is not None: 
-    # build.assert_numeric(prop, lower = 0, upper = 1)
     n_non_miss = non_miss.shape[0]
 
     n_to_miss = int(np.max([
@@ -3329,15 +3768,12 @@ def plot_category(
         )
 
     list_values = table_to_plot['value'].unique().to_list()
-
-    list_values.reverse()
-
     # if nw.is_ordered_categorical(table_to_plot['value']): 
     #     list_values = table_to_plot['value'].cat.get_categories().to_list() 
-    #     list_values.reverse() 
     # else: 
     #     list_values = table_to_plot['value'].unique().to_list() 
-    #     list_values.reverse()
+
+    list_values = list_values[::-1]
 
     # グラフの作図 ==================================================
     make_categ_barh(

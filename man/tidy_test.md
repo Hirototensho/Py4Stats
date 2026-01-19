@@ -26,7 +26,7 @@ tidy_test(x, conf_level = 0.95, **kwargs)
 - `statistics`</br>
 　仮説検定の標本検定統計量。
 - `p_value`</br>
- 　両側検定の標本p-値
+  両側検定の標本p-値
 - `conf_lower`</br>
 　信頼区間の下側信頼限界
 - `conf_higher`</br>

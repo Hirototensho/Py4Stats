@@ -40,6 +40,28 @@ mroz = wooldridge.data('mroz')
 mroz_pl = pl.from_pandas(mroz)
 mroz_pa = pa.Table.from_pandas(mroz)
 
+penguins_dict = {
+    'pd':penguins,
+    'pl':penguins_pl,
+    'pa':penguins_pa
+}
+
+adelie_dict = {
+    'pd':adelie,
+    'pl':adelie_pl,
+    'pa':adelie_pa
+}
+
+gentoo_dict = {
+    'pd':gentoo,
+    'pl':gentoo_pl,
+    'pa':gentoo_pa
+}
+
+# =========================================================
+# テスト用関数の定義
+# =========================================================
+
 def _assert_df_fixture(output_df, fixture_csv: str, check_dtype: bool = False, index_col = 0, **kwarg) -> None:
     if hasattr(output_df, 'to_pandas'):
         output_df = output_df.to_pandas()
@@ -220,12 +242,18 @@ def test_tabyl_pd():
 
 
 def test_tabyl_pl():
-    output_df = eda_nw.tabyl(penguins_pl, 'island', 'species', normalize = 'index')
+    output_df = eda_nw.tabyl(
+            penguins_pl, 'island', 'species', 
+            normalize = 'index', to_native = False
+        ).to_pandas()
     # output_df.to_csv(f'{tests_path}/fixtures/tabyl_pl.csv', index = True)
     _assert_df_record(output_df, 'tabyl_pl.csv', dtype = {'All':str})
 
 def test_tabyl_pa():
-    output_df = eda_nw.tabyl(penguins_pa, 'island', 'species', normalize = 'index')
+    output_df = eda_nw.tabyl(
+        penguins_pa, 'island', 'species', 
+        normalize = 'index', to_native = False
+    ).to_pandas()
     # output_df.to_csv(f'{tests_path}/fixtures/tabyl_pa.csv', index = True)
     _assert_df_record(output_df, 'tabyl_pa.csv', dtype = {'All':str})
 
@@ -532,19 +560,82 @@ def test_Pareto_plot_pa() -> None:
     assert len(ax.patches) > 0
 
 # ================================================================
-# compare_group_means_nw / compare_group_median_nw
+# compare_group_means / compare_group_median
 # ================================================================
-def test_compare_group_means_pd() -> None:
-    output_df = eda_nw.compare_group_means(adelie, gentoo)
-    # output_df.to_csv(f'{tests_path}/fixtures/compare_group_means_nw.csv')
-    expected_df = pd.read_csv(f'{tests_path}/fixtures/compare_group_means_nw.csv', index_col = 0)
-    assert_frame_equal(output_df, expected_df)
+@pytest.mark.parametrize(
+    "backend",
+    [
+        ('pd'),
+        ('pl'),
+        ('pa'),
+    ],
+)
+def test_compare_group_means(backend) -> None:
+    output_df = eda_nw.compare_group_means(
+        adelie_dict.get(backend), 
+        gentoo_dict.get(backend)
+        ) # -> pd.DataFrame
+    
+    # output_df.to_csv(f'{tests_path}/fixtures/compare_group_means_{backend}.csv')
+    
+    _assert_df_fixture(output_df, f'compare_group_means_{backend}.csv')
 
-def test_compare_group_median_pd() -> None:
-    output_df = eda_nw.compare_group_median(adelie, gentoo)
-    # output_df.to_csv(f'{tests_path}/fixtures/compare_group_median_nw.csv')
-    expected_df = pd.read_csv(f'{tests_path}/fixtures/compare_group_median_nw.csv', index_col = 0)
-    assert_frame_equal(output_df, expected_df)
+@pytest.mark.parametrize(
+    "backend",
+    [
+        ('pd'),
+        ('pl'),
+        ('pa'),
+    ],
+)
+def test_compare_group_median(backend) -> None:
+    output_df = eda_nw.compare_group_median(
+        adelie_dict.get(backend), 
+        gentoo_dict.get(backend)
+        ) # -> pd.DataFrame
+    
+    # output_df.to_csv(f'{tests_path}/fixtures/compare_group_median_{backend}.csv')
+    
+    _assert_df_fixture(output_df, f'compare_group_median_{backend}.csv')
+# ================================================================
+# plot_mean_diff / plot_median_diff
+# ================================================================
+
+@pytest.mark.parametrize(
+    "stats_diff",
+    [
+        ('norm_diff'),
+        ('abs_diff'),
+        ('rel_diff'),
+    ],
+)
+def test_plot_mean_diff(stats_diff) -> None:
+    fig, ax = plt.subplots()
+    eda_nw.plot_mean_diff(
+        penguins.query('species == "Gentoo"'),
+        penguins.query('species == "Adelie"'),
+        stats_diff = stats_diff,
+        ax = ax
+    );
+    assert len(ax.get_lines()) > 0 and len(ax.collections) > 0
+
+@pytest.mark.parametrize(
+    "stats_diff",
+    [
+        ('abs_diff'),
+        ('rel_diff'),
+    ],
+)
+def test_plot_median_diff(stats_diff) -> None:
+    fig, ax = plt.subplots()
+    eda_nw.plot_mean_diff(
+        penguins.query('species == "Gentoo"'),
+        penguins.query('species == "Adelie"'),
+        stats_diff = stats_diff,
+        ax = ax
+    );
+    assert len(ax.get_lines()) > 0 and len(ax.collections) > 0
+
 
 # ================================================================
 # mean_qi / median_qi / mean_ci (Pandas)
@@ -642,34 +733,86 @@ def test_is_number_nw_basic_pd() -> None:
     assert not out.iloc[3]
     assert not out.iloc[4]
 
-def test_is_number_nw_extend_pd() -> None:
-    s = pd.Series([
-        '123', "0.12", "1e+07", '-31', '2個', '1A',
-        "2024-03-03", "2024年3月3日", "24年3月3日", '令和6年3月3日',
-        '0120-123-456', '15ｹ', "apple", "不明", None, np.nan
-        ])
+## テストの準備 ----------------------
+expect_is_number = [
+        True, True, True, True, False, False, False, False, 
+        False, False, False, False, False, False, True, True]
+expect_is_ymd = [
+    False, False, False, False, False, False, True, False, 
+    False, False, False, False, False, False, True, True]
 
-    expect = pd.Series([
-        True, True, True, True, False, False, 
-        False, False, False, False, False, False,
-        False, False, True, True
+expect_is_ymd_like = [
+    False, False, False, False, False, False, True, True, 
+    True, True, False, False, False, False, True, True]
+
+expect_is_kanzi = [
+    False, False, False, False, True, False, False, True, 
+    True, True, False, False, False, True, True, True]
+
+s_pd = pd.Series([
+    '123', "0.12", "1e+07", '-31', '2個', '1A',
+    "2024-03-03", "2024年3月3日", "24年3月3日", '令和6年3月3日',
+    '0120-123-456', '15ｹ', "apple", "不明", None, np.nan
     ])
+s_pl = pl.from_pandas(s_pd)
+s_pa = pa.Table.from_pandas(s_pd.to_frame(name = 'string'))['string']
 
-    assert (eda_nw.is_number(s) == expect).all()
+## Pandas ----------------------
+@pytest.mark.parametrize(
+    "func, expect",
+    [
+        (eda_nw.is_kanzi, expect_is_kanzi),
+        (eda_nw.is_ymd, expect_is_ymd),
+        (eda_nw.is_ymd_like, expect_is_ymd_like),
+        (eda_nw.is_number, expect_is_number),
+    ],
+)
+def test_predicate_str_pd(func, expect) -> None:
+    res = func(s_pd).to_list()
+    assert (res == expect)
+
+## pl ----------------------
+@pytest.mark.parametrize(
+    "func, expect",
+    [
+        (eda_nw.is_kanzi, expect_is_kanzi),
+        (eda_nw.is_ymd, expect_is_ymd),
+        (eda_nw.is_ymd_like, expect_is_ymd_like),
+        (eda_nw.is_number, expect_is_number),
+    ],
+)
+def test_predicate_str_pl(func, expect) -> None:
+    res = func(s_pl).to_list()
+    assert (res == expect)
+
+## pa ----------------------
+@pytest.mark.parametrize(
+    "func, expect",
+    [
+        (eda_nw.is_kanzi, expect_is_kanzi),
+        (eda_nw.is_ymd, expect_is_ymd),
+        (eda_nw.is_ymd_like, expect_is_ymd_like),
+        (eda_nw.is_number, expect_is_number),
+    ],
+)
+def test_predicate_str_pa(func, expect) -> None:
+    res = func(s_pa).to_pylist()
+    assert (res == expect)
 
 # =========================================================
-# check_that_nw / check_viorate_nw
+# check_that
 # =========================================================
 
-def test_check_that_nw_basic() -> None:
+def test_check_that_basic() -> None:
     d = pd.DataFrame({"x": [1, 2, 3], "y": [1, 0, 1]})
     rules = {"x_pos": "x > 0", "y_is1": "y == 1"}
     out = eda_nw.check_that(d, rules)
-    assert set(out.columns) == {"item", "passes", "fails", "coutna", "expression"}
+    assert set(out.columns) == {'rule', "item", "passes", "fails", "countna", "expression"}
+    out = out.set_index('rule')
     assert out.loc["x_pos", "fails"] == 0
     assert out.loc["y_is1", "fails"] == 1
 
-def test_check_viorate_nw_flags_rows() -> None:
+def test_check_viorate_flags_rows() -> None:
     d = pd.DataFrame({"x": [1, -1, 2]})
     rules = {"x_pos": "x > 0"}
     out = eda_nw.check_viorate(d, rules)
@@ -682,6 +825,8 @@ def test_check_viorate_nw_flags_rows() -> None:
 # retailers = pd.read_csv(URL, sep = ';')
 # retailers.columns = retailers.columns.to_series().str.replace('.', '_', regex = False)
 retailers = pd.read_csv(f'{tests_path}/fixtures/retailers.csv', index_col = 0)
+retailers_pl = pl.from_pandas(retailers)
+retailers_pa = pa.Table.from_pandas(retailers)
 
 rule_dict =  {
     'to':'turnover > 0',                                     # 売上高は厳密に正である
@@ -692,17 +837,41 @@ rule_dict =  {
     'mn':'profit.mean() > 0'                                 # セクター全体の平均的な利益はゼロよりも大きい
     }
 
-def test_check_that_nw_pd() -> None:
+def test_check_that_pd() -> None:
     output_df = eda_nw.check_that(retailers, rule_dict)
     # output_df.to_csv(f'{tests_path}/fixtures/check_that_nw.csv')
     expected_df = pd.read_csv(f'{tests_path}/fixtures/check_that_nw.csv', index_col = 0)
     assert_frame_equal(output_df, expected_df)
 
-def test_check_viorate() -> None:
+def test_check_that_pl() -> None:
+    output_df = eda_nw.check_that(retailers_pl, rule_dict, to_native = False)
+    # output_df.write_csv(f'{tests_path}/fixtures/check_that_pl.csv')
+    _assert_df_fixture_new(output_df, 'check_that_pl.csv')
+
+def test_check_that_pa() -> None:
+    output_df = eda_nw.check_that(retailers_pa, rule_dict, to_native = False)
+    # output_df.write_csv(f'{tests_path}/fixtures/check_that_pa.csv')
+    _assert_df_fixture_new(output_df, 'check_that_pa.csv')
+
+# =========================================================
+# check_that
+# =========================================================
+
+def test_check_viorate_pd() -> None:
     output_df = eda_nw.check_viorate(retailers, rule_dict)
     # output_df.to_csv(f'{tests_path}/fixtures/check_viorate_nw.csv')
     expected_df = pd.read_csv(f'{tests_path}/fixtures/check_viorate_nw.csv', index_col = 0)
     assert_frame_equal(output_df, expected_df)
+
+def test_check_viorate_pl() -> None:
+    output_df = eda_nw.check_viorate(retailers_pl, rule_dict, to_native = False)
+    # output_df.write_csv(f'{tests_path}/fixtures/check_viorate_pl.csv')
+    _assert_df_fixture_new(output_df, 'check_viorate_pl.csv')
+
+def test_check_viorate_pa() -> None:
+    output_df = eda_nw.check_viorate(retailers_pa, rule_dict, to_native = False)
+    # output_df.write_csv(f'{tests_path}/fixtures/check_viorate_pa.csv')
+    _assert_df_fixture_new(output_df, 'check_viorate_pa.csv')
 
 # ================================================================
 # implies_exper / is_complete / reducers (Sum/Mean/Max/Min/Median)

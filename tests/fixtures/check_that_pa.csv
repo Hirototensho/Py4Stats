@@ -1,0 +1,7 @@
+"rule","item","passes","fails","countna","expression"
+"to",60,56,0,4,"turnover > 0"
+"sc",60,39,5,16,"staff_costs / staff < 50"
+"cd1",60,44,0,16,"staff_costs > 0 | ~(staff > 0)"
+"cd2",60,44,0,16,"staff_costs > 0 | ~(staff > 0)"
+"bs",60,19,4,37,"turnover + other_rev == total_rev"
+"mn",1,1,0,0,"profit.mean() > 0"
