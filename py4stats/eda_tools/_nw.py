@@ -792,10 +792,90 @@ def compare_df_record(
 # In[ ]:
 
 
+def _row_to_2col_df(
+        data_nw,
+        row_id = 0,
+        values_to = 'values',
+        names_to = 'valiable'
+):
+    result = nw.from_dict({
+        names_to:  data_nw.columns,
+        values_to: data_nw.row(row_id)
+    }, backend = data_nw.implementation)
+
+    return result
+
+
+# In[ ]:
+
+
+# def compare_group_means(
+#     group1: IntoFrameT,
+#     group2: IntoFrameT,
+#     group_names: Sequence[str] = ('group1', 'group2'),
+# ) -> pd.DataFrame:
+#     """Compare group-wise means and derived difference metrics.
+
+#     Args:
+#         group1 (IntoFrameT):
+#             Data for group 1.Any DataFrame-like object supported by narwhals
+#             (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
+#         group2 (IntoFrameT):
+#             Data for group 2.
+#         group_names (list[str]):
+#             Names used for output columns. Must be length 2.
+
+#     Returns:
+#         pandas.DataFrame:
+#             DataFrame indexed by variable names with columns:
+#             - {group_names[0]}: mean of group 1
+#             - {group_names[1]}: mean of group 2
+#             - norm_diff: normalized difference using pooled variance
+#             - abs_diff: absolute difference
+#             - rel_diff: relative difference defined as
+#             2*(A-B)/(A+B)
+
+#     Notes:
+#         Constant columns are removed using `remove_constant` before comparison.
+#         Means/variances use `numeric_only=True`.
+#     """
+#     # 引数のアサーション ==============================================
+#     build.assert_character(group_names, arg_name = 'group_names')
+#     # ==============================================================
+#     group1 = nw.from_native(group1)
+#     group2 = nw.from_native(group2)
+#     group1 = remove_constant(group1, to_native = False)
+#     group2 = remove_constant(group2, to_native = False)
+
+#     res = pd.DataFrame({
+#         group_names[0]:group1.select(ncs.numeric().mean()).to_pandas().loc[0, :],
+#         group_names[1]:group2.select(ncs.numeric().mean()).to_pandas().loc[0, :]
+#     })
+
+#     s2A = group1.select(ncs.numeric().var()).to_pandas().loc[0, :]
+#     s2B = group2.select(ncs.numeric().var()).to_pandas().loc[0, :]
+#     nA = group1.shape[0]
+#     nB = group2.shape[0]
+
+#     s2_pooled = ((nA - 1) * s2A + (nB - 1) * s2B) / (nA + nB - 2)
+#     res['norm_diff'] = (res[group_names[0]] - res[group_names[1]]) / np.sqrt(s2_pooled)
+
+#     res['abs_diff'] = (res[group_names[0]] - res[group_names[1]]).abs()
+#     res['rel_diff'] = 2 * (res[group_names[0]] - res[group_names[1]]) \
+#                     /(res[group_names[0]] + res[group_names[1]])
+#     return res
+
+
+
+# In[ ]:
+
+
 def compare_group_means(
     group1: IntoFrameT,
     group2: IntoFrameT,
     group_names: Sequence[str] = ('group1', 'group2'),
+    columns: Literal['common', 'all'] = 'all',
+    to_native: bool = True
 ) -> pd.DataFrame:
     """Compare group-wise means and derived difference metrics.
 
@@ -807,7 +887,15 @@ def compare_group_means(
             Data for group 2.
         group_names (list[str]):
             Names used for output columns. Must be length 2.
+        columns (Literal["common", "all"], optional):
+            Policy that determines which columns are compared.
 
+            - `"all"` (default):
+                Require `group1` and `group2` to have exactly the same set of columns.
+            - `"common"`:
+                Compare only the intersection of columns present in both
+                `group1` and `group2`. Columns that exist in only one DataFrame
+                are ignored.
     Returns:
         pandas.DataFrame:
             DataFrame indexed by variable names with columns:
@@ -823,31 +911,134 @@ def compare_group_means(
         Means/variances use `numeric_only=True`.
     """
     # 引数のアサーション ==============================================
-    build.assert_character(group_names, arg_name = 'group_names')
+    build.assert_character(group_names, arg_name = 'group_names', len_arg = 2)
+    columns = build.arg_match(
+        columns,  arg_name = 'columns',
+        values = ['common', 'all']
+        )
+    if columns == "all": how_join = 'full'
+    else: how_join = 'inner'
+
     # ==============================================================
     group1 = nw.from_native(group1)
     group2 = nw.from_native(group2)
     group1 = remove_constant(group1, to_native = False)
     group2 = remove_constant(group2, to_native = False)
 
-    res = pd.DataFrame({
-        group_names[0]:group1.select(ncs.numeric().mean()).to_pandas().loc[0, :],
-        group_names[1]:group2.select(ncs.numeric().mean()).to_pandas().loc[0, :]
-    })
+    # 平均値の計算 =========================================================
+    stats_df1 = _row_to_2col_df(
+        group1.select(ncs.numeric().mean()), 
+        row_id = 0, values_to = group_names[0]
+        )
 
-    s2A = group1.select(ncs.numeric().var()).to_pandas().loc[0, :]
-    s2B = group2.select(ncs.numeric().var()).to_pandas().loc[0, :]
+    stats_df2 = _row_to_2col_df(
+        group2.select(ncs.numeric().mean()), 
+        row_id = 0, values_to = group_names[1]
+        )
+
+    # 分散の計算 =========================================================
+    var_df1 = _row_to_2col_df(
+        group1.select(ncs.numeric().var()), 
+        row_id = 0, values_to = 's2A'
+        )
+
+    var_df2 = _row_to_2col_df(
+        group2.select(ncs.numeric().var()),
+        row_id = 0, values_to = 's2B'
+        )
+
     nA = group1.shape[0]
     nB = group2.shape[0]
 
-    s2_pooled = ((nA - 1) * s2A + (nB - 1) * s2B) / (nA + nB - 2)
-    res['norm_diff'] = (res[group_names[0]] - res[group_names[1]]) / np.sqrt(s2_pooled)
+    var_df = var_df1.join(
+        var_df2,
+        on = 'valiable',
+        how = 'inner'
+    )\
+        .with_columns(
+        _s2_pooled = (
+            (nA - 1) * nw.col('s2A') + (nB - 1) * nw.col('s2B')) / 
+            (nA + nB - 2)
+    ).select('valiable', '_s2_pooled')
 
-    res['abs_diff'] = (res[group_names[0]] - res[group_names[1]]).abs()
-    res['rel_diff'] = 2 * (res[group_names[0]] - res[group_names[1]]) \
-                    /(res[group_names[0]] + res[group_names[1]])
-    return res
+    # データフレームの結合 ===============================================================
+    mean_sd2 = stats_df1\
+        .join(stats_df2, on = 'valiable', how = how_join)
 
+    if columns == "all":
+        mean_sd2 = mean_sd2.with_columns(
+            nw.when(nw.col("valiable").is_null()).then("valiable_right")\
+            .otherwise("valiable").alias('valiable')
+        )
+
+    mean_sd2 = mean_sd2.join(var_df, on = 'valiable', how = 'left')
+    # 差分統計量の計算 ==================================================================
+    result = mean_sd2\
+        .with_columns(
+            norm_diff = (nw.col(group_names[0]) - nw.col(group_names[1]))
+                        / nw.col('_s2_pooled').sqrt(),
+            abs_diff = (nw.col(group_names[0]) - nw.col(group_names[1])).abs(),
+            rel_diff = 2 * (nw.col(group_names[0]) - nw.col(group_names[1])) /
+                        (nw.col(group_names[0]) + nw.col(group_names[1]))
+    )\
+    .select(
+        'valiable', nw.col(group_names), 'norm_diff', 'abs_diff', 'rel_diff'
+    )
+    # ================================================================================
+    if to_native: return result.to_native()
+    return result
+
+
+
+# In[ ]:
+
+
+# def compare_group_median(
+#     group1: IntoFrameT,
+#     group2: IntoFrameT,
+#     group_names: Sequence[str] = ("group1", "group2"),
+# ) -> pd.DataFrame:
+#     """Compare group-wise medians and derived difference metrics.
+
+#     Args:
+#         group1 (IntoFrameT):
+#             Data for group 1.Any DataFrame-like object supported by narwhals
+#             (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
+#         group2 (IntoFrameT):
+#             Data for group 2.
+#         group_names (list[str]):
+#             Names used for output columns. Must be length 2.
+
+#     Returns:
+#         pandas.DataFrame:
+#             DataFrame indexed by variable names with columns:
+#             - {group_names[0]}: median of group 1
+#             - {group_names[1]}: median of group 2
+#             - abs_diff: absolute difference
+#             - rel_diff: relative difference defined as
+#             2*(A-B)/(A+B)
+
+#     Notes:
+#         Constant columns are removed using `remove_constant` before comparison.
+#         Medians use `numeric_only=True`.
+#     """
+#     # 引数のアサーション ==============================================
+#     build.assert_character(group_names, arg_name = 'group_names')
+#     # ==============================================================
+#     group1 = nw.from_native(group1)
+#     group2 = nw.from_native(group2)
+#     group1 = remove_constant(group1, to_native = False)
+#     group2 = remove_constant(group2, to_native = False)
+
+#     res = pd.DataFrame({
+#         group_names[0]:group1.select(ncs.numeric().median()).to_pandas().loc[0, :],
+#         group_names[1]:group2.select(ncs.numeric().median()).to_pandas().loc[0, :]
+#     })
+
+#     res['abs_diff'] = (res[group_names[0]] - res[group_names[1]]).abs()
+#     res['rel_diff'] = 2 * (res[group_names[0]] - res[group_names[1]]) \
+#                     /(res[group_names[0]] + res[group_names[1]])
+#     return res
 
 
 # In[ ]:
@@ -856,7 +1047,9 @@ def compare_group_means(
 def compare_group_median(
     group1: IntoFrameT,
     group2: IntoFrameT,
-    group_names: Sequence[str] = ("group1", "group2"),
+    group_names: Sequence[str] = ('group1', 'group2'),
+    columns: Literal['common', 'all'] = 'all',
+    to_native: bool = True
 ) -> pd.DataFrame:
     """Compare group-wise medians and derived difference metrics.
 
@@ -868,37 +1061,79 @@ def compare_group_median(
             Data for group 2.
         group_names (list[str]):
             Names used for output columns. Must be length 2.
+        columns (Literal["common", "all"], optional):
+            Policy that determines which columns are compared.
 
+            - `"all"` (default):
+                Require `group1` and `group2` to have exactly the same set of columns.
+            - `"common"`:
+                Compare only the intersection of columns present in both
+                `group1` and `group2`. Columns that exist in only one DataFrame
+                are ignored.
     Returns:
         pandas.DataFrame:
             DataFrame indexed by variable names with columns:
             - {group_names[0]}: median of group 1
             - {group_names[1]}: median of group 2
+            - norm_diff: normalized difference using pooled variance
             - abs_diff: absolute difference
             - rel_diff: relative difference defined as
             2*(A-B)/(A+B)
 
     Notes:
         Constant columns are removed using `remove_constant` before comparison.
-        Medians use `numeric_only=True`.
+        medians/variances use `numeric_only=True`.
     """
     # 引数のアサーション ==============================================
-    build.assert_character(group_names, arg_name = 'group_names')
+    build.assert_character(group_names, arg_name = 'group_names', len_arg = 2)
+    columns = build.arg_match(
+        columns,  arg_name = 'columns',
+        values = ['common', 'all']
+        )
+    if columns == "all": how_join = 'full'
+    else: how_join = 'inner'
+
     # ==============================================================
     group1 = nw.from_native(group1)
     group2 = nw.from_native(group2)
     group1 = remove_constant(group1, to_native = False)
     group2 = remove_constant(group2, to_native = False)
 
-    res = pd.DataFrame({
-        group_names[0]:group1.select(ncs.numeric().median()).to_pandas().loc[0, :],
-        group_names[1]:group2.select(ncs.numeric().median()).to_pandas().loc[0, :]
-    })
+    # 平均値の計算 =========================================================
+    stats_df1 = _row_to_2col_df(
+        group1.select(ncs.numeric().median()), 
+        row_id = 0, values_to = group_names[0]
+        )
 
-    res['abs_diff'] = (res[group_names[0]] - res[group_names[1]]).abs()
-    res['rel_diff'] = 2 * (res[group_names[0]] - res[group_names[1]]) \
-                    /(res[group_names[0]] + res[group_names[1]])
-    return res
+    stats_df2 = _row_to_2col_df(
+        group2.select(ncs.numeric().median()), 
+        row_id = 0, values_to = group_names[1]
+        )
+
+    # データフレームの結合 ===============================================================
+    stats_df = stats_df1\
+        .join(stats_df2, on = 'valiable', how = how_join)
+
+    if columns == "all":
+        stats_df = stats_df.with_columns(
+            nw.when(nw.col("valiable").is_null()).then("valiable_right")\
+            .otherwise("valiable").alias('valiable')
+        )
+
+    # 差分統計量の計算 ==================================================================
+    result = stats_df\
+        .with_columns(
+            abs_diff = (nw.col(group_names[0]) - nw.col(group_names[1])).abs(),
+            rel_diff = 2 * (nw.col(group_names[0]) - nw.col(group_names[1])) /
+                        (nw.col(group_names[0]) + nw.col(group_names[1]))
+    )\
+    .select(
+        'valiable', nw.col(group_names), 'abs_diff', 'rel_diff'
+    )
+    # ================================================================================
+    if to_native: return result.to_native()
+    return result
+
 
 
 # In[ ]:
@@ -2830,10 +3065,6 @@ def is_number(data:IntoSeriesT, na_default:bool = True, to_native: bool = True) 
         'numeric':'[0-9]+',
         'phone':'[0-9]{0,4}(?: |-)[0-9]{0,4}(?: |-)[0-9]{0,4}',
         'alpha':'[A-z]+',
-        # 'ひらがな': r'[\u3041-\u309F]+',
-        # 'カタカナ':r'[\u30A1-\u30FF]+',
-        # '半角カタカナ':r'[\uFF61-\uFF9F]+',
-        # '漢字':r'[\u4E00-\u9FFF]+',
         'ひらがな': '[\u3041-\u309F]+',
         'カタカナ':'[\u30A1-\u30FF]+',
         '半角カタカナ':'[\uFF61-\uFF9F]+',
@@ -2865,115 +3096,6 @@ def is_number(data:IntoSeriesT, na_default:bool = True, to_native: bool = True) 
 
 
 # ## 簡易なデータバリデーションツール
-
-# In[ ]:
-
-
-# @pf.register_dataframe_method
-# def check_that(
-#     data: IntoFrameT,
-#     rule_dict: Union[Mapping[str, str], pd.Series],
-#     **kwargs: Any,
-# ) -> pd.DataFrame:
-#     """Evaluate validation rules and summarize pass/fail counts.
-
-#     Each rule is an expression evaluated by `pd.DataFrame.eval(...)` and must return
-#     a boolean array-like of length equal to the number of rows, or a scalar bool.
-
-#     Args:
-#         data (IntoFrameT):
-#             Input DataFrame. Any DataFrame-like object supported by narwhals
-#             (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
-#         rule_dict (dict or pandas.Series):
-#             Mapping from rule name to expression string (for `DataFrame.eval`).
-#             If a Series is given, it is converted to dict.
-#         **kwargs:
-#             Keyword arguments forwarded to `DataFrame.eval(...)` (e.g., engine, parser).
-
-#     Returns:
-#         pandas.DataFrame:
-#             Summary table indexed by rule name with columns:
-#             - item: number of evaluated items (rows)
-#             - passes: number of True
-#             - fails: number of False
-#             - coutna: number of NA (after handling NA rows)
-#             - expression: the rule expression string
-
-#     Raises:
-#         AssertionError:
-#             If rule expressions are not strings, or the evaluation result is not boolean.
-#     """
-#     data_pd = nw.from_native(data).to_pandas()
-#     return check_that_pandas(data_pd, rule_dict = rule_dict, **kwargs)
-
-
-# In[ ]:
-
-
-# def check_that_pandas(
-#     data: pd.DataFrame,
-#     rule_dict: Union[Mapping[str, str], pd.Series],
-#     **kwargs: Any,
-# ) -> pd.DataFrame:
-#   """Evaluate validation rules and summarize pass/fail counts.
-
-#   Each rule is an expression evaluated by `DataFrame.eval(...)` and must return
-#   a boolean array-like of length equal to the number of rows, or a scalar bool.
-
-#   Args:
-#       data (pandas.DataFrame):
-#           Data to validate.
-#       rule_dict (dict or pandas.Series):
-#           Mapping from rule name to expression string (for `DataFrame.eval`).
-#           If a Series is given, it is converted to dict.
-#       **kwargs:
-#           Keyword arguments forwarded to `DataFrame.eval(...)` (e.g., engine, parser).
-
-#   Returns:
-#       pandas.DataFrame:
-#           Summary table indexed by rule name with columns:
-#           - item: number of evaluated items (rows)
-#           - passes: number of True
-#           - fails: number of False
-#           - coutna: number of NA (after handling NA rows)
-#           - expression: the rule expression string
-
-#   Raises:
-#       AssertionError:
-#           If rule expressions are not strings, or the evaluation result is not boolean.
-#   """
-#   if(isinstance(rule_dict, pd.Series)): rule_dict = rule_dict.to_dict()
-
-#   [build.assert_character(x, arg_name = 'rule_dict') for x in rule_dict.values()]
-
-#   result_list = []
-#   for i, name in enumerate(rule_dict):
-#     condition = data.eval(rule_dict[name], **kwargs)
-#     condition = pd.Series(condition)
-#     assert build.is_logical(condition),\
-#     f"Result of rule(s) must be of type 'bool'. But result of '{name}' is '{condition.dtype}'."
-
-#     if len(condition) == len(data):
-#       in_exper = [s in rule_dict[name] for s in data.columns]
-#       any_na = data.loc[:, in_exper].isna().any(axis = 'columns')
-#       condition = condition.astype('boolean')
-#       condition = condition.where(~any_na)
-
-#     res_df = pd.DataFrame({
-#         'item':len(condition),
-#         'passes':condition.sum(skipna = True),
-#         'fails':(~condition).sum(skipna = True),
-#         'coutna':condition.isna().sum(),
-#         'expression':rule_dict[name]
-#         }, index = [name])
-
-#     result_list.append(res_df)
-
-#   result_df = pd.concat(result_list)
-#   result_df.index.name = 'name'
-
-#   return result_df
-
 
 # In[ ]:
 
@@ -3072,88 +3194,6 @@ def check_that(
 
     if to_native: return result.to_native()
     return result
-
-
-# In[ ]:
-
-
-# pf.register_dataframe_method
-# def check_viorate(
-#     data: IntoFrameT,
-#     rule_dict: Union[Mapping[str, str], pd.Series],
-#     **kwargs: Any,
-# ):
-#     """Return row-wise rule violation indicators for each rule.
-
-#     Args:
-#         Input DataFrame. Any DataFrame-like object supported by narwhals
-#             (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
-#         rule_dict (dict or pandas.Series):
-#             Mapping from rule name to expression string (for `DataFrame.eval`).
-#             If a Series is given, it is converted to dict.
-#         **kwargs:
-#             Keyword arguments forwarded to `DataFrame.eval(...)`.
-
-#     Returns:
-#         pandas.DataFrame:
-#             Boolean DataFrame with one column per rule indicating violations
-#             (True means violation). Additional columns:
-#             - any: True if any rule is violated in the row
-#             - all: True if all rules are violated in the row
-
-#     Raises:
-#         AssertionError:
-#             If rule expressions are not strings, or the evaluation result is not boolean.
-#     """
-#     data_pd = nw.from_native(data).to_pandas()
-#     return check_viorate_pandas(data_pd, rule_dict = rule_dict, **kwargs)
-
-
-# In[ ]:
-
-
-# def check_viorate_pandas(
-#     data: pd.DataFrame,
-#     rule_dict: Union[Mapping[str, str], pd.Series],
-#     **kwargs: Any,
-# ) -> pd.DataFrame:
-#   """Return row-wise rule violation indicators for each rule.
-
-#   Args:
-#       data (pd.DataFrame):
-#           Data to validate.
-#       rule_dict (dict or pandas.Series):
-#           Mapping from rule name to expression string (for `DataFrame.eval`).
-#           If a Series is given, it is converted to dict.
-#       **kwargs:
-#           Keyword arguments forwarded to `DataFrame.eval(...)`.
-
-#   Returns:
-#       pandas.DataFrame:
-#           Boolean DataFrame with one column per rule indicating violations
-#           (True means violation). Additional columns:
-#           - any: True if any rule is violated in the row
-#           - all: True if all rules are violated in the row
-
-#   Raises:
-#       AssertionError:
-#           If rule expressions are not strings, or the evaluation result is not boolean.
-#   """
-#   if(isinstance(rule_dict, pd.Series)): rule_dict = rule_dict.to_dict()
-#   [build.assert_character(x, arg_name = 'rule_dict') for x in rule_dict.values()]
-
-#   df_viorate = pd.DataFrame()
-#   for name in rule_dict.keys():
-#     condition = data.eval(rule_dict.get(name), **kwargs)
-#     assert build.is_logical(condition),\
-#     f"Result of rule(s) must be of type 'bool'. But result of '{name}' is '{condition.dtype}'."
-
-#     df_viorate[name] = ~condition
-
-#   df_viorate['any'] = df_viorate.any(axis = 'columns')
-#   df_viorate['all'] = df_viorate.all(axis = 'columns')
-
-#   return df_viorate
 
 
 # In[ ]:
