@@ -891,38 +891,59 @@ def compare_group_means(
     columns: Literal['common', 'all'] = 'all',
     to_native: bool = True
 ) -> pd.DataFrame:
-    """Compare group-wise means and derived difference metrics.
+    """
+    Compare variable-wise means between two groups.
+
+    This function computes the mean of each numeric column for two input
+    data frames and combines the results into a single table. It also derives
+    simple difference metrics based on the group-wise means.
+
+    The function supports multiple DataFrame backends via narwhals
+    (e.g., pandas, polars, pyarrow).
 
     Args:
         group1 (IntoFrameT):
-            Data for group 1.Any DataFrame-like object supported by narwhals
-            (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
+            Data for the first group. Any DataFrame-like object supported by
+            narwhals (e.g., ``pandas.DataFrame``, ``polars.DataFrame``,
+            ``pyarrow.Table``) can be used.
         group2 (IntoFrameT):
-            Data for group 2.
-        group_names (list[str]):
-            Names used for output columns. Must be length 2.
-        columns (Literal["common", "all"], optional):
-            Policy that determines which columns are compared.
+            Data for the second group.
+        group_names (Sequence[str]):
+            Names used for the output columns corresponding to the two groups.
+            Must be a sequence of length 2.
+        columns (Literal['common', 'all']):
+            Specifies which variables to include when combining results from
+            the two groups.
 
-            - `"all"` (default):
-                Require `group1` and `group2` to have exactly the same set of columns.
-            - `"common"`:
-                Compare only the intersection of columns present in both
-                `group1` and `group2`. Columns that exist in only one DataFrame
-                are ignored.
+            - ``"common"``:
+              Only variables that appear in *both* groups are included.
+            - ``"all"``:
+              All variables appearing in either group are included. In this
+              case, difference metrics may contain missing values (e.g.,
+              ``NaN`` or ``None``) for variables that are present in only one
+              group.
+        to_native (bool, optional):
+            If True, return the result as a native DataFrame class of 'group1'.
+            If False, return a `narwhals.DataFrame`.
+
     Returns:
-        pandas.DataFrame:
-            DataFrame indexed by variable names with columns:
-            - {group_names[0]}: mean of group 1
-            - {group_names[1]}: mean of group 2
+        IntoFrameT:
+            A DataFrame with one row per variable and the following columns:
+
+            - ``{group_names[0]}``: mean value in the first group
+            - ``{group_names[1]}``: mean value in the second group
             - norm_diff: normalized difference using pooled variance
-            - abs_diff: absolute difference
-            - rel_diff: relative difference defined as
-            2*(A-B)/(A+B)
+            - ``abs_diff``: absolute difference between group means
+            - ``rel_diff``: relative difference defined as
+              ``2 * (A - B) / (A + B)``
 
     Notes:
-        Constant columns are removed using `remove_constant` before comparison.
-        Means/variances use `numeric_only=True`.
+        - Only numeric columns are used when computing means.
+        - Constant columns are removed from each group before comparison.
+        - When ``columns="all"``, variables that exist in only one group are
+          retained, and derived difference metrics may be missing.
+        - The function performs a join operation internally to align variables
+          across the two groups.
     """
     # 引数のアサーション ==============================================
     build.assert_character(group_names, arg_name = 'group_names', len_arg = 2)
@@ -1064,39 +1085,59 @@ def compare_group_median(
     group_names: Sequence[str] = ('group1', 'group2'),
     columns: Literal['common', 'all'] = 'all',
     to_native: bool = True
-) -> pd.DataFrame:
-    """Compare group-wise medians and derived difference metrics.
+) -> IntoFrameT:
+    """
+    Compare variable-wise medians between two groups.
+
+    This function computes the median of each numeric column for two input
+    data frames and combines the results into a single table. It also derives
+    simple difference metrics based on the group-wise medians.
+
+    The function supports multiple DataFrame backends via narwhals
+    (e.g., pandas, polars, pyarrow).
 
     Args:
         group1 (IntoFrameT):
-            Data for group 1.Any DataFrame-like object supported by narwhals
-            (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
+            Data for the first group. Any DataFrame-like object supported by
+            narwhals (e.g., ``pandas.DataFrame``, ``polars.DataFrame``,
+            ``pyarrow.Table``) can be used.
         group2 (IntoFrameT):
-            Data for group 2.
-        group_names (list[str]):
-            Names used for output columns. Must be length 2.
-        columns (Literal["common", "all"], optional):
-            Policy that determines which columns are compared.
+            Data for the second group.
+        group_names (Sequence[str]):
+            Names used for the output columns corresponding to the two groups.
+            Must be a sequence of length 2.
+        columns (Literal['common', 'all']):
+            Specifies which variables to include when combining results from
+            the two groups.
 
-            - `"all"` (default):
-                Require `group1` and `group2` to have exactly the same set of columns.
-            - `"common"`:
-                Compare only the intersection of columns present in both
-                `group1` and `group2`. Columns that exist in only one DataFrame
-                are ignored.
+            - ``"common"``:
+              Only variables that appear in *both* groups are included.
+            - ``"all"``:
+              All variables appearing in either group are included. In this
+              case, difference metrics may contain missing values (e.g.,
+              ``NaN`` or ``None``) for variables that are present in only one
+              group.
+        to_native (bool, optional):
+            If True, return the result as a native DataFrame class of 'group1'.
+            If False, return a `narwhals.DataFrame`.
+
     Returns:
-        pandas.DataFrame:
-            DataFrame indexed by variable names with columns:
-            - {group_names[0]}: median of group 1
-            - {group_names[1]}: median of group 2
-            - norm_diff: normalized difference using pooled variance
-            - abs_diff: absolute difference
-            - rel_diff: relative difference defined as
-            2*(A-B)/(A+B)
+        IntoFrameT:
+            A DataFrame with one row per variable and the following columns:
+
+            - ``{group_names[0]}``: median value in the first group
+            - ``{group_names[1]}``: median value in the second group
+            - ``abs_diff``: absolute difference between group medians
+            - ``rel_diff``: relative difference defined as
+              ``2 * (A - B) / (A + B)``
 
     Notes:
-        Constant columns are removed using `remove_constant` before comparison.
-        medians/variances use `numeric_only=True`.
+        - Only numeric columns are used when computing medians.
+        - Constant columns are removed from each group before comparison.
+        - When ``columns="all"``, variables that exist in only one group are
+          retained, and derived difference metrics may be missing.
+        - The function performs a join operation internally to align variables
+          across the two groups.
     """
     # 引数のアサーション ==============================================
     build.assert_character(group_names, arg_name = 'group_names', len_arg = 2)
