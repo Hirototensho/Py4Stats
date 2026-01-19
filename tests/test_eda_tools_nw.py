@@ -37,8 +37,12 @@ gentoo_pl = pl.from_pandas(gentoo)
 gentoo_pa = pa.Table.from_pandas(gentoo)
 
 mroz = wooldridge.data('mroz')
-mroz_pl = pl.from_pandas(mroz)
-mroz_pa = pa.Table.from_pandas(mroz)
+
+mroz_dict = {
+    'pd':mroz,
+    'pl':pl.from_pandas(mroz),
+    'pa':pa.Table.from_pandas(mroz)
+}
 
 penguins_dict = {
     'pd':penguins,
@@ -464,12 +468,20 @@ def test_filtering_out_columns_pa() -> None:
 # is_dummy_nw (Series/DataFrame)
 # =========================================================
 
-def test_is_dummy_nw_series() -> None:
-    s = pd.Series([0, 1, 1, 0])
-    assert eda_nw.is_dummy(s) is True
+@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
+def test_is_dummy_series(backend) -> None:
+    assert eda_nw.is_dummy(mroz_dict.get(backend)['inlf']) 
 
-def test_is_dummy_nw_dataframe() -> None:
-    result = eda_nw.is_dummy(mroz).to_list()
+    assert not eda_nw.is_dummy(mroz_dict.get(backend)['educ'])
+    
+    assert eda_nw.is_dummy(
+        mroz_dict.get(backend)['kidslt6'],
+        cording = [0, 1, 2, 3]
+    )
+
+@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
+def test_is_dummy_nw_dataframe(backend) -> None:
+    result = eda_nw.is_dummy(mroz_dict.get(backend))
 
     expected = [
         True, False, False, False, False, False, False, False, False, 

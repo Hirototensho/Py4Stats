@@ -1,22 +1,40 @@
-# `py4stats.is_dummy()`
+# ダミー変数の判定： `py4stats.is_dummy()`
 
 ## 概要
 
-　リストや pandas.Series の要素がダミー変数かどうかを判定する関数。
+リストや Series の要素が、指定されたダミーコードのみで構成されたダミー変数かどうかを判定します。
 
 ```python
-is_dummy(data, cording = [0, 1])
+is_dummy(
+    data: Union[IntoFrameT, IntoSeriesT],
+    cording: Sequence[Any] = (0, 1),
+    dropna: bool = True,
+    to_pd_series: bool = False,
+    **kwargs
+    )
 ```
 
 ## 引数 Argument
 
-- `data` **list, IntoFrameT or IntoSeriesT** <br>
-- `cording` **list** <br>
-　ダミー変数のコーディング方式を指定するリスト。
+- `data`: **list, IntoFrameT or IntoSeriesT** <br>
+    入力データ。list あるいは、narwhals が受け入れ可能な DataFrame もしくは Series 互換オブジェクト
+- `cording`: **list** <br>
+    ダミーコードとして許容される値の集合。入力データに含まれる値の集合が、この集合と完全に一致する場合にダミー変数であると判定されます。デフォルトは `(0, 1)` です。
+- `dropna`：**bool**</br>
+　欠測値（NaN）をコーディングの判定から除外するかどうかを表すブール値。初期設定は True です。
+- `to_pd_series`: **bool** <br>
+    data が DataFrame 場合の戻り値の形式を制御します。
+    - `True` の場合：列名をインデックスにもつ pandas.Series を返します
+    - `False` の場合：各列の判定結果を要素とする list を返します
+- `**kwargs`: 将来の拡張のために予約されたキーワード引数です。
 
 ## 返り値 Value
 
-`py4stats.is_dummy()` は `data` が `cording`  と集合として等しければ True を、そうでなければ False を返します。
+- `data` が Series-like の場合<br>
+    - -指定されたダミーコードのみで構成されていれば True、それ以外の場合は False
+- `data` が DataFrame-like の場合 <br>
+    - `to_pd_Series = False` のとき：各列ごとの判定結果を要素とする `list[bool]`
+    - `to_pd_Series = True` のとき：列名をインデックスにもつ `pd.Series`
 
 ## 使用例 Examples
 

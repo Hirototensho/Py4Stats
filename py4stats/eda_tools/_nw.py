@@ -1743,38 +1743,86 @@ def tabyl(
 def is_dummy(
     data: Union[IntoFrameT, IntoSeriesT],
     cording: Sequence[Any] = (0, 1),
-    to_pd_Series = True,
+    dropna: bool = True,
+    to_pd_series: bool = False,
     **kwargs
 ) -> Union[bool, IntoSeriesT, IntoFrameT]:
-    """Check whether values consist only of dummy codes.
+    """
+    Check whether values consist only of dummy codes.
+
+    This function tests whether the input data contains *only* the specified
+    dummy codes. The behavior and return type depend on whether the input is
+    Series-like or DataFrame-like.
+
+    The function supports multiple backends via narwhals and is implemented
+    using ``singledispatch``.
 
     Args:
-        data (IntoFrameT, IntoSeriesT):
-            Input data. Any DataFrame-like or Series-like object supported by narwhals
-            (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
-        cording (list):
-            Allowed set of dummy codes (default: [0, 1]).
+        data:
+            Input data to check. Can be a Series-like or DataFrame-like object
+            supported by narwhals (e.g., ``pandas.Series``,
+            ``pandas.DataFrame``, ``polars.Series``, ``polars.DataFrame``,
+            ``pyarrow.Table``).
+        cording:
+            Sequence of allowed dummy codes. The input is considered valid if
+            its unique values exactly match this set.
+            Defaults to ``(0, 1)``.
+        dropna (bool):
+            Whether to drop NaN from data before value check.
+        to_pd_series:
+            Controls the return type when ``data`` is DataFrame-like.
+            If True, returns a ``pandas.Series`` indexed by column names.
+            If False, returns a Python list of boolean values.
+        **kwargs:
+            Additional keyword arguments (reserved for future extensions).
 
     Returns:
-        bool or pandas.Series:
-            - If Series input: returns bool.
-            - If DataFrame input: returns a boolean Series per column.
+        bool or Series-like or list:
+            - If ``data`` is Series-like, returns a single boolean indicating
+              whether the Series consists only of the specified dummy codes.
+            - If ``data`` is DataFrame-like and ``to_pd_series`` is False,
+              returns a list of boolean values, one per column.
+            - If ``data`` is DataFrame-like and ``to_pd_series`` is True,
+              returns a ``pandas.Series`` with column names as the index.
+
+    Notes:
+        - A Series is considered dummy-coded if the set of its values is
+          exactly equal to the set specified by ``cording``.
+        - The check is purely set-based; value frequency and ordering are
+          not considered.
+        - Missing values are not explicitly handled and will affect the
+          result according to the underlying data representation.
     """
-    build.assert_logical(to_pd_Series, arg_name = 'to_pd_Series')
+    build.assert_logical(to_pd_series, arg_name = 'to_pd_series')
 
     data_nw = nw.from_native(data, allow_series = True)
-    return is_dummy(data_nw, cording, to_pd_Series)
+    return is_dummy(data_nw, cording, dropna, to_pd_series)
 
 
 # In[ ]:
 
 
 @is_dummy.register(nw.Series)
-@is_dummy.register(list)
 def is_dummy_series(
     data: IntoSeriesT,
     cording: Sequence[Any] = (0, 1),
-    to_pd_Series = True,
+    dropna: bool = True,
+    to_pd_series: bool = False,
+    **kwargs
+) -> bool:
+    if dropna: data = data.drop_nulls()
+    return set(data) == set(cording)
+
+
+# In[ ]:
+
+
+@is_dummy.register(list)
+def is_dummy_list(
+    data: list,
+    cording: Sequence[Any] = (0, 1),
+    dropna: bool = True,
+    to_pd_series: bool = False,
     **kwargs
 ) -> bool:
     return set(data) == set(cording)
@@ -1787,7 +1835,8 @@ def is_dummy_series(
 def is_dummy_data_frame(
         data: IntoFrameT, 
         cording: Sequence[Any] = (0, 1),
-        to_pd_Series = True,
+        dropna: bool = True,
+        to_pd_series: bool = False,
         **kwargs
         ) -> Union[IntoFrameT, pd.Series]:
 
@@ -1801,9 +1850,9 @@ def is_dummy_data_frame(
             )
     )
 
-    if to_pd_Series: 
+    if to_pd_series: 
         return result.to_pandas().loc[0, :]
-    return result
+    return list(result.row(0))
 
 
 # In[ ]:
@@ -1911,7 +1960,7 @@ def diagnose_category(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
     build.assert_logical(to_native, arg_name = 'to_native')
 
     data_nw = nw.from_native(data)
-    res_is_dummy = is_dummy(data_nw)
+    res_is_dummy = is_dummy(data_nw, to_pd_series = True)
     dummy_col = res_is_dummy[res_is_dummy].index.to_list()
 
     df = (
