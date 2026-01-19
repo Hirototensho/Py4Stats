@@ -641,25 +641,6 @@ def test_plot_median_diff(backend, stats_diff) -> None:
         ax = ax
     );
     assert len(ax.get_lines()) > 0 and len(ax.collections) > 0
-    
-
-# @pytest.mark.parametrize(
-#     "stats_diff",
-#     [
-#         ('abs_diff'),
-#         ('rel_diff'),
-#     ],
-# )
-# def test_plot_median_diff(stats_diff) -> None:
-#     fig, ax = plt.subplots()
-#     eda_nw.plot_mean_diff(
-#         penguins.query('species == "Gentoo"'),
-#         penguins.query('species == "Adelie"'),
-#         stats_diff = stats_diff,
-#         ax = ax
-#     );
-#     assert len(ax.get_lines()) > 0 and len(ax.collections) > 0
-
 
 # ================================================================
 # mean_qi / median_qi / mean_ci (Pandas)
