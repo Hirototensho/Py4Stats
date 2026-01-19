@@ -2,12 +2,26 @@
 
 ## 概要
 
-　`pandas.Series` の要素が、特定のフォーマットにそった文字列かどうかを判定する関数。
+`Series` の要素が、特定のフォーマットにそった文字列かどうかを判定する関数です。
 
 ```python
-is_number(data, na_default = True)
-is_ymd(data, na_default = True)
-is_ymd_like(data, na_default = True)
+is_number(
+  data:IntoSeriesT, 
+  na_default:bool = True, 
+  to_native: bool = True
+  )
+
+is_ymd(
+  data:IntoSeriesT, 
+  na_default:bool = True, 
+  to_native: bool = True
+  )
+
+is_ymd_like(
+  data:IntoSeriesT, 
+  na_default:bool = True, 
+  to_native: bool = True
+  )
 ```
 
 - `py4stats.is_number()`：与えられた文字列が数字かどうかを判定します。

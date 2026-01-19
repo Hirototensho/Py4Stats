@@ -735,11 +735,8 @@ def test_is_number_nw_basic_pd() -> None:
 
 ## テストの準備 ----------------------
 expect_is_number = [
-        True, True, True, True, False, False, 
-        False, False, False, False, False, False,
-        False, False, True, True
-    ]
-
+        True, True, True, True, False, False, False, False, 
+        False, False, False, False, False, False, True, True]
 expect_is_ymd = [
     False, False, False, False, False, False, True, False, 
     False, False, False, False, False, False, True, True]
