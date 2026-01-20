@@ -27,7 +27,8 @@ filtering_out(
 - `ends_with`：**str**</br>
 　列名（行名）の検索に使用する文字列。内部で使用している [`pandas.Series.str.endswith`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.endswith.html) に渡され、指定された文字列で列名（行名）が終わる列（行）を除外します。
 - `axis`：**`{0 or 'index', 1 or 'columns'}`**</br>
- `axis = 1` または `axis = 'columns'` なら列の削除を行い、`axis = 0` または `axis = 'index'` なら行の削除を行います。
+    `axis = 1` または `axis = 'columns'` なら列の削除を行い、`axis = 0` または `axis = 'index'` なら行の削除を行います。
+     このオプションは、`data` がインデックス属性 (例: pandas.DataFrame) をもつ場合のみ有効です。
 - `to_native`（**bool**, optional）<br>
   `True` の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。<br>
   `False` の場合、`narwhals.DataFrame` を返します。デフォルトは `True` で、`to_native = False` は、主にライブラリ内部での利用や、`backend` に依存しない後続処理を行う場合を想定したオプションです。
