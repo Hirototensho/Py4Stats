@@ -1875,7 +1875,7 @@ def is_dummy_data_frame(
 
 import scipy as sp
 
-def entropy(x: IntoSeriesT, base: float = 2.0, dropna: bool = False) -> float:
+def entropy(x: IntoSeriesT, base: float = 2.0, dropna: bool = True) -> float:
     build.assert_numeric(base, arg_name = 'base', lower = 0, inclusive = 'right')
     build.assert_logical(dropna, arg_name = 'dropna')
 
@@ -1887,15 +1887,14 @@ def entropy(x: IntoSeriesT, base: float = 2.0, dropna: bool = False) -> float:
     result = sp.stats.entropy(pk = prop,  base = base, axis = 0)
     return result
 
-def std_entropy(x: IntoSeriesT, dropna: bool = False) -> float:
+def normalized_entropy(x: IntoSeriesT, dropna: bool = True) -> float:
     build.assert_logical(dropna, arg_name = 'dropna')
     
     x_nw = nw.from_native(x, series_only = True)
-    
     if dropna: x_nw = x_nw.drop_nulls()
 
     K = x_nw.n_unique()
-    result = entropy(x_nw, base = K) if K > 1 else 0.0
+    result = entropy(x_nw, base = K, dropna = dropna) if K > 1 else 0.0
     
     return result
 
@@ -1904,7 +1903,7 @@ def std_entropy(x: IntoSeriesT, dropna: bool = False) -> float:
 
 
 @pf.register_dataframe_method
-def diagnose_category(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
+def diagnose_category(data: IntoFrameT, dropna: bool = True, to_native: bool = True) -> IntoFrameT:
     """Summarize categorical variables in a DataFrame.
 
     This function summarizes columns that represent categorical information,
@@ -1913,7 +1912,7 @@ def diagnose_category(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
     string before summarization.
 
     The summary includes missing percentage, number/percentage of unique
-    values, mode and its frequency/share, and standardized entropy.
+    values, mode and its frequency/share, and evenness.
 
     The implementation is backend-agnostic via narwhals.
 
@@ -1921,6 +1920,8 @@ def diagnose_category(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
         data (IntoFrameT):
             Input DataFrame. Any DataFrame type supported by narwhals can be
             used (e.g., pandas, polars, pyarrow).
+        dropna (bool):
+            Whether to drop NaN from data before computation.
         to_native (bool, optional):
             If True, convert the result to the native DataFrame type of the
             selected backend. If False, return a narwhals DataFrame.
@@ -1939,7 +1940,9 @@ def diagnose_category(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
             - mode: most frequent value
             - mode_freq: frequency of the mode value
             - mode_pct: percentage of the mode value (mode_freq / N * 100)
-            - std_entropy: standardized entropy in [0, 1]
+            - evenness: category evenness in [0,1], where 1 indicates a 
+              uniform distribution and 0 indicates complete concentration 
+              in a single category.
 
     Raises:
         TypeError:
@@ -1953,8 +1956,11 @@ def diagnose_category(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
         - ``miss_pct`` is computed as ``null_count / N * 100``.
         - ``unique_pct`` and ``mode_pct`` use ``N`` in the denominator (not
           the non-missing count).
-        - Standardized entropy is computed per column via ``std_entropy`` and
-          is expected to return a scalar in the range [0, 1].
+        - ``evenness`` is a standardized measure of category dispersion, defined 
+          as Shannon entropy normalized to the range [0,1]. It is computed by 
+          setting the logarithm base to the number of unique categories (unique), 
+          which is equivalent to dividing the entropy (with base 2) by ``log_2(unique)``. 
+          This quantity is also known as *normalized entropy*.
 
     Examples:
         Basic usage:
@@ -1973,6 +1979,7 @@ def diagnose_category(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
         >>> diagnose_category(df)
     """
     build.assert_logical(to_native, arg_name = 'to_native')
+    build.assert_logical(dropna, arg_name = 'dropna')
 
     data_nw = nw.from_native(data)
     res_is_dummy = is_dummy(data_nw, to_pd_series = True)
@@ -1982,12 +1989,11 @@ def diagnose_category(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
         data_nw
         .with_columns(nw.col(dummy_col).cast(nw.String))\
         .select(
-        ncs.categorical(),
-        ncs.by_dtype(nw.String), 
-        ncs.boolean(), 
+            ncs.categorical(),
+            ncs.by_dtype(nw.String), 
+            ncs.boolean(), 
         ))
     N = df.shape[0]
-
 
     var_name = df.columns
     
@@ -1997,38 +2003,38 @@ def diagnose_category(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
             "Expected at least one categorical, string, or boolean column,\n"
             "or a 0/1 dummy column (integer values restricted to {0, 1})."
         )
-    # return df, var_name
-
+    
     result  = nw.from_dict({
         'variables': var_name,
         'count':df.select(nw.all().count()).row(0),
         'miss_pct':df.select(nw.all().null_count() * nw.lit(100 / N)).row(0),
-        'unique':df.select(nw.all().n_unique()).row(0),
+        'unique':df.select(nw.all().drop_nulls().n_unique()).row(0),
         'mode':[
-            freq_table(df, v, descending = True, to_native = False).row(0)[0] 
+            freq_table(df, v, descending = True, to_native = False, dropna = dropna)[v][0] 
             for v in var_name
             ],
         'mode_freq':[
-            freq_table(df, v, descending = True, to_native = False).row(0)[1] 
+            freq_table(df, v, descending = True, to_native = False, dropna = dropna)['freq'][0] 
             for v in var_name
             ],
-        'std_entropy':[std_entropy(s) for s in df.iter_columns()]
-        # 'std_entropy':df.select(
-        #     nw.all().map_batches(std_entropy, returns_scalar = True)
-        #     ).row(0)
+        'mode_pct':[
+            freq_table(df, v, descending = True, to_native = False, dropna = dropna)['perc'][0] 
+            for v in var_name
+            ],
+        'evenness':[normalized_entropy(s, dropna = dropna) for s in df.iter_columns()]
         },
         backend = df.implementation
         )\
         .with_columns(
-        unique_pct = 100 * nw.col('unique') / N,
-        mode_pct = 100 * nw.col('mode_freq') / N
+            unique_pct = 100 * nw.col('unique') / N,
+            mode_pct = 100 * nw.col('mode_pct')
         )\
         .select(
             nw.col([
                 'variables', 'count',  'miss_pct', 
                 'unique', 'unique_pct',
                 'mode', 'mode_freq', 'mode_pct', 
-                'std_entropy'
+                'evenness'
             ])
             )
 
@@ -2426,13 +2432,18 @@ def filtering_out(
             does not support row labels (i.e. has no 'index' attribute).
 
     Notes:
-        Row-wise filtering via axis='index' relies on the presence of an explicit index. Therefore, this option is not available for DataFrame backends that do not expose row labels (e.g. some Arrow-based tables).
+        Row-wise filtering via axis='index' relies on the presence of an explicit index. 
+        Therefore, this option is not available for DataFrame backends that do not expose 
+        row labels (e.g. some Arrow-based tables).
     
     """
     # 引数のアサーション ==============================================
     axis = str(axis)
     axis = build.arg_match(axis, arg_name = 'axis', values = ['1', 'columns', '0', 'index'])
     build.assert_logical(to_native, arg_name = 'to_native')
+    build.assert_character(contains, arg_name = 'contains', nullable = True)
+    build.assert_character(starts_with, arg_name = 'starts_with', nullable = True)
+    build.assert_character(ends_with, arg_name = 'ends_with', nullable = True)
     # ==============================================================
     data_nw = nw.from_native(data)
     drop_table = pd.DataFrame()
@@ -2444,37 +2455,31 @@ def filtering_out(
                 "an 'index' (row labels), e.g. pandas.DataFrame.\n"
                 f"Got: {type(data)}."
             )
-
     if((axis == '1') | (axis == 'columns')):
+        drop_list = []
         s_columns = pd.Series(data_nw.columns)
         if contains is not None:
-            # assert isinstance(contains, str), "'contains' must be a string."
-            build.assert_character(contains, arg_name = 'contains')
             drop_table['contains'] = s_columns.str.contains(contains)
 
         if starts_with is not None:
-            # assert isinstance(starts_with, str), "'starts_with' must be a string."
-            build.assert_character(starts_with, arg_name = 'starts_with')
             drop_table['starts_with'] = s_columns.str.startswith(starts_with)
 
         if ends_with is not None:
-            # assert isinstance(ends_with, str), "'ends_with' must be a string."
-            build.assert_character(ends_with, arg_name = 'ends_with')
             drop_table['ends_with'] = s_columns.str.endswith(ends_with)
-        drop_list = s_columns[drop_table.any(axis = 'columns')].to_list()
+
+        if contains is not None or starts_with is not None or ends_with is not None:
+            drop_list = drop_list + s_columns[drop_table.any(axis = 'columns')].to_list()
+        
         data_nw = data_nw.drop(drop_list)
     
     elif hasattr(data, 'index'):
         if contains is not None: 
-            build.assert_character(contains, arg_name = 'contains')
             drop_table['contains'] = data.index.to_series().str.contains(contains)
 
         if starts_with is not None: 
-            build.assert_character(starts_with, arg_name = 'starts_with')
             drop_table['starts_with'] = data.index.to_series().str.startswith(starts_with)
 
         if ends_with is not None:
-            build.assert_character(ends_with, arg_name = 'ends_with')
             drop_table['ends_with'] = data.index.to_series().str.endswith(ends_with)
 
         keep_list = (~drop_table.any(axis = 'columns')).to_list()

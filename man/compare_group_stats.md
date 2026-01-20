@@ -96,11 +96,11 @@ res1 = py4st.compare_group_means(
     penguins.query('species == "Adelie"')
 )
 print(res1.round(3))
-#>                      group1    group2  norm_diff  abs_diff  rel_diff
-#> bill_length_mm       47.505    38.791      3.048     8.713     0.202
-#> bill_depth_mm        14.982    18.346     -3.012     3.364    -0.202
-#> flipper_length_mm   217.187   189.954      4.180    27.233     0.134
-#> body_mass_g        5076.016  3700.662      2.868  1375.354     0.313
+#>             variable    group1    group2  norm_diff  abs_diff  rel_diff
+#> 0      bill_depth_mm    14.982    18.346     -3.012     3.364    -0.202
+#> 1     bill_length_mm    47.505    38.791      3.048     8.713     0.202
+#> 2        body_mass_g  5076.016  3700.662      2.868  1375.354     0.313
+#> 3  flipper_length_mm   217.187   189.954      4.180    27.233     0.134
 ```
 
 ```python
@@ -110,11 +110,11 @@ res2 = py4st.compare_group_median(
     group_names = ['Gentoo', 'Adelie']
 )
 print(res2.round(3))
-#>                    Gentoo  Adelie  abs_diff  rel_diff
-#> bill_length_mm       47.3    38.8       8.5     0.197
-#> bill_depth_mm        15.0    18.4       3.4    -0.204
-#> flipper_length_mm   216.0   190.0      26.0     0.128
-#> body_mass_g        5000.0  3700.0    1300.0     0.299
+#>             variable    Gentoo    Adelie  abs_diff  rel_diff
+#> 0      bill_depth_mm    14.982    18.346     3.364    -0.202
+#> 1     bill_length_mm    47.505    38.791     8.713     0.202
+#> 2        body_mass_g  5076.016  3700.662  1375.354     0.313
+#> 3  flipper_length_mm   217.187   189.954    27.233     0.134
 ```
 
 ```python
