@@ -6,7 +6,6 @@
 
 ```python
 filtering_out(
-    data, 
     data: IntoFrameT,
     contains: Optional[str] = None,
     starts_with: Optional[str] = None,
