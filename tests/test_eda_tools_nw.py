@@ -993,12 +993,46 @@ def test_relocate_after():
 
     assert result4 == expect4
 
-def test_relocate_basic_error_on_invalid_selector():
+def test_relocate_error_on_invalid_selector():
     with pytest.raises(ValueError) as excinfo:
         eda_nw.relocate(penguins, 0, True)
     # 仕様：候補があると "Did you mean ..." を含む
-    assert "Argument '*args' must be of type" in str(excinfo.value)
+    assert "Argument `*args` must be of type" in str(excinfo.value)
     assert "'0' and 'True' cannot be accepted" in str(excinfo.value)
+
+@pytest.mark.parametrize(
+    "arg, before, after, place, expectation",
+    [
+        pytest.param(
+            'year', 'year', None, None,
+            pytest.raises(ValueError, match = "`before` cannot be the same as"),
+            id = 'arg_eq_before'
+            ),
+        pytest.param(
+            'year', None, 'year', None,
+            pytest.raises(ValueError, match = "`after` cannot be the same as"),
+            id = 'arg_eq_after'
+            ),
+        pytest.param(
+            'year', 'flipper_length_mm', 'body_mass_g', None,
+            pytest.raises(ValueError, match = "`before` or `after`, not both."),
+            id = 'arg_place_after'
+            ),
+        pytest.param(
+            'year', None, 'body_mass_g', 'last',
+            pytest.raises(ValueError, match = "`place` or `before`/`after`, not both"),
+            id = 'arg_place_after'
+            ),
+    ],
+)
+def test_relocate_error_on_duplicated_args(arg, before, after, place, expectation):
+    with expectation:
+        eda_nw.relocate(
+            penguins, arg, 
+            before = before, 
+            after = after,
+            place = place
+            )
 
 # ================================================================
 # weighted_mean
