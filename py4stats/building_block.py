@@ -602,7 +602,7 @@ def make_assert_type(
 
     if not predicate_fun(arg):
       messages = f"Argument `{arg_name}` must be of type {oxford_comma_or(valid_type)}." 
-      raise ValueError(messages)
+      raise TypeError(messages)
 
   return func
 
@@ -681,7 +681,7 @@ def assert_numeric_dtype(
             message = f"Argument `{arg_name}` must be of" +\
                 f" type {oxford_comma_or(valid_type)}" + \
                 f" with value(s) {range_message}."
-            raise ValueError(message)
+            raise TypeError(message)
 
 
 

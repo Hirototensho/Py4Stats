@@ -164,11 +164,11 @@ def test_assert_missing_all_missing_False():
     "arg, predicate_fun, expectation",
     [
         pytest.param([1, 0.1], build.is_numeric, nullcontext(), id = "numeric_ok"),
-        pytest.param([1, '0.1'], build.is_numeric, pytest.raises(ValueError), id = "numeric_ng"),
+        pytest.param([1, '0.1'], build.is_numeric, pytest.raises(TypeError), id = "numeric_ng"),
         pytest.param([1, 0.1], build.is_float, nullcontext(), id = "float_ok"),
-        pytest.param([1, 2], build.is_float, pytest.raises(ValueError), id = "float_ng"),
+        pytest.param([1, 2], build.is_float, pytest.raises(TypeError), id = "float_ng"),
         pytest.param([1, 2], build.is_integer, nullcontext(), id = "int_ok"),
-        pytest.param([1, 0.1], build.is_integer, pytest.raises(ValueError), id = "int_ng"),
+        pytest.param([1, 0.1], build.is_integer, pytest.raises(TypeError), id = "int_ng"),
     ],
 )
 def test_assert_numeric_dtype(arg, predicate_fun, expectation):
@@ -231,18 +231,18 @@ def test_make_range_message(lower, upper, inclusive, expectation):
 # =========================================================
 
 def test_assert_character_raises():
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         build.assert_character([1, 2, 3], arg_name="x")
 
 def test_assert_logical_raises():
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         build.assert_logical([1, 0], arg_name="x")
 
 def test_assert_numeric_passes_on_numeric():
     build.assert_numeric([1, 2, 3], arg_name="x")
 
 def test_assert_numeric_raises_on_non_numeric():
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         build.assert_numeric(["a", "b"], arg_name="x")
 
 @pytest.mark.parametrize("inclusive", ["both", "neither", "left", "right"])
