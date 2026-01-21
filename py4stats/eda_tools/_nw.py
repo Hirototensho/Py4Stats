@@ -3983,9 +3983,9 @@ def plot_category(
 
     if data_nw.implementation.is_pyarrow() and sort_by == "values":
         raise ValueError(
-            "`sort_by='values&` is not supported in pyarrow.Table."
+            "`sort_by = 'values` is not supported in pyarrow.Table."
             "Please try one of the following:\n"\
-            "             - Specify sort_by = 'frequency'\n"\
+            "             - Specify `sort_by = 'frequency`'\n"\
             "             - Use a `pandas.DataFrame` and set the `pd.Categorical` column as an ordered category\n"\
             "             - Use a `polars.DataFrame` and set the `Enum-type` column as an ordered category"\
         )
