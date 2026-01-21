@@ -51,13 +51,10 @@ relocate(
 
 ### 返り値
 
-- **IntoFrameT**
-  入力データフレームと同じ列を保持したまま、
-  指定されたルールに従って並び替えられたデータフレームを返します。
+- **IntoFrameT**<br>
+  入力データフレームと同じ列を保持したまま、指定されたルールに従って並び替えられたデータフレームを返します。
 
 ## 使用例 Example
-
-`py4stats.remove_empty()` の使用例。
 
 ``` python
 import py4stats as py4st
