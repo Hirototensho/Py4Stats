@@ -15,7 +15,6 @@ relocate(
     ):
 ```
 
-
 ## 引数 Argument
 
 - `data`：**IntoFrameT**（必須）<br>
@@ -98,6 +97,13 @@ print(py4st.relocate(penguins_mini, 'year', after = 'island'))
 #> 0  Adelie  Torgersen  2007              181.0       3750.0    male
 #> 1  Adelie  Torgersen  2007              186.0       3800.0  female
 #> 2  Adelie  Torgersen  2007              195.0       3250.0  female
+
+#.  place = 'last' で最後列に移動
+print(py4st.relocate(penguins_mini, 'year', place = 'last'))
+#>   species     island  flipper_length_mm  body_mass_g     sex  year
+#> 0  Adelie  Torgersen              181.0       3750.0    male  2007
+#> 1  Adelie  Torgersen              186.0       3800.0  female  2007
+#> 2  Adelie  Torgersen              195.0       3250.0  female  2007
 ```
 
 ***

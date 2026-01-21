@@ -3638,10 +3638,6 @@ def relocate(
         after (Optional[str], optional):
             Name of a column after which the selected columns should be placed.
             Cannot be specified together with `before`. Defaults to `None`.
-        to_native (bool, optional):
-            If `True`, return the result as the native DataFrame type
-            corresponding to the input (e.g., pandas or polars).
-            If `False`, return a narwhals DataFrame. Defaults to `True`.
         place (Optional[Literal["first", "last"]], optional):
             Destination where the selected columns are placed when neither
             `before` nor `after` is specified.
@@ -3649,6 +3645,10 @@ def relocate(
             - `"last"`: place the selected columns at the end of the DataFrame.
             Cannot be used together with `before` or `after`.
             Defaults to `None` (equivalent to `"first"`).
+        to_native (bool, optional):
+            If `True`, return the result as the native DataFrame type
+            corresponding to the input (e.g., pandas or polars).
+            If `False`, return a narwhals DataFrame. Defaults to `True`.
     Returns:
         IntoFrameT:
             A DataFrame with the same columns as `data`, reordered according
