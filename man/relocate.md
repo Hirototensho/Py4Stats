@@ -10,6 +10,7 @@ relocate(
         *args: Union[str, List[str], narwhals.Expr, narwhals.selectors.Selector], 
         before: Optional[str] = None,
         after: Optional[str] = None,
+        place: Optional[Literal["first", "last"]] = None,
         to_native: bool = True
     ):
 ```
@@ -25,17 +26,24 @@ relocate(
   - 列名（例：`"x"`）
   - 列名のリスト（例：`["x", "y"]`）
   - narwhals の式（`Expr`）（例：`nw.col("x")`）
-  - narwhals の Selector （例：`ncs.numeric()`）
+  - narwhals の `Selector` （例：`ncs.numeric()`）
 
   指定した順序は、移動後の列順にもそのまま反映されます。
 
 - `before`（**str**, optional）<br>
-  `args` に指定した列を、この列の**直前**に移動します。<br>
+  `args` で指定された列を、この列の**直前**に移動します。<br>
   `after` と同時に指定することはできません。デフォルトは `None` です。
-
 - `after`（**str**, optional）<br>
-  `args` に指定した列を、この列の**直後**に移動します。<br>
+  `args` で指定された列を、この列の**直後**に移動します。<br>
   `before` と同時に指定することはできません。デフォルトは `None` です。
+
+- `place`（**str**, optional）<br>
+    `*args` で指定された列の、配置場所を指定します。
+    - `"first"`: 選択した列をデータフレームの先頭（最も左）に配置します。
+    - `"last"`: 選択した列をデータフレームの末尾（最も右）に配置します。
+    `place` 引数は `before` または `after` と同時に指定することはできません。
+    未指定（`None`）の場合は `"first"` と同じ挙動になります。
+
 
 - `to_native`（**bool**, optional）<br>
   `True` の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。<br>
