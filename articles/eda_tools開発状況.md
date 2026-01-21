@@ -35,6 +35,7 @@
 | plot_median_diff     | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | plot_miss_var        | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | scale                | Series           | ✅       | ✅       | ✅        |                                            |
+| relocate             | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | remove_constant      | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | remove_empty         | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | tabyl                | DataFrame        | ✅       | ⭕️       | ⭕️        | 一部の処理が Pandas 依存                      |

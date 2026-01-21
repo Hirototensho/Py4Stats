@@ -17,7 +17,7 @@ freq_table(
 )
 ```
 
-## 引数 
+## 引数 Argument 
 
 - `data`：**IntoFrameT**（必須）<br>
   入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト<br>
@@ -29,7 +29,7 @@ freq_table(
 - `descending`：**bool**</br>
 　ソートの方式。True なら降順でソートし、False（初期設定）なら昇順でソートします。
 - `dropna`：**bool**</br>
-　欠測値（NaN）を集計から除外するかどうかを表すブール値。初期設定は False です。
+　欠測値（NaN, None など）を集計から除外するかどうかを表すブール値。初期設定は False です。
 - `sort`：**Deprecated.**.</br>
 　`sort_by` の使用を推奨しています。この引数は後方互換性のために保持されおり、指定された場合は `FutureWarning`が発生します。デフォルトは `None` です。
 - `to_native`（**bool**, optional）<br>
@@ -38,7 +38,7 @@ freq_table(
 
 ## 返り値 Value
 
-　`freq_table()`関数では、次の値をもつ `pandas.DataFrame` が出力されます。
+　`freq_table()`関数は、次の値をもつ `DataFrame` を出力します。
 
 - `freq`: 度数
 - `perc`: 相対度数

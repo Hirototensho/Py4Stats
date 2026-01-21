@@ -20,7 +20,7 @@ compare_ols(
 )
 ```
 
-## 引数
+## 引数 Argument
 
 - `list_models`：**Sequence[RegressionResultsWrapper]**</br>
  推定結果を表示する分析結果のリスト（必須）。`sm.ols()` や `smf.ols()` で作成された回帰分析の結果を `list_models = [fit1, fit2]` のようにリストとして指定してください。

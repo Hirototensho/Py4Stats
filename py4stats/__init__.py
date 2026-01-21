@@ -34,6 +34,7 @@ from .eda_tools._nw import (
     compare_group_median,
     crosstab,
     diagnose,
+    diagnose_category,
     filtering_out,
     freq_table,
     implies_exper,

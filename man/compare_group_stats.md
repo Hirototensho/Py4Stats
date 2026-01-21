@@ -2,7 +2,7 @@
 
 ## 概要
 
-これ関数は、入力された2つのデータフレームについて、各数値変数の統計量に基づいた比較を提供します。
+これら関数は、入力された2つのデータフレームについて、各数値変数の統計量に基づいた比較を提供します。
 
 ```python
 compare_group_means(
@@ -85,7 +85,6 @@ $$
 import pandas as pd
 import py4stats as py4st
 from palmerpenguins import load_penguins
-
 
 penguins = load_penguins().drop('year', axis = 1) # サンプルデータの読み込み
 ```

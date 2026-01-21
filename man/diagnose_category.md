@@ -1,0 +1,69 @@
+# カテゴリー変数の要約 `py4stats.diagnose_category()`
+
+## 概要
+
+DataFrame 内のカテゴリー変数を要約します。本関数は、カテゴリー情報を表す列（カテゴリ型・文字列型・ブール型）およびダミー変数（値が {0, 1} に制限された整数列）を対象として、欠損率、ユニーク値の数、最頻値、最頻値の頻度と割合、evenness などの指標を提供します。
+
+```python
+diagnose_category(
+        data: IntoFrameT, 
+        dropna: bool = True, 
+        to_native: bool = True
+        )
+```
+
+## 引数 Argument
+
+- `data`：**IntoFrameT**（必須）<br>
+  入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト<br>
+  （例：`pandas.DataFrame`、`polars.DataFrame`、`pyarrow.Table`）を指定できます。
+- `dropna`：**bool**</br>
+　欠測値（NaN, None など）を統計値の計算から除外するかどうかを表すブール値。初期設定は True です。
+- `to_native`（**bool**, optional）<br>
+  `True` の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。<br>
+  `False` の場合、`narwhals.DataFrame` を返します。デフォルトは `True` で、`to_native = False` は、主にライブラリ内部での利用や、`backend` に依存しない後続処理を行う場合を想定したオプションです。
+
+## 返り値 Value
+
+`freq_table()`関数は、次の値をもつ `DataFrame` を出力します。
+
+- `variables`: 変数（列）名
+- `count`: 非欠損値の個数
+- `miss_pct`: 欠損率`(null_count / N * 100)` (* ここで `N` は `data` の行数)
+- `unique`: ユニーク値の個数
+- `unique_pct`: ユニーク値の割合`(unique / N * 100)`
+- `mode`: 最頻値
+- `mode_freq`: 最頻値の度数
+- `mode_pct`: 最頻値の割合（mode_freq / N * 100）
+- `evenness`:　カテゴリー分布の均等度（[0, 1] の範囲）
+
+
+## 使用例 Examples
+
+```python
+import pandas as pd
+import py4stats as py4st
+from palmerpenguins import load_penguins
+
+penguins = load_penguins().drop('year', axis = 1) # サンプルデータの読み込み
+```
+
+```python
+penguins2 = penguins.copy()
+s = penguins2['body_mass_g']
+penguins2['heavy'] = np.where(s >= s.quantile(0.75), True, False)
+
+print(py4st.diagnose_category(penguins2).round(4))
+#>   variables  count  miss_pct  unique  unique_pct    mode  mode_freq  mode_pct  evenness
+#> 0   species    344    0.0000       3      0.8721  Adelie        152   44.1860    0.9550
+#> 1    island    344    0.0000       3      0.8721  Biscoe        168   48.8372    0.9133
+#> 2       sex    333    3.1977       2      0.5814    male        168   50.4505    0.9999
+#> 3     heavy    344    0.0000       2      0.5814   False        254   73.8372    0.8292
+```
+
+## Note 
+
+`evenness` は、各列ごとに情報エントロピーを $[0, 1]$ の範囲に正規化した指標です。本実装では、対数の底をカテゴリの個数（`unique`）に設定することで正規化を行っており、これは底を2とした情報エントロピーを `log2(unique)` で割ることと同値です。この指標は正規化エントロピー（normalized entropy）としても知られています。
+
+***
+[Return to **Function reference**.](../reference.md)
