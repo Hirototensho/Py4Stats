@@ -129,13 +129,5 @@ mroz_dict = {
 # ================================================================
 # 
 # ================================================================
-@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
-def test_compare_df_cols(backend):
-    output_df = eda_nw.compare_df_cols(
-        [adelie_dict.get(backend), gentoo_dict.get(backend)],
-        return_match = 'match',
-        to_native = False
-    )
-    path = f'{tests_path}/fixtures/diagnose_{backend}.csv'
-    _assert_df_eq(output_df, path, update_fixture = False)
+
     

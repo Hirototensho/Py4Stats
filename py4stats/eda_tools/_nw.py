@@ -476,78 +476,6 @@ def is_FrameT(obj: object) -> bool:
 # In[ ]:
 
 
-ReturnMatch = Literal["all", "match", "mismatch"]
-
-# def compare_df_cols(
-#     df_list: List[IntoFrameT],
-#     return_match: Literal["all", "match", "mismatch"] = 'all',
-#     df_name: Optional[List[str]] = None,
-#     dropna:bool = False,
-# ) -> pd.DataFrame:
-#     """Compare dtypes of columns with the same names across multiple DataFrames.
-
-#     Args:
-#         df_list (list[IntoFrameT]):
-#             List of input DataFrame(s). Any DataFrame-like object supported by narwhals
-#             (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
-#         return_match (str):
-#             Which rows to return.
-#             - 'all': return all columns.
-#             - 'match': return only columns whose dtypes match across all DataFrames.
-#             - 'mismatch': return only columns whose dtypes do not match.
-#         df_name (list[str] or None):
-#             Names for each DataFrame (used as column names in the output).
-#             If None, auto-generated as ['df1', 'df2', ...].
-#         dropna (bool):
-#             Passed to `nunique(dropna=...)` when checking whether dtypes match.
-
-#     Returns:
-#         pandas.DataFrame:
-#             A table with index = column names (`term`) and one column per DataFrame
-#             containing the dtype. Additional column:
-#             - match_dtype (bool): True if all dtypes are identical across DataFrames.
-
-#     Raises:
-#         AssertionError:
-#             If `df_list` is not a list of pandas.DataFrame.
-#     """
-#     # 引数のアサーション ----------------------
-#     assert isinstance(df_list, list) & \
-#         all([is_FrameT(v) for v in df_list]), \
-#         "argument 'df_list' is must be a list of DataFrame."
-
-#     return_match = build.arg_match(
-#         return_match, values = ['all', 'match', 'mismatch'],
-#         arg_name = 'return_match'
-#         )
-#     build.assert_logical(dropna, arg_name = 'dropna')
-#     build.assert_character(
-#         df_name, arg_name = 'df_name', 
-#         nullable = True, len_arg = build.length(df_list)
-#     )
-#     # --------------------------------------
-#     # df_name が指定されていなければ、自動で作成します。
-#     if df_name is None:
-#         df_name = [f'df{i + 1}' for i in range(len(df_list))]
-
-#     df_list = [nw.from_native(v) for v in df_list]
-#     dtype_list = [get_dtypes(v) for v in df_list]
-#     res = pd.concat(dtype_list, axis = 1)
-#     res.columns = df_name
-#     res.index.name = 'term'
-#     res['match_dtype'] = res.nunique(axis = 1, dropna = dropna) == 1
-
-#     if(return_match == 'match'):
-#         res = res[res['match_dtype']]
-#     elif(return_match == 'mismatch'):
-#         res = res[~res['match_dtype']]
-
-#     return res
-
-
-# In[ ]:
-
-
 def _join_comparsion(result_list, on):
     redundant_col = f"{on}_right"
     result = reduce(
@@ -569,54 +497,82 @@ def _join_comparsion(result_list, on):
 
 
 def compare_df_cols(
-    df_list: List[IntoFrameT],
+    df_list: Union[List[IntoFrameT], Mapping[str, IntoFrameT]],
     df_name: Optional[List[str]] = None,
     return_match: Literal["all", "match", "mismatch"] = 'all',
     dropna:bool = False,
-    compar_by: Literal["native_dtype", "narwhals_schema"] = 'native_dtype',
     to_native: bool = True
-) -> pd.DataFrame:
-    """Compare dtypes of columns with the same names across multiple DataFrames.
+) -> IntoFrameT:
+    """
+    Compare column dtypes across multiple DataFrames.
+
+    This function compares the dtypes of columns with the same names across
+    multiple DataFrame-like objects and summarizes the results in a single
+    table. The function supports multiple backends via narwhals
+    (e.g., pandas, polars, pyarrow).
 
     Args:
-        df_list (list[IntoFrameT]):
-            List of input DataFrame(s). Any DataFrame-like object supported by narwhals
-            (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
-        df_name (list[str] or None):
-            Names for each DataFrame (used as column names in the output).
-            If None, auto-generated as ['df1', 'df2', ...].
-        return_match (str):
-            Which rows to return.
-            - 'all': return all columns.
-            - 'match': return only columns whose dtypes match across all DataFrames.
-            - 'mismatch': return only columns whose dtypes do not match.
-        dropna (bool):
-            Passed to `nunique(dropna=...)` when checking whether dtypes match.
+        df_list:
+            A list or mapping of input DataFrames. Any DataFrame-like object
+            supported by narwhals (e.g., ``pandas.DataFrame``,
+            ``polars.DataFrame``, ``pyarrow.Table``) can be used.
+            If a mapping is provided, its keys are used as DataFrame names.
+        df_name:
+            Names for each DataFrame, used as column names in the output.
+            Must have the same length as ``df_list``.
+            If None, names are automatically generated as
+            ``['df1', 'df2', ...]``.
+        return_match:
+            Specifies which rows to return based on dtype consistency.
+
+            - ``"all"``: return all columns.
+            - ``"match"``: return only columns whose dtypes match across
+              all DataFrames.
+            - ``"mismatch"``: return only columns whose dtypes do not match.
+        dropna:
+            Passed to ``nunique(dropna=...)`` when checking dtype consistency.
+            Controls whether missing values are ignored when determining
+            whether dtypes match.
+        to_native:
+            If True, returns the result as a native DataFrame of the input
+            backend. If False, returns a ``narwhals.DataFrame``.
 
     Returns:
         IntoFrameT:
-            A table with index = column names (`term`) and one column per DataFrame
-            containing the dtype. Additional column:
-            - match_dtype (bool): True if all dtypes are identical across DataFrames.
+            A DataFrame where each row corresponds to a column name shared
+            across the input DataFrames. The result contains the following
+            columns:
 
-    Raises:
-        AssertionError:
-            If `df_list` is not a list of pandas.DataFrame.
+            - ``term``: column (variable) name.
+            - one column per input DataFrame, containing the dtype of that
+              column in each DataFrame.
+            - ``match_dtype``: boolean flag indicating whether the dtypes
+              are identical across all DataFrames for that column.
+
+    Notes:
+        - The column name ``term`` is included as a regular column in the
+          output table (not as the index).
+        - Internally, the function aligns results using a join operation
+          on ``term``.
+        - The function performs dtype comparison only; it does not compare
+          values.
     """
+    # df_name が指定されていなければ、自動で作成します。
+    if df_name is None:
+        if isinstance(df_list, dict):
+            df_name = list(df_list.keys())
+            df_list = list(df_list.values())
+        else:
+            df_name = [f'df{i + 1}' for i in range(len(df_list))]
+
     # 引数のアサーション ----------------------
     assert isinstance(df_list, list) & \
         all([is_FrameT(v) for v in df_list]), \
         "argument 'df_list' is must be a list of DataFrame."
 
-
     return_match = build.arg_match(
         return_match, values = ['all', 'match', 'mismatch'],
         arg_name = 'return_match'
-        )
-
-    compar_by = build.arg_match(
-        compar_by, values = ["native_dtype", "narwhals_schema"],
-        arg_name = 'compar_by'
         )
 
     build.assert_logical(dropna, arg_name = 'dropna')
@@ -628,13 +584,6 @@ def compare_df_cols(
     build.assert_logical(to_native, arg_name = 'to_native')
     # --------------------------------------
     implement = nw.from_native(df_list[0]).implementation
-
-    # df_name が指定されていなければ、自動で作成します。
-    if df_name is None:
-        df_name = [f'df{i + 1}' for i in range(len(df_list))]
-
-    if compar_by == "narwhals_schema":
-        df_list = [nw.from_native(v) for v in df_list]
 
     # dtype の集計 =============================================
     dtype_list = [
@@ -677,112 +626,8 @@ def compare_df_cols(
 # In[ ]:
 
 
-# # import narwhals.selectors as ncs
-# # import itertools
-# # StatsLike = Union[str, Callable[..., Any]]
-
-# def compare_df_stats(
-#     df_list: List[IntoFrameT],
-#     df_name: Optional[List[str]] = None,
-#     return_match: Literal["all", "match", "mismatch"] = "all",
-#     stats: Callable[..., Any] = nw.mean,
-#     rtol: float = 1e-05,
-#     atol: float = 1e-08,
-#     **kwargs: Any,
-# ) -> pd.DataFrame:
-#     """Compare numeric column statistics across multiple DataFrames.
-
-#     This function computes a summary statistic (e.g., mean) for numeric columns
-#     in each DataFrame, then checks whether those statistics are close across
-#     DataFrames using `numpy.isclose`.
-
-#     Args:
-#         df_list (list[IntoFrameT]):
-#             Input DataFrame(s). Any DataFrame-like object supported by narwhals
-#             (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
-#         df_name (list[str] or None):
-#             Names for each DataFrame (used as column names in the output).
-#             If None, auto-generated as ['df1', 'df2', ...].
-#         return_match (str):
-#             Which rows to return.
-#             - 'all': return all columns.
-#             - 'match': return only columns whose stats are close across all pairs.
-#             - 'mismatch': return only columns whose stats are not close.
-#             Note: this code uses `match_stats` internally; see Returns.
-#         stats (str or callable):
-#             Statistic passed to `.agg(stats, **kwargs)` (e.g., 'mean', 'median').
-#         rtol (float):
-#             Relative tolerance for `numpy.isclose`.
-#         atol (float):
-#             Absolute tolerance for `numpy.isclose`.
-#         **kwargs:
-#             Extra keyword arguments forwarded to `.agg(stats, **kwargs)`.
-
-#     Returns:
-#         pandas.DataFrame:
-#             A table with index = numeric column names (`term`) and one column per DataFrame
-#             containing the computed statistic. Additional column:
-#             - match_stats (bool): True if stats are close for all DataFrame pairs.
-
-#     Raises:
-#         AssertionError:
-#             If `df_list` is not a list of pandas.DataFrame.
-#     """
-#     # 引数のアサーション ----------------------
-#     assert isinstance(df_list, list) & \
-#             all([is_FrameT(v) for v in df_list]), \
-#             "argument 'df_list' is must be a list of DataFrame."
-
-#     return_match = build.arg_match(
-#         return_match, arg_name = 'return_match',
-#         values = ['all', 'match', 'mismatch']
-#         )
-#     build.assert_character(
-#         df_name, arg_name = 'df_name', 
-#         nullable = True, len_arg = build.length(df_list)
-#     )
-#     # --------------------------------------
-
-#     # df_name が指定されていなければ、自動で作成します。
-#     if df_name is None:
-#         df_name = [f'df{i + 1}' for i in range(len(df_list))]
-
-#     df_list_nw = [nw.from_native(v) for v in df_list]
-
-#     stats_list = [_compute_stats(df, stats) for df in df_list_nw]
-#     res = pd.concat(stats_list, axis = 1)
-#     res.columns = df_name
-#     res.index.name = 'term'
-
-#     # データフレームのペア毎に、統計値が近いかどうかを比較します。
-#     pairwise_comparesion = \
-#     [pd.Series(
-#         np.isclose(
-#             res.iloc[:, i], res.iloc[:, j],
-#             rtol = rtol, atol = atol
-#         ), index = res.index)
-#         for i, j in itertools.combinations(range(len(res.columns)), 2)
-#         ]
-
-#     res['match_stats'] = pd.concat(pairwise_comparesion, axis = 1).all(axis = 1)
-
-#     if(return_match == 'match'):
-#         res = res[res['match_stats']]
-#     elif(return_match == 'mismatch'):
-#         res = res[~res['match_stats']]
-
-#     return res
-
-# def _compute_stats(df, func):
-#     numeric_vars = df.select(ncs.numeric()).columns
-#     return df.select(func(numeric_vars)).to_pandas().loc[0, :]
-
-
-# In[ ]:
-
-
 def compare_df_stats(
-    df_list: List[IntoFrameT],
+    df_list: Union[List[IntoFrameT], Mapping[str, IntoFrameT]],
     df_name: Optional[List[str]] = None,
     return_match: Literal["all", "match", "mismatch"] = "all",
     stats: Callable[..., Any] = np.mean,
@@ -791,53 +636,91 @@ def compare_df_stats(
     to_native: bool = True,
     **kwargs: Any,
 ) -> IntoFrameT:
-    """Compare numeric column statistics across multiple DataFrames.
+    """
+    Compare summary statistics of numeric columns across multiple DataFrames.
 
-    This function computes a summary statistic (e.g., mean) for numeric columns
-    in each DataFrame, then checks whether those statistics are close across
-    DataFrames using `numpy.isclose`.
+    This function computes a summary statistic (e.g., mean or median) for each
+    numeric column in multiple DataFrame-like objects and compares those
+    statistics across DataFrames. The results are combined into a single table,
+    along with an indicator showing whether the statistics are numerically
+    close across all DataFrames.
+
+    The function supports multiple DataFrame backends via narwhals
+    (e.g., pandas, polars, pyarrow).
 
     Args:
-        df_list (list[IntoFrameT]):
-            Input DataFrame(s). Any DataFrame-like object supported by narwhals
-            (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
-        df_name (list[str] or None):
-            Names for each DataFrame (used as column names in the output).
-            If None, auto-generated as ['df1', 'df2', ...].
-        return_match (str):
-            Which rows to return.
-            - 'all': return all columns.
-            - 'match': return only columns whose stats are close across all pairs.
-            - 'mismatch': return only columns whose stats are not close.
-            Note: this code uses `match_stats` internally; see Returns.
-        stats (str or callable):
-            Statistic passed to `.agg(stats, **kwargs)` (e.g., 'mean', 'median').
-        rtol (float):
-            Relative tolerance for `numpy.isclose`.
-        atol (float):
-            Absolute tolerance for `numpy.isclose`.
-        stats (callable):
-            Aggregation function used to compute a single summary value for each group.
-            This argument accepts either a general callable (e.g., ``numpy.mean`` or a
-            user-defined function) that takes a one-dimensional array-like object
-            containing the values of a group and returns a single scalar, or a function
-            from ``narwhals.functions`` (e.g., ``narwhals.mean``, ``narwhals.sum``),
-            which will be applied directly within the narwhals
-            ``group_by().agg()`` workflow.
-            Defaults to ``numpy.mean``.
+        df_list:
+            A list or mapping of input DataFrames. Any DataFrame-like object
+            supported by narwhals (e.g., ``pandas.DataFrame``,
+            ``polars.DataFrame``, ``pyarrow.Table``) can be used.
+            If a mapping is provided, its keys are used as DataFrame names.
+        df_name:
+            Names for each DataFrame, used as column names in the output.
+            Must have the same length as ``df_list``.
+            If None, names are automatically generated as
+            ``['df1', 'df2', ...]``.
+        return_match:
+            Specifies which rows to return based on the comparison of
+            statistics across DataFrames.
+
+            - ``"all"``: return all variables.
+            - ``"match"``: return only variables whose statistics are close
+              across all DataFrames.
+            - ``"mismatch"``: return only variables whose statistics are not
+              close.
+        stats:
+            Aggregation function used to compute a single summary value for each
+            numeric column.
+
+            This argument accepts either a general callable (e.g.,
+            ``numpy.mean`` or a user-defined function) that takes a
+            one-dimensional array-like object and returns a single scalar, or a
+            function from ``narwhals.functions`` (e.g., ``narwhals.mean``,
+            ``narwhals.sum``), which will be applied directly within the
+            narwhals expression workflow. Defaults to ``numpy.mean``.
+        rtol:
+            Relative tolerance parameter passed to ``numpy.isclose`` when
+            comparing statistics.
+        atol:
+            Absolute tolerance parameter passed to ``numpy.isclose`` when
+            comparing statistics.
+        to_native:
+            If True, returns the result as a native DataFrame of the input
+            backend. If False, returns a ``narwhals.DataFrame``.
         **kwargs:
-            Extra keyword arguments forwarded to `.agg(stats, **kwargs)`.
+            Additional keyword arguments passed to the aggregation function
+            when applicable.
 
     Returns:
         IntoFrameT:
-            A table with index = numeric column names (`term`) and one column per DataFrame
-            containing the computed statistic. Additional column:
-            - match_stats (bool): True if stats are close for all DataFrame pairs.
+            A DataFrame where each row corresponds to a numeric column and the
+            result contains the following columns:
 
-    Raises:
-        AssertionError:
-            If `df_list` is not a list of DataFrame.
+            - ``term``: column (variable) name.
+            - one column per input DataFrame, containing the computed statistic
+              for that column.
+            - ``match_stats``: boolean flag indicating whether the statistics
+              are numerically close across all DataFrames according to
+              ``numpy.isclose``.
+
+    Notes:
+        - Only numeric columns are included in the comparison.
+        - The column name ``term`` is included as a regular column in the
+          output table (not as the index).
+        - When ``stats`` is a function from ``narwhals.functions``, the
+          computation is performed using narwhals expressions. Otherwise, the
+          function is applied to non-missing values converted to native Python
+          objects.
+        - Statistical comparison is based on the minimum and maximum values
+          across DataFrames for each variable.
     """
+    # df_name が指定されていなければ、自動で作成します。
+    if df_name is None:
+        if isinstance(df_list, dict):
+            df_name = list(df_list.keys())
+            df_list = list(df_list.values())
+        else:
+            df_name = [f'df{i + 1}' for i in range(len(df_list))]
     # 引数のアサーション ----------------------
     assert isinstance(df_list, list) & \
             all([is_FrameT(v) for v in df_list]), \
@@ -854,10 +737,6 @@ def compare_df_stats(
     build.assert_logical(to_native, arg_name = 'to_native')
     # --------------------------------------
 
-    # df_name が指定されていなければ、自動で作成します。
-    if df_name is None:
-        df_name = [f'df{i + 1}' for i in range(len(df_list))]
-
     df_list_nw = [nw.from_native(v) for v in df_list]
 
     # 統計値の計算 =============================================
@@ -870,7 +749,6 @@ def compare_df_stats(
     result = _join_comparsion(stats_list, on = 'term')
 
     # 統計値が近いかどうかを比較 ==============================================
-
     match_stats = [
         np.isclose(np.min(x), np.max(x), rtol = rtol, atol = atol) 
         for x in result[:, 1:].iter_rows()

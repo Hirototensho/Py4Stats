@@ -28,7 +28,7 @@ Pareto_plot(
 - `top_n`：**int**</br>
 　棒グラフを表示するカテゴリーの件数。`top_n = None`（初期設定）の場合、すべてのカテゴリーを表示し、整数値が指定された場合、上位 `top_n` 件が表示されます。
 - `aggfunc`：**callable**</br>
-    `values` が指定された際に、集計に使用する集計関数。`np.mean` など `values` 列を1次元配列として受け取って単一の数値を返す任意の関数が使用できるほか、`nw.mean` など narwhals.functions モジュールで実装された関数が使用できます。
+    `values` が指定された際に、集計に使用する集計関数。`np.mean` など `values` 列を1次元配列として受け取って単一の数値を返す任意の関数が使用できるほか、`nw.mean` など narwhals.functions モジュールで実装された関数を使用できます。
 - `ax`</br>
 描画先となる matplotlib の Axes。複数のグラフを並べる場合などに使用します。デフォルトの `None` の場合は、新しい Figure と Axes が作成されます。
 - `fontsize`：**int**</br>
