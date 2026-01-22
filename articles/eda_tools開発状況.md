@@ -35,6 +35,7 @@
 | plot_median_diff     | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | plot_miss_var        | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | scale                | Series           | ✅       | ✅       | ✅        |                                            |
+| set_miss             | Series           | ✅       | ✅       | ✅        |                                            |
 | relocate             | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | remove_constant      | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | remove_empty         | DataFrame        | ✅       | ✅       | ✅        |                                            |
