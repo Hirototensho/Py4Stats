@@ -40,6 +40,7 @@
 #### 複数のデータフレームの比較
 
 [`py4stats.compare_df_cols()`](man/compare_df_cols.md)
+[`py4stats.compare_df_stats()`](man/compare_df_cols.md)
 
 #### 簡易なグループ別統計量の比較
 

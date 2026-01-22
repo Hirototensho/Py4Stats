@@ -236,7 +236,7 @@ from py4stats import building_block as build # py4stats のプログラミング
 # from py4stats import eda_tools as eda        # 基本統計量やデータの要約など
 import matplotlib.pyplot as plt
 import functools
-from functools import singledispatch
+from functools import singledispatch, reduce
 import pandas_flavor as pf
 
 import pandas as pd
@@ -478,11 +478,103 @@ def is_FrameT(obj: object) -> bool:
 
 ReturnMatch = Literal["all", "match", "mismatch"]
 
+# def compare_df_cols(
+#     df_list: List[IntoFrameT],
+#     return_match: Literal["all", "match", "mismatch"] = 'all',
+#     df_name: Optional[List[str]] = None,
+#     dropna:bool = False,
+# ) -> pd.DataFrame:
+#     """Compare dtypes of columns with the same names across multiple DataFrames.
+
+#     Args:
+#         df_list (list[IntoFrameT]):
+#             List of input DataFrame(s). Any DataFrame-like object supported by narwhals
+#             (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
+#         return_match (str):
+#             Which rows to return.
+#             - 'all': return all columns.
+#             - 'match': return only columns whose dtypes match across all DataFrames.
+#             - 'mismatch': return only columns whose dtypes do not match.
+#         df_name (list[str] or None):
+#             Names for each DataFrame (used as column names in the output).
+#             If None, auto-generated as ['df1', 'df2', ...].
+#         dropna (bool):
+#             Passed to `nunique(dropna=...)` when checking whether dtypes match.
+
+#     Returns:
+#         pandas.DataFrame:
+#             A table with index = column names (`term`) and one column per DataFrame
+#             containing the dtype. Additional column:
+#             - match_dtype (bool): True if all dtypes are identical across DataFrames.
+
+#     Raises:
+#         AssertionError:
+#             If `df_list` is not a list of pandas.DataFrame.
+#     """
+#     # 引数のアサーション ----------------------
+#     assert isinstance(df_list, list) & \
+#         all([is_FrameT(v) for v in df_list]), \
+#         "argument 'df_list' is must be a list of DataFrame."
+
+#     return_match = build.arg_match(
+#         return_match, values = ['all', 'match', 'mismatch'],
+#         arg_name = 'return_match'
+#         )
+#     build.assert_logical(dropna, arg_name = 'dropna')
+#     build.assert_character(
+#         df_name, arg_name = 'df_name', 
+#         nullable = True, len_arg = build.length(df_list)
+#     )
+#     # --------------------------------------
+#     # df_name が指定されていなければ、自動で作成します。
+#     if df_name is None:
+#         df_name = [f'df{i + 1}' for i in range(len(df_list))]
+
+#     df_list = [nw.from_native(v) for v in df_list]
+#     dtype_list = [get_dtypes(v) for v in df_list]
+#     res = pd.concat(dtype_list, axis = 1)
+#     res.columns = df_name
+#     res.index.name = 'term'
+#     res['match_dtype'] = res.nunique(axis = 1, dropna = dropna) == 1
+
+#     if(return_match == 'match'):
+#         res = res[res['match_dtype']]
+#     elif(return_match == 'mismatch'):
+#         res = res[~res['match_dtype']]
+
+#     return res
+
+
+# In[ ]:
+
+
+def _join_comparsion(result_list, on):
+    redundant_col = f"{on}_right"
+    result = reduce(
+            lambda df1, df2: (
+                df1.join(df2, on = on, how = 'full')
+                .with_columns(
+                    nw.when(nw.col(on).is_null()).then(redundant_col)\
+                    .otherwise(on).alias(on)
+                )), result_list
+                )
+    result = filtering_out(
+            result, starts_with = redundant_col, 
+            to_native = False
+        )
+    return result
+
+
+# In[ ]:
+
+
 def compare_df_cols(
     df_list: List[IntoFrameT],
+    df_name: Optional[List[str]] = None,
     return_match: Literal["all", "match", "mismatch"] = 'all',
-    df_name = None,
     dropna:bool = False,
+    compar_by: Literal["native_dtype", "narwhals_schema"] = 'native_dtype',
+    to_native: bool = True
 ) -> pd.DataFrame:
     """Compare dtypes of columns with the same names across multiple DataFrames.
 
@@ -490,19 +582,19 @@ def compare_df_cols(
         df_list (list[IntoFrameT]):
             List of input DataFrame(s). Any DataFrame-like object supported by narwhals
             (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
+        df_name (list[str] or None):
+            Names for each DataFrame (used as column names in the output).
+            If None, auto-generated as ['df1', 'df2', ...].
         return_match (str):
             Which rows to return.
             - 'all': return all columns.
             - 'match': return only columns whose dtypes match across all DataFrames.
             - 'mismatch': return only columns whose dtypes do not match.
-        df_name (list[str] or None):
-            Names for each DataFrame (used as column names in the output).
-            If None, auto-generated as ['df1', 'df2', ...].
         dropna (bool):
             Passed to `nunique(dropna=...)` when checking whether dtypes match.
 
     Returns:
-        pandas.DataFrame:
+        IntoFrameT:
             A table with index = column names (`term`) and one column per DataFrame
             containing the dtype. Additional column:
             - match_dtype (bool): True if all dtypes are identical across DataFrames.
@@ -516,29 +608,68 @@ def compare_df_cols(
         all([is_FrameT(v) for v in df_list]), \
         "argument 'df_list' is must be a list of DataFrame."
 
+
     return_match = build.arg_match(
         return_match, values = ['all', 'match', 'mismatch'],
         arg_name = 'return_match'
         )
+
+    compar_by = build.arg_match(
+        compar_by, values = ["native_dtype", "narwhals_schema"],
+        arg_name = 'compar_by'
+        )
+
     build.assert_logical(dropna, arg_name = 'dropna')
+
+    build.assert_character(
+        df_name, arg_name = 'df_name', 
+        nullable = True, len_arg = build.length(df_list)
+    )
+    build.assert_logical(to_native, arg_name = 'to_native')
     # --------------------------------------
+    implement = nw.from_native(df_list[0]).implementation
+
     # df_name が指定されていなければ、自動で作成します。
     if df_name is None:
         df_name = [f'df{i + 1}' for i in range(len(df_list))]
 
-    df_list = [nw.from_native(v) for v in df_list]
-    dtype_list = [get_dtypes(v) for v in df_list]
-    res = pd.concat(dtype_list, axis = 1)
-    res.columns = df_name
-    res.index.name = 'term'
-    res['match_dtype'] = res.nunique(axis = 1, dropna = dropna) == 1
+    if compar_by == "narwhals_schema":
+        df_list = [nw.from_native(v) for v in df_list]
+
+    # dtype の集計 =============================================
+    dtype_list = [
+        enframe(
+            get_dtypes(dt), 
+            name = 'term', value = val,
+            to_native = False,
+            backend = implement
+            )
+        for val, dt in zip(df_name, df_list)
+        ]
+
+    # 結果の結合 ==============================================
+    result = _join_comparsion(dtype_list, on = 'term')
+
+    # dtype の一致性を確認 ======================================
+    match_dtype = (
+        result[:, 1:].to_pandas()
+        .nunique(axis = 'columns', dropna = dropna) == 1
+        )
+
+    match_dtype = nw.Series.from_iterable(
+        name = 'match_dtype',
+        values = match_dtype.to_list(),
+        backend = implement
+    )
+    result = result.with_columns(match_dtype)
 
     if(return_match == 'match'):
-        res = res[res['match_dtype']]
+        result = result.filter(nw.col('match_dtype') == True)
     elif(return_match == 'mismatch'):
-        res = res[~res['match_dtype']]
+        result = result.filter(nw.col('match_dtype') == False)
 
-    return res
+    if to_native: return result.to_native()
+    return result
 
 
 # ### 平均値などの統計値の近接性で比較するバージョン
@@ -546,19 +677,120 @@ def compare_df_cols(
 # In[ ]:
 
 
-# import narwhals.selectors as ncs
-# import itertools
-# StatsLike = Union[str, Callable[..., Any]]
+# # import narwhals.selectors as ncs
+# # import itertools
+# # StatsLike = Union[str, Callable[..., Any]]
+
+# def compare_df_stats(
+#     df_list: List[IntoFrameT],
+#     df_name: Optional[List[str]] = None,
+#     return_match: Literal["all", "match", "mismatch"] = "all",
+#     stats: Callable[..., Any] = nw.mean,
+#     rtol: float = 1e-05,
+#     atol: float = 1e-08,
+#     **kwargs: Any,
+# ) -> pd.DataFrame:
+#     """Compare numeric column statistics across multiple DataFrames.
+
+#     This function computes a summary statistic (e.g., mean) for numeric columns
+#     in each DataFrame, then checks whether those statistics are close across
+#     DataFrames using `numpy.isclose`.
+
+#     Args:
+#         df_list (list[IntoFrameT]):
+#             Input DataFrame(s). Any DataFrame-like object supported by narwhals
+#             (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
+#         df_name (list[str] or None):
+#             Names for each DataFrame (used as column names in the output).
+#             If None, auto-generated as ['df1', 'df2', ...].
+#         return_match (str):
+#             Which rows to return.
+#             - 'all': return all columns.
+#             - 'match': return only columns whose stats are close across all pairs.
+#             - 'mismatch': return only columns whose stats are not close.
+#             Note: this code uses `match_stats` internally; see Returns.
+#         stats (str or callable):
+#             Statistic passed to `.agg(stats, **kwargs)` (e.g., 'mean', 'median').
+#         rtol (float):
+#             Relative tolerance for `numpy.isclose`.
+#         atol (float):
+#             Absolute tolerance for `numpy.isclose`.
+#         **kwargs:
+#             Extra keyword arguments forwarded to `.agg(stats, **kwargs)`.
+
+#     Returns:
+#         pandas.DataFrame:
+#             A table with index = numeric column names (`term`) and one column per DataFrame
+#             containing the computed statistic. Additional column:
+#             - match_stats (bool): True if stats are close for all DataFrame pairs.
+
+#     Raises:
+#         AssertionError:
+#             If `df_list` is not a list of pandas.DataFrame.
+#     """
+#     # 引数のアサーション ----------------------
+#     assert isinstance(df_list, list) & \
+#             all([is_FrameT(v) for v in df_list]), \
+#             "argument 'df_list' is must be a list of DataFrame."
+
+#     return_match = build.arg_match(
+#         return_match, arg_name = 'return_match',
+#         values = ['all', 'match', 'mismatch']
+#         )
+#     build.assert_character(
+#         df_name, arg_name = 'df_name', 
+#         nullable = True, len_arg = build.length(df_list)
+#     )
+#     # --------------------------------------
+
+#     # df_name が指定されていなければ、自動で作成します。
+#     if df_name is None:
+#         df_name = [f'df{i + 1}' for i in range(len(df_list))]
+
+#     df_list_nw = [nw.from_native(v) for v in df_list]
+
+#     stats_list = [_compute_stats(df, stats) for df in df_list_nw]
+#     res = pd.concat(stats_list, axis = 1)
+#     res.columns = df_name
+#     res.index.name = 'term'
+
+#     # データフレームのペア毎に、統計値が近いかどうかを比較します。
+#     pairwise_comparesion = \
+#     [pd.Series(
+#         np.isclose(
+#             res.iloc[:, i], res.iloc[:, j],
+#             rtol = rtol, atol = atol
+#         ), index = res.index)
+#         for i, j in itertools.combinations(range(len(res.columns)), 2)
+#         ]
+
+#     res['match_stats'] = pd.concat(pairwise_comparesion, axis = 1).all(axis = 1)
+
+#     if(return_match == 'match'):
+#         res = res[res['match_stats']]
+#     elif(return_match == 'mismatch'):
+#         res = res[~res['match_stats']]
+
+#     return res
+
+# def _compute_stats(df, func):
+#     numeric_vars = df.select(ncs.numeric()).columns
+#     return df.select(func(numeric_vars)).to_pandas().loc[0, :]
+
+
+# In[ ]:
+
 
 def compare_df_stats(
     df_list: List[IntoFrameT],
-    return_match: ReturnMatch = "all",
     df_name: Optional[List[str]] = None,
-    stats: Callable[..., Any] = nw.mean,
+    return_match: Literal["all", "match", "mismatch"] = "all",
+    stats: Callable[..., Any] = np.mean,
     rtol: float = 1e-05,
     atol: float = 1e-08,
+    to_native: bool = True,
     **kwargs: Any,
-) -> pd.DataFrame:
+) -> IntoFrameT:
     """Compare numeric column statistics across multiple DataFrames.
 
     This function computes a summary statistic (e.g., mean) for numeric columns
@@ -569,33 +801,42 @@ def compare_df_stats(
         df_list (list[IntoFrameT]):
             Input DataFrame(s). Any DataFrame-like object supported by narwhals
             (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
+        df_name (list[str] or None):
+            Names for each DataFrame (used as column names in the output).
+            If None, auto-generated as ['df1', 'df2', ...].
         return_match (str):
             Which rows to return.
             - 'all': return all columns.
             - 'match': return only columns whose stats are close across all pairs.
             - 'mismatch': return only columns whose stats are not close.
             Note: this code uses `match_stats` internally; see Returns.
-        df_name (list[str] or None):
-            Names for each DataFrame (used as column names in the output).
-            If None, auto-generated as ['df1', 'df2', ...].
         stats (str or callable):
             Statistic passed to `.agg(stats, **kwargs)` (e.g., 'mean', 'median').
         rtol (float):
             Relative tolerance for `numpy.isclose`.
         atol (float):
             Absolute tolerance for `numpy.isclose`.
+        stats (callable):
+            Aggregation function used to compute a single summary value for each group.
+            This argument accepts either a general callable (e.g., ``numpy.mean`` or a
+            user-defined function) that takes a one-dimensional array-like object
+            containing the values of a group and returns a single scalar, or a function
+            from ``narwhals.functions`` (e.g., ``narwhals.mean``, ``narwhals.sum``),
+            which will be applied directly within the narwhals
+            ``group_by().agg()`` workflow.
+            Defaults to ``numpy.mean``.
         **kwargs:
             Extra keyword arguments forwarded to `.agg(stats, **kwargs)`.
 
     Returns:
-        pandas.DataFrame:
+        IntoFrameT:
             A table with index = numeric column names (`term`) and one column per DataFrame
             containing the computed statistic. Additional column:
             - match_stats (bool): True if stats are close for all DataFrame pairs.
 
     Raises:
         AssertionError:
-            If `df_list` is not a list of pandas.DataFrame.
+            If `df_list` is not a list of DataFrame.
     """
     # 引数のアサーション ----------------------
     assert isinstance(df_list, list) & \
@@ -606,41 +847,74 @@ def compare_df_stats(
         return_match, arg_name = 'return_match',
         values = ['all', 'match', 'mismatch']
         )
+    build.assert_character(
+        df_name, arg_name = 'df_name', 
+        nullable = True, len_arg = build.length(df_list)
+    )
+    build.assert_logical(to_native, arg_name = 'to_native')
     # --------------------------------------
+
     # df_name が指定されていなければ、自動で作成します。
     if df_name is None:
         df_name = [f'df{i + 1}' for i in range(len(df_list))]
 
     df_list_nw = [nw.from_native(v) for v in df_list]
 
-    stats_list = [_compute_stats(df, stats) for df in df_list_nw]
-    res = pd.concat(stats_list, axis = 1)
-    res.columns = df_name
-    res.index.name = 'term'
-
-    # データフレームのペア毎に、統計値が近いかどうかを比較します。
-    pairwise_comparesion = \
-    [pd.Series(
-        np.isclose(
-            res.iloc[:, i], res.iloc[:, j],
-            rtol = rtol, atol = atol
-        ), index = res.index)
-    for i, j in itertools.combinations(range(len(res.columns)), 2)
+    # 統計値の計算 =============================================
+    stats_list = [
+        _compute_stats(df, stats, name) 
+        for df, name in zip(df_list_nw, df_name)
         ]
 
-    res['match_stats'] = pd.concat(pairwise_comparesion, axis = 1).all(axis = 1)
+    # 計算結果の結合 ==============================================
+    result = _join_comparsion(stats_list, on = 'term')
+
+    # 統計値が近いかどうかを比較 ==============================================
+
+    match_stats = [
+        np.isclose(np.min(x), np.max(x), rtol = rtol, atol = atol) 
+        for x in result[:, 1:].iter_rows()
+    ]
+
+    implement = df_list_nw[0].implementation
+    match_stats = nw.Series.from_iterable(
+        name = 'match_stats',
+        values = match_stats,
+        backend = implement
+    )
+    result = result.with_columns(match_stats)
+
+    # 結果の出力 =================================================================
 
     if(return_match == 'match'):
-        res = res[res['match_stats']]
+        result = result.filter(nw.col('match_dtype') == True)
     elif(return_match == 'mismatch'):
-        res = res[~res['match_stats']]
+        result = result.filter(nw.col('match_dtype') == False)
 
-    return res
+    if to_native: return result.to_native()
+    return result
 
-def _compute_stats(df, func):
+def _compute_stats(df, stats, name):
     numeric_vars = df.select(ncs.numeric()).columns
-    return df.select(func(numeric_vars)).to_pandas().loc[0, :]
 
+    if stats.__module__ == 'narwhals.functions':
+        stats_val = df.select(stats(numeric_vars))
+    else:
+        stats_val = {
+            col: stats(df[:, col].drop_nulls().to_list())
+            for col in numeric_vars
+        }
+
+    stats_df = enframe(
+        stats_val , name = 'term', value = name, 
+        to_native = False,
+        backend = df.implementation
+        )
+
+    return stats_df
+
+
+# ## 2つのデータフレームをレコード単位で比較する関数
 
 # In[ ]:
 
@@ -992,23 +1266,6 @@ def enframe_dict(
 
     if to_native: return result.to_native()
     return result
-
-
-# In[ ]:
-
-
-# def _row_to_2col_df(
-#         data_nw,
-#         row_id = 0,
-#         values_to = 'values',
-#         names_to = 'variable'
-# ):
-#     result = nw.from_dict({
-#         names_to:  data_nw.columns,
-#         values_to: data_nw.row(row_id)
-#     }, backend = data_nw.implementation)
-
-#     return result
 
 
 # In[ ]:
@@ -1406,7 +1663,6 @@ def crosstab(
 
     if dropna: data_nw = data_nw.drop_nulls([index, columns])
 
-    # return data_nw
     result = (
         data_nw.with_columns(
             nw.col(index, columns).cast(nw.String), # nan によるエラー回避のため
@@ -1578,123 +1834,6 @@ def freq_table(
             return result.to_native().reset_index(drop=True)
         return result.to_native()
     return result
-
-
-# In[ ]:
-
-
-# @pf.register_dataframe_method
-
-# def tabyl(
-#     data: IntoFrameT,
-#     index: str,
-#     columns: str,
-#     margins: bool = True,
-#     margins_name: str = 'All',
-#     normalize: Union[bool, Literal["index", "columns", "all"]] = "index",
-#     dropna: bool = False,
-#     digits: int = 1,
-#     # to_native: bool = True,
-#     **kwargs: Any
-# ) -> pd.DataFrame:
-#     """Create a crosstab with counts and (optionally) percentages in parentheses.
-
-#     This function produces a table similar to `janitor::tabyl()` (R), where the
-#     main cell is a count and percentages can be appended like: `count (xx.x%)`.
-
-#     Args:
-#         data (IntoFrameT):
-#             Input DataFrame. Any DataFrame-like object supported by narwhals
-#             (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
-#         index (str):
-#             Column name used for row categories.
-#         columns (str):
-#             Column name used for column categories.
-#         margins (bool):
-#             Add margins (totals) if True.
-#         margins_name (str):
-#             Name of the margin row/column.
-#         normalize (bool or {'index','columns','all'}):
-#             If False, return counts only.
-#             Otherwise, compute percentages normalized by the specified axis.
-#         dropna (bool):
-#             Whether to drop NaN from counts.
-#         digits (int):
-#             Number of decimal places for percentages.
-
-#     Returns:
-#         pandas.DataFrame:
-#             Crosstab table. If `normalize` is not False, cells contain strings like
-#             `"count (xx.x%)"`. Otherwise counts (as strings after formatting).
-#     """
-#     # 引数のアサーション ==============================================
-#     build.assert_logical(margins, arg_name = 'margins')
-#     build.assert_character(margins_name, arg_name = 'margins_name')
-#     build.assert_logical(dropna, arg_name = 'dropna')
-#     build.assert_count(digits, arg_name = 'digits')
-#     # build.assert_logical(to_native, arg_name = 'to_native')
-#     # ==============================================================
-
-#     data_nw = nw.from_native(data)
-
-#     if(not isinstance(normalize, bool)):
-#       normalize = build.arg_match(
-#           normalize, arg_name = 'normalize',
-#           values = ['index', 'columns', 'all']
-#           )
-
-#     # index または columns に bool 値が指定されていると後続処理でエラーが生じるので、
-#     # 文字列型に cast します。
-#     data_nw = data_nw[[index, columns]].with_columns(
-#        ncs.boolean().cast(nw.String)
-#     )
-
-#     # 度数クロス集計表（最終的な表では左側の数字）
-#     args_dict = locals()
-#     args_dict.pop('normalize')
-#     args_dict.pop('data')
-#     # args_dict.pop('to_native')
-
-#     c_tab1 = crosstab(
-#         data = data_nw,
-#         normalize = False,
-#         to_native = False,
-#         **args_dict
-#        ).to_pandas().set_index(index)
-
-#     c_tab1 = c_tab1.apply(build.style_number, digits = 0)
-#     # return c_tab1
-
-#     if(normalize != False):
-#         # 回答率クロス集計表（最終的な表では括弧内の数字）
-#         c_tab2 = crosstab(
-#             data = data_nw, 
-#             normalize = normalize, 
-#             to_native = False,
-#             **args_dict
-#            ).to_pandas().set_index(index)
-
-#         # 2つめのクロス集計表の回答率をdigitsで指定した桁数のパーセントに換算し、文字列化します。
-#         c_tab2 = c_tab2.apply(build.style_percent, digits = digits)
-
-#         # return c_tab2
-#         col = c_tab2.columns
-#         idx = c_tab2.index
-#         c_tab1 = c_tab1.astype('str')
-#         # 1つめのクロス集計表も文字列化して、↑で計算したパーセントに丸括弧と%記号を追加したものを文字列として結合します。
-#         c_tab1.loc[idx, col] = c_tab1.astype('str').loc[idx, col] + ' (' + c_tab2 + ')'
-
-#     return c_tab1
-
-#     # if to_native and data_nw.implementation.is_pandas():
-#     #    return c_tab1
-
-#     # c_tab1 = c_tab1.reset_index()
-#     # dict_list = [c_tab1.loc[i, :].to_dict() for i in c_tab1.index]
-#     # result = nw.from_dicts(dict_list, backend = data_nw.implementation)
-
-#     # if to_native: return result.to_native()
-#     # return result
 
 
 # <!-- ## `diagnose_category()`：カテゴリー変数専用の要約関数 -->

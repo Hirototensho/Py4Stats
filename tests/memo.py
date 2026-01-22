@@ -75,6 +75,31 @@ def _assert_df_fixture_new(
 
     assert_frame_equal(output_df, expected_df, check_dtype = check_dtype)
 
+def _assert_df_eq(
+        output_df,  path_fixture: str,  
+        check_dtype: bool = False, 
+        reset_index: bool = True, 
+        update_fixture: bool = False,
+        **kwarg
+        ) -> None:
+    
+    if not isinstance(output_df, nw.DataFrame):
+        output_df = nw.from_native(output_df)
+
+    if update_fixture:
+        output_df.write_csv(path_fixture)
+
+    expected_df = nw.read_csv(path_fixture, backend = output_df.implementation)
+    
+    output_df = output_df.to_pandas()
+    expected_df = expected_df.to_pandas()
+
+    if reset_index:
+        output_df = output_df.reset_index(drop = True)
+        expected_df = expected_df.reset_index(drop = True)
+
+    assert_frame_equal(output_df, expected_df, check_dtype = check_dtype)
+
 penguins_dict = {
     'pd':penguins,
     'pl':penguins_pl,
@@ -104,4 +129,13 @@ mroz_dict = {
 # ================================================================
 # 
 # ================================================================
-
+@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
+def test_compare_df_cols(backend):
+    output_df = eda_nw.compare_df_cols(
+        [adelie_dict.get(backend), gentoo_dict.get(backend)],
+        return_match = 'match',
+        to_native = False
+    )
+    path = f'{tests_path}/fixtures/diagnose_{backend}.csv'
+    _assert_df_eq(output_df, path, update_fixture = False)
+    

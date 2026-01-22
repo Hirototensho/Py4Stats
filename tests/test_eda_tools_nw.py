@@ -285,30 +285,16 @@ def test_tabyl_with_boolen_col_pd():
 # =========================================================
 # compare_df_cols
 # =========================================================
-def test_compare_df_cols_pd():
-    output_df = eda_nw.compare_df_cols(
-        [adelie, gentoo],
-        return_match = 'match'
-    )
-    # output_df.to_csv(f'{tests_path}/fixtures/compare_df_cols_nw.csv')
-    _assert_df_fixture(output_df, 'compare_df_cols_nw.csv')
-    
+@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
+def test_compare_df_cols(backend):
 
-def test_compare_df_cols_pl():
     output_df = eda_nw.compare_df_cols(
-        [adelie_pl, gentoo_pl],
-        return_match = 'match'
+        [adelie_dict.get(backend), gentoo_dict.get(backend)],
+        return_match = 'match',
+        to_native = False
     )
-    # output_df.to_csv(f'{tests_path}/fixtures/compare_df_cols_pl.csv')
-    _assert_df_fixture(output_df, 'compare_df_cols_pl.csv')
-
-def test_compare_df_cols_pa():
-    output_df = eda_nw.compare_df_cols(
-        [adelie_pa, gentoo_pa],
-        return_match = 'match'
-    )
-    # output_df.to_csv(f'{tests_path}/fixtures/compare_df_cols_pa.csv')
-    _assert_df_fixture(output_df, 'compare_df_cols_pa.csv')
+    path = f'{tests_path}/fixtures/compare_df_cols_{backend}.csv'
+    _assert_df_eq(output_df, path, update_fixture = False)
 
 # =========================================================
 # compare_df_stats
@@ -332,8 +318,9 @@ def test_compare_df_stats_pl():
     penguins_modify['bill_length_mm'] = eda_nw.scale(penguins_modify['bill_length_mm'])
 
     output_df = eda_nw.compare_df_stats(
-        [penguins_pl, pl.from_pandas(penguins_modify)]
-        )
+        [penguins_pl, pl.from_pandas(penguins_modify)],
+        to_native = False
+        ).to_pandas()
 
     # output_df.to_csv(f'{tests_path}/fixtures/compare_df_stats_pl.csv')
     _assert_df_fixture(output_df, 'compare_df_stats_pl.csv')
@@ -344,8 +331,9 @@ def test_compare_df_stats_pa():
     penguins_modify['bill_length_mm'] = eda_nw.scale(penguins_modify['bill_length_mm'])
 
     output_df = eda_nw.compare_df_stats(
-        [penguins_pa, pa.Table.from_pandas(penguins_modify)]
-        )
+        [penguins_pa, pa.Table.from_pandas(penguins_modify)],
+        to_native = False 
+        ).to_pandas()
 
     # output_df.to_csv(f'{tests_path}/fixtures/compare_df_stats_pa.csv')
     _assert_df_fixture(output_df, 'compare_df_stats_pa.csv')
