@@ -913,6 +913,7 @@ def compare_df_record(
     numeric_col = set(numeric1) & set(numeric2)
     nonnum_col = set(nonnum1) & set(nonnum2)
 
+    # 類似性の評価 ==========================================================
     res_number_col = [
         np.isclose(
             df1[v], df2[v], rtol = rtol, atol = atol
@@ -928,7 +929,7 @@ def compare_df_record(
         )
     else:
         res_number_col_df = None
-
+    # カテゴリ変数の類似性評価 ================================================
     res_nonnum_col = [(df1[v] == df2[v]).to_frame() for v in nonnum_col]
 
     if res_nonnum_col:
@@ -936,6 +937,7 @@ def compare_df_record(
     else:
         res_nonnum_col_df = None
 
+    # 結果の結合と出力 =======================================================
     res_list = [res_number_col_df, res_nonnum_col_df]
     res_list = list(filter(None, res_list))
 
@@ -1825,9 +1827,9 @@ def tabyl(
 
     c_tab1 = c_tab1.reset_index()
     # バックエンドの書き換え ==============================================
-    # これは推奨される実装ではない、安易に使い回さないこと。
-    dict_list = [c_tab1.loc[i, :].to_dict() for i in c_tab1.index]
-    result = nw.from_dicts(dict_list, backend = data_nw.implementation)
+    # これは非推奨の実装なので、安易に使い回さないこと。
+    dict_list = {col: c_tab1[col].to_list() for col in c_tab1.columns}
+    result = nw.from_dict(dict_list, backend = data_nw.implementation)
     #==================================================================
     if to_native: return result.to_native()
     return result
