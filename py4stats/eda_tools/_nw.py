@@ -657,7 +657,7 @@ def compare_df_record(
     sikipna: bool = True,
     columns: Literal['common', 'all'] = 'all',
     to_native: bool = True
-) -> pd.DataFrame:
+) -> IntoFrameT:
     """Compare two DataFrames record-wise (element-wise).
 
     Each element is compared row by row:
@@ -693,7 +693,7 @@ def compare_df_record(
             If False, return a `narwhals.DataFrame`.
 
     Returns:
-        pandas.DataFrame or narwhals.DataFrame:
+        IntoFrameT or narwhals.DataFrame:
             A DataFrame of boolean values indicating, for each element,
             whether the values in `df1` and `df2` match (or are close for
             numeric columns). Column order follows `df1.columns`
@@ -3018,7 +3018,7 @@ def mean_ci_series(
     return result
 
 
-# ## 正規表現を文字列関連の論理関数
+# ## 正規表現と文字列関連の論理関数
 
 # In[ ]:
 
@@ -3232,6 +3232,7 @@ def is_number(data:IntoSeriesT, na_default:bool = True, to_native: bool = True) 
 # In[ ]:
 
 
+@pf.register_dataframe_method
 def check_that(
     data: IntoFrameT,
     rule_dict: Union[Mapping[str, str], pd.Series],
@@ -3331,6 +3332,7 @@ def check_that(
 # In[ ]:
 
 
+@pf.register_dataframe_method
 def check_viorate(
     data: IntoFrameT,
     rule_dict: Union[Mapping[str, str], pd.Series],
@@ -3465,11 +3467,84 @@ def set_miss(
     prop: Optional[float] = None, 
     method: Literal['random', 'first', 'last'] = 'random', 
     random_state: Optional[int] = None, 
+    na_value: Any = None,
     to_native: bool = True
     ):
+  """Insert missing values into a Series.
+
+  This function replaces a specified number or proportion of non-missing
+  elements in a Series with missing values. It supports multiple Series
+  backends via narwhals and is primarily intended for generating test data
+  or simulating missingness.
+
+  Exactly one of `n` or `prop` must be specified.
+
+  Args:
+      x (IntoSeriesT):
+          Input Series. Any Series-like object supported by narwhals
+          (e.g., pandas.Series, polars.Series, pyarrow.ChunkedArray)
+          can be used.
+      n (int, optional):
+          Target number of missing values in the Series after processing.
+          If the Series already contains `n` or more missing values,
+          no additional missing values are added and a warning is issued.
+      prop (float, optional):
+          Target proportion of missing values in the Series after processing.
+          Must be between 0 and 1. If the current proportion of missing
+          values is greater than or equal to `prop`, no additional missing
+          values are added and a warning is issued.
+      method ({'random', 'first', 'last'}, optional):
+          Strategy for selecting elements to be replaced with missing values.
+          - ``'random'``: randomly select non-missing elements.
+          - ``'first'``: select from the beginning of the Series.
+          - ``'last'``: select from the end of the Series.
+          Defaults to ``'random'``.
+      random_state (int, optional):
+          Random seed used when ``method='random'`` to ensure reproducibility.
+      na_value (Any, optional):
+          Value used to represent missing data. Defaults to ``None``.
+        to_native (bool, optional):
+            If True, return the result as a native Series class of 'x'.
+            If False, return a `narwhals.Series`.
+
+  Returns:
+      IntoSeriesT or narwhals.Series:
+          Series with additional missing values inserted. The return type
+          depends on the value of ``to_native``.
+
+  Raises:
+      ValueError:
+          If neither or both of `n` and `prop` are specified.
+
+  Warns:
+      UserWarning:
+          If the input Series already contains the specified number or
+          proportion of missing values and no additional missing values
+          are added.
+
+  Examples:
+      >>> import pandas as pd
+      >>> import py4stats as py4st
+      >>> s = pd.Series([1, 2, 3, 4, 5])
+      >>> py4st.set_miss(s, n=2, method='first')
+      0    NaN
+      1    NaN
+      2    3.0
+      3    4.0
+      4    5.0
+      dtype: float64
+
+      >>> py4st.set_miss(s, prop=0.4, method='random', random_state=0)
+      0    1.0
+      1    NaN
+      2    3.0
+      3    NaN
+      4    5.0
+      dtype: float64
+  """
   x_nw = nw.from_native(x, series_only = True)
 
-  # 引数のアサーション =======================================================
+  # 引数のアサーション ==================================================================
   if not((n is not None) ^ (prop is not None)):
     raise ValueError("Exactly one of `n` and `prop` must be specified.")
 
@@ -3492,44 +3567,42 @@ def set_miss(
      lower = 0, upper = 1, 
      nullable = True, scalar_only = True
      )
-  # =======================================================================
 
-  x_np = x_nw.to_numpy()
-  if hasattr(x, 'index'):
-    idx = x.index.to_series()
-  else:
-    idx = pd.Series(np.arange(len(x_nw)))
-
-  non_miss = idx[
-    ~x_nw.is_nan() | ~x_nw.is_null()
-  ]
+  # 欠測値代入個数の計算 =================================================================
+  idx = pd.Series(np.arange(len(x_nw)))
+  non_miss = idx[~build.is_missing(x_nw)]
 
   if n is not None: 
     n_to_miss = np.max([n - n_miss, 0])
+
     if n_to_miss <=0:
       warnings.warn(
-         f"Already contained {n_miss}(>= n) missing value(s) in 'x', "
+         f"Already contained {n_miss}(>= n) missing value(s) in `x`, "
         "no additional missing values were added.",
         category = UserWarning,
         stacklevel = 2
       )
-      return x
+      if to_native: return x_nw.to_native()
+      return x_nw
 
   elif prop is not None: 
     n_non_miss = non_miss.shape[0]
 
     n_to_miss = int(np.max([
-      np.ceil(n_non_miss * (prop - p_miss)), 0
+        np.ceil(n_non_miss * (prop - p_miss)), 0
       ]))
 
     if prop <= p_miss:
       warnings.warn(
-        f"Already contained {p_miss:.3f}(>= prop) missing value(s) in 'x', "
+        f"Already contained {p_miss:.3f}(>= prop) missing value(s) in `x`, "
         "no additional missing values were added.",
         category = UserWarning,
         stacklevel = 2
       )
-      return x  
+      if to_native: return x_nw.to_native()
+      return x_nw
+
+  # 欠測値代入位置の決定 =====================================================================
 
   match method:
     case 'random':
@@ -3539,10 +3612,13 @@ def set_miss(
     case 'last':
         index_to_na = non_miss.tail(n_to_miss)
 
-  x_np[index_to_na] = np.nan
-  result = nw.Series.from_numpy(
+  # 欠測値の代入と結果の出力 ===================================================================
+  x_with_na = [na_value if i in index_to_na else v 
+               for i, v in enumerate(x_nw)]
+
+  result = nw.Series.from_iterable(
       name = x_nw.name,
-      values = x_np,
+      values = x_with_na,
       backend = x_nw.implementation
   )
 
@@ -3597,6 +3673,7 @@ def _is_before_after_selected(selected: list[str], value:Optional[str] = None):
 # In[ ]:
 
 
+@pf.register_dataframe_method
 def relocate(
         data: IntoFrameT, 
         *args: Union[str, List[str], narwhals.Expr, narwhals.selectors.Selector], 

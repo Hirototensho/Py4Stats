@@ -14,6 +14,7 @@ import narwhals as nw
 import narwhals.selectors as ncs
 
 from py4stats.eda_tools import _nw as eda_nw
+from py4stats import building_block as build # py4stats のプログラミングを補助する関数群
 
 import pathlib
 tests_path = pathlib.Path(__file__).parent
@@ -1095,3 +1096,25 @@ def test_min_max_pl():
 def test_min_max_pa():
     res = eda_nw.min_max(penguins_pa['body_mass_g']).to_pandas()
     assert np.isclose(res.min(), 0) & np.isclose(res.max(), 1)
+
+# =========================================================
+# set_miss
+# =========================================================
+@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
+def test_set_miss(backend):
+    # penguins = pd.read_csv(f'{tests_path}/fixtures/penguins.csv')
+    # penguins_pa = pa.Table.from_pandas(penguins)
+    # penguins_pl = pl.from_arrow(penguins_pa)
+    # penguins_dict = {
+    #     'pd':penguins,
+    #     'pl':penguins_pl,
+    #     'pa':penguins_pa
+    # }
+
+    x = penguins_dict.get(backend)['body_mass_g']
+    y = penguins_dict.get(backend)['bill_length_mm']
+    miss_n = eda_nw.set_miss(x, n = 100, random_state = 123, to_native = False)
+    miss_prop = eda_nw.set_miss(y, prop = 0.3, random_state = 123, to_native = False)
+
+    assert build.is_missing(miss_n).sum() == 100
+    assert np.isclose(build.is_missing(miss_prop).mean(), 0.3, atol = 0.001)
