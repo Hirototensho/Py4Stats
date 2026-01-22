@@ -333,17 +333,14 @@ def diagnose(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
             Defaults to True.
 
     Returns:
-        pandas.DataFrame:
-            Summary table indexed by original column names with columns:
+        IntoFrameT:
+            A summary table with one row per variable and the following columns:
+            - columns: names of columns in original DataFrame
             - dtype: pandas dtype of the column.
             - missing_count: number of missing values.
             - missing_percent: percentage of missing values (100 * missing_count / nrow).
             - unique_count: number of unique values (excluding duplicates).
             - unique_rate: percentage of unique values (100 * unique_count / nrow).
-
-    Raises:
-        AssertionError:
-            If `data` is not a pandas.DataFrame.
     """
     build.assert_logical(to_native, arg_name = 'to_native')
     data_nw = nw.from_native(data)
@@ -811,15 +808,86 @@ def enframe(
     row_id:int = 0,
     name: str = 'name',
     value: str = 'value',
-    backend: Optional[str] = None,
+    backend: Optional[Union[str, nw.Implementation]] = None,
     names: list[str] = None,
     to_native: bool = True,
     **keywarg: Any
 ) -> IntoFrameT:
+    """Convert a row of DataFrame or other iterable object into two-column DataFrame.
+
+    This function transforms an object containing values (such as a Series,
+    list, dict, or a single-row DataFrame) into a DataFrame with two columns:
+    one for names (keys) and one for values. It is inspired by
+    ``tibble::enframe()`` in R and is useful for reshaping aggregation results
+    into a tidy, long format.
+
+    The function supports multiple backends via narwhals and can return either
+    a native DataFrame or a ``narwhals.DataFrame``.
+
+    Args:
+        data (Any):
+            Input object to be converted. Supported types include:
+            - ``narwhals.DataFrame`` (typically with a single row)
+            - ``narwhals.Series``
+            - ``list`` or ``tuple``
+            - ``dict``
+        row_id (int, optional):
+            Row index to extract values from when ``data`` is a DataFrame.
+            Defaults to 0.
+        name (str, optional):
+            Column name for variable names (keys). Defaults to ``'name'``.
+        value (str, optional):
+            Column name for values. Defaults to ``'value'``.
+        backend (str or narwhals.Implementation, optional):
+            Backend used to construct the output DataFrame.
+            If None, the backend is inferred from the input data.
+        names (list of str, optional):
+            Names corresponding to the values.
+            If None, names are inferred from column names, index,
+            or keys of the input object.
+        to_native (bool, optional):
+            If True, convert the result to the native DataFrame type of the
+            selected backend. If False, return a narwhals DataFrame.
+            Defaults to True.
+        **keywarg:
+            Additional keyword arguments passed to the internal dispatch methods.
+
+    Returns:
+        IntoFrameT or narwhals.DataFrame:
+            A two-column DataFrame with one column for names and one for values.
+            The return type depends on the value of ``to_native``.
+
+    Raises:
+        NotImplementedError:
+            If the input object type is not supported.
+
+    Examples:
+        Convert a single-row DataFrame produced by an aggregation:
+
+        >>> df.select(ncs.numeric().mean()).pipe(enframe)
+              name     value
+        0     mpg     20.09
+        1     hp     146.69
+
+        Convert a Series:
+
+        >>> enframe(pd.Series([10, 20], index=['a', 'b']))
+          name  value
+        0    a     10
+        1    b     20
+
+        Convert a dictionary:
+
+        >>> enframe({'x': 1, 'y': 2})
+          name  value
+        0    x      1
+        1    y      2
+    """
     # 引数のアサーション =======================================================
-    build.assert_count(row_id, arg_name = 'row_id')
-    build.assert_character(name, arg_name = 'name')
-    build.assert_character(value, arg_name = 'value')
+    build.assert_count(row_id, arg_name = 'row_id', len_arg = 1)
+    build.assert_character(name, arg_name = 'name', len_arg = 1)
+    build.assert_character(value, arg_name = 'value', len_arg = 1)
+    build.assert_character(names, arg_name = 'names', nullable = True)
     build.assert_logical(to_native, arg_name = 'to_native')
     # =======================================================================
 
@@ -845,7 +913,7 @@ def enframe_table(
     name: str = 'name',
     value: str = 'value',
     names: Union[list[str]] = None,
-    backend: Optional[str] = None,
+    backend: Optional[Union[str, nw.Implementation]] = None,
     to_native: bool = True,
     **keywarg: Any
 ) -> IntoFrameT:
@@ -875,7 +943,7 @@ def enframe_series(
     name: str = 'name',
     value: str = 'value',
     names: Union[list[str]] = None,
-    backend: Optional[str] = None,
+    backend: Optional[Union[str, nw.Implementation]] = None,
     to_native: bool = True,
     **keywarg: Any
 ) -> IntoFrameT:
@@ -909,7 +977,7 @@ def enframe_dict(
     name: str = 'name',
     value: str = 'value',
     names: Union[list[str]] = None,
-    backend: Optional[str] = None,
+    backend: Optional[Union[str, nw.Implementation]] = None,
     to_native: bool = True,
     **keywarg: Any
 ) -> IntoFrameT:
@@ -929,18 +997,18 @@ def enframe_dict(
 # In[ ]:
 
 
-def _row_to_2col_df(
-        data_nw,
-        row_id = 0,
-        values_to = 'values',
-        names_to = 'variable'
-):
-    result = nw.from_dict({
-        names_to:  data_nw.columns,
-        values_to: data_nw.row(row_id)
-    }, backend = data_nw.implementation)
+# def _row_to_2col_df(
+#         data_nw,
+#         row_id = 0,
+#         values_to = 'values',
+#         names_to = 'variable'
+# ):
+#     result = nw.from_dict({
+#         names_to:  data_nw.columns,
+#         values_to: data_nw.row(row_id)
+#     }, backend = data_nw.implementation)
 
-    return result
+#     return result
 
 
 # In[ ]:
@@ -3461,6 +3529,7 @@ def Median(*arg: List[pd.Series]):
 # In[ ]:
 
 
+@pf.register_series_method
 def set_miss(
     x: IntoSeriesT, 
     n: Optional[int] = None,

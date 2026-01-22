@@ -1102,15 +1102,6 @@ def test_min_max_pa():
 # =========================================================
 @pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
 def test_set_miss(backend):
-    # penguins = pd.read_csv(f'{tests_path}/fixtures/penguins.csv')
-    # penguins_pa = pa.Table.from_pandas(penguins)
-    # penguins_pl = pl.from_arrow(penguins_pa)
-    # penguins_dict = {
-    #     'pd':penguins,
-    #     'pl':penguins_pl,
-    #     'pa':penguins_pa
-    # }
-
     x = penguins_dict.get(backend)['body_mass_g']
     y = penguins_dict.get(backend)['bill_length_mm']
     miss_n = eda_nw.set_miss(x, n = 100, random_state = 123, to_native = False)

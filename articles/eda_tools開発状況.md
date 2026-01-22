@@ -1,5 +1,5 @@
 ## eda_toolsの開発状況
-2026年1月17日
+2026年1月22日
 
 **eda_toolsの開発状況**
 | functions            | Input            | Pandas   | Polars   | Pyarrow   | 補足                                       |
@@ -12,9 +12,9 @@
 | Sum                  | pd.Series        | ✅       | ❌       | ❌        | pd.DataFrame.eval() での使用を想定した関数     |
 | check_that           | DataFrame        | ✅       | ⭕️       | ⭕️        | 実装に pd.DataFrame.eval() を使用            |
 | check_viorate        | DataFrame        | ✅       | ⭕️       | ⭕️        | 実装に pd.DataFrame.eval() を使用            |
-| compare_df_cols      | DataFrame        | ✅       | ✅       | ✅        |                                            |
+| compare_df_cols      | DataFrame        | ✅       | ⭕️       | ⭕️        | 返り値が pd.DataFrame に制限されています        |
 | compare_df_record    | DataFrame        | ✅       | ✅       | ✅        |                                            |
-| compare_df_stats     | DataFrame        | ✅       | ✅       | ✅        |                                            |
+| compare_df_stats     | DataFrame        | ✅       | ⭕️       | ⭕️        | 返り値が pd.DataFrame に制限されています        |
 | compare_group_means  | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | compare_group_median | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | crosstab             | DataFrame        | ✅       | ✅       | ⭕️        | Pyarrow は Polars 依存の実装                 |
