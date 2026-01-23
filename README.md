@@ -6,11 +6,9 @@
 
 Explore the full documentation (Quarto Book) at:
 
-- [🏠 Full Docs](docs/index.html)
+- [🏠 Full Docs](https://hirototensho.github.io/Py4Stats/)
 - [🚀 Get Started](https://hirototensho.github.io/Py4Stats/introduction.html)
 - [📖 API Reference](https://hirototensho.github.io/Py4Stats/reference.html)
-
-本ライブラリの主な機能は [**Get started**](https://hirototensho.github.io/Py4Stats/introduction.html) を、実装されている関数の一覧は [**Function reference**](https://hirototensho.github.io/Py4Stats/reference.html) を参照してください。
 
 ## Installation
 
@@ -88,6 +86,7 @@ compare_tab1
 詳細は、[`py4stats.compare_ols()`](docs/docs/man/compare_ols.html) を参照してください。　
 
 ***
+[Jump to **Full Docs**.](https://hirototensho.github.io/Py4Stats/)  
 [Jump to **Get started**.](https://hirototensho.github.io/Py4Stats/introduction.html)  
 [Jump to **Function reference**.](https://hirototensho.github.io/Py4Stats/reference.html)
 
