@@ -814,7 +814,6 @@ def make_assert_numeric(
       all_missing = all_missing
       )
 
-
     # 引数の要素数に関するアサーション ============================================
     assert_length(
       arg, arg_name, 

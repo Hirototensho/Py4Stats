@@ -346,7 +346,7 @@ def diagnose(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
     data_nw = nw.from_native(data)
 
     n = data_nw.shape[0]
-    list_dtypes = get_dtypes(data)
+    list_dtypes = get_dtypes(data).to_list()
 
     result = nw.from_dict({
         'columns':data_nw.columns,
@@ -2470,6 +2470,34 @@ def remove_constant(
     return data_nw
 
 
+# ## 列名や行名に特定の文字列を含む列や行を除外する関数
+
+# In[ ]:
+
+
+def _assert_selectors(*args, arg_name = '*args', nullable = False):
+    if (not args and nullable) or (all(build.is_missing(args)) and nullable): 
+        return None
+
+    build.assert_missing(args, arg_name = arg_name)
+
+    is_varid = [
+        isinstance(v, str) or
+        (build.is_character(v) and isinstance(v, list)) or
+        isinstance(v, nw.expr.Expr) or
+        isinstance(v, nw.selectors.Selector) 
+        for v in args
+        ]
+
+    if not all(is_varid):
+        invalids = [v for i, v in enumerate(args) if not is_varid[i]]
+        message = f"Argument `{arg_name}` must be of type 'str', list of 'str', 'narwhals.Expr' or 'narwhals.Selector'\n"\
+        + f"            The value(s) of {build.oxford_comma_and(invalids)} cannot be accepted.\n"\
+        + "            Examples of valid inputs: 'x', ['x', 'y'], ncs.numeric(), nw.col('x')"
+
+        raise ValueError(message)
+
+
 # In[ ]:
 
 
@@ -2477,6 +2505,7 @@ def remove_constant(
 @pf.register_dataframe_method
 def filtering_out(
     data: IntoFrameT,
+    *args: Union[str, List[str], narwhals.Expr, narwhals.selectors.Selector], 
     contains: Optional[str] = None,
     starts_with: Optional[str] = None,
     ends_with: Optional[str] = None,
@@ -2489,6 +2518,13 @@ def filtering_out(
         data (IntoFrameT):
             Input DataFrame. Any DataFrame-like object supported by narwhals
             (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
+        *args (Union[str, List[str], narwhals.Expr, narwhals.Selector]):
+            Columns to relocate. Each element may be:
+            - a column name (`str`)
+            - a list of column names
+            - a narwhals expression
+            - a narwhals selector
+            The order of columns specified here is preserved in the output.
         contains (str or None):
             Exclude labels that contain this substring.
         starts_with (str or None):
@@ -2531,11 +2567,13 @@ def filtering_out(
     build.assert_character(contains, arg_name = 'contains', nullable = True)
     build.assert_character(starts_with, arg_name = 'starts_with', nullable = True)
     build.assert_character(ends_with, arg_name = 'ends_with', nullable = True)
+    _assert_selectors(*args, nullable = True)
     # ==============================================================
     data_nw = nw.from_native(data)
-    drop_table = pd.DataFrame()
 
+    # columns に基づく除外処理 =================================================================
     if axis in ("0", "index"):
+        drop_table = pd.DataFrame()
         if not hasattr(data, "index"):
             raise TypeError(
                 f"filtering_out(..., axis='{axis}') requires an input that has"
@@ -2543,7 +2581,12 @@ def filtering_out(
                 f"Got: {type(data)}."
             )
     if((axis == '1') | (axis == 'columns')):
-        drop_list = []
+        drop_table = pd.DataFrame()
+
+        if args:
+            drop_list = data_nw.select(args).columns
+        else: drop_list = []
+
         s_columns = pd.Series(data_nw.columns)
         if contains is not None:
             drop_table['contains'] = s_columns.str.contains(contains)
@@ -2558,22 +2601,34 @@ def filtering_out(
             drop_list = drop_list + s_columns[drop_table.any(axis = 'columns')].to_list()
 
         data_nw = data_nw.drop(drop_list)
+        if to_native: return data_nw.to_native()
+        return data_nw
 
-    elif hasattr(data, 'index'):
+    # index に基づく除外処理 =================================================================
+    elif isinstance(data, pd.DataFrame):
+        drop_table = pd.DataFrame(index = data.index)
+        if args: 
+            if isinstance(args[0], Union[list, tuple]):
+                args = args[0]
+            drop_table['selected'] = data.index.isin(list(args))
+
         if contains is not None: 
             drop_table['contains'] = data.index.to_series().str.contains(contains)
 
         if starts_with is not None: 
-            drop_table['starts_with'] = data.index.to_series().str.startswith(starts_with)
+            # return data.index.to_series().str.startswith(starts_with)
+            drop_table.loc[:, 'starts_with'] = data.index.to_series().str.startswith(starts_with)
 
         if ends_with is not None:
             drop_table['ends_with'] = data.index.to_series().str.endswith(ends_with)
 
-        keep_list = (~drop_table.any(axis = 'columns')).to_list()
-        data_nw = data_nw.filter(keep_list)
+        # return drop_table
+        if args or contains is not None or starts_with is not None or ends_with is not None:
+            keep_list = (~drop_table.any(axis = 'columns')).to_list()
+            data_nw = data_nw.filter(keep_list)
 
-    if to_native: return data_nw.to_native()
-    return data_nw
+        if to_native: return data_nw.to_native()
+        return data_nw
 
 
 # # パレート図を作図する関数
@@ -3867,22 +3922,23 @@ def relocate(
     """
     # 引数のアサーション ======================================
     build.assert_logical(to_native, arg_name = 'to_native')
+    _assert_selectors(*args, nullable = True)
 
-    is_varid = [
-        isinstance(v, str) or
-        (build.is_character(v) and isinstance(v, list)) or
-        isinstance(v, nw.expr.Expr) or
-        isinstance(v, nw.selectors.Selector)
-        for v in args
-        ]
+    # is_varid = [
+    #     isinstance(v, str) or
+    #     (build.is_character(v) and isinstance(v, list)) or
+    #     isinstance(v, nw.expr.Expr) or
+    #     isinstance(v, nw.selectors.Selector)
+    #     for v in args
+    #     ]
 
-    if not all(is_varid):
-        invalids = [v for i, v in enumerate(args) if not is_varid[i]]
-        message = "Argument `*args` must be of type 'str', list of 'str', 'narwhals.Expr' or 'narwhals.Selector'\n"\
-        + f"            The value(s) of {build.oxford_comma_and(invalids)} cannot be accepted.\n"\
-        + "            Examples of valid inputs: 'x', ['x', 'y'], ncs.numeric(), nw.col('x')"
+    # if not all(is_varid):
+    #     invalids = [v for i, v in enumerate(args) if not is_varid[i]]
+    #     message = "Argument `*args` must be of type 'str', list of 'str', 'narwhals.Expr' or 'narwhals.Selector'\n"\
+    #     + f"            The value(s) of {build.oxford_comma_and(invalids)} cannot be accepted.\n"\
+    #     + "            Examples of valid inputs: 'x', ['x', 'y'], ncs.numeric(), nw.col('x')"
 
-        raise ValueError(message)
+    #     raise ValueError(message)
 
     build.assert_character(before, arg_name = 'before', nullable = True, scalar_only = True)
     build.assert_character(after, arg_name = 'after', nullable = True, scalar_only = True)
