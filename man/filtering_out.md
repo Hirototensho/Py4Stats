@@ -45,10 +45,12 @@ filtering_out(
 ```python
 import py4stats as py4st
 import pandas as pd
+import narwhals.selectors as ncs
 from palmerpenguins import load_penguins
-penguins = load_penguins() # サンプルデータの読み込み
 
-print(penguins.head(3))
+penguins = load_penguins().head(3) # サンプルデータの読み込み
+
+print(penguins)
 #>   species     island  bill_length_mm  bill_depth_mm  flipper_length_mm  body_mass_g     sex  year  female
 #> 0  Adelie  Torgersen            39.1           18.7              181.0       3750.0    male  2007       0
 #> 1  Adelie  Torgersen            39.5           17.4              186.0       3800.0  female  2007       1
@@ -56,22 +58,37 @@ print(penguins.head(3))
 ```
 
 ```python
+# *args で列名を直接指定
+print(py4st.filtering_out(penguins, 'year', 'island', 'sex'))
+#>   species  bill_length_mm  bill_depth_mm  flipper_length_mm  body_mass_g
+#> 0  Adelie            39.1           18.7              181.0       3750.0
+#> 1  Adelie            39.5           17.4              186.0       3800.0
+#> 2  Adelie            40.3           18.0              195.0       3250.0
+
+
+# narwhals.selector の使用例 文字列型の変数を除外
+print(py4st.filtering_out(penguins, ncs.string()))
+#>    bill_length_mm  bill_depth_mm  flipper_length_mm  body_mass_g  year
+#> 0            39.1           18.7              181.0       3750.0  2007
+#> 1            39.5           17.4              186.0       3800.0  2007
+#> 2            40.3           18.0              195.0       3250.0  2007
+
 # 列名に 'length' を含む列を除外
-print(py4st.filtering_out(penguins, contains = 'length').head(3))
+print(py4st.filtering_out(penguins, contains = 'length'))
 #>   species     island  bill_depth_mm  body_mass_g     sex  year  female
 #> 0  Adelie  Torgersen           18.7       3750.0    male  2007       0
 #> 1  Adelie  Torgersen           17.4       3800.0  female  2007       1
 #> 2  Adelie  Torgersen           18.0       3250.0  female  2007       1
 
 # 列名が 'bill' から始まる列を除外
-print(py4st.filtering_out(penguins, starts_with = 'bill').head(3))
+print(py4st.filtering_out(penguins, starts_with = 'bill'))
 #>   species     island  flipper_length_mm  body_mass_g     sex  year  female
 #> 0  Adelie  Torgersen              181.0       3750.0    male  2007       0
 #> 1  Adelie  Torgersen              186.0       3800.0  female  2007       1
 #> 2  Adelie  Torgersen              195.0       3250.0  female  2007       1
 
 # 列名が '_mm' で終わる列を除外
-print(py4st.filtering_out(penguins, ends_with = '_mm').head(3))
+print(py4st.filtering_out(penguins, ends_with = '_mm'))
 #>   species     island  body_mass_g     sex  year  female
 #> 0  Adelie  Torgersen       3750.0    male  2007       0
 #> 1  Adelie  Torgersen       3800.0  female  2007       1
