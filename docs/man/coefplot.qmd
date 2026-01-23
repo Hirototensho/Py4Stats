@@ -75,7 +75,8 @@ fit3 = smf.ols('body_mass_g ~ bill_length_mm + bill_depth_mm + species + sex', d
 
 py4st.coefplot(fit3)
 ```
-![Unknown](https://github.com/Hirototensho/Py4Stats/assets/55335752/637437c3-f943-4817-a1ad-21bbd538e97d)
+
+![coefplot1](image/coefplot1.png)
 
 ```python
 plt.rcParams["figure.autolayout"] = True
@@ -89,7 +90,7 @@ py4st.coefplot(fit3, ax = ax[1], palette = ['#FF6F91', '#F2E5EB'])
 ax[1].set_xlim(-900, 1800);
 ```
 
-![Unknown](https://github.com/Hirototensho/Py4Stats/assets/55335752/4c2dbfda-c67d-45c5-ba28-0f7fc72bd7d3)
+![coefplot2](image/coefplot2.png)
 
 ```python
 penguins['female'] = np.where(penguins['sex'] == 'female', 1, 0)
@@ -111,8 +112,7 @@ py4st.mfxplot(fit_logit2, ax = ax[1], palette = ['#FF6F91', '#F2E5EB'])
 ax[1].set_xlim(-0.2, 0.85);
 ```
 
-![Unknown](https://github.com/Hirototensho/Py4Stats/assets/55335752/f62e934a-91da-4ca8-9272-3006df2383f0)
-
+![coefplot3](image/coefplot3.png)
 ***
-[Return to **Function reference**.](../reference.md)
+[Return to **Function reference**.](../reference.qmd)
 

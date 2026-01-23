@@ -100,4 +100,4 @@ print(py4st.filtering_out(penguins, ends_with = '_mm'))
 `axis='index'` による行を対象とするフィルタリングは、インデックスの存在に依存します。したがって、`pd.DataFrame` 以外の行ラベルをもたない `DataFrame` バックエンドでは、このオプションは利用できません。
 
 ***
-[Return to **Function reference**.](../reference.md)
+[Return to **Function reference**.](../reference.qmd)

@@ -61,4 +61,4 @@ print(build.style_percent(pct, unit = 1000, symbol = '‰').to_list())
 ```
 
 ***
-[Return to **Function reference**.](../reference.md)
+[Return to **Function reference**.](../reference.qmd)

@@ -2,7 +2,7 @@
 
 ## 概要
 
-R言語の [`naniar::gg_miss_var()`](https://naniar.njtierney.com/reference/gg_miss_var.html) をオマージュした関数で、データフレームの各変数について欠測値の量を横棒グラフとして可視化します。欠損値統計の計算には [`py4stats.diagnose()`](diagnose.md) を使用しています。
+R言語の [`naniar::gg_miss_var()`](https://naniar.njtierney.com/reference/gg_miss_var.html) をオマージュした関数で、データフレームの各変数について欠測値の量を横棒グラフとして可視化します。欠損値統計の計算には [`py4stats.diagnose()`](diagnose.qmd) を使用しています。
 
 ``` python
 plot_miss_var(
@@ -59,4 +59,4 @@ py4st.plot_miss_var(penguins, values = 'missing_count', miss_only = True)
 ![plot_miss_var2](image/plot_miss_var2.png)
 
 ***
-[Return to **Function reference**.](../reference.md)
+[Return to **Function reference**.](../reference.qmd)

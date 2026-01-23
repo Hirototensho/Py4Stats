@@ -20,11 +20,11 @@
 
 本ライブラリの動作確認は、基本的に `pandas.DataFrame` を用いて実施しています。そのため、`polars` や `pyarrow` を使用した場合には、バックエンド固有の仕様差や未検証の挙動により、一部の関数でエラーが発生する可能性があります。そのような挙動が確認された場合は、**Issue 等での報告を歓迎**します。
 
-　また、バックエンド別の実装状況については [eda_tools開発状況](eda_tools開発状況.md) も参照して下さい。
+　また、バックエンド別の実装状況については [eda_tools開発状況](eda_tools_development_status.qmd) も参照して下さい。
 
 ## narwhals を用いた関数の返り値の型について
 
-`py4stats.eda_tools` モジュールの関数のうち、[`py4stats.diagnose()`](../man/diagnose.md) など、第一引数にデータフレームを取る関数の返り値の型は、`to_native` 引数の値によって変化します。<br>
+`py4stats.eda_tools` モジュールの関数のうち、[`py4stats.diagnose()`](../man/diagnose.qmd) など、第一引数にデータフレームを取る関数の返り値の型は、`to_native` 引数の値によって変化します。<br>
 　初期設定である `to_nativ = True` の場合には、第一引数に入力されたデータフレームと同じ型のデータフレームが出力され、`to_nativ = False` の場合には `narwhals.DataFrame` 型のデータフレームが出力されます。`to_nativ = False` のオプションは、主にライブラリ内部での利用や、データフレームのバックエンドに依存しない後続処理を行いたい場合を想定したオプションです。
 
 ``` python

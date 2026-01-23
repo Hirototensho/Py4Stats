@@ -10,7 +10,7 @@ Pandas の場合、2つのデータフレーム `df1` と `df2` が共通の col
 
 Pandas の場合、`df.loc[i, j] = x` という形でデータフレーム `df` の i, j 要素に値 `x` を代入することができますが、narwhals ではこれに相当する演算 `df[i, j] = x` は禁止されています。
 
-異なるデータフレーム間の二項演算に制約があること、そしてデータフレームへの値の代入が難しいことから、[`tabyl()`](../man/tabyl.md) 関数では、集計後の作表処理の一部を Pandas に依存しています。
+異なるデータフレーム間の二項演算に制約があること、そしてデータフレームへの値の代入が難しいことから、[`tabyl()`](../man/tabyl.qmd) 関数では、集計後の作表処理の一部を Pandas に依存しています。
 
 ### 任意の関数でグループ別集計を行う
 
@@ -28,7 +28,7 @@ data_nw.group_by(nw.col(group)).agg(nw.col('x').my_func())
 data_nw.group_by(nw.col(group)).agg(my_func(nw.col('x')))
 ````
 
-例えば Py4Stats では、[`Pareto_plot()`](../man/Pareto_plot.md) 関数の内部実装に使用している [`make_rank_table()`](../py4stats/eda_tools/_nw.py) 関数において、任意の `aggfunc()` 関数をグループ別集計に使うために、サブセッティングを使って `group_by()` メソッドの使用を回避するという変則的（かつ、おそらく非効率な）な実装を行なっています。
+例えば Py4Stats では、[`Pareto_plot()`](../man/Pareto_plot.qmd) 関数の内部実装に使用している [`make_rank_table()`](..../py4stats/eda_tools/_nw.py) 関数において、任意の `aggfunc()` 関数をグループ別集計に使うために、サブセッティングを使って `group_by()` メソッドの使用を回避するという変則的（かつ、おそらく非効率な）な実装を行なっています。
 
 ``` python
 stat_values = [

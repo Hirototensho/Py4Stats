@@ -124,7 +124,7 @@ py4st.plot_mean_diff(
 )
 ```
 
-![Unknown](https://github.com/Hirototensho/Py4Stats/assets/55335752/696cbbe0-2c0c-435c-bb9c-71a59a3742f9)
+![plot_mean_diff1](image/plot_mean_diff1.png)
 
 ```python
 py4st.plot_mean_diff(
@@ -134,7 +134,7 @@ py4st.plot_mean_diff(
 )
 ```
 
-![Unknown-2](https://github.com/Hirototensho/Py4Stats/assets/55335752/735866a9-aed2-4e10-bac1-6fc7004fba8f)
+![plot_mean_diff2](image/plot_mean_diff2.png)
 
 ```python
 py4st.plot_median_diff(
@@ -143,6 +143,7 @@ py4st.plot_median_diff(
     stats_diff = 'rel_diff'
 )
 ```
-![Unknown-3](https://github.com/Hirototensho/Py4Stats/assets/55335752/7a496916-e828-44e1-a0e0-d50bb22ecc12)
+![plot_median_diff1](image/plot_median_diff1.png)
+
 ***
-[Return to **Function reference**.](../reference.md)
+[Return to **Function reference**.](../reference.qmd)

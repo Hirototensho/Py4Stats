@@ -159,4 +159,4 @@ print(retailers.loc[df_viorate['to'], 'size':'turnover'])
 - Loo, Mark van der, and Edwin de Jonge. (2022). 『統計的データクリーニングの理論と実践: Rによるデータ編集/欠測補完システム』. 共立出版. 地道 正行, 髙橋 雅夫, 藤野 友和, 安川 武彦〔訳〕
 
 ***
-[Return to **Function reference**.](../reference.md)
+[Return to **Function reference**.](../reference.qmd)

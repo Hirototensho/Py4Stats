@@ -57,4 +57,4 @@ print([build.is_float(x) for x in x_list])
 #> [False, False, False, True]
 ```
 ***
-[Return to **Function reference**.](../reference.md)
+[Return to **Function reference**.](../reference.qmd)

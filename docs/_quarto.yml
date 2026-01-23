@@ -1,0 +1,68 @@
+project:
+  type: book
+  output-dir: docs
+book:
+  title: "Py4Stats"
+  chapters:
+    - index.qmd
+    - introduction.qmd
+    - reference.qmd
+    - part: "eda_tools"
+      chapters:
+      - man/diagnose.qmd
+      - man/tabyl.qmd
+      - man/freq_table.qmd
+      - man/Pareto_plot.qmd
+      - man/plot_category.qmd
+      - man/diagnose_category.qmd
+      - man/point_range.qmd
+      - man/remove_empty_constant.qmd
+      - man/filtering_out.qmd
+      - man/relocate.qmd
+      - man/compare_df_cols.qmd
+      - man/compare_group_stats.qmd
+      - man/plot_miss_var.qmd
+      - man/set_miss.qmd
+      - man/scale_wmean.qmd
+      - man/predicate_str.qmd
+      - man/is_dummy.qmd
+      - man/varidate.qmd
+    - part: "regression_tools"
+      chapters:
+      - man/compare_ols.qmd
+      - man/compare_mfx.qmd
+      - man/coefplot.qmd
+      - man/tidy.qmd
+      - man/tidy_test.qmd
+      - man/glance.qmd
+      - man/Blinder_Oaxaca.qmd
+    - part: "heckit_helper"
+      chapters:
+      - man/tidy_heckit.qmd
+      - man/Heckit_from_formula.qmd
+      - man/heckitmfx_compute.qmd
+    - part: "building_block"
+      chapters:
+      - man/arg_match.qmd
+      - man/assert_dtype.qmd
+      - man/is_dtype.qmd
+      - man/miscellaneous.qmd
+      - man/style_pvalue.qmd
+      - man/oxford_comma.qmd
+    - part: "articles"
+      chapters:
+      - articles/narwhals_in_py4stats.qmd
+      - articles/eda_tools_development_status.qmd
+      - articles/narwhalsについての考察.qmd
+  # repo-url: https://github.com/Hirototensho/Portfolio
+  # repo-actions: [source]
+format:
+  html:
+    theme: cosmo
+    css: theme.scss
+    code-link: true
+    callout-appearance: default	# callout については https://quarto.org/docs/authoring/callouts.html を参照
+    grid:
+      sidebar-width: 250px   # サイドバー幅の最大値
+      body-width: 1000px      # メイン本文幅の最大値
+      margin-width: 150px    # 余白幅の最大値

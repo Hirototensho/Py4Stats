@@ -66,4 +66,4 @@ print(py4st.diagnose_category(penguins2).round(4))
 `evenness` は、各列ごとに情報エントロピーを $[0, 1]$ の範囲に正規化した指標です。本実装では、対数の底をカテゴリの個数（`unique`）に設定することで正規化を行っており、これは底を2とした情報エントロピーを `log2(unique)` で割ることと同値です。この指標は正規化エントロピー（normalized entropy）としても知られています。
 
 ***
-[Return to **Function reference**.](../reference.md)
+[Return to **Function reference**.](../reference.qmd)

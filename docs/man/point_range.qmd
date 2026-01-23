@@ -77,4 +77,4 @@ print(penguins.groupby('species')[['bill_length_mm']].apply(py4st.median_qi).rou
 #> Gentoo    0  bill_length_mm   47.30  42.65  53.85
 ```
 ***
-[Return to **Function reference**.](../reference.md)
+[Return to **Function reference**.](../reference.qmd)

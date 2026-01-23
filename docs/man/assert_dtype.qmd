@@ -170,7 +170,7 @@ build.assert_numeric(
 
 ## 参照
 
-　データ型の判定には[こちらの関数](./is_dtype.md)を使用しています。
+　データ型の判定には[こちらの関数](./is_dtype.qmd)を使用しています。
 
 ***
-[Return to **Function reference**.](../reference.md)
+[Return to **Function reference**.](../reference.qmd)

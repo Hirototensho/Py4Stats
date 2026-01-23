@@ -48,4 +48,4 @@ print(build.oxford_comma_or('A'))
 #> 'A'
 ```
 ***
-[Return to **Function reference**.](../reference.md)
+[Return to **Function reference**.](../reference.qmd)

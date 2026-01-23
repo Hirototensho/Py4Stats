@@ -45,5 +45,5 @@ print(py4st.diagnose(penguins).round(4))
 ```
 
 ***
-[Return to **Function reference**.](../reference.md)
+[Return to **Function reference**.](../reference.qmd)
 

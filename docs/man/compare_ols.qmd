@@ -46,7 +46,7 @@ compare_ols(
     - p ≤ 0.05 `**`
     - p ≤ 0.01 `***`
     - p > 0.1 表示なし</br>
-詳細は[`building_block.style_pvalue()`](man/style_pvalue.md) を参照してください。
+詳細は[`building_block.style_pvalue()`](./style_pvalue.qmd) を参照してください。
 
 - `stats_glance`:**list of str**</br>
 - 表の下部に追加する当てはまりの尺度の種類を表す文字列のリスト。リストの値には次の値を指定できます。なお、`None` もしくは空のリスト `[ ]` が指定された場合には非表示となります。
@@ -251,7 +251,7 @@ compare_tab4 # 上記のコードと同じ結果
 
 ## 参照 see also
 
-　一般化線形モデルの限界効果を比較する場合は [`py4stats.compare_mfx()`](./compare_mfx.md)をご利用ください。
+　一般化線形モデルの限界効果を比較する場合は [`py4stats.compare_mfx()`](./compare_mfx.qmd)をご利用ください。
 
 ***
-[Return to **Function reference**.](../reference.md)
+[Return to **Function reference**.](../reference.qmd)

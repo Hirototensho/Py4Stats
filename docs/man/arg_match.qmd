@@ -86,7 +86,7 @@ my_faivarit2(['apple', 'orang'])
 #>              Did you mean 'orange'?
 ```
 
-　`Py4Stats` では [`eda_tools.tabyl()`](./tabyl.md)や [`regression_tools.compare_ols()`](./compare_ols.md) など、文字列で指定する引数をもつ関数で、引数のアサーションに `build.arg_match()` を使用しています。
+　`Py4Stats` では [`eda_tools.tabyl()`](./tabyl.qmd)や [`regression_tools.compare_ols()`](./compare_ols.qmd) など、文字列で指定する引数をもつ関数で、引数のアサーションに `build.arg_match()` を使用しています。
 
 ```python
 import py4stats as py4st
@@ -99,5 +99,5 @@ py4st.tabyl(penguins, 'island', 'species', normalize = 'ind')
 #>              Did you mean 'index'?
 ```
 ***
-[Return to **Function reference**.](../reference.md)
+[Return to **Function reference**.](../reference.qmd)
 

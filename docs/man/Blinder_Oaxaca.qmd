@@ -114,7 +114,7 @@ py4st.plot_Blinder_Oaxaca(
 )
 ```
 
-![Unknown](https://github.com/Hirototensho/Py4Stats/assets/55335752/a0b8e389-5d17-4476-8626-755ad51d0018)
+![plot_Blinder_Oaxaca1.png](image/plot_Blinder_Oaxaca1.png)
 
  `diff_type` を指定することで、一方の統計量だけを表示することもできます。
 
@@ -125,7 +125,7 @@ py4st.plot_Blinder_Oaxaca(
     diff_type = 'unobserved_diff'
 )
 ```
-![Unknown-2](https://github.com/Hirototensho/Py4Stats/assets/55335752/36516540-82c0-462b-b122-880959cfd9f1)
+![plot_Blinder_Oaxaca2.png](image/plot_Blinder_Oaxaca2.png)
 
  グラフのサイズや解像度を指定するには、次のように行います。
 
@@ -145,5 +145,5 @@ fig.tight_layout()
 - 朝井 友紀子 (2014) 「労働市場における男女差の30年― 就業のサンプルセレクションと男女間賃金格差」『日本労働研究雑誌』, No.648, pp.6–16
 
 ***
-[Return to **Function reference**.](../reference.md)
+[Return to **Function reference**.](../reference.qmd)
 

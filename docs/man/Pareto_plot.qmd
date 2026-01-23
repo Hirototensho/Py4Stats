@@ -76,4 +76,4 @@ py4st.Pareto_plot(
 ![Pareto_plot3](image/Pareto_plot3.png)
 
 ***
-[Return to **Function reference**.](../reference.md)
+[Return to **Function reference**.](../reference.qmd)

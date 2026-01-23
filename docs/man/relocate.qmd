@@ -107,4 +107,4 @@ print(py4st.relocate(penguins_mini, 'year', place = 'last'))
 ```
 
 ***
-[Return to **Function reference**.](../reference.md)
+[Return to **Function reference**.](../reference.qmd)
