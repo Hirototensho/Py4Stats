@@ -28,8 +28,8 @@ data_nw.group_by(nw.col(group)).agg(nw.col('x').my_func())
 data_nw.group_by(nw.col(group)).agg(my_func(nw.col('x')))
 ````
 
-例えば Py4Stats では、[`Pareto_plot()`](../man/Pareto_plot.qmd) 関数の内部実装に使用している [`make_rank_table()`](..../py4stats/eda_tools/_nw.py) 関数において、任意の `aggfunc()` 関数をグループ別集計に使うために、サブセッティングを使って `group_by()` メソッドの使用を回避するという変則的（かつ、おそらく非効率な）な実装を行なっています。
-
+例えば Py4Stats では、[`Pareto_plot()`](../man/Pareto_plot.qmd) 関数の内部実装に使用している [`make_rank_table()`](../py4stats/eda_tools/_nw.py) 関数において、任意の関数をグループ別集計に使うために、サブセッティングを使って `group_by()` メソッドの使用を回避するという変則的（かつ、おそらく非効率                 ）な実装を行なっています。
+                    
 ``` python
 stat_values = [
             aggfunc(
@@ -63,8 +63,8 @@ result = data_nw.to_native() # -> pd.DataFrame が出力される
 ```python
 data_nw = nw.from_native(input_pd)              # ここで backend が記録される
 data_nw2 = nw.from_native(data_nw.to_polars())  # ここで backend が上書きされる
-data_nw2.implementation        # -> polars
-result = data_nw2.to_native()  # -> pl.DataFrame が出力される
+data_nw2.implementation                         # -> polars
+result = data_nw2.to_native()                   # -> pl.DataFrame が出力される
 ```
 
 従って、`result` が `input_pd` と同じ型をもつことを保証するには、`data_nw` を nw.DataFrame クラスのまま維持する（≒ narwhals ベースのメソッドだけで処理を書く）必要があり、これが narwhals ベースの実装としてのあるべき姿だと思われます。

@@ -51,6 +51,7 @@ book:
       - man/oxford_comma.qmd
     - part: "articles"
       chapters:
+      - articles/scaling_up_regression.qmd
       - articles/narwhals_in_py4stats.qmd
       - articles/eda_tools_development_status.qmd
       - articles/narwhalsについての考察.qmd
