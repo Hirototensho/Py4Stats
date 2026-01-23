@@ -54,8 +54,8 @@ book:
       - articles/narwhals_in_py4stats.qmd
       - articles/eda_tools_development_status.qmd
       - articles/narwhalsについての考察.qmd
-  # repo-url: https://github.com/Hirototensho/Portfolio
-  # repo-actions: [source]
+  repo-url: https://github.com/Hirototensho/Py4Stats.git
+  repo-actions: [source]
 format:
   html:
     theme: cosmo
