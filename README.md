@@ -1,6 +1,6 @@
 # `Py4Stats` 
 
-　`Py4Stats` は、主に実証研究で用いられる、探索的データ分析および回帰結果レポート用のユーティリティライブラリで、回帰分析を中心とする分析でよく使われるR言語の機能を、Python で実装しています。本ライブラリの主な機能は [**Get started**](./docs/docsintroduction.html) を、実装されている関数の一覧は [**Function reference**](./docs/docsreference.html) を参照してください。
+　`Py4Stats` は、主に実証研究で用いられる、探索的データ分析および回帰結果レポート用のユーティリティライブラリで、回帰分析を中心とする分析でよく使われるR言語の機能を、Python で実装しています。本ライブラリの主な機能は [**Get started**](./docs/docs/introduction.html) を、実装されている関数の一覧は [**Function reference**](./docs/docs/reference.html) を参照してください。
 
 ## Installation
 
@@ -78,6 +78,6 @@ compare_tab1
 詳細は、[`py4stats.compare_ols()`](docs/docs/man/compare_ols.html) を参照してください。　
 
 ***
-[Jump to **Get started**.](./docs/docsintroduction.html)  
-[Jump to **Function reference**.](./docs/docsreference.html)
+[Jump to **Get started**.](./docs/docs/introduction.html)  
+[Jump to **Function reference**.](./docs/docs/reference.html)
 
