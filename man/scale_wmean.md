@@ -35,14 +35,13 @@ min_max(
     - narwhals が受け入れ可能な Series 互換オブジェクト（例：`pandas.Series`、`polars.Series`）を指定できます。`scale()`関数と `min_max()`関数のみ `pandas.DataFrame` を指定することができ、この場合、各列ごとに変換が適用されます。
 - `w`：**IntoSeriesT**（必須）<br>
   `x` に対応する重みを表す数値系列。`x` と同じ長さである必要があります。narwhals が受け入れ可能な Series 互換オブジェクト（例：`pandas.Series`、`polars.Series`）を指定できます。
+- `ddof`（**int**, optional）`scale(), min_max()` のみ <br>
+  標準偏差の計算に用いる自由度調整量（delta degrees of freedom）。デフォルトは `1` です。
+- `dropna`（**bool**, optional）`scale(), min_max()` のみ <br>
+  `True` の場合、`x` または `w` のいずれかが欠損値（NaN）である観測を計算前に除外します。デフォルトは `False` です。
 - `to_native`（**bool**, optional）`scale(), min_max()` のみ <br>
   `True` の場合、入力と同じ型の Series（e.g. pandas / polars / pyarrow）を返します。<br>
   `False` の場合、`Series` を返します。デフォルトは `True` で、`to_native = False` は、主にライブラリ内部での利用や、`backend` に依存しない後続処理を行う場合を想定したオプションです。
-- `ddof`（**int**, optional）`scale(), min_max()` のみ <br>
-  標準偏差の計算に用いる自由度調整量（delta degrees of freedom）。デフォルトは `1` です。
-
-- `dropna`（**bool**, optional）`scale(), min_max()` のみ <br>
-  `True` の場合、`x` または `w` のいずれかが欠損値（NaN）である観測を計算前に除外します。デフォルトは `False` です。
 
 ---
 

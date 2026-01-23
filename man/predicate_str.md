@@ -28,7 +28,7 @@ is_ymd_like(
 - `py4stats.is_ymd()`：与えられた文字列が `yyyy-mm-dd` フォーマットにそった値かどうかを判定します。
 - `py4stats.is_ymd_like()`：与えられた文字列が'2024年3月3日' のような `yyyy-mm-dd` に近いフォーマットの値かどうかを判定します。
 
-## 引数
+## 引数 Argument
 
 - `data`：**IntoSeriesT**（必須）
 - 入力データ。narwhals が受け入れ可能な Series 互換オブジェクト

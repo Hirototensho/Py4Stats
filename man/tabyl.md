@@ -18,7 +18,7 @@ tabyl(
 )
 ```
 
-## 引数
+## 引数 Argument
 
 - `data`：**IntoFrameT**（必須）<br>
   入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト<br>

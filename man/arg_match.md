@@ -55,11 +55,11 @@ my_faivarit('apple')
 #> 'apple'
 
 my_faivarit('orang')
-#> ValueError: 'fruits' must be one of 'apple', 'orange' or 'grape', not 'orang'.
+#> ValueError: `fruits` must be one of 'apple', 'orange' or 'grape', not 'orang'.
 #>              Did you mean 'orange'?
 
 my_faivarit('ap')
-#> ValueError: 'fruits' must be one of 'apple', 'orange' or 'grape', not 'ap'.
+#> ValueError: `fruits` must be one of 'apple', 'orange' or 'grape', not 'ap'.
 #>              Did you mean 'apple' or 'grape'?
 ```
 
@@ -82,7 +82,7 @@ my_faivarit2(['apple', 'orange'])
 #> ['apple', 'orange']
 
 my_faivarit2(['apple', 'orang'])
-#> ValueError: 'fruits' must be one of 'apple', 'orange' or 'grape', not 'orang'.
+#> ValueError: `fruits` must be one of 'apple', 'orange' or 'grape', not 'orang'.
 #>              Did you mean 'orange'?
 ```
 
@@ -95,7 +95,7 @@ from palmerpenguins import load_penguins
 penguins = load_penguins() # サンプルデータの読み込
 
 py4st.tabyl(penguins, 'island', 'species', normalize = 'ind')
-#> ValueError: 'normalize' must be one of 'index', 'columns' or 'all', not 'ind'.
+#> ValueError: `normalize` must be one of 'index', 'columns' or 'all', not 'ind'.
 #>              Did you mean 'index'?
 ```
 ***

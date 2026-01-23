@@ -75,6 +75,37 @@ def _assert_df_fixture_new(
 
     assert_frame_equal(output_df, expected_df, check_dtype = check_dtype)
 
+def _assert_df_eq(
+        output_df,  path_fixture: str,  
+        check_dtype: bool = False, 
+        reset_index: bool = True, 
+        update_fixture: bool = False,
+        **kwarg
+        ) -> None:
+    
+    if not isinstance(output_df, nw.DataFrame):
+        output_df = nw.from_native(output_df)
+
+    if update_fixture:
+        output_df.write_csv(path_fixture)
+
+    expected_df = nw.read_csv(path_fixture, backend = output_df.implementation)
+    
+    output_df = output_df.to_pandas()
+    expected_df = expected_df.to_pandas()
+
+    if reset_index:
+        output_df = output_df.reset_index(drop = True)
+        expected_df = expected_df.reset_index(drop = True)
+
+    assert_frame_equal(output_df, expected_df, check_dtype = check_dtype)
+
+penguins_dict = {
+    'pd':penguins,
+    'pl':penguins_pl,
+    'pa':penguins_pa
+}
+
 gentoo_dict = {
     'pd':gentoo,
     'pl':gentoo_pl,
@@ -86,71 +117,29 @@ adelie_dict = {
     'pl':adelie_pl,
     'pa':adelie_pa
 }
+
+mroz = wooldridge.data('mroz')
+
+mroz_dict = {
+    'pd':mroz,
+    'pl':pl.from_pandas(mroz),
+    'pa':pa.Table.from_pandas(mroz)
+}
+
 # ================================================================
-# plot_mean_diff / plot_median_diff
+# 
 # ================================================================
 
-expect_is_number = [
-        True, True, True, True, False, False, 
-        False, False, False, False, False, False,
-        False, False, True, True
-    ]
+@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
+def test_filtering_out_cols(backend) -> None:
+    path = f'{tests_path}/fixtures/filtering_out_{backend}.csv'
 
-expect_is_ymd = [
-    False, False, False, False, False, False, True, False, 
-    False, False, False, False, False, False, True, True]
-
-expect_is_ymd_like = [
-    False, False, False, False, False, False, True, True, 
-    True, True, False, False, False, False, True, True]
-
-expect_is_kanzi = [
-    False, False, False, False, True, False, False, True, 
-    True, True, False, False, False, True, True, True]
-
-s_pd = pd.Series([
-    '123', "0.12", "1e+07", '-31', '2個', '1A',
-    "2024-03-03", "2024年3月3日", "24年3月3日", '令和6年3月3日',
-    '0120-123-456', '15ｹ', "apple", "不明", None, np.nan
-    ])
-s_pl = pl.from_pandas(s_pd)
-s_pa = pa.Table.from_pandas(s_pd.to_frame(name = 'string'))['string']
-
-@pytest.mark.parametrize(
-    "func, expect",
-    [
-        (eda_nw.is_kanzi, expect_is_kanzi),
-        (eda_nw.is_ymd, expect_is_ymd),
-        (eda_nw.is_ymd_like, expect_is_ymd_like),
-        (eda_nw.is_number, expect_is_number),
-    ],
-)
-def test_predicate_str_pd(func, expect) -> None:
-    res = func(s_pd).to_list()
-    assert (res == expect)
-
-@pytest.mark.parametrize(
-    "func, expect",
-    [
-        (eda_nw.is_kanzi, expect_is_kanzi),
-        (eda_nw.is_ymd, expect_is_ymd),
-        (eda_nw.is_ymd_like, expect_is_ymd_like),
-        (eda_nw.is_number, expect_is_number),
-    ],
-)
-def test_predicate_str_pl(func, expect) -> None:
-    res = func(s_pl).to_list()
-    assert (res == expect)
-
-@pytest.mark.parametrize(
-    "func, expect",
-    [
-        (eda_nw.is_kanzi, expect_is_kanzi),
-        (eda_nw.is_ymd, expect_is_ymd),
-        (eda_nw.is_ymd_like, expect_is_ymd_like),
-        # (eda_nw.is_number, expect_is_number),
-    ],
-)
-def test_predicate_str_pa(func, expect) -> None:
-    res = func(s_pa).to_pylist()
-    assert (res == expect)
+    output_df = eda_nw.filtering_out(
+        penguins_dict.get(backend), 'year', starts_with = 'bill', 
+        contains = 'is', ends_with = '_g', to_native = False
+    ).drop_nulls().head()
+    
+    _assert_df_eq(
+            output_df, path_fixture = path, 
+            update_fixture = False
+        )

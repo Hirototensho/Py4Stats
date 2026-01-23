@@ -674,12 +674,11 @@ def assert_reg_reuslt(arg: Any, arg_name: str = 'list_models') -> None:
 
     condition =  arg.apply(lambda x: isinstance(x, (RegressionResultsWrapper)))
 
-    # assert condition, f"Argument '{arg_name}' must be of type '{RegressionResultsWrapper}'."
     not_sutisfy = arg[~condition].index.astype(str).to_list()
     if not condition.all():
         raise ValueError(
-            f"Argument '{arg_name}' must be of type '{RegressionResultsWrapper}.'\n"
-            f"element {build.oxford_comma_and(not_sutisfy)} of '{arg_name}' not sutisfy the condtion."
+            f"Argument `{arg_name}` must be of type '{RegressionResultsWrapper}.'\n"
+            f"element {build.oxford_comma_and(not_sutisfy)} of `{arg_name}` not sutisfy the condtion."
         )
 
 
@@ -751,7 +750,7 @@ def compare_ols(
     build.assert_character(line_break, arg_name = 'line_break')
     # --------------------------------------------------------------------------------------------------
     if not pandas.api.types.is_list_like(list_models):
-            raise ValueError("argument 'list_models' is must be a list of models.")
+            raise ValueError("Argument `list_models` is must be a list of models.")
 
     assert_reg_reuslt(list_models, arg_name = 'list_models')
 
@@ -1327,9 +1326,9 @@ def assert_glm_with_get_margeff(arg: Any, arg_name: str = 'list_models') -> None
     not_sutisfy = arg[~condition].index.astype(str).to_list()
     if not condition.all():
         raise ValueError(
-            f"Argument '{arg_name}' must be of type '{BinaryResultsWrapper}'\n"
+            f"Argument `{arg_name}` must be of type '{BinaryResultsWrapper}'\n"
             "that have 'get_margeff' method. "
-            f"element {build.oxford_comma_and(not_sutisfy)} of '{arg_name}' not sutisfy the condtion."
+            f"element {build.oxford_comma_and(not_sutisfy)} of `{arg_name}` not sutisfy the condtion."
         )
 
 
@@ -1395,7 +1394,7 @@ def compare_mfx(
         """
         # 引数のアサーション ==============================================
         if not pandas.api.types.is_list_like(list_models):
-            raise ValueError("argument 'list_models' is must be a list of models.")
+            raise ValueError("Argument `list_models` is must be a list of models.")
 
         assert_glm_with_get_margeff(list_models, arg_name = 'list_models')
 

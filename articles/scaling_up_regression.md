@@ -147,34 +147,35 @@ def est_ols(data):
 　次にブートストラップ法の実行部分を作成します。ここでは pandas の `DataFrame.sample()` メソッドを使い、引数に `frac = 1, replace = True` を指定することで復元抽出を行います。また、ここでは反復回数を Efron, Hastie(2016, p.161)などで推奨されている $B = 1000$ を指定しています。
 
 ```python
-# 注意！ このコードは実行に時間がかかります。
 # ブートストラップ法の実装
 B = 1000 # ブートストラップ法の反復回数
-bt2 = [penguins.sample(frac = 1, replace = True) for b in range(B)]
+model_list = [
+    penguins.sample(frac = 1, replace = True, random_state = 123)\
+    .pipe(est_ols) 
+    for b in range(B)
+]
 
-bt2 = pd.Series(bt2).apply(est_ols).apply(py4st.tidy)
-
-boot_sample = pd.concat(bt2.to_list())
+boot_sample = pd.concat([py4st.tidy(mod) for mod in model_list])
 
 len(boot_sample)
 #> 6000
 ```
 
-次にブートストラップ統計量を集計して結果を確認しますが、ここではごく簡単に [`eda_tools.mean_qi()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/point_range.md) を使って、説明変数別に回帰係数の平均値と分位点を求めています。
+次にブートストラップ統計量を集計して結果を確認しますが、ここではごく簡単に [`py4st.mean_qi()`](../man/point_range.md) を使って、説明変数別に回帰係数の平均値と分位点を求めています。
 
 ```python
 res = boot_sample.groupby(['term'])[['estimate']]\
-    .apply(eda.mean_qi)
+    .apply(py4st.mean_qi)
 
 print(res.round(4))
-#>                                     mean      lower      upper
-#> term                 variable                                 
-#> Intercept            estimate   854.4587   165.8724  1567.1497
-#> bill_depth_mm        estimate    87.6706    49.5284   126.1586
-#> bill_length_mm       estimate    26.3940    13.6478    39.4585
-#> sex[T.male]          estimate   438.5118   356.5662   526.5931
-#> species[T.Chinstrap] estimate  -244.8668  -402.2351   -86.1057
-#> species[T.Gentoo]    estimate  1442.0847  1237.3338  1657.6980
+#>                         variable       mean      lower      upper
+#> term                                                             
+#> Intercept            0  estimate   823.7098   823.7098   823.7098
+#> bill_depth_mm        0  estimate   109.9439   109.9439   109.9439
+#> bill_length_mm       0  estimate    17.8235    17.8235    17.8235
+#> sex[T.male]          0  estimate   474.2673   474.2673   474.2673
+#> species[T.Chinstrap] 0  estimate  -191.4717  -191.4717  -191.4717
+#> species[T.Gentoo]    0  estimate  1487.5680  1487.5680  1487.5680
 ```
 
 ブートストラップ法を使うと、次のような回帰係数の分布のグラフを描くこともできます。

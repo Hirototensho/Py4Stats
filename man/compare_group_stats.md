@@ -1,30 +1,38 @@
-# `py4stats.compare_group_means()`, `py4stats.plot_mean_diff()`, `py4stats.plot_median_diff()`, `py4stats.compare_group_median()`
+# 統計量に基づくグループ間比較
 
 ## 概要
 
-　グループ別の記述統計量をペア比較するための関数です。
+これら関数は、入力された2つのデータフレームについて、各数値変数の統計量に基づいた比較を提供します。
 
 ```python
 compare_group_means(
-    group1, group2, 
-    group_names = ['group1', 'group2']
+    group1: IntoFrameT,
+    group2: IntoFrameT,
+    group_names: Sequence[str] = ('group1', 'group2'),
+    columns: Literal['common', 'all'] = 'all',
+    to_native: bool = True
     )
 
 compare_group_median(
-    group1, group2, 
-    group_names = ['group1', 'group2']
+    group1: IntoFrameT,
+    group2: IntoFrameT,
+    group_names: Sequence[str] = ('group1', 'group2'),
+    columns: Literal['common', 'all'] = 'all',
+    to_native: bool = True
     )
 
 plot_mean_diff(
-    group1, group2, 
-    stats_diff = 'norm_diff',
-    ax = None
+    group1: IntoFrameT,
+    group2: IntoFrameT,
+    stats_diff: Literal["norm_diff", "abs_diff", "rel_diff"] = "norm_diff",
+    ax: Optional[Axes] = None,
     )
 
 plot_median_diff(
-    group1, group2, 
-    stats_diff = 'rel_diff',
-    ax = None
+    group1: IntoFrameT,
+    group2: IntoFrameT,
+    stats_diff: Literal["abs_diff", "rel_diff"] = "rel_diff",
+    ax: Optional[Axes] = None,
     )
 ```
 
@@ -36,8 +44,15 @@ plot_median_diff(
 　数値変数を含む pandas.DataFrame で `group1` との比較対象となるもの
 - `group_names` **list of str** <br>
 　表頭に表示するグループの名前。`['group1', 'group2']` のように、2つの要素をもつ文字列のリストとして指定してください。
-- `stats_diff`（`plot_mean_diff()` および `plot_median_diff()` のみ） **str** <br>
-　グラフの描画に使用するグループ別統計量の差の評価指標。`'norm_diff'`（`plot_mean_diff()` のみ）、`'abs_diff'`, `'rel_diff'` のいずれかから選ぶことができます。
+- `columns` **str** <br>
+    2つのグループの結果を結合する際に含める変数を指定します。
+    - `"common"`: 両方のグループに存在する変数のみが含まれます。
+    - `"all"`: いずれかのグループに存在する全ての変数が含まれます。この場合、一方のグループにのみ存在する変数についての差分統計量は、欠損値（例：``NaN`` または ``None``）となります。
+- `to_native`（**bool**, optional）<br>
+  `True` の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。<br>
+  `False` の場合、`narwhals.DataFrame` を返します。デフォルトは `True` で、`to_native = False` は、主にライブラリ内部での利用や、`backend` に依存しない後続処理を行う場合を想定したオプションです。
+- `stats_diff`: **str** （`plot_mean_diff()` および `plot_median_diff()` のみ）<br>
+　グラフの描画に使用する差分統計量。`'norm_diff'`（`plot_mean_diff()` のみ）、`'abs_diff'`, `'rel_diff'` のいずれかから選ぶことができます。
 
 ## 返り値 Value
 
@@ -71,7 +86,6 @@ import pandas as pd
 import py4stats as py4st
 from palmerpenguins import load_penguins
 
-
 penguins = load_penguins().drop('year', axis = 1) # サンプルデータの読み込み
 ```
 
@@ -81,11 +95,11 @@ res1 = py4st.compare_group_means(
     penguins.query('species == "Adelie"')
 )
 print(res1.round(3))
-#>                      group1    group2  norm_diff  abs_diff  rel_diff
-#> bill_length_mm       47.505    38.791      3.048     8.713     0.202
-#> bill_depth_mm        14.982    18.346     -3.012     3.364    -0.202
-#> flipper_length_mm   217.187   189.954      4.180    27.233     0.134
-#> body_mass_g        5076.016  3700.662      2.868  1375.354     0.313
+#>             variable    group1    group2  norm_diff  abs_diff  rel_diff
+#> 0      bill_depth_mm    14.982    18.346     -3.012     3.364    -0.202
+#> 1     bill_length_mm    47.505    38.791      3.048     8.713     0.202
+#> 2        body_mass_g  5076.016  3700.662      2.868  1375.354     0.313
+#> 3  flipper_length_mm   217.187   189.954      4.180    27.233     0.134
 ```
 
 ```python
@@ -95,11 +109,11 @@ res2 = py4st.compare_group_median(
     group_names = ['Gentoo', 'Adelie']
 )
 print(res2.round(3))
-#>                    Gentoo  Adelie  abs_diff  rel_diff
-#> bill_length_mm       47.3    38.8       8.5     0.197
-#> bill_depth_mm        15.0    18.4       3.4    -0.204
-#> flipper_length_mm   216.0   190.0      26.0     0.128
-#> body_mass_g        5000.0  3700.0    1300.0     0.299
+#>             variable    Gentoo    Adelie  abs_diff  rel_diff
+#> 0      bill_depth_mm    14.982    18.346     3.364    -0.202
+#> 1     bill_length_mm    47.505    38.791     8.713     0.202
+#> 2        body_mass_g  5076.016  3700.662  1375.354     0.313
+#> 3  flipper_length_mm   217.187   189.954    27.233     0.134
 ```
 
 ```python

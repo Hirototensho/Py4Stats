@@ -22,7 +22,7 @@ compare_mfx(
 )
 ```
 
-## 引数
+## 引数 Argument
 
 - `list_models`：</br>
 推定結果を表示する分析結果のリスト（必須）。[`sm.glm()`](https://www.statsmodels.org/devel/generated/statsmodels.genmod.generalized_linear_model.GLM.html)で作成された一般化線形モデルの結果を `list_models = [fit1, fit2]` のようにリストとして指定してください。

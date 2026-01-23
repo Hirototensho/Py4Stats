@@ -10,10 +10,10 @@ relocate(
         *args: Union[str, List[str], narwhals.Expr, narwhals.selectors.Selector], 
         before: Optional[str] = None,
         after: Optional[str] = None,
+        place: Optional[Literal["first", "last"]] = None,
         to_native: bool = True
     ):
 ```
-
 
 ## 引数 Argument
 
@@ -25,17 +25,24 @@ relocate(
   - 列名（例：`"x"`）
   - 列名のリスト（例：`["x", "y"]`）
   - narwhals の式（`Expr`）（例：`nw.col("x")`）
-  - narwhals の Selector （例：`ncs.numeric()`）
+  - narwhals の `Selector` （例：`ncs.numeric()`）
 
   指定した順序は、移動後の列順にもそのまま反映されます。
 
 - `before`（**str**, optional）<br>
-  `args` に指定した列を、この列の**直前**に移動します。<br>
+  `args` で指定された列を、この列の**直前**に移動します。<br>
   `after` と同時に指定することはできません。デフォルトは `None` です。
-
 - `after`（**str**, optional）<br>
-  `args` に指定した列を、この列の**直後**に移動します。<br>
+  `args` で指定された列を、この列の**直後**に移動します。<br>
   `before` と同時に指定することはできません。デフォルトは `None` です。
+
+- `place`（**str**, optional）<br>
+    `*args` で指定された列の、配置場所を指定します。
+    - `"first"`: 選択した列をデータフレームの先頭（最も左）に配置します。
+    - `"last"`: 選択した列をデータフレームの末尾（最も右）に配置します。
+    `place` 引数は `before` または `after` と同時に指定することはできません。
+    未指定（`None`）の場合は `"first"` と同じ挙動になります。
+
 
 - `to_native`（**bool**, optional）<br>
   `True` の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。<br>
@@ -43,13 +50,10 @@ relocate(
 
 ### 返り値
 
-- **IntoFrameT**
-  入力データフレームと同じ列を保持したまま、
-  指定されたルールに従って並び替えられたデータフレームを返します。
+- **IntoFrameT**<br>
+  入力データフレームと同じ列を保持したまま、指定されたルールに従って並び替えられたデータフレームを返します。
 
 ## 使用例 Example
-
-`py4stats.remove_empty()` の使用例。
 
 ``` python
 import py4stats as py4st
@@ -93,6 +97,13 @@ print(py4st.relocate(penguins_mini, 'year', after = 'island'))
 #> 0  Adelie  Torgersen  2007              181.0       3750.0    male
 #> 1  Adelie  Torgersen  2007              186.0       3800.0  female
 #> 2  Adelie  Torgersen  2007              195.0       3250.0  female
+
+#.  place = 'last' で最後列に移動
+print(py4st.relocate(penguins_mini, 'year', place = 'last'))
+#>   species     island  flipper_length_mm  body_mass_g     sex  year
+#> 0  Adelie  Torgersen              181.0       3750.0    male  2007
+#> 1  Adelie  Torgersen              186.0       3800.0  female  2007
+#> 2  Adelie  Torgersen              195.0       3250.0  female  2007
 ```
 
 ***

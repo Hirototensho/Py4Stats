@@ -265,13 +265,13 @@ def assert_length(
         if len_arg is not None:
             if arg_length != len_arg:
                 raise ValueError(
-                     f"Argument '{arg_name}' must have length {len_arg}, "
+                     f"Argument `{arg_name}` must have length {len_arg}, "
                      f"but has length {arg_length}."
                 )
         if (len_max is not None) and (len_min is not None):
             if not(len_min <= arg_length <= len_max):
                 raise ValueError(
-                     f"Argument '{arg_name}' must have length {len_min} <= n <= {len_max}, "
+                     f"Argument `{arg_name}` must have length {len_min} <= n <= {len_max}, "
                      f"but has length {arg_length}."
             )
 
@@ -282,7 +282,7 @@ def assert_scalar(arg: Any, arg_name:str = 'arg'):
     if not isinstance(arg, str):
         if isinstance(arg, collections.abc.Sized):
             raise ValueError(
-                    f"Argument '{arg_name}' must be a scalar value, not an array-like object."
+                    f"Argument `{arg_name}` must be a scalar value, not an array-like object."
                 )
 
 
@@ -319,12 +319,12 @@ def assert_missing(
 
     if not all_missing and all(missing): 
        raise ValueError(
-            f"Argument '{arg_name}' contains only missing values."
+            f"Argument `{arg_name}` contains only missing values."
         )
 
     if not any_missing and any(missing): 
        raise ValueError(
-            f"Argument '{arg_name}' contains missing values (element {oxford_comma_and(not_sutisfy)})."
+            f"Argument `{arg_name}` contains missing values (element {oxford_comma_and(not_sutisfy)})."
         )
 
 
@@ -351,11 +351,11 @@ def match_arg(arg: str, values: Sequence[str], arg_name: str = "argument") -> st
           return matches[0]
       elif len(matches) > 1:
           raise ValueError(
-              f"""'{arg}' is ambiguous arg for '{arg_name}'. Matches multiple values: {', '.join(matches)}.
-              '{arg_name}' must be one of {oxford_comma_or(values)}."""
+              f"""'{arg}' is ambiguous arg for `{arg_name}`. Matches multiple values: {', '.join(matches)}.
+              `{arg_name}` must be one of {oxford_comma_or(values)}."""
               )
       else:
-          raise ValueError(f"'{arg_name}' must be one of {oxford_comma_or(values)}, not '{arg}'.")
+          raise ValueError(f"`{arg_name}` must be one of {oxford_comma_or(values)}, not '{arg}'.")
 
 
 
@@ -381,11 +381,11 @@ def arg_match0(arg: str, values: Sequence[str], arg_name: Optional[str] = None) 
       matches = [c for c in values if arg.lower() in c.lower()]
       if len(matches) >= 1:
        raise ValueError(
-            f"""'{arg_name}' must be one of {oxford_comma_or(values)}, not '{arg}'.
+            f"""`{arg_name}` must be one of {oxford_comma_or(values)}, not '{arg}'.
              Did you mean {oxford_comma_or(matches)}?"""
         )
       else:
-        raise ValueError(f"'{arg_name}' must be one of {oxford_comma_or(values)}, not '{arg}'.")
+        raise ValueError(f"`{arg_name}` must be one of {oxford_comma_or(values)}, not '{arg}'.")
 
 
 
@@ -601,8 +601,8 @@ def make_assert_type(
       arg = arg[~is_missing(arg)]
 
     if not predicate_fun(arg):
-      messages = f"Argument '{arg_name}' must be of type {oxford_comma_or(valid_type)}." 
-      raise ValueError(messages)
+      messages = f"Argument `{arg_name}` must be of type {oxford_comma_or(valid_type)}." 
+      raise TypeError(messages)
 
   return func
 
@@ -654,13 +654,13 @@ def assert_value_range(
     if(len(arg) > 1):
       if not cond.all():
         message = (
-            f"Argument '{arg_name}' must have value {range_message}\n"  +
-            f"element {oxford_comma_and(not_sutisfy)} of '{arg_name}' not sutisfy the condtion."
+            f"Argument `{arg_name}` must have value {range_message}\n"  +
+            f"element {oxford_comma_and(not_sutisfy)} of `{arg_name}` not sutisfy the condtion."
             )
         raise ValueError(message)
     else:
       if not cond.all():
-       message =  f"Argument '{arg_name}' must have value {range_message}."
+       message =  f"Argument `{arg_name}` must have value {range_message}."
        raise ValueError(message)
 
 
@@ -678,10 +678,10 @@ def assert_numeric_dtype(
         range_message = make_range_message(lower, upper, inclusive = inclusive)
 
         if not predicate_fun(arg): 
-            message = f"Argument '{arg_name}' must be of" +\
+            message = f"Argument `{arg_name}` must be of" +\
                 f" type {oxford_comma_or(valid_type)}" + \
                 f" with value(s) {range_message}."
-            raise ValueError(message)
+            raise TypeError(message)
 
 
 
@@ -813,7 +813,6 @@ def make_assert_numeric(
       any_missing = any_missing,
       all_missing = all_missing
       )
-
 
     # 引数の要素数に関するアサーション ============================================
     assert_length(

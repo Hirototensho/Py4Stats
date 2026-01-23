@@ -1,0 +1,9 @@
+"columns","dtype","missing_count","missing_percent","unique_count","unique_rate"
+"species","string",0,0,3,0.872093023255814
+"island","string",0,0,3,0.872093023255814
+"bill_length_mm","double",2,0.5813953488372093,165,47.96511627906977
+"bill_depth_mm","double",2,0.5813953488372093,81,23.546511627906977
+"flipper_length_mm","double",2,0.5813953488372093,56,16.27906976744186
+"body_mass_g","double",2,0.5813953488372093,95,27.61627906976744
+"sex","string",11,3.197674418604651,3,0.872093023255814
+"year","int64",0,0,3,0.872093023255814
