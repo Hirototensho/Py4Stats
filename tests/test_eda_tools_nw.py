@@ -453,6 +453,20 @@ def test_filtering_out_columns_pa() -> None:
     out = eda_nw.filtering_out(df, contains="foo", axis="columns")
     assert list(out.to_pandas().columns) == ["bar"]
 
+@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
+def test_filtering_out_cols(backend) -> None:
+    path = f'{tests_path}/fixtures/filtering_out_{backend}.csv'
+
+    output_df = eda_nw.filtering_out(
+        penguins_dict.get(backend), 'year', starts_with = 'bill', 
+        contains = 'is', ends_with = '_g', to_native = False
+    ).drop_nulls().head()
+    
+    _assert_df_eq(
+            output_df, path_fixture = path, 
+            update_fixture = False
+        )
+
 # =========================================================
 # is_dummy_nw (Series/DataFrame)
 # =========================================================

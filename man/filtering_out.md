@@ -20,6 +20,13 @@ filtering_out(
 - `data`：**IntoFrameT**（必須）<br>
   入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト<br>
   （例：`pandas.DataFrame`、`polars.DataFrame`、`pyarrow.Table`）を指定できます。
+- `*args`（**str / list[str] / narwhals.Expr / narwhals.Selector**）<br>
+  移動したい列を指定します。指定方法は次のとおりです。
+  - 列名（例：`"x"`）
+  - 列名のリスト（例：`["x", "y"]`）
+  - narwhals の式（`Expr`）（例：`nw.col("x")`）   *`axis = 'columns'` の場合のみ
+  - narwhals の `Selector` （例：`ncs.numeric()`）*`axis = 'columns'` の場合のみ
+  
 - `contains`：**str**</br>
 　列名（行名）の検索に使用する文字列。内部で使用している [`pandas.Series.str.contains`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.contains.html#pandas.Series.str.contains) に渡され、指定された文字列を列名（行名）に含む列（行）を除外します。
 - `starts_with`：**str**</br>
