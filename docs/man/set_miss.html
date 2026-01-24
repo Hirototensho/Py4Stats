@@ -499,7 +499,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </ul></li>
 <li><code>random_state</code> (<strong>int</strong>, optional): <code>method = 'random'</code> の場合に使用する乱数シード。再現性のある結果を得るために指定できます。 <code>method</code> が <code>'random'</code> 以外の場合、<code>random_state</code> は無視されます。</li>
 <li><code>na_value</code>: (<strong>Any</strong>)<br> 欠測値として使用する値。デフォルトは <code>None</code> です。</li>
-<li><code>to_native</code>（<strong>bool</strong>, optional）<br> <code>True</code> の場合、入力と同じ型の Series（e.g.&nbsp;pandas / polars / pyarrow）を返します。<br> <code>False</code> の場合、<code>narwhals.Series</code> を返します。デフォルトは <code>True</code> で、<code>to_native = False</code> は、主にライブラリ内部での利用や、<code>backend</code> に依存しない後続処理を行う場合を想定したオプションです。</li>
+<li><code>to_native</code>（<strong>bool</strong>, optional）<br> <code>True</code> の場合、入力と同じ型の Series（e.g.&nbsp;pandas / polars / pyarrow）を返します。<br> <code>False</code> の場合、<code>narwhals.Series</code> を返します。デフォルトは <code>True</code> で、<code>to_native = False</code> は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。</li>
 </ul>
 </section>
 <section id="使用例-example" class="level2">

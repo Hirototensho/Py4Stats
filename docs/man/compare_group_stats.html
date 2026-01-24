@@ -546,7 +546,7 @@ window.Quarto = {
 <li><code>"common"</code>: 両方のグループに存在する変数のみが含まれます。</li>
 <li><code>"all"</code>: いずれかのグループに存在する全ての変数が含まれます。この場合、一方のグループにのみ存在する変数についての差分統計量は、欠損値（例：<code>NaN</code> または <code>None</code>）となります。</li>
 </ul></li>
-<li><code>to_native</code>（<strong>bool</strong>, optional）<br> <code>True</code> の場合、入力と同じ型のデータフレーム（e.g.&nbsp;pandas / polars / pyarrow）を返します。<br> <code>False</code> の場合、<code>narwhals.DataFrame</code> を返します。デフォルトは <code>True</code> で、<code>to_native = False</code> は、主にライブラリ内部での利用や、<code>backend</code> に依存しない後続処理を行う場合を想定したオプションです。</li>
+<li><code>to_native</code>（<strong>bool</strong>, optional）<br> <code>True</code> の場合、入力と同じ型のデータフレーム（e.g.&nbsp;pandas / polars / pyarrow）を返します。<br> <code>False</code> の場合、<code>narwhals.DataFrame</code> を返します。デフォルトは <code>True</code> で、<code>to_native = False</code> は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。</li>
 <li><code>stats_diff</code>: <strong>str</strong> （<code>plot_mean_diff()</code> および <code>plot_median_diff()</code> のみ）<br> 　グラフの描画に使用する差分統計量。<code>'norm_diff'</code>（<code>plot_mean_diff()</code> のみ）、<code>'abs_diff'</code>, <code>'rel_diff'</code> のいずれかから選ぶことができます。</li>
 </ul>
 </section>

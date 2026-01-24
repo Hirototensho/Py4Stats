@@ -503,7 +503,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>all</code> 各セルの度数を総度数で割り、全てのセルの相対度数の和が100%になるように計算します。</li>
 </ul></li>
 <li><code>digits</code>：<strong>int</strong><br> 　丸括弧<code>( )</code>に表示する相対度数の小数点以下の桁数。初期設定は1です。</li>
-<li><code>to_native</code>（<strong>bool</strong>, optional）<br> <code>True</code> の場合、入力と同じ型のデータフレーム（e.g.&nbsp;pandas / polars / pyarrow）を返します。<br> <code>False</code> の場合、<code>narwhals.DataFrame</code> を返します。デフォルトは <code>True</code> で、<code>to_native = False</code> は、主にライブラリ内部での利用や、<code>backend</code> に依存しない後続処理を行う場合を想定したオプションです。</li>
+<li><code>to_native</code>（<strong>bool</strong>, optional）<br> <code>True</code> の場合、入力と同じ型のデータフレーム（e.g.&nbsp;pandas / polars / pyarrow）を返します。<br> <code>False</code> の場合、<code>narwhals.DataFrame</code> を返します。デフォルトは <code>True</code> で、<code>to_native = False</code> は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。</li>
 </ul>
 </section>
 <section id="使用例" class="level2">

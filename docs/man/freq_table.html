@@ -496,7 +496,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>descending</code>：<strong>bool</strong><br> 　ソートの方式。True なら降順でソートし、False（初期設定）なら昇順でソートします。</li>
 <li><code>dropna</code>：<strong>bool</strong><br> 　欠測値（NaN, None など）を集計から除外するかどうかを表すブール値。初期設定は False です。</li>
 <li><code>sort</code>：<strong>Deprecated.</strong>.<br> 　<code>sort_by</code> の使用を推奨しています。この引数は後方互換性のために保持されおり、指定された場合は <code>FutureWarning</code>が発生します。デフォルトは <code>None</code> です。</li>
-<li><code>to_native</code>（<strong>bool</strong>, optional）<br> <code>True</code> の場合、入力と同じ型のデータフレーム（e.g.&nbsp;pandas / polars / pyarrow）を返します。<br> <code>False</code> の場合、<code>narwhals.DataFrame</code> を返します。デフォルトは <code>True</code> で、<code>to_native = False</code> は、主にライブラリ内部での利用や、<code>backend</code> に依存しない後続処理を行う場合を想定したオプションです。</li>
+<li><code>to_native</code>（<strong>bool</strong>, optional）<br> <code>True</code> の場合、入力と同じ型のデータフレーム（e.g.&nbsp;pandas / polars / pyarrow）を返します。<br> <code>False</code> の場合、<code>narwhals.DataFrame</code> を返します。デフォルトは <code>True</code> で、<code>to_native = False</code> は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。</li>
 </ul>
 </section>
 <section id="返り値-value" class="level2">

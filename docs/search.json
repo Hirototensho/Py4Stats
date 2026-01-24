@@ -116,7 +116,7 @@
     "href": "man/diagnose.html#引数-argument",
     "title": "diagnose",
     "section": "引数 Argument",
-    "text": "引数 Argument\n\ndata：IntoFrameT（必須） 入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト （例：pandas.DataFrame、polars.DataFrame、pyarrow.Table）を指定できます。\nto_native（bool, optional） True の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。 False の場合、narwhals.DataFrame を返します。デフォルトは True で、to_native = False は、主にライブラリ内部での利用や、backend に依存しない後続処理を行う場合を想定したオプションです。",
+    "text": "引数 Argument\n\ndata：IntoFrameT（必須） 入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト （例：pandas.DataFrame、polars.DataFrame、pyarrow.Table）を指定できます。\nto_native（bool, optional） True の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。 False の場合、narwhals.DataFrame を返します。デフォルトは True で、to_native = False は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>4</span>  <span class='chapter-title'>diagnose</span>"
@@ -171,7 +171,7 @@
     "href": "man/tabyl.html#引数-argument",
     "title": "tabyl",
     "section": "引数 Argument",
-    "text": "引数 Argument\n\ndata：IntoFrameT（必須） 入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト （例：pandas.DataFrame、polars.DataFrame、pyarrow.Table）を指定できます。\nindex：str 　集計に使用するデータフレームの変数名（必須）。\ncolumns：str 　集計に使用するデータフレームの変数名（必須）。\nmargins：bool 　行または列の合計を追加するかどうかを表すブール値。初期設定は True です。\nmargins_name：bool 　行や列の合計の名前。初期設定は 'All' です。\ndropna：bool 　 欠測値（NaN）を集計から除外するかどうかを表すブール値。初期設定は False です。\nnormalize：str 　丸括弧( )に表示する相対度数の計算方式。\n\nindex 各セルの度数を行の和で割り、横方向の相対度数の和が100%になるように計算します。\ncolumns 各セルの度数を行の列で割り、縦方向の相対度数の和が100%になるように計算します。\nall 各セルの度数を総度数で割り、全てのセルの相対度数の和が100%になるように計算します。\n\ndigits：int 　丸括弧( )に表示する相対度数の小数点以下の桁数。初期設定は1です。\nto_native（bool, optional） True の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。 False の場合、narwhals.DataFrame を返します。デフォルトは True で、to_native = False は、主にライブラリ内部での利用や、backend に依存しない後続処理を行う場合を想定したオプションです。",
+    "text": "引数 Argument\n\ndata：IntoFrameT（必須） 入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト （例：pandas.DataFrame、polars.DataFrame、pyarrow.Table）を指定できます。\nindex：str 　集計に使用するデータフレームの変数名（必須）。\ncolumns：str 　集計に使用するデータフレームの変数名（必須）。\nmargins：bool 　行または列の合計を追加するかどうかを表すブール値。初期設定は True です。\nmargins_name：bool 　行や列の合計の名前。初期設定は 'All' です。\ndropna：bool 　 欠測値（NaN）を集計から除外するかどうかを表すブール値。初期設定は False です。\nnormalize：str 　丸括弧( )に表示する相対度数の計算方式。\n\nindex 各セルの度数を行の和で割り、横方向の相対度数の和が100%になるように計算します。\ncolumns 各セルの度数を行の列で割り、縦方向の相対度数の和が100%になるように計算します。\nall 各セルの度数を総度数で割り、全てのセルの相対度数の和が100%になるように計算します。\n\ndigits：int 　丸括弧( )に表示する相対度数の小数点以下の桁数。初期設定は1です。\nto_native（bool, optional） True の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。 False の場合、narwhals.DataFrame を返します。デフォルトは True で、to_native = False は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>5</span>  <span class='chapter-title'>tabyl</span>"
@@ -215,7 +215,7 @@
     "href": "man/freq_table.html#引数-argument",
     "title": "freq_table",
     "section": "引数 Argument",
-    "text": "引数 Argument\n\ndata：IntoFrameT（必須） 入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト （例：pandas.DataFrame、polars.DataFrame、pyarrow.Table）を指定できます。\nsubset：str or list of str 　集計に使用するデータフレームの列名（必須）。\nsort_by：str 　sort_by = 'frequency' なら度数分布表を頻度に応じてソートし、sort_by = 'values' なら subset で指定した列の値に応じてソートします。\ndescending：bool 　ソートの方式。True なら降順でソートし、False（初期設定）なら昇順でソートします。\ndropna：bool 　欠測値（NaN, None など）を集計から除外するかどうかを表すブール値。初期設定は False です。\nsort：Deprecated.. 　sort_by の使用を推奨しています。この引数は後方互換性のために保持されおり、指定された場合は FutureWarningが発生します。デフォルトは None です。\nto_native（bool, optional） True の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。 False の場合、narwhals.DataFrame を返します。デフォルトは True で、to_native = False は、主にライブラリ内部での利用や、backend に依存しない後続処理を行う場合を想定したオプションです。",
+    "text": "引数 Argument\n\ndata：IntoFrameT（必須） 入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト （例：pandas.DataFrame、polars.DataFrame、pyarrow.Table）を指定できます。\nsubset：str or list of str 　集計に使用するデータフレームの列名（必須）。\nsort_by：str 　sort_by = 'frequency' なら度数分布表を頻度に応じてソートし、sort_by = 'values' なら subset で指定した列の値に応じてソートします。\ndescending：bool 　ソートの方式。True なら降順でソートし、False（初期設定）なら昇順でソートします。\ndropna：bool 　欠測値（NaN, None など）を集計から除外するかどうかを表すブール値。初期設定は False です。\nsort：Deprecated.. 　sort_by の使用を推奨しています。この引数は後方互換性のために保持されおり、指定された場合は FutureWarningが発生します。デフォルトは None です。\nto_native（bool, optional） True の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。 False の場合、narwhals.DataFrame を返します。デフォルトは True で、to_native = False は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>6</span>  <span class='chapter-title'>freq_table</span>"
@@ -358,7 +358,7 @@
     "href": "man/diagnose_category.html#引数-argument",
     "title": "diagnose_category",
     "section": "引数 Argument",
-    "text": "引数 Argument\n\ndata：IntoFrameT（必須） 入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト （例：pandas.DataFrame、polars.DataFrame、pyarrow.Table）を指定できます。\ndropna：bool 　欠測値（NaN, None など）を統計値の計算から除外するかどうかを表すブール値。初期設定は True です。\nto_native（bool, optional） True の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。 False の場合、narwhals.DataFrame を返します。デフォルトは True で、to_native = False は、主にライブラリ内部での利用や、backend に依存しない後続処理を行う場合を想定したオプションです。",
+    "text": "引数 Argument\n\ndata：IntoFrameT（必須） 入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト （例：pandas.DataFrame、polars.DataFrame、pyarrow.Table）を指定できます。\ndropna：bool 　欠測値（NaN, None など）を統計値の計算から除外するかどうかを表すブール値。初期設定は True です。\nto_native（bool, optional） True の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。 False の場合、narwhals.DataFrame を返します。デフォルトは True で、to_native = False は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>9</span>  <span class='chapter-title'>diagnose_category</span>"
@@ -424,7 +424,7 @@
     "href": "man/point_range.html#引数-argument",
     "title": "mean_qi median_qi mean_ci",
     "section": "引数 Argument",
-    "text": "引数 Argument\n\ndata：IntoFrameT or IntoSeriesT（必須） 入力データ。narwhals が受け入れ可能な DataFrame もしくは Series 互換オブジェクト （例：pandas.DataFrame、polars.DataFrame、pyarrow.Table）を指定できます。\nwidth：float 　分位点区間の幅、もしくは信頼区間の計算に用いる信頼係数。\nto_native（bool, optional） True の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。 False の場合、narwhals.DataFrame を返します。デフォルトは True で、to_native = False は、主にライブラリ内部での利用や、backend に依存しない後続処理を行う場合を想定したオプションです。",
+    "text": "引数 Argument\n\ndata：IntoFrameT or IntoSeriesT（必須） 入力データ。narwhals が受け入れ可能な DataFrame もしくは Series 互換オブジェクト （例：pandas.DataFrame、polars.DataFrame、pyarrow.Table）を指定できます。\nwidth：float 　分位点区間の幅、もしくは信頼区間の計算に用いる信頼係数。\nto_native（bool, optional） True の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。 False の場合、narwhals.DataFrame を返します。デフォルトは True で、to_native = False は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>10</span>  <span class='chapter-title'>mean_qi median_qi mean_ci</span>"
@@ -468,7 +468,7 @@
     "href": "man/remove_empty_constant.html#引数-argument",
     "title": "remove_empty, remove_constant",
     "section": "引数 Argument",
-    "text": "引数 Argument\n\ndata：IntoFrameT（必須） 入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト （例：pandas.DataFrame、polars.DataFrame、pyarrow.Table）を指定できます。\ncols：bool 　空白列を削除するかどうかを表すブール値（remove_empty() のみ）。True（初期設定） なら空白列を削除し、Falseなら全ての要素が NaN の列があっても削除しません。\nrows：bool 　空白行を削除するかどうかを表すブール値（remove_empty() のみ）。True（初期設定） なら空白行を削除し、Falseなら全ての要素が NaN の行があっても削除しません。\ncutoff：float 　列（行）の削除を行うかどうかを判定する欠測率の閾値（remove_empty() のみ）。ある列（行）における NaN の割合が &gt;= cutoff のとき、その列（行）を削除します。初期設定は1で全ての要素が NaN の列（行）のみ削除しますが、例えば cutoff = 0.9 とすることで NaN の割合9が割以上の列（行）を削除できます。\nquiet：bool 　削除した列（行）を報告するかどうかを表すブール値。quiet = True（初期設定） であれば何も報告せずに削除だけ行い、quiet = False なら、削除した列（行）の数と列名（行名）を報告します。\ndropna：bool 　ユニーク値の数を計算する際に、NaN を除外するかどうかを表すブール値（remove_constant() のみ）。dropna = True だと NaN を除外し、dropna = False（初期設定）だと NaN を除外しません。データフレームに NaN と、 NaN ではない1種類の値からなる列がある場合、dropna = False だと削除されず、dropna = True だと削除されます。\nto_native（bool, optional） True の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。 False の場合、narwhals.DataFrame を返します。デフォルトは True で、to_native = False は、主にライブラリ内部での利用や、backend に依存しない後続処理を行う場合を想定したオプションです。",
+    "text": "引数 Argument\n\ndata：IntoFrameT（必須） 入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト （例：pandas.DataFrame、polars.DataFrame、pyarrow.Table）を指定できます。\ncols：bool 　空白列を削除するかどうかを表すブール値（remove_empty() のみ）。True（初期設定） なら空白列を削除し、Falseなら全ての要素が NaN の列があっても削除しません。\nrows：bool 　空白行を削除するかどうかを表すブール値（remove_empty() のみ）。True（初期設定） なら空白行を削除し、Falseなら全ての要素が NaN の行があっても削除しません。\ncutoff：float 　列（行）の削除を行うかどうかを判定する欠測率の閾値（remove_empty() のみ）。ある列（行）における NaN の割合が &gt;= cutoff のとき、その列（行）を削除します。初期設定は1で全ての要素が NaN の列（行）のみ削除しますが、例えば cutoff = 0.9 とすることで NaN の割合9が割以上の列（行）を削除できます。\nquiet：bool 　削除した列（行）を報告するかどうかを表すブール値。quiet = True（初期設定） であれば何も報告せずに削除だけ行い、quiet = False なら、削除した列（行）の数と列名（行名）を報告します。\ndropna：bool 　ユニーク値の数を計算する際に、NaN を除外するかどうかを表すブール値（remove_constant() のみ）。dropna = True だと NaN を除外し、dropna = False（初期設定）だと NaN を除外しません。データフレームに NaN と、 NaN ではない1種類の値からなる列がある場合、dropna = False だと削除されず、dropna = True だと削除されます。\nto_native（bool, optional） True の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。 False の場合、narwhals.DataFrame を返します。デフォルトは True で、to_native = False は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>11</span>  <span class='chapter-title'>remove_empty, remove_constant</span>"
@@ -512,7 +512,7 @@
     "href": "man/filtering_out.html#引数-argument",
     "title": "filtering_out",
     "section": "引数 Argument",
-    "text": "引数 Argument\n\ndata：IntoFrameT（必須） 入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト （例：pandas.DataFrame、polars.DataFrame、pyarrow.Table）を指定できます。\n*args（str / list[str] / narwhals.Expr / narwhals.Selector） 移動したい列を指定します。指定方法は次のとおりです。\n\n列名（例：\"x\"）\n列名のリスト（例：[\"x\", \"y\"]）\nnarwhals の式（Expr）（例：nw.col(\"x\")） *axis = 'columns' の場合のみ\nnarwhals の Selector （例：ncs.numeric()）*axis = 'columns' の場合のみ\n\ncontains：str 　列名（行名）の検索に使用する文字列。内部で使用している pandas.Series.str.contains に渡され、指定された文字列を列名（行名）に含む列（行）を除外します。\nstarts_with：str 　列名（行名）の検索に使用する文字列。内部で使用している pandas.Series.str.startswith に渡され、指定された文字列で列名（行名）が始まる列（行）を除外します。\nends_with：str 　列名（行名）の検索に使用する文字列。内部で使用している pandas.Series.str.endswith に渡され、指定された文字列で列名（行名）が終わる列（行）を除外します。\naxis：{0 or 'index', 1 or 'columns'} axis = 1 または axis = 'columns' なら列の削除を行い、axis = 0 または axis = 'index' なら行の削除を行います。 このオプションは、data がインデックス属性 (例: pandas.DataFrame) をもつ場合のみ有効です。\nto_native（bool, optional） True の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。 False の場合、narwhals.DataFrame を返します。デフォルトは True で、to_native = False は、主にライブラリ内部での利用や、backend に依存しない後続処理を行う場合を想定したオプションです。",
+    "text": "引数 Argument\n\ndata：IntoFrameT（必須） 入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト （例：pandas.DataFrame、polars.DataFrame、pyarrow.Table）を指定できます。\n*args（str / list[str] / narwhals.Expr / narwhals.Selector） 移動したい列を指定します。指定方法は次のとおりです。\n\n列名（例：\"x\"）\n列名のリスト（例：[\"x\", \"y\"]）\nnarwhals の式（Expr）（例：nw.col(\"x\")） *axis = 'columns' の場合のみ\nnarwhals の Selector （例：ncs.numeric()）*axis = 'columns' の場合のみ\n\ncontains：str 　列名（行名）の検索に使用する文字列。内部で使用している pandas.Series.str.contains に渡され、指定された文字列を列名（行名）に含む列（行）を除外します。\nstarts_with：str 　列名（行名）の検索に使用する文字列。内部で使用している pandas.Series.str.startswith に渡され、指定された文字列で列名（行名）が始まる列（行）を除外します。\nends_with：str 　列名（行名）の検索に使用する文字列。内部で使用している pandas.Series.str.endswith に渡され、指定された文字列で列名（行名）が終わる列（行）を除外します。\naxis：{0 or 'index', 1 or 'columns'} axis = 1 または axis = 'columns' なら列の削除を行い、axis = 0 または axis = 'index' なら行の削除を行います。 このオプションは、data がインデックス属性 (例: pandas.DataFrame) をもつ場合のみ有効です。\nto_native（bool, optional） True の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。 False の場合、narwhals.DataFrame を返します。デフォルトは True で、to_native = False は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>12</span>  <span class='chapter-title'>filtering_out</span>"
@@ -567,7 +567,7 @@
     "href": "man/relocate.html#引数-argument",
     "title": "relocate",
     "section": "引数 Argument",
-    "text": "引数 Argument\n\ndata：IntoFrameT（必須） 入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト （例：pandas.DataFrame、polars.DataFrame、pyarrow.Table）を指定できます。\n*args（str / list[str] / narwhals.Expr / narwhals.Selector） 移動したい列を指定します。指定方法は次のとおりです。\n\n列名（例：\"x\"）\n列名のリスト（例：[\"x\", \"y\"]）\nnarwhals の式（Expr）（例：nw.col(\"x\")）\nnarwhals の Selector （例：ncs.numeric()）\n\n指定した順序は、移動後の列順にもそのまま反映されます。\nbefore（str, optional） args で指定された列を、この列の直前に移動します。 after と同時に指定することはできません。デフォルトは None です。\nafter（str, optional） args で指定された列を、この列の直後に移動します。 before と同時に指定することはできません。デフォルトは None です。\nplace（str, optional） *args で指定された列の、配置場所を指定します。\n\n\"first\": 選択した列をデータフレームの先頭（最も左）に配置します。\n\"last\": 選択した列をデータフレームの末尾（最も右）に配置します。 place 引数は before または after と同時に指定することはできません。 未指定（None）の場合は \"first\" と同じ挙動になります。\n\nto_native（bool, optional） True の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。 False の場合、narwhals.DataFrame を返します。デフォルトは True で、to_native = False は、主にライブラリ内部での利用や、backend に依存しない後続処理を行う場合を想定したオプションです。\n\n\n返り値\n\nIntoFrameT 入力データフレームと同じ列を保持したまま、指定されたルールに従って並び替えられたデータフレームを返します。",
+    "text": "引数 Argument\n\ndata：IntoFrameT（必須） 入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト （例：pandas.DataFrame、polars.DataFrame、pyarrow.Table）を指定できます。\n*args（str / list[str] / narwhals.Expr / narwhals.Selector） 移動したい列を指定します。指定方法は次のとおりです。\n\n列名（例：\"x\"）\n列名のリスト（例：[\"x\", \"y\"]）\nnarwhals の式（Expr）（例：nw.col(\"x\")）\nnarwhals の Selector （例：ncs.numeric()）\n\n指定した順序は、移動後の列順にもそのまま反映されます。\nbefore（str, optional） args で指定された列を、この列の直前に移動します。 after と同時に指定することはできません。デフォルトは None です。\nafter（str, optional） args で指定された列を、この列の直後に移動します。 before と同時に指定することはできません。デフォルトは None です。\nplace（str, optional） *args で指定された列の、配置場所を指定します。\n\n\"first\": 選択した列をデータフレームの先頭（最も左）に配置します。\n\"last\": 選択した列をデータフレームの末尾（最も右）に配置します。 place 引数は before または after と同時に指定することはできません。 未指定（None）の場合は \"first\" と同じ挙動になります。\n\nto_native（bool, optional） True の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。 False の場合、narwhals.DataFrame を返します。デフォルトは True で、to_native = False は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。\n\n\n返り値\n\nIntoFrameT 入力データフレームと同じ列を保持したまま、指定されたルールに従って並び替えられたデータフレームを返します。",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>13</span>  <span class='chapter-title'>relocate</span>"
@@ -655,7 +655,7 @@
     "href": "man/compare_group_stats.html#引数-argument",
     "title": "compare_group_means, _median, plot_mean_diff, _median_diff",
     "section": "引数 Argument",
-    "text": "引数 Argument\n\ngroup1（必須）a pandas.DataFrame  　数値変数を含む pandas.DataFrame で group2 との比較対象となるもの\ngroup2（必須）a pandas.DataFrame  　数値変数を含む pandas.DataFrame で group1 との比較対象となるもの\ngroup_names list of str  　表頭に表示するグループの名前。['group1', 'group2'] のように、2つの要素をもつ文字列のリストとして指定してください。\ncolumns str  2つのグループの結果を結合する際に含める変数を指定します。\n\n\"common\": 両方のグループに存在する変数のみが含まれます。\n\"all\": いずれかのグループに存在する全ての変数が含まれます。この場合、一方のグループにのみ存在する変数についての差分統計量は、欠損値（例：NaN または None）となります。\n\nto_native（bool, optional） True の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。 False の場合、narwhals.DataFrame を返します。デフォルトは True で、to_native = False は、主にライブラリ内部での利用や、backend に依存しない後続処理を行う場合を想定したオプションです。\nstats_diff: str （plot_mean_diff() および plot_median_diff() のみ） 　グラフの描画に使用する差分統計量。'norm_diff'（plot_mean_diff() のみ）、'abs_diff', 'rel_diff' のいずれかから選ぶことができます。",
+    "text": "引数 Argument\n\ngroup1（必須）a pandas.DataFrame  　数値変数を含む pandas.DataFrame で group2 との比較対象となるもの\ngroup2（必須）a pandas.DataFrame  　数値変数を含む pandas.DataFrame で group1 との比較対象となるもの\ngroup_names list of str  　表頭に表示するグループの名前。['group1', 'group2'] のように、2つの要素をもつ文字列のリストとして指定してください。\ncolumns str  2つのグループの結果を結合する際に含める変数を指定します。\n\n\"common\": 両方のグループに存在する変数のみが含まれます。\n\"all\": いずれかのグループに存在する全ての変数が含まれます。この場合、一方のグループにのみ存在する変数についての差分統計量は、欠損値（例：NaN または None）となります。\n\nto_native（bool, optional） True の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。 False の場合、narwhals.DataFrame を返します。デフォルトは True で、to_native = False は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。\nstats_diff: str （plot_mean_diff() および plot_median_diff() のみ） 　グラフの描画に使用する差分統計量。'norm_diff'（plot_mean_diff() のみ）、'abs_diff', 'rel_diff' のいずれかから選ぶことができます。",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>15</span>  <span class='chapter-title'>compare_group_means, _median, plot_mean_diff, _median_diff</span>"
@@ -754,7 +754,7 @@
     "href": "man/set_miss.html#引数-argument",
     "title": "set_miss",
     "section": "引数 Argument",
-    "text": "引数 Argument\n\ndata：IntoFrameT（必須） 入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト （例：pandas.DataFrame、polars.DataFrame、pyarrow.Table）を指定できます。\nn：int  処理後の Series に含まれる欠測値の目標個数。すでに n 個以上の欠測値が含まれている場合は、新たな欠測値は追加されず、警告が発せられます。\nprop：float  処理後の Series に含まれる欠測値の目標割合。0 から 1 の間で指定してください。すでに欠測値の割合が prop 以上である場合は、新たな欠測値は追加されず、警告が発せられます。\nmethod: str: 欠測値に置き換える要素の選択方法。\n\n'random': 非欠測要素の中からランダムに選択します。\n'first': Series の先頭から選択します。\n'last': Series の末尾から選択します。 デフォルトは 'random' です。\n\nrandom_state (int, optional): method = 'random' の場合に使用する乱数シード。再現性のある結果を得るために指定できます。 method が 'random' 以外の場合、random_state は無視されます。\nna_value: (Any) 欠測値として使用する値。デフォルトは None です。\nto_native（bool, optional） True の場合、入力と同じ型の Series（e.g. pandas / polars / pyarrow）を返します。 False の場合、narwhals.Series を返します。デフォルトは True で、to_native = False は、主にライブラリ内部での利用や、backend に依存しない後続処理を行う場合を想定したオプションです。",
+    "text": "引数 Argument\n\ndata：IntoFrameT（必須） 入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト （例：pandas.DataFrame、polars.DataFrame、pyarrow.Table）を指定できます。\nn：int  処理後の Series に含まれる欠測値の目標個数。すでに n 個以上の欠測値が含まれている場合は、新たな欠測値は追加されず、警告が発せられます。\nprop：float  処理後の Series に含まれる欠測値の目標割合。0 から 1 の間で指定してください。すでに欠測値の割合が prop 以上である場合は、新たな欠測値は追加されず、警告が発せられます。\nmethod: str: 欠測値に置き換える要素の選択方法。\n\n'random': 非欠測要素の中からランダムに選択します。\n'first': Series の先頭から選択します。\n'last': Series の末尾から選択します。 デフォルトは 'random' です。\n\nrandom_state (int, optional): method = 'random' の場合に使用する乱数シード。再現性のある結果を得るために指定できます。 method が 'random' 以外の場合、random_state は無視されます。\nna_value: (Any) 欠測値として使用する値。デフォルトは None です。\nto_native（bool, optional） True の場合、入力と同じ型の Series（e.g. pandas / polars / pyarrow）を返します。 False の場合、narwhals.Series を返します。デフォルトは True で、to_native = False は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>17</span>  <span class='chapter-title'>set_miss</span>"
@@ -798,7 +798,7 @@
     "href": "man/scale_wmean.html#引数-argument",
     "title": "weighted_mean, scale, min_max",
     "section": "引数 Argument",
-    "text": "引数 Argument\n\nx：IntoSeriesT or pd.DataFrame（必須）\n\nnarwhals が受け入れ可能な Series 互換オブジェクト（例：pandas.Series、polars.Series）を指定できます。scale()関数と min_max()関数のみ pandas.DataFrame を指定することができ、この場合、各列ごとに変換が適用されます。\n\nw：IntoSeriesT（必須） x に対応する重みを表す数値系列。x と同じ長さである必要があります。narwhals が受け入れ可能な Series 互換オブジェクト（例：pandas.Series、polars.Series）を指定できます。\nddof（int, optional）scale(), min_max() のみ  標準偏差の計算に用いる自由度調整量（delta degrees of freedom）。デフォルトは 1 です。\ndropna（bool, optional）scale(), min_max() のみ  True の場合、x または w のいずれかが欠損値（NaN）である観測を計算前に除外します。デフォルトは False です。\nto_native（bool, optional）scale(), min_max() のみ  True の場合、入力と同じ型の Series（e.g. pandas / polars / pyarrow）を返します。 False の場合、Series を返します。デフォルトは True で、to_native = False は、主にライブラリ内部での利用や、backend に依存しない後続処理を行う場合を想定したオプションです。",
+    "text": "引数 Argument\n\nx：IntoSeriesT or pd.DataFrame（必須）\n\nnarwhals が受け入れ可能な Series 互換オブジェクト（例：pandas.Series、polars.Series）を指定できます。scale()関数と min_max()関数のみ pandas.DataFrame を指定することができ、この場合、各列ごとに変換が適用されます。\n\nw：IntoSeriesT（必須） x に対応する重みを表す数値系列。x と同じ長さである必要があります。narwhals が受け入れ可能な Series 互換オブジェクト（例：pandas.Series、polars.Series）を指定できます。\nddof（int, optional）scale(), min_max() のみ  標準偏差の計算に用いる自由度調整量（delta degrees of freedom）。デフォルトは 1 です。\ndropna（bool, optional）scale(), min_max() のみ  True の場合、x または w のいずれかが欠損値（NaN）である観測を計算前に除外します。デフォルトは False です。\nto_native（bool, optional）scale(), min_max() のみ  True の場合、入力と同じ型の Series（e.g. pandas / polars / pyarrow）を返します。 False の場合、nw.Series を返します。デフォルトは True で、to_native = False は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>18</span>  <span class='chapter-title'>weighted_mean, scale, min_max</span>"
@@ -853,7 +853,7 @@
     "href": "man/predicate_str.html#引数-argument",
     "title": "is_number, is_ymd, is_ymd_like",
     "section": "引数 Argument",
-    "text": "引数 Argument\n\ndata：IntoSeriesT（必須）\n入力データ。narwhals が受け入れ可能な Series 互換オブジェクト （例：pandas.Series、polars.DataFrame、pyarrow.Table）を指定できます。\nna_default：bool 　NA値に対して関数が返す値。na_default = True （初期設定）であれば None や NaN には True を返し、na_default = False であれば False が返します。\nto_native（bool, optional） True の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。 False の場合、narwhals.DataFrame を返します。デフォルトは True で、to_native = False は、主にライブラリ内部での利用や、backend に依存しない後続処理を行う場合を想定したオプションです。",
+    "text": "引数 Argument\n\ndata：IntoSeriesT（必須）\n入力データ。narwhals が受け入れ可能な Series 互換オブジェクト （例：pandas.Series、polars.DataFrame、pyarrow.Table）を指定できます。\nna_default：bool 　NA値に対して関数が返す値。na_default = True （初期設定）であれば None や NaN には True を返し、na_default = False であれば False が返します。\nto_native（bool, optional） True の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。 False の場合、narwhals.DataFrame を返します。デフォルトは True で、to_native = False は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>19</span>  <span class='chapter-title'>is_number, is_ymd,  is_ymd_like</span>"
@@ -897,7 +897,7 @@
     "href": "man/is_dummy.html#引数-argument",
     "title": "is_dummy",
     "section": "引数 Argument",
-    "text": "引数 Argument\n\ndata: list, IntoFrameT or IntoSeriesT  入力データ。list あるいは、narwhals が受け入れ可能な DataFrame もしくは Series 互換オブジェクト\ncording: list  ダミーコードとして許容される値の集合。入力データに含まれる値の集合が、この集合と完全に一致する場合にダミー変数であると判定されます。デフォルトは (0, 1) です。\ndropna：bool 　欠測値（NaN）をコーディングの判定から除外するかどうかを表すブール値。初期設定は True です。\nto_pd_series: bool  data が DataFrame 場合の戻り値の形式を制御します。\n\nTrue の場合：列名をインデックスにもつ pandas.Series を返します\nFalse の場合：各列の判定結果を要素とする list を返します\n\n**kwargs: 将来の拡張のために予約されたキーワード引数です。",
+    "text": "引数 Argument\n\ndata: list, IntoFrameT or IntoSeriesT  入力データ。list あるいは、narwhals が受け入れ可能な DataFrame もしくは Series 互換オブジェクト\ncording: list  ダミーコードとして許容される値の集合。入力データに含まれる値の集合が、この集合と完全に一致する場合にダミー変数であると判定されます。デフォルトは (0, 1) です。\ndropna：bool 　欠測値（NaN）をコーディングの判定から除外するかどうかを表すブール値。初期設定は True です。\nto_pd_series: bool  data が DataFrame 場合の戻り値の形式を制御します。\n\nTrue の場合：列名をインデックスにもつ pandas.Series を返します\nFalse の場合：to_native の値に応じた値を出力します。\n\nto_native（bool, optional） data がデータ DataFrame 互換オブジェクトの場合の出力を制御します。 True の場合、data 同じバックエンドの Series（e.g. pandas / polars / pyarrow）を返します。 False の場合、nw.Series を返します。デフォルトは True で、to_native = False は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。\n**kwargs: 将来の拡張のために予約されたキーワード引数です。",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>20</span>  <span class='chapter-title'>is_dummy</span>"
@@ -952,7 +952,7 @@
     "href": "man/varidate.html#引数-argument",
     "title": "check_that check_viorate",
     "section": "引数 Argument",
-    "text": "引数 Argument\n\ndata：IntoFrameT（必須） 　ルールに基づくデータ検証を行うデータセット。narwhals が受け入れ可能な DataFrame 互換オブジェクト （例：pandas.DataFrame、polars.DataFrame、pyarrow.Table）を指定できます。\nrule_dictdict or pd.Series of str（必須） 　pandas.eval() メソッドで実行した結果が論理値となるような expression の文字列を値とする辞書オブジェクト。詳細は使用例も参照してください。\nto_native（bool, optional） True の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。 False の場合、narwhals.DataFrame を返します。デフォルトは True で、to_native = False は、主にライブラリ内部での利用や、backend に依存しない後続処理を行う場合を想定したオプションです。\n**kwargs 　pandas.eval() に渡す追加の引数。",
+    "text": "引数 Argument\n\ndata：IntoFrameT（必須） 　ルールに基づくデータ検証を行うデータセット。narwhals が受け入れ可能な DataFrame 互換オブジェクト （例：pandas.DataFrame、polars.DataFrame、pyarrow.Table）を指定できます。\nrule_dictdict or pd.Series of str（必須） 　pandas.eval() メソッドで実行した結果が論理値となるような expression の文字列を値とする辞書オブジェクト。詳細は使用例も参照してください。\nto_native（bool, optional） True の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。 False の場合、narwhals.DataFrame を返します。デフォルトは True で、to_native = False は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。\n**kwargs 　pandas.eval() に渡す追加の引数。",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>21</span>  <span class='chapter-title'>check_that check_viorate</span>"

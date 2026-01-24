@@ -506,7 +506,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>"first"</code>: 選択した列をデータフレームの先頭（最も左）に配置します。</li>
 <li><code>"last"</code>: 選択した列をデータフレームの末尾（最も右）に配置します。 <code>place</code> 引数は <code>before</code> または <code>after</code> と同時に指定することはできません。 未指定（<code>None</code>）の場合は <code>"first"</code> と同じ挙動になります。</li>
 </ul></li>
-<li><p><code>to_native</code>（<strong>bool</strong>, optional）<br> <code>True</code> の場合、入力と同じ型のデータフレーム（e.g.&nbsp;pandas / polars / pyarrow）を返します。<br> <code>False</code> の場合、<code>narwhals.DataFrame</code> を返します。デフォルトは <code>True</code> で、<code>to_native = False</code> は、主にライブラリ内部での利用や、<code>backend</code> に依存しない後続処理を行う場合を想定したオプションです。</p></li>
+<li><p><code>to_native</code>（<strong>bool</strong>, optional）<br> <code>True</code> の場合、入力と同じ型のデータフレーム（e.g.&nbsp;pandas / polars / pyarrow）を返します。<br> <code>False</code> の場合、<code>narwhals.DataFrame</code> を返します。デフォルトは <code>True</code> で、<code>to_native = False</code> は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。</p></li>
 </ul>
 <section id="返り値" class="level3">
 <h3 class="anchored" data-anchor-id="返り値">返り値</h3>

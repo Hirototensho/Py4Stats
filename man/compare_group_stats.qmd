@@ -52,7 +52,7 @@ plot_median_diff(
     - `"all"`: いずれかのグループに存在する全ての変数が含まれます。この場合、一方のグループにのみ存在する変数についての差分統計量は、欠損値（例：``NaN`` または ``None``）となります。
 - `to_native`（**bool**, optional）<br>
   `True` の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。<br>
-  `False` の場合、`narwhals.DataFrame` を返します。デフォルトは `True` で、`to_native = False` は、主にライブラリ内部での利用や、`backend` に依存しない後続処理を行う場合を想定したオプションです。
+  `False` の場合、`narwhals.DataFrame` を返します。デフォルトは `True` で、`to_native = False` は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。
 - `stats_diff`: **str** （`plot_mean_diff()` および `plot_median_diff()` のみ）<br>
 　グラフの描画に使用する差分統計量。`'norm_diff'`（`plot_mean_diff()` のみ）、`'abs_diff'`, `'rel_diff'` のいずれかから選ぶことができます。
 

@@ -534,7 +534,7 @@ window.Quarto = {
 <li><code>w</code>：<strong>IntoSeriesT</strong>（必須）<br> <code>x</code> に対応する重みを表す数値系列。<code>x</code> と同じ長さである必要があります。narwhals が受け入れ可能な Series 互換オブジェクト（例：<code>pandas.Series</code>、<code>polars.Series</code>）を指定できます。</li>
 <li><code>ddof</code>（<strong>int</strong>, optional）<code>scale(), min_max()</code> のみ <br> 標準偏差の計算に用いる自由度調整量（delta degrees of freedom）。デフォルトは <code>1</code> です。</li>
 <li><code>dropna</code>（<strong>bool</strong>, optional）<code>scale(), min_max()</code> のみ <br> <code>True</code> の場合、<code>x</code> または <code>w</code> のいずれかが欠損値（NaN）である観測を計算前に除外します。デフォルトは <code>False</code> です。</li>
-<li><code>to_native</code>（<strong>bool</strong>, optional）<code>scale(), min_max()</code> のみ <br> <code>True</code> の場合、入力と同じ型の Series（e.g.&nbsp;pandas / polars / pyarrow）を返します。<br> <code>False</code> の場合、<code>Series</code> を返します。デフォルトは <code>True</code> で、<code>to_native = False</code> は、主にライブラリ内部での利用や、<code>backend</code> に依存しない後続処理を行う場合を想定したオプションです。</li>
+<li><code>to_native</code>（<strong>bool</strong>, optional）<code>scale(), min_max()</code> のみ <br> <code>True</code> の場合、入力と同じ型の Series（e.g.&nbsp;pandas / polars / pyarrow）を返します。<br> <code>False</code> の場合、<code>nw.Series</code> を返します。デフォルトは <code>True</code> で、<code>to_native = False</code> は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。</li>
 </ul>
 <hr>
 </section>

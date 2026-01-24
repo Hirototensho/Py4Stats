@@ -502,7 +502,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>cutoff</code>：<strong>float</strong><br> 　列（行）の削除を行うかどうかを判定する欠測率の閾値（<code>remove_empty()</code> のみ）。ある列（行）における <code>NaN</code> の割合が <code>&gt;= cutoff</code> のとき、その列（行）を削除します。初期設定は1で全ての要素が <code>NaN</code> の列（行）のみ削除しますが、例えば <code>cutoff = 0.9</code> とすることで <code>NaN</code> の割合9が割以上の列（行）を削除できます。</li>
 <li><code>quiet</code>：<strong>bool</strong><br> 　削除した列（行）を報告するかどうかを表すブール値。<code>quiet = True</code>（初期設定） であれば何も報告せずに削除だけ行い、<code>quiet = False</code> なら、削除した列（行）の数と列名（行名）を報告します。</li>
 <li><code>dropna</code>：<strong>bool</strong><br> 　ユニーク値の数を計算する際に、<code>NaN</code> を除外するかどうかを表すブール値（<code>remove_constant()</code> のみ）。<code>dropna = True</code> だと <code>NaN</code> を除外し、<code>dropna = False</code>（初期設定）だと <code>NaN</code> を除外しません。データフレームに <code>NaN</code> と、 <code>NaN</code> ではない1種類の値からなる列がある場合、<code>dropna = False</code> だと削除されず、<code>dropna = True</code> だと削除されます。</li>
-<li><code>to_native</code>（<strong>bool</strong>, optional）<br> <code>True</code> の場合、入力と同じ型のデータフレーム（e.g.&nbsp;pandas / polars / pyarrow）を返します。<br> <code>False</code> の場合、<code>narwhals.DataFrame</code> を返します。デフォルトは <code>True</code> で、<code>to_native = False</code> は、主にライブラリ内部での利用や、<code>backend</code> に依存しない後続処理を行う場合を想定したオプションです。</li>
+<li><code>to_native</code>（<strong>bool</strong>, optional）<br> <code>True</code> の場合、入力と同じ型のデータフレーム（e.g.&nbsp;pandas / polars / pyarrow）を返します。<br> <code>False</code> の場合、<code>narwhals.DataFrame</code> を返します。デフォルトは <code>True</code> で、<code>to_native = False</code> は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。</li>
 </ul>
 </section>
 <section id="使用例-example" class="level2">
