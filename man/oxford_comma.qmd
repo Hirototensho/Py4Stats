@@ -1,4 +1,4 @@
-# oxford_comma
+# building_block.oxford_comma
 
 文字列のリストから並列文を作成
 

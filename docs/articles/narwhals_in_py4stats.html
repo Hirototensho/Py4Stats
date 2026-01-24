@@ -65,7 +65,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../articles/eda_tools_development_status.html" rel="next">
+<link href="../articles/project_guide.html" rel="next">
 <link href="../articles/scaling_up_regression.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -137,6 +137,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <a href="../">Py4Stats</a> 
         <div class="sidebar-tools-main">
     <a href="https://github.com/Hirototensho/Py4Stats" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
 </div>
     </div>
       </div>
@@ -228,7 +233,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/compare_group_stats.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">compare_group_means, compare_group_median, plot_mean_diff, plot_median_diff</span></a>
+  <a href="../man/compare_group_stats.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">compare_group_means, _median, plot_mean_diff, _median_diff</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -361,17 +366,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/miscellaneous.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">building_block.style_number, style_percent, style_percent</span></a>
+  <a href="../man/miscellaneous.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">building_block.style_number, _currency, _percent</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/style_pvalue.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">building_block.style_pvalue, ‘p_stars’</span></a>
+  <a href="../man/style_pvalue.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">building_block.style_pvalue, p_stars</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/oxford_comma.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">oxford_comma</span></a>
+  <a href="../man/oxford_comma.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">building_block.oxford_comma</span></a>
   </div>
 </li>
       </ul>
@@ -400,6 +405,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <a href="../articles/narwhals_in_py4stats.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Technical Notes: py4stats.eda_tools における narwhals ベースの実装</span></a>
   </div>
 </li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+ <span class="menu-text"><strong>Contributing Notes</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../articles/project_guide.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Project Guide</span></a>
+  </div>
+</li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../articles/eda_tools_development_status.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">eda_toolsの開発状況</span></a>
@@ -426,7 +447,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#対応している-dataframe-バックエンドについて" id="toc-対応している-dataframe-バックエンドについて" class="nav-link" data-scroll-target="#対応している-dataframe-バックエンドについて">対応している DataFrame バックエンドについて</a></li>
   <li><a href="#narwhals-を用いた関数の返り値の型について" id="toc-narwhals-を用いた関数の返り値の型について" class="nav-link" data-scroll-target="#narwhals-を用いた関数の返り値の型について">narwhals を用いた関数の返り値の型について</a></li>
   <li><a href="#narwhals-を用いた実装方針について" id="toc-narwhals-を用いた実装方針について" class="nav-link" data-scroll-target="#narwhals-を用いた実装方針について">narwhals を用いた実装方針について</a></li>
-  <li><a href="#pandas_flavor-を用いた-dataframe-メソッド登録について" id="toc-pandas_flavor-を用いた-dataframe-メソッド登録について" class="nav-link" data-scroll-target="#pandas_flavor-を用いた-dataframe-メソッド登録について">　<code>pandas_flavor</code> を用いた DataFrame メソッド登録について</a></li>
+  <li><a href="#pandas_flavor-を用いた-dataframe-メソッドの登録について" id="toc-pandas_flavor-を用いた-dataframe-メソッドの登録について" class="nav-link" data-scroll-target="#pandas_flavor-を用いた-dataframe-メソッドの登録について"><code>pandas_flavor</code> を用いた DataFrame メソッドの登録について</a></li>
   <li><a href="#今後について" id="toc-今後について" class="nav-link" data-scroll-target="#今後について">今後について</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/main/articles/narwhals_in_py4stats.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></nav>
@@ -511,8 +532,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>この設計により、DataFrame バックエンドごとの差異を最小限に抑えつつ、将来的な拡張性を確保することを目的としています。</p>
 <p>一方で、narwhals は各バックエンドの完全な互換性を保証するものではないため、特定の操作や型変換についてはバックエンドごとに挙動が異なる場合があります。</p>
 </section>
-<section id="pandas_flavor-を用いた-dataframe-メソッド登録について" class="level2">
-<h2 class="anchored" data-anchor-id="pandas_flavor-を用いた-dataframe-メソッド登録について">　<code>pandas_flavor</code> を用いた DataFrame メソッド登録について</h2>
+<section id="pandas_flavor-を用いた-dataframe-メソッドの登録について" class="level2">
+<h2 class="anchored" data-anchor-id="pandas_flavor-を用いた-dataframe-メソッドの登録について"><code>pandas_flavor</code> を用いた DataFrame メソッドの登録について</h2>
 <p><code>py4stats.eda_tools</code> の関数のうち、単一の <code>DataFrame</code> オブジェクトを引数として受け取る関数については、<code>pandas_flavor.register_dataframe_method</code> を用いて DataFrame メソッドとして登録されています。その結果、以下のような使い方が可能です。</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>df.diagnose()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>ただし、<code>pandas_flavor</code> は pandas の拡張を前提とした仕組みであるため、このメソッド形式の呼び出しは、<code>pandas.DataFrame</code> を対象としています。 　polars.DataFrame や pyarrow ベースのオブジェクトを使用する場合には、関数として直接呼び出す形での利用を推奨します。</p>
@@ -935,8 +956,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../articles/eda_tools_development_status.html" class="pagination-link" aria-label="eda_toolsの開発状況">
-        <span class="nav-page-text"><span class="chapter-title">eda_toolsの開発状況</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../articles/project_guide.html" class="pagination-link" aria-label="Project Guide">
+        <span class="nav-page-text"><span class="chapter-title">Project Guide</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

@@ -1,6 +1,6 @@
-# Py4Stats 開発記録
+# Project Guide
 
-## モジュール構成
+## Py4Stats ライブラリのモジュール構成
 
 ```python
 py4stats
@@ -29,17 +29,19 @@ from py4stats.eda_tools import _nw as eda_nw
 from py4stats.eda_tools import _pandas as eda_pd
 ```
 
-## ディレクトリ構成
-2026年1月23日 現在
+## リポジトリのディレクトリ構成
+2026年1月24日 現在
 
 ``` python
 Py4Stats 
-├── INTRODUCTION.md
-├── README.md
+├── README.md                           # GitHub リポジトリのトップページ用ファイル
+├── index.qmd                           # APIドキュメント(Quarto Book)のトップページ
+├── _quarto.yml                         # Quarto Book の設定ファイル
+├── introduction.qmd
 ├── articles                            # APIドキュメント以外の公開記事
-├── man                                 # APIの公開ドキュメント
-│   ├── diagnose.md
-│   ├── compare_ols.md
+├── man                                 # APIドキュメントのうち、関数のドキュメント
+│   ├── diagnose.qmd
+│   ├── compare_ols.qmd
 │   ...
 │   └── image                           # ドキュメントに使用する画像
 ├── py4stats
@@ -66,12 +68,12 @@ Py4Stats
 
 **注意**：`eda_tools._pandas.py` は 非推奨扱いで将来的に廃止する予定です。詳細は以下を参照してください。
 
-- [Technical Notes](narwhals_in_py4stats.md)
-- [eda_tools開発状況](eda_tools開発状況.md)
+- [Technical Notes](./narwhals_in_py4stats.qmd)
+- [eda_tools開発状況](./eda_tools_development_status.qmd)
 
 ## リポジトリの運用方針
 
-![Py4Statsリポジトリの運用方針](./Py4Statsリポジトリの運用方針.png)
+![Py4Statsリポジトリの運用方針](./image/Py4Statsリポジトリの運用方針.png)
 
 ## セマンティック バージョニングについてのメモ
 
@@ -93,7 +95,7 @@ Py4Stats ライブラリのバージョンは次の方式のセマンティッ�
 from py4stats import building_block as build 
 # 文字列引数のアサーション（選択肢を制限）
 arg = build.arg_match(
-    arg,  values = ['option_1', 'option_2'],  
+    arg, values = ['option_1', 'option_2'], 
     arg_name = 'arg', 
     )
 ```

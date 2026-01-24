@@ -108,7 +108,7 @@ print(py4st.tidy_mfx(fit_logit1).round(4))
 
 ## 注意点
 
-　参考にしたR言語の [`broom::tidy()`](https://broom.tidymodels.org/reference/tidy.lm.html) は様々な種類のモデルに対応したジェネリック関数として定義されていますが、`py4stats.tidy()` と `py4stats.tidy_mfx()` では対応しているモデルは限定的であることにご注意ださい。`py4st.tidy()` のメソッドが定義されているオブジェクトのクラスを確認するには次のコードを実行して下さい。
+　参考にしたR言語の [`broom::tidy()`](https://broom.tidymodels.org/reference/tidy.lm.html) は様々な種類のモデルに対応したジェネリック関数として定義されていますが、`py4stats.tidy()` と `py4stats.tidy_mfx()` では対応しているモデルが限定的であることにご注意ください。`py4st.tidy()` のメソッドが定義されているオブジェクトのクラスを確認するには次のコードを実行して下さい。
 
 ```python
 list(py4st.tidy.registry.keys())

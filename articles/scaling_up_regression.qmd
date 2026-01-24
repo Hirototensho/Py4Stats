@@ -34,7 +34,7 @@ list_fml = [
 list_fitted1 = [fit_ols(fml, penguins) for fml in list_fml]
 ```
 
-このとき `list_fitted1` は回帰分析の推定結果を要素に持つリストであるため、[`py4st.compare_ols()`](https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_ols.md) にそのまま代入することができます。
+このとき `list_fitted1` は回帰分析の推定結果を要素に持つリストであるため、[`py4st.compare_ols()`](../man/compare_ols.qmd) にそのまま代入することができます。
 
 ``` python
 py4st.compare_ols(list_models = list_fitted1) # 表の作成
@@ -161,7 +161,7 @@ len(boot_sample)
 #> 6000
 ```
 
-次にブートストラップ統計量を集計して結果を確認しますが、ここではごく簡単に [`py4st.mean_qi()`](../man/point_range.md) を使って、説明変数別に回帰係数の平均値と分位点を求めています。
+次にブートストラップ統計量を集計して結果を確認しますが、ここではごく簡単に [`py4st.mean_qi()`](../man/point_range.qmd) を使って、説明変数別に回帰係数の平均値と分位点を求めています。
 
 ```python
 res = boot_sample.groupby(['term'])[['estimate']]\

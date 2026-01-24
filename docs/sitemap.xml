@@ -58,7 +58,7 @@
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/compare_group_stats.html</loc>
-    <lastmod>2026-01-24T08:32:54.024Z</lastmod>
+    <lastmod>2026-01-24T08:46:32.856Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/plot_miss_var.html</loc>
@@ -98,7 +98,7 @@
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/tidy.html</loc>
-    <lastmod>2026-01-24T08:32:54.028Z</lastmod>
+    <lastmod>2026-01-24T09:33:36.104Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/tidy_test.html</loc>
@@ -138,15 +138,15 @@
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/miscellaneous.html</loc>
-    <lastmod>2026-01-24T08:32:54.027Z</lastmod>
+    <lastmod>2026-01-24T08:44:04.472Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/style_pvalue.html</loc>
-    <lastmod>2026-01-24T08:32:54.028Z</lastmod>
+    <lastmod>2026-01-24T08:42:51.791Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/oxford_comma.html</loc>
-    <lastmod>2026-01-24T08:32:54.027Z</lastmod>
+    <lastmod>2026-01-24T08:50:27.875Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/articles/release_notes.html</loc>
@@ -154,11 +154,15 @@
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/articles/scaling_up_regression.html</loc>
-    <lastmod>2026-01-24T08:32:54.011Z</lastmod>
+    <lastmod>2026-01-24T09:35:39.143Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/articles/narwhals_in_py4stats.html</loc>
-    <lastmod>2026-01-24T08:32:54.010Z</lastmod>
+    <lastmod>2026-01-24T09:31:26.823Z</lastmod>
+  </url>
+  <url>
+    <loc>https://github.com/Hirototensho/Py4Stats/articles/project_guide.html</loc>
+    <lastmod>2026-01-24T09:20:12.167Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/articles/eda_tools_development_status.html</loc>

@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>compare_group_means, _median, plot_mean_diff, _median_diff – Py4Stats</title>
+<title>Project Guide – Py4Stats</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -65,8 +65,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../man/plot_miss_var.html" rel="next">
-<link href="../man/compare_df_cols.html" rel="prev">
+<link href="../articles/eda_tools_development_status.html" rel="next">
+<link href="../articles/narwhals_in_py4stats.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
@@ -106,35 +106,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
 
 <link rel="stylesheet" href="../theme.scss">
 </head>
@@ -148,7 +119,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../man/diagnose.html"><strong>EDA</strong></a></li><li class="breadcrumb-item"><a href="../man/compare_group_stats.html"><span class="chapter-title">compare_group_means, _median, plot_mean_diff, _median_diff</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../articles/project_guide.html"><strong>Contributing Notes</strong></a></li><li class="breadcrumb-item"><a href="../articles/project_guide.html"><span class="chapter-title">Project Guide</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -262,7 +233,7 @@ window.Quarto = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/compare_group_stats.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">compare_group_means, _median, plot_mean_diff, _median_diff</span></a>
+  <a href="../man/compare_group_stats.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">compare_group_means, _median, plot_mean_diff, _median_diff</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -447,7 +418,7 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../articles/project_guide.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Project Guide</span></a>
+  <a href="../articles/project_guide.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Project Guide</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -472,19 +443,24 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#概要" id="toc-概要" class="nav-link active" data-scroll-target="#概要">概要</a></li>
-  <li><a href="#引数-argument" id="toc-引数-argument" class="nav-link" data-scroll-target="#引数-argument">引数 Argument</a></li>
-  <li><a href="#返り値-value" id="toc-返り値-value" class="nav-link" data-scroll-target="#返り値-value">返り値 Value</a></li>
-  <li><a href="#使用例-examples" id="toc-使用例-examples" class="nav-link" data-scroll-target="#使用例-examples">使用例 Examples</a></li>
+  <li><a href="#py4stats-ライブラリのモジュール構成" id="toc-py4stats-ライブラリのモジュール構成" class="nav-link active" data-scroll-target="#py4stats-ライブラリのモジュール構成">Py4Stats ライブラリのモジュール構成</a></li>
+  <li><a href="#py4stats-ライブラリのインポート" id="toc-py4stats-ライブラリのインポート" class="nav-link" data-scroll-target="#py4stats-ライブラリのインポート">Py4Stats ライブラリのインポート</a></li>
+  <li><a href="#リポジトリのディレクトリ構成" id="toc-リポジトリのディレクトリ構成" class="nav-link" data-scroll-target="#リポジトリのディレクトリ構成">リポジトリのディレクトリ構成</a></li>
+  <li><a href="#リポジトリの運用方針" id="toc-リポジトリの運用方針" class="nav-link" data-scroll-target="#リポジトリの運用方針">リポジトリの運用方針</a></li>
+  <li><a href="#セマンティック-バージョニングについてのメモ" id="toc-セマンティック-バージョニングについてのメモ" class="nav-link" data-scroll-target="#セマンティック-バージョニングについてのメモ">セマンティック バージョニングについてのメモ</a></li>
+  <li><a href="#デザインパターン" id="toc-デザインパターン" class="nav-link" data-scroll-target="#デザインパターン">デザインパターン</a>
+  <ul class="collapse">
+  <li><a href="#引数のアサーション" id="toc-引数のアサーション" class="nav-link" data-scroll-target="#引数のアサーション">引数のアサーション</a></li>
+  </ul></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_group_stats.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/main/articles/project_guide.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../man/diagnose.html"><strong>EDA</strong></a></li><li class="breadcrumb-item"><a href="../man/compare_group_stats.html"><span class="chapter-title">compare_group_means, _median, plot_mean_diff, _median_diff</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../articles/project_guide.html"><strong>Contributing Notes</strong></a></li><li class="breadcrumb-item"><a href="../articles/project_guide.html"><span class="chapter-title">Project Guide</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-title">compare_group_means, _median, plot_mean_diff, _median_diff</span></h1>
+<h1 class="title"><span class="chapter-title">Project Guide</span></h1>
 </div>
 
 
@@ -501,140 +477,110 @@ window.Quarto = {
 </header>
 
 
-<p>統計量に基づく2グループの比較と差分の可視化</p>
-<section id="概要" class="level2">
-<h2 class="anchored" data-anchor-id="概要">概要</h2>
-<p>これら関数は、入力された2つのデータフレームについて、各数値変数の統計量に基づいた比較を提供します。</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>compare_group_means(</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    group1: IntoFrameT,</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    group2: IntoFrameT,</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    group_names: Sequence[<span class="bu">str</span>] <span class="op">=</span> (<span class="st">'group1'</span>, <span class="st">'group2'</span>),</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    columns: Literal[<span class="st">'common'</span>, <span class="st">'all'</span>] <span class="op">=</span> <span class="st">'all'</span>,</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    to_native: <span class="bu">bool</span> <span class="op">=</span> <span class="va">True</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>compare_group_median(</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    group1: IntoFrameT,</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    group2: IntoFrameT,</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    group_names: Sequence[<span class="bu">str</span>] <span class="op">=</span> (<span class="st">'group1'</span>, <span class="st">'group2'</span>),</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    columns: Literal[<span class="st">'common'</span>, <span class="st">'all'</span>] <span class="op">=</span> <span class="st">'all'</span>,</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    to_native: <span class="bu">bool</span> <span class="op">=</span> <span class="va">True</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>plot_mean_diff(</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    group1: IntoFrameT,</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    group2: IntoFrameT,</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    stats_diff: Literal[<span class="st">"norm_diff"</span>, <span class="st">"abs_diff"</span>, <span class="st">"rel_diff"</span>] <span class="op">=</span> <span class="st">"norm_diff"</span>,</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    ax: Optional[Axes] <span class="op">=</span> <span class="va">None</span>,</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>plot_median_diff(</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    group1: IntoFrameT,</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    group2: IntoFrameT,</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    stats_diff: Literal[<span class="st">"abs_diff"</span>, <span class="st">"rel_diff"</span>] <span class="op">=</span> <span class="st">"rel_diff"</span>,</span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    ax: Optional[Axes] <span class="op">=</span> <span class="va">None</span>,</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="py4stats-ライブラリのモジュール構成" class="level2">
+<h2 class="anchored" data-anchor-id="py4stats-ライブラリのモジュール構成">Py4Stats ライブラリのモジュール構成</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>py4stats</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>├ メインモジュール               <span class="co"># Import py4stats で直接読み込み</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>│ ├ eda_tools                   <span class="co"># 探索的データ解析と前処理</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>│ │ ├ _.nw                         <span class="co"># narwhals ベースの現行実装</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>│ │ └ _.pandas                     <span class="co"># Pandas ベースの旧実装（廃止予定）</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>│ └ regression_tools            <span class="co"># 回帰分析の可視化と表作成</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>└ サブモジュール                 <span class="co"># Import py4stats では読み込まれない</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>　 ├ heckit_helper               <span class="co">#regression_tools の追加メソッド</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>　 └ building_block              <span class="co"># 内部実装用のアサーション関数とユーティリティ関数を提供</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
-<section id="引数-argument" class="level2">
-<h2 class="anchored" data-anchor-id="引数-argument">引数 Argument</h2>
-<ul>
-<li><code>group1</code>（必須）<strong>a pandas.DataFrame</strong> <br> 　数値変数を含む pandas.DataFrame で <code>group2</code> との比較対象となるもの</li>
-<li><code>group2</code>（必須）<strong>a pandas.DataFrame</strong> <br> 　数値変数を含む pandas.DataFrame で <code>group1</code> との比較対象となるもの</li>
-<li><code>group_names</code> <strong>list of str</strong> <br> 　表頭に表示するグループの名前。<code>['group1', 'group2']</code> のように、2つの要素をもつ文字列のリストとして指定してください。</li>
-<li><code>columns</code> <strong>str</strong> <br> 2つのグループの結果を結合する際に含める変数を指定します。
-<ul>
-<li><code>"common"</code>: 両方のグループに存在する変数のみが含まれます。</li>
-<li><code>"all"</code>: いずれかのグループに存在する全ての変数が含まれます。この場合、一方のグループにのみ存在する変数についての差分統計量は、欠損値（例：<code>NaN</code> または <code>None</code>）となります。</li>
-</ul></li>
-<li><code>to_native</code>（<strong>bool</strong>, optional）<br> <code>True</code> の場合、入力と同じ型のデータフレーム（e.g.&nbsp;pandas / polars / pyarrow）を返します。<br> <code>False</code> の場合、<code>narwhals.DataFrame</code> を返します。デフォルトは <code>True</code> で、<code>to_native = False</code> は、主にライブラリ内部での利用や、<code>backend</code> に依存しない後続処理を行う場合を想定したオプションです。</li>
-<li><code>stats_diff</code>: <strong>str</strong> （<code>plot_mean_diff()</code> および <code>plot_median_diff()</code> のみ）<br> 　グラフの描画に使用する差分統計量。<code>'norm_diff'</code>（<code>plot_mean_diff()</code> のみ）、<code>'abs_diff'</code>, <code>'rel_diff'</code> のいずれかから選ぶことができます。</li>
-</ul>
-</section>
-<section id="返り値-value" class="level2">
-<h2 class="anchored" data-anchor-id="返り値-value">返り値 Value</h2>
-<p>　<code>compare_group_means()</code>関数および, <code>compare_group_median()</code> 関数では、次の値をもつ <code>pandas.DataFrame</code> が出力されます。</p>
-<ul>
-<li><code>group1, group2</code>（初期設定の場合）<br> 　各グループにおける記述統計統計量の値</li>
-<li><code>norm_diff</code>（<code>compare_group_means()</code> のみ）<br> 　標準化された平均値の差で、2つのグループの平均値を <span class="math inline">\(\bar{X}_1\)</span>, <span class="math inline">\(\bar{X}_2\)</span>、分散を <span class="math inline">\(s^2_1, s^2_2\)</span> とし、サンプルサイズを <span class="math inline">\(n_1, n_2\)</span> とするとき、次式のように定義されます。</li>
-</ul>
-<p><span class="math display">\[
-\delta = \frac{\bar{X}_1  - \bar{X}_2}{s},~~~~~ s^2 = \frac{(n_1-1)s_1^2 + (n_2-1)s_2^2}{n_1 + n_2 - 2}
-\]</span></p>
-<ul>
-<li><code>abs_diff</code><br> 2つのグループの記述統計量の絶対差</li>
-<li><code>rel_diff</code><br> 2つのグループの記述統計量の相対差。2つのグループの記述統計量を <span class="math inline">\(\bar{X}_1\)</span>, <span class="math inline">\(\bar{X}_2\)</span> とするとき、次式のように定義されます。</li>
-</ul>
-<p><span class="math display">\[
-\delta = \cfrac{\bar{X}_1  - \bar{X}_2}{\cfrac{\bar{X}_1  + \bar{X}_2}{2}}
-= 2 \cdot \frac{\bar{X}_1  - \bar{X}_2}{\bar{X}_1  + \bar{X}_2}
-\]</span></p>
-<p><code>plot_mean_diff()</code> 関数および, <code>plot_median_diff()</code> 関数では、グループ別の記述統計両の差をグラフとして可視化します。詳細は使用例を参照して下さい。</p>
-</section>
-<section id="使用例-examples" class="level2">
-<h2 class="anchored" data-anchor-id="使用例-examples">使用例 Examples</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<section id="py4stats-ライブラリのインポート" class="level2">
+<h2 class="anchored" data-anchor-id="py4stats-ライブラリのインポート">Py4Stats ライブラリのインポート</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ライブラリの読み込み（推奨）</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> py4stats <span class="im">as</span> py4st</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> palmerpenguins <span class="im">import</span> load_penguins</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>penguins <span class="op">=</span> load_penguins().drop(<span class="st">'year'</span>, axis <span class="op">=</span> <span class="dv">1</span>) <span class="co"># サンプルデータの読み込み</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>res1 <span class="op">=</span> py4st.compare_group_means(</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    penguins.query(<span class="st">'species == "Gentoo"'</span>),</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    penguins.query(<span class="st">'species == "Adelie"'</span>)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(res1.<span class="bu">round</span>(<span class="dv">3</span>))</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             variable    group1    group2  norm_diff  abs_diff  rel_diff</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 0      bill_depth_mm    14.982    18.346     -3.012     3.364    -0.202</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1     bill_length_mm    47.505    38.791      3.048     8.713     0.202</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2        body_mass_g  5076.016  3700.662      2.868  1375.354     0.313</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3  flipper_length_mm   217.187   189.954      4.180    27.233     0.134</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>res2 <span class="op">=</span> py4st.compare_group_median(</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    penguins.query(<span class="st">'species == "Gentoo"'</span>),</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    penguins.query(<span class="st">'species == "Adelie"'</span>),</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    group_names <span class="op">=</span> [<span class="st">'Gentoo'</span>, <span class="st">'Adelie'</span>]</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(res2.<span class="bu">round</span>(<span class="dv">3</span>))</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             variable    Gentoo    Adelie  abs_diff  rel_diff</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 0      bill_depth_mm    14.982    18.346     3.364    -0.202</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1     bill_length_mm    47.505    38.791     8.713     0.202</span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2        body_mass_g  5076.016  3700.662  1375.354     0.313</span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3  flipper_length_mm   217.187   189.954    27.233     0.134</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>py4st.plot_mean_diff(</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    penguins.query(<span class="st">'species == "Gentoo"'</span>),</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    penguins.query(<span class="st">'species == "Adelie"'</span>),</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    stats_diff <span class="op">=</span> <span class="st">'norm_diff'</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># サブモジュールの読み込み</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> py4stats <span class="im">import</span> heckit_helper</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> py4stats <span class="im">import</span> building_block <span class="im">as</span> build </span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># eda_tools のバックエンド別実装の明示的な読み込み</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> py4stats.eda_tools <span class="im">import</span> _nw <span class="im">as</span> eda_nw</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> py4stats.eda_tools <span class="im">import</span> _pandas <span class="im">as</span> eda_pd</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="リポジトリのディレクトリ構成" class="level2">
+<h2 class="anchored" data-anchor-id="リポジトリのディレクトリ構成">リポジトリのディレクトリ構成</h2>
+<p>2026年1月24日 現在</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>Py4Stats </span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>├── README.md                           <span class="co"># GitHub リポジトリのトップページ用ファイル</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>├── index.qmd                           <span class="co"># APIドキュメント(Quarto Book)のトップページ</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>├── _quarto.yml                         <span class="co"># Quarto Book の設定ファイル</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>├── introduction.qmd</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>├── articles                            <span class="co"># APIドキュメント以外の公開記事</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>├── man                                 <span class="co"># APIドキュメントのうち、関数のドキュメント</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>│   ├── diagnose.qmd</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>│   ├── compare_ols.qmd</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>│   ...</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>│   └── image                           <span class="co"># ドキュメントに使用する画像</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>├── py4stats</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>│   ├── <span class="fu">__init__</span>.py                     <span class="co"># Py4Stats の Import 時に読み込まれる関数を定義</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>│   ├── building_block.py               <span class="co"># 引数のアサーションなどユーティリティモジュール</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>│   ├── eda_tools                       <span class="co"># 探索的データ解析</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>│   │   ├── <span class="fu">__init__</span>.py</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>│   │   ├── _nw.py                      <span class="co"># バックエンドに narwhals を使用した実装</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>│   │   └── _pandas.py                  <span class="co"># バックエンドに pandas を使用した旧仕様</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>│   ├── heckit_helper.py</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>│   └── regression_tools.py             <span class="co"># 回帰分析の可視化と作表</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>├── pyproject.toml</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>├── reference.md                        <span class="co"># man/ の関数ドキュメントへのリンク集</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>├── setup.ipynb</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>├── setup.py</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>└── tests                              <span class="co"># APIのテストコード</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    ├── fixtures                       <span class="co"># 自動テストで参照するデータ</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    ├── test_building_block.py</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    ├── test_eda_tools_nw.py</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    ├── test_eda_tools_pandas.py</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    ├── test_heckit_helper.py</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    └── test_regression_tools.py</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>注意</strong>：<code>eda_tools._pandas.py</code> は 非推奨扱いで将来的に廃止する予定です。詳細は以下を参照してください。</p>
+<ul>
+<li><a href="../articles/narwhals_in_py4stats.html">Technical Notes</a></li>
+<li><a href="../articles/eda_tools_development_status.html">eda_tools開発状況</a></li>
+</ul>
+</section>
+<section id="リポジトリの運用方針" class="level2">
+<h2 class="anchored" data-anchor-id="リポジトリの運用方針">リポジトリの運用方針</h2>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="image/plot_mean_diff1.png" class="img-fluid figure-img"></p>
-<figcaption>plot_mean_diff1</figcaption>
+<p><img src="./image/Py4Statsリポジトリの運用方針.png" class="img-fluid figure-img"></p>
+<figcaption>Py4Statsリポジトリの運用方針</figcaption>
 </figure>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>py4st.plot_mean_diff(</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    penguins.query(<span class="st">'species == "Gentoo"'</span>),</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    penguins.query(<span class="st">'species == "Adelie"'</span>),</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    stats_diff <span class="op">=</span> <span class="st">'abs_diff'</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="image/plot_mean_diff2.png" class="img-fluid figure-img"></p>
-<figcaption>plot_mean_diff2</figcaption>
-</figure>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>py4st.plot_median_diff(</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    penguins.query(<span class="st">'species == "Gentoo"'</span>),</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    penguins.query(<span class="st">'species == "Adelie"'</span>),</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    stats_diff <span class="op">=</span> <span class="st">'rel_diff'</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="image/plot_median_diff1.png" class="img-fluid figure-img"></p>
-<figcaption>plot_median_diff1</figcaption>
-</figure>
-</div>
-<hr>
-<p><a href="../reference.html">Return to <strong>Function reference</strong>.</a></p>
+</section>
+<section id="セマンティック-バージョニングについてのメモ" class="level2">
+<h2 class="anchored" data-anchor-id="セマンティック-バージョニングについてのメモ">セマンティック バージョニングについてのメモ</h2>
+<p>Py4Stats ライブラリのバージョンは次の方式のセマンティック バージョニングで管理します(e.g.&nbsp;<code>v 0.1.0</code>)。</p>
+<pre><code>v MAJOR.MINOR.PATCH</code></pre>
+<p><code>v MAJOR.MINOR.PATCH</code> の各要素は、次の規則で更新します。</p>
+<ol type="1">
+<li><code>MAJOR</code> APIの変更に互換性のない場合はメジャーバージョンを上げる</li>
+<li><code>MINOR</code> 後方互換性があり機能性を追加した場合はマイナーバージョンを上げる</li>
+<li><code>PATCH</code> 後方互換性を伴うバグ修正をした場合はパッチバージョンを上げる</li>
+</ol>
+</section>
+<section id="デザインパターン" class="level2">
+<h2 class="anchored" data-anchor-id="デザインパターン">デザインパターン</h2>
+<section id="引数のアサーション" class="level3">
+<h3 class="anchored" data-anchor-id="引数のアサーション">引数のアサーション</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> py4stats <span class="im">import</span> building_block <span class="im">as</span> build </span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 文字列引数のアサーション（選択肢を制限）</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>arg <span class="op">=</span> build.arg_match(</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    arg, values <span class="op">=</span> [<span class="st">'option_1'</span>, <span class="st">'option_2'</span>], </span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    arg_name <span class="op">=</span> <span class="st">'arg'</span>, </span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>build.assert_logical(arg, arg_name <span class="op">=</span> <span class="st">'arg'</span>)   <span class="co"># ブール値</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>build.assert_character(arg, arg_name <span class="op">=</span> <span class="st">'arg'</span>) <span class="co"># 文字列</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>build.assert_numeric(arg, arg_name <span class="op">=</span> <span class="st">'arg'</span>)   <span class="co"># 数値(int or float)</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>build.assert_integer(arg, arg_name <span class="op">=</span> <span class="st">'arg'</span>)   <span class="co"># 整数値(int)</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>build.assert_count(arg, arg_name <span class="op">=</span> <span class="st">'arg'</span>)     <span class="co"># 非負整数値(int)</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>build.assert_float(arg, arg_name <span class="op">=</span> <span class="st">'arg'</span>)     <span class="co"># フロート値(float)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
@@ -1040,13 +986,13 @@ window.Quarto = {
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../man/compare_df_cols.html" class="pagination-link" aria-label="compare_df_cols, compare_df_stats">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">compare_df_cols, compare_df_stats</span></span>
+      <a href="../articles/narwhals_in_py4stats.html" class="pagination-link" aria-label="Technical Notes: py4stats.eda_tools における narwhals ベースの実装">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Technical Notes: py4stats.eda_tools における narwhals ベースの実装</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../man/plot_miss_var.html" class="pagination-link" aria-label="plot_miss_var">
-        <span class="nav-page-text"><span class="chapter-title">plot_miss_var</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../articles/eda_tools_development_status.html" class="pagination-link" aria-label="eda_toolsの開発状況">
+        <span class="nav-page-text"><span class="chapter-title">eda_toolsの開発状況</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -1055,4 +1001,4 @@ window.Quarto = {
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_group_stats.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/main/articles/project_guide.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></div></div></footer></body></html>
