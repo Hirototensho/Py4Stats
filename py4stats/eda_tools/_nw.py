@@ -1835,6 +1835,9 @@ def tabyl(
     return result
 
 
+# ## カテゴリー変数の要約
+# ### is_dummy
+
 # In[ ]:
 
 
@@ -1842,10 +1845,11 @@ def tabyl(
 @pf.register_series_method
 @singledispatch
 def is_dummy(
-    data: Union[IntoFrameT, IntoSeriesT],
+    data: Union[list, IntoFrameT, IntoSeriesT],
     cording: Sequence[Any] = (0, 1),
     dropna: bool = True,
     to_pd_series: bool = False,
+    to_native: bool = True,
     **kwargs
 ) -> Union[bool, IntoSeriesT, IntoFrameT]:
     """
@@ -1860,20 +1864,24 @@ def is_dummy(
 
     Args:
         data:
-            Input data to check. Can be a Series-like or DataFrame-like object
-            supported by narwhals (e.g., ``pandas.Series``,
+            Input data to check. Can be a list or Series-like or DataFrame-like 
+            object supported by narwhals (e.g., ``pandas.Series``,
             ``pandas.DataFrame``, ``polars.Series``, ``polars.DataFrame``,
             ``pyarrow.Table``).
         cording:
             Sequence of allowed dummy codes. The input is considered valid if
             its unique values exactly match this set.
             Defaults to ``(0, 1)``.
-        dropna (bool):
+        dropna (bool, optional):
             Whether to drop NaN from data before value check.
-        to_pd_series:
+        to_pd_series (bool, optional)::
             Controls the return type when ``data`` is DataFrame-like.
             If True, returns a ``pandas.Series`` indexed by column names.
             If False, returns a Python list of boolean values.
+        to_native (bool, optional):
+            Controls the return type when ``data`` is DataFrame-like.
+            If True, returns the result as a native Series of the input
+            backend. If False, returns a ``narwhals.Series``. Defaults to `True`.
         **kwargs:
             Additional keyword arguments (reserved for future extensions).
 
@@ -1894,68 +1902,78 @@ def is_dummy(
         - Missing values are not explicitly handled and will affect the
           result according to the underlying data representation.
     """
-    build.assert_logical(to_pd_series, arg_name = 'to_pd_series')
-    build.assert_logical(dropna, arg_name = 'dropna')
+    raise NotImplementedError(f'is_dummy mtethod for object {type(data)} is not implemented.')
 
-    data_nw = nw.from_native(data, allow_series = True)
-    return is_dummy(data_nw, cording, dropna, to_pd_series)
 
 
 # In[ ]:
 
 
 @is_dummy.register(nw.Series)
+@is_dummy.register(nw.typing.IntoSeries)
 def is_dummy_series(
     data: IntoSeriesT,
     cording: Sequence[Any] = (0, 1),
     dropna: bool = True,
-    to_pd_series: bool = False,
     **kwargs
 ) -> bool:
-    if dropna: data = data.drop_nulls()
-    return set(data) == set(cording)
+    build.assert_logical(dropna, arg_name = 'dropna')
 
+    data_nw = nw.from_native(data, series_only = True)
+    if dropna: data_nw = data_nw.drop_nulls()
 
-# In[ ]:
+    return set(data_nw) == set(cording)
 
-
-@is_dummy.register(list)
-def is_dummy_list(
-    data: list,
+@is_dummy.register(nw.DataFrame)
+@is_dummy.register(nw.typing.IntoDataFrame)
+def is_dummy_data_frame(
+    data: IntoFrameT,
     cording: Sequence[Any] = (0, 1),
     dropna: bool = True,
     to_pd_series: bool = False,
+    to_native: bool = True,
     **kwargs
-) -> bool:
-    return set(data) == set(cording)
-
-
-# In[ ]:
-
-
-@is_dummy.register(nw.DataFrame)
-def is_dummy_data_frame(
-        data: IntoFrameT, 
-        cording: Sequence[Any] = (0, 1),
-        dropna: bool = True,
-        to_pd_series: bool = False,
-        **kwargs
-        ) -> Union[IntoFrameT, pd.Series]:
+) -> IntoSeriesT:
+    build.assert_logical(dropna, arg_name = 'dropna')
+    build.assert_logical(to_pd_series, arg_name = 'to_pd_series')
+    build.assert_logical(to_native, arg_name = 'to_native')
 
     data_nw = nw.from_native(data)
 
-    result = data_nw.select(
+    result_df = data_nw.select(
         nw.all().map_batches(
-            lambda x: is_dummy_series(x, cording), 
+            lambda x: is_dummy_series(x, cording, dropna = dropna), 
             return_dtype = nw.Boolean,
             returns_scalar = True
             )
     )
+    if to_pd_series: return result_df.to_pandas().loc[0, :]
 
-    if to_pd_series: 
-        return result.to_pandas().loc[0, :]
-    return list(result.row(0))
+    result = nw.Series.from_iterable(
+        name = 'is_dummy',
+        values = result_df.row(0),
+        backend = data_nw.implementation
+    )
+    if to_native: return result.to_native()
+    return result
 
+@is_dummy.register(list)
+@is_dummy.register(tuple)
+def is_dummy_list(
+    data: list,
+    cording: Sequence[Any] = (0, 1),
+    dropna: bool = True,
+    **kwargs
+) -> bool:
+    build.assert_logical(dropna, arg_name = 'dropna')
+
+    if dropna:
+        data = [v for v in data if not build.is_missing(v).all()]
+
+    return set(data) == set(cording)
+
+
+# ### entropy
 
 # In[ ]:
 
@@ -2519,11 +2537,11 @@ def filtering_out(
             Input DataFrame. Any DataFrame-like object supported by narwhals
             (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
         *args (Union[str, List[str], narwhals.Expr, narwhals.Selector]):
-            Columns to relocate. Each element may be:
+            Columns or index to exclude. Each element may be:
             - a column name (`str`)
-            - a list of column names
-            - a narwhals expression
-            - a narwhals selector
+            - a list of column names or index
+            - a narwhals expression (for `axis = 'columns'`)
+            - a narwhals selector   (for `axis = 'columns'`)
             The order of columns specified here is preserved in the output.
         contains (str or None):
             Exclude labels that contain this substring.
@@ -2631,7 +2649,7 @@ def filtering_out(
         return data_nw
 
 
-# # パレート図を作図する関数
+# ## パレート図を作図する関数
 
 # In[ ]:
 
@@ -2826,7 +2844,7 @@ def make_Pareto_plot(
     ax2.yaxis.set_tick_params(labelsize = fontsize * 0.9);
 
 
-# ### 代表値 + 区間推定関数
+# ## 代表値 + 区間推定関数
 # 
 # ```python
 # import pandas as pd
@@ -2869,6 +2887,8 @@ interpolation_values = [
     ]
 
 
+# ### mean_qi 
+
 # In[ ]:
 
 
@@ -2906,6 +2926,20 @@ def mean_qi(
         AssertionError:
             If `width` is not in (0, 1).
     """
+    raise NotImplementedError(f'mean_qi mtethod for object {type(data)} is not implemented.')
+
+
+# In[ ]:
+
+
+@mean_qi.register(nw.DataFrame)
+@mean_qi.register(nw.typing.IntoDataFrame)
+def mean_qi_data_frame(
+    data: IntoFrameT,
+    width: float = 0.975,
+    interpolation: Interpolation = 'midpoint',
+    to_native: bool = True
+    ) -> pd.DataFrame:
     # 引数のアサーション =======================================================
     build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
     build.assert_logical(to_native, arg_name = 'to_native')
@@ -2914,46 +2948,43 @@ def mean_qi(
         values = interpolation_values
         )
     # =======================================================================
-
-    data_nw = nw.from_native(data, allow_series = True)
-    return mean_qi(
-        data_nw, interpolation = interpolation, 
-        width = width, to_native = to_native
-        )
-
-@mean_qi.register(nw.DataFrame)
-def mean_qi_data_frame(
-    data: IntoFrameT,
-    width: float = 0.975,
-    interpolation: Interpolation = 'midpoint',
-    to_native: bool = True
-    ) -> pd.DataFrame:
-
     df_numeric = nw.from_native(data).select(ncs.numeric())
 
     result = nw.from_dict({
         'variable': df_numeric.columns,
-        'mean': df_numeric.select(ncs.numeric().mean()).row(0),
+        'mean': df_numeric.select(nw.all().mean()).row(0),
         'lower': df_numeric.select(
-            ncs.numeric().quantile(1 - width, interpolation = interpolation)
+            nw.all().quantile(1 - width, interpolation = interpolation)
             ).row(0),
         'upper': df_numeric.select(
-            ncs.numeric().quantile(width, interpolation = interpolation)
+            nw.all().quantile(width, interpolation = interpolation)
             ).row(0)
         }, backend = df_numeric.implementation
         )
     if to_native: return result.to_native()
     return result
 
+
+# In[ ]:
+
+
 @mean_qi.register(nw.Series)
+@mean_qi.register(nw.typing.IntoSeries)
 def mean_qi_series(
     data: SeriesT,
     width: float = 0.975,
     interpolation: Interpolation = 'midpoint',
     to_native: bool = True
     ):
-
-    data_nw = nw.from_native(data, allow_series=True)
+    # 引数のアサーション =======================================================
+    build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
+    build.assert_logical(to_native, arg_name = 'to_native')
+    interpolation = build.arg_match(
+        interpolation, arg_name = 'interpolation',
+        values = interpolation_values
+        )
+    # =======================================================================
+    data_nw = nw.from_native(data, series_only = True)
 
     result = nw.from_dict({
         'variable': [data_nw.name],
@@ -2965,6 +2996,8 @@ def mean_qi_series(
     if to_native: return result.to_native()
     return result
 
+
+# ### median_qi
 
 # In[ ]:
 
@@ -3003,6 +3036,20 @@ def median_qi(
         AssertionError:
             If `width` is not in (0, 1).
     """
+    raise NotImplementedError(f'median_qi mtethod for object {type(data)} is not implemented.')
+
+
+# In[ ]:
+
+
+@median_qi.register(nw.DataFrame)
+@median_qi.register(nw.typing.IntoDataFrame)
+def median_qi_data_frame(
+    data: IntoFrameT,
+    width: float = 0.975,
+    interpolation: Interpolation = 'midpoint',
+    to_native: bool = True
+) -> IntoFrameT:
     # 引数のアサーション =======================================================
     build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
     build.assert_logical(to_native, arg_name = 'to_native')
@@ -3012,43 +3059,40 @@ def median_qi(
         )
     # =======================================================================
 
-    data_nw = nw.from_native(data, allow_series = True)
-    return median_qi(
-        data_nw, interpolation = interpolation, 
-        width = width, to_native = to_native
-        )
-
-@median_qi.register(nw.DataFrame)
-def median_qi_data_frame(
-    data: IntoFrameT,
-    width: float = 0.975,
-    interpolation: Interpolation = 'midpoint',
-    to_native: bool = True
-) -> IntoFrameT:
-
     df_numeric = nw.from_native(data).select(ncs.numeric())
 
     result = nw.from_dict({
         'variable': df_numeric.columns,
-        'median': df_numeric.select(ncs.numeric().median()).row(0),
+        'median': df_numeric.select(nw.all().median()).row(0),
         'lower': df_numeric.select(
-            ncs.numeric().quantile(1 - width, interpolation = interpolation)
+            nw.all().quantile(1 - width, interpolation = interpolation)
             ).row(0),
         'upper': df_numeric.select(
-            ncs.numeric().quantile(width, interpolation = interpolation)
+            nw.all().quantile(width, interpolation = interpolation)
             ).row(0)
         }, backend = df_numeric.implementation
         )
     if to_native: return result.to_native()
     return result
 
+
 @median_qi.register(nw.Series)
+@median_qi.register(nw.typing.IntoSeries)
 def median_qi_series(
     data: IntoSeriesT,
     width: float = 0.975,
     interpolation: Interpolation = 'midpoint',
     to_native: bool = True
 ) -> IntoFrameT:
+    # 引数のアサーション =======================================================
+    build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
+    build.assert_logical(to_native, arg_name = 'to_native')
+    interpolation = build.arg_match(
+        interpolation, arg_name = 'interpolation',
+        values = interpolation_values
+        )
+    # =======================================================================
+
     data_nw = nw.from_native(data, allow_series=True)
 
     result = nw.from_dict({
@@ -3061,6 +3105,104 @@ def median_qi_series(
     if to_native: return result.to_native()
     return result
 
+
+# In[ ]:
+
+
+# @pf.register_dataframe_method
+# @pf.register_series_method
+# @singledispatch
+# def median_qi(
+#     data: Union[IntoFrameT, IntoSeriesT],
+#     width: float = 0.975,
+#     interpolation: Interpolation = 'midpoint',
+#     to_native: bool = True
+# ) -> IntoFrameT:
+#     """Compute median and quantile interval (QI).
+
+#     Args:
+#         data (IntoFrameT, IntoSeriesT):
+#             Input data. Any DataFrame-like or Series-like object supported by narwhals
+#             (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
+#         width (float):
+#             Upper quantile to use (must be in (0, 1)).
+#             Lower quantile is computed as `1 - width`.
+#         to_native (bool, optional):
+#             If True, convert the result to the native DataFrame type of the
+#             selected backend. If False, return a narwhals DataFrame.
+#             Defaults to True.
+
+#     Returns:
+#         IntoFrameT:
+#             Table indexed by variable names with columns:
+#             - median: median value
+#             - lower: quantile at `1 - width`
+#             - upper: quantile at `width`
+
+#     Raises:
+#         AssertionError:
+#             If `width` is not in (0, 1).
+#     """
+#     # 引数のアサーション =======================================================
+#     build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
+#     build.assert_logical(to_native, arg_name = 'to_native')
+#     interpolation = build.arg_match(
+#         interpolation, arg_name = 'interpolation',
+#         values = interpolation_values
+#         )
+#     # =======================================================================
+
+#     data_nw = nw.from_native(data, allow_series = True)
+#     return median_qi(
+#         data_nw, interpolation = interpolation, 
+#         width = width, to_native = to_native
+#         )
+
+# @median_qi.register(nw.DataFrame)
+# def median_qi_data_frame(
+#     data: IntoFrameT,
+#     width: float = 0.975,
+#     interpolation: Interpolation = 'midpoint',
+#     to_native: bool = True
+# ) -> IntoFrameT:
+
+#     df_numeric = nw.from_native(data).select(ncs.numeric())
+
+#     result = nw.from_dict({
+#         'variable': df_numeric.columns,
+#         'median': df_numeric.select(ncs.numeric().median()).row(0),
+#         'lower': df_numeric.select(
+#             ncs.numeric().quantile(1 - width, interpolation = interpolation)
+#             ).row(0),
+#         'upper': df_numeric.select(
+#             ncs.numeric().quantile(width, interpolation = interpolation)
+#             ).row(0)
+#         }, backend = df_numeric.implementation
+#         )
+#     if to_native: return result.to_native()
+#     return result
+
+# @median_qi.register(nw.Series)
+# def median_qi_series(
+#     data: IntoSeriesT,
+#     width: float = 0.975,
+#     interpolation: Interpolation = 'midpoint',
+#     to_native: bool = True
+# ) -> IntoFrameT:
+#     data_nw = nw.from_native(data, allow_series=True)
+
+#     result = nw.from_dict({
+#         'variable': [data_nw.name],
+#         'median': [data_nw.median()],
+#         'lower': [data_nw.quantile(1 - width, interpolation = interpolation)],
+#         'upper': [data_nw.quantile(width, interpolation = interpolation)]
+#     }, backend = data_nw.implementation
+#     )
+#     if to_native: return result.to_native()
+#     return result
+
+
+# ### mean_ci
 
 # In[ ]:
 
@@ -3102,23 +3244,23 @@ def mean_ci(
         Uses t critical value with df = n - 1:
         `t.isf((1 - width) / 2, df=n-1)`.
     """
-    # 引数のアサーション =======================================================
-    build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
-    build.assert_logical(to_native, arg_name = 'to_native')
-    # =======================================================================
+    raise NotImplementedError(f'mean_ci mtethod for object {type(data)} is not implemented.')
 
-    data_nw = nw.from_native(data, allow_series = True)
 
-    return mean_ci(
-        data_nw, width = width, to_native = to_native
-    )
+# In[ ]:
+
 
 @mean_ci.register(nw.DataFrame)
+@mean_ci.register(nw.typing.IntoDataFrame)
 def mean_ci_data_frame(
     data: IntoFrameT,
     width: float = 0.975,
     to_native: bool = True
 ) -> IntoFrameT:
+    # 引数のアサーション =======================================================
+    build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
+    build.assert_logical(to_native, arg_name = 'to_native')
+    # =======================================================================
     df_numeric = nw.from_native(data).select(ncs.numeric())
     n = len(df_numeric)
     t_alpha = t.isf((1 - width) / 2, df = n - 1)
@@ -3138,11 +3280,16 @@ def mean_ci_data_frame(
     return result
 
 @mean_ci.register(nw.Series)
+@mean_ci.register(nw.typing.IntoSeries)
 def mean_ci_series(
     data: SeriesT,
     width: float = 0.975,
     to_native: bool = True
 ) -> IntoFrameT:
+    # 引数のアサーション =======================================================
+    build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
+    build.assert_logical(to_native, arg_name = 'to_native')
+    # =======================================================================
     data_nw = nw.from_native(data, allow_series=True)
     n = len(data_nw)
     t_alpha = t.isf((1 - width) / 2, df = n - 1)
@@ -3158,6 +3305,104 @@ def mean_ci_series(
     )
     if to_native: return result.to_native()
     return result
+
+
+# In[ ]:
+
+
+# from scipy.stats import t
+# @pf.register_dataframe_method
+# @pf.register_series_method
+# @singledispatch
+# def mean_ci(
+#     data: Union[IntoFrameT, IntoSeriesT],
+#     width: float = 0.975,
+#     to_native: bool = True
+# ) -> IntoFrameT:
+#     """Compute mean and t-based confidence interval (CI).
+
+#     Args:
+#         data (IntoFrameT, IntoSeriesT):
+#             Input data. Any DataFrame-like or Series-like object supported by narwhals
+#             (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
+#         width (float):
+#             Confidence level in (0, 1) (e.g., 0.95).
+#         to_native (bool, optional):
+#             If True, convert the result to the native DataFrame type of the
+#             selected backend. If False, return a narwhals DataFrame.
+#             Defaults to True.
+
+#     Returns:
+#         IntoFrameT:
+#             Table indexed by variable names with columns:
+#             - mean: sample mean
+#             - lower: lower bound of CI
+#             - upper: upper bound of CI
+
+#     Raises:
+#         AssertionError:
+#             If `width` is not in (0, 1).
+
+#     Notes:
+#         Uses t critical value with df = n - 1:
+#         `t.isf((1 - width) / 2, df=n-1)`.
+#     """
+#     # 引数のアサーション =======================================================
+#     build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
+#     build.assert_logical(to_native, arg_name = 'to_native')
+#     # =======================================================================
+
+#     data_nw = nw.from_native(data, allow_series = True)
+
+#     return mean_ci(
+#         data_nw, width = width, to_native = to_native
+#     )
+
+# @mean_ci.register(nw.DataFrame)
+# def mean_ci_data_frame(
+#     data: IntoFrameT,
+#     width: float = 0.975,
+#     to_native: bool = True
+# ) -> IntoFrameT:
+#     df_numeric = nw.from_native(data).select(ncs.numeric())
+#     n = len(df_numeric)
+#     t_alpha = t.isf((1 - width) / 2, df = n - 1)
+#     x_mean = df_numeric.select(ncs.numeric().mean())\
+#         .to_numpy()[0, :]
+#     x_std = df_numeric.select(ncs.numeric().std())\
+#         .to_numpy()[0, :]
+
+#     result = nw.from_dict({
+#         'variable': df_numeric.columns,
+#         'mean':x_mean,
+#         'lower':x_mean - t_alpha * x_std / np.sqrt(n),
+#         'upper':x_mean + t_alpha * x_std / np.sqrt(n),
+#         }, backend = df_numeric.implementation
+#         )
+#     if to_native: return result.to_native()
+#     return result
+
+# @mean_ci.register(nw.Series)
+# def mean_ci_series(
+#     data: SeriesT,
+#     width: float = 0.975,
+#     to_native: bool = True
+# ) -> IntoFrameT:
+#     data_nw = nw.from_native(data, allow_series=True)
+#     n = len(data_nw)
+#     t_alpha = t.isf((1 - width) / 2, df = n - 1)
+#     x_mean = data_nw.mean()
+#     x_std = data_nw.std()
+
+#     result = nw.from_dict({
+#         'variable': [data_nw.name],
+#         'mean':[x_mean],
+#         'lower':[x_mean - t_alpha * x_std / np.sqrt(n)],
+#         'upper':[x_mean + t_alpha * x_std / np.sqrt(n)],
+#     }, backend = data_nw.implementation
+#     )
+#     if to_native: return result.to_native()
+#     return result
 
 
 # ## 正規表現と文字列関連の論理関数
@@ -3922,23 +4167,7 @@ def relocate(
     """
     # 引数のアサーション ======================================
     build.assert_logical(to_native, arg_name = 'to_native')
-    _assert_selectors(*args, nullable = True)
-
-    # is_varid = [
-    #     isinstance(v, str) or
-    #     (build.is_character(v) and isinstance(v, list)) or
-    #     isinstance(v, nw.expr.Expr) or
-    #     isinstance(v, nw.selectors.Selector)
-    #     for v in args
-    #     ]
-
-    # if not all(is_varid):
-    #     invalids = [v for i, v in enumerate(args) if not is_varid[i]]
-    #     message = "Argument `*args` must be of type 'str', list of 'str', 'narwhals.Expr' or 'narwhals.Selector'\n"\
-    #     + f"            The value(s) of {build.oxford_comma_and(invalids)} cannot be accepted.\n"\
-    #     + "            Examples of valid inputs: 'x', ['x', 'y'], ncs.numeric(), nw.col('x')"
-
-    #     raise ValueError(message)
+    _assert_selectors(*args)
 
     build.assert_character(before, arg_name = 'before', nullable = True, scalar_only = True)
     build.assert_character(after, arg_name = 'after', nullable = True, scalar_only = True)

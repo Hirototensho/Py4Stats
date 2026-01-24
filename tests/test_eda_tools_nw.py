@@ -484,7 +484,7 @@ def test_is_dummy_series(backend) -> None:
 
 @pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
 def test_is_dummy_nw_dataframe(backend) -> None:
-    result = eda_nw.is_dummy(mroz_dict.get(backend))
+    result = eda_nw.is_dummy(mroz_dict.get(backend), to_native = False)
 
     expected = [
         True, False, False, False, False, False, False, False, False, 
@@ -492,7 +492,12 @@ def test_is_dummy_nw_dataframe(backend) -> None:
         False, False, False, False
     ]
     
-    assert result == expected 
+    assert list(result) == expected 
+
+def test_is_dummy_list():
+    assert eda_nw.is_dummy([0, 1, 1, 0])
+    assert not eda_nw.is_dummy([0, 1, 1, 2])
+    assert eda_nw.is_dummy([1, 2, 1, 2], cording = (1, 2))
 
 # =========================================================
 # diagnose_category
