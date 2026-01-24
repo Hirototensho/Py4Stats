@@ -8,12 +8,12 @@
 
 ``` python
 relocate(
-        data: IntoFrameT, 
-        *args: Union[str, List[str], narwhals.Expr, narwhals.selectors.Selector], 
-        before: Optional[str] = None,
-        after: Optional[str] = None,
-        place: Optional[Literal["first", "last"]] = None,
-        to_native: bool = True
+      data: IntoFrameT, 
+      *args: Union[str, List[str], narwhals.Expr, narwhals.selectors.Selector], 
+      before: Optional[str] = None,
+      after: Optional[str] = None,
+      place: Optional[Literal["first", "last"]] = None,
+      to_native: bool = True
     ):
 ```
 

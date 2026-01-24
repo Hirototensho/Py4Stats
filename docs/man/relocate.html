@@ -154,7 +154,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../introduction.html" class="sidebar-item-text sidebar-link"><span class="chapter-title"><code>Introduction to Py4Stats</code></span></a>
+  <a href="../introduction.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Introduction to Py4Stats</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -458,12 +458,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="概要">概要</h2>
 <p><code>relocate()</code> 関数は、データフレームに含まれる列を削除することなく並び替えるための関数です。指定した列（1 列または複数列）を、先頭・特定の列の前・特定の列の後に移動させることができます。本関数は、R の <a href="https://dplyr.tidyverse.org/reference/relocate.html"><code>dplyr:relocate()</code></a> に近い操作感を Python で提供することを目的としています。列の指定には、列名（文字列）だけでなく、<code>narwhals</code> の式（Expr）や <code>Selector</code> を利用でき、柔軟な列選択</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>relocate(</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>        data: IntoFrameT, </span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>        <span class="op">*</span>args: Union[<span class="bu">str</span>, List[<span class="bu">str</span>], narwhals.Expr, narwhals.selectors.Selector], </span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>        before: Optional[<span class="bu">str</span>] <span class="op">=</span> <span class="va">None</span>,</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>        after: Optional[<span class="bu">str</span>] <span class="op">=</span> <span class="va">None</span>,</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        place: Optional[Literal[<span class="st">"first"</span>, <span class="st">"last"</span>]] <span class="op">=</span> <span class="va">None</span>,</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>        to_native: <span class="bu">bool</span> <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>      data: IntoFrameT, </span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>      <span class="op">*</span>args: Union[<span class="bu">str</span>, List[<span class="bu">str</span>], narwhals.Expr, narwhals.selectors.Selector], </span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>      before: Optional[<span class="bu">str</span>] <span class="op">=</span> <span class="va">None</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>      after: Optional[<span class="bu">str</span>] <span class="op">=</span> <span class="va">None</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>      place: Optional[Literal[<span class="st">"first"</span>, <span class="st">"last"</span>]] <span class="op">=</span> <span class="va">None</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>      to_native: <span class="bu">bool</span> <span class="op">=</span> <span class="va">True</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    ):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="引数-argument" class="level2">

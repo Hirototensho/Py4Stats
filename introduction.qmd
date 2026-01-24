@@ -1,4 +1,4 @@
-# `Introduction to Py4Stats` 
+# Introduction to Py4Stats
 
 ``` python
 import py4stats as py4st
