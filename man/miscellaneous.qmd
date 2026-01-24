@@ -1,4 +1,4 @@
-# building_block.style_number, style_percent, style_percent
+# building_block.style_number, _currency, _percent
 
 数字のフォーマットを変更する関数
 

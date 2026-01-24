@@ -166,6 +166,11 @@ window.Quarto = {
       <a href="../">Py4Stats</a> 
         <div class="sidebar-tools-main">
     <a href="https://github.com/Hirototensho/Py4Stats" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
 </div>
     </div>
       </div>
@@ -257,7 +262,7 @@ window.Quarto = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/compare_group_stats.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">compare_group_means, compare_group_median, plot_mean_diff, plot_median_diff</span></a>
+  <a href="../man/compare_group_stats.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">compare_group_means, _median, plot_mean_diff, _median_diff</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -390,17 +395,17 @@ window.Quarto = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/miscellaneous.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">building_block.style_number, style_percent, style_percent</span></a>
+  <a href="../man/miscellaneous.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">building_block.style_number, _currency, _percent</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/style_pvalue.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">building_block.style_pvalue, ‘p_stars’</span></a>
+  <a href="../man/style_pvalue.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">building_block.style_pvalue, p_stars</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/oxford_comma.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">oxford_comma</span></a>
+  <a href="../man/oxford_comma.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">building_block.oxford_comma</span></a>
   </div>
 </li>
       </ul>
@@ -427,6 +432,22 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../articles/narwhals_in_py4stats.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Technical Notes: py4stats.eda_tools における narwhals ベースの実装</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+ <span class="menu-text"><strong>Contributing Notes</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../articles/project_guide.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Project Guide</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -503,7 +524,7 @@ window.Quarto = {
 <p>回帰分析の実行部分は次のように記述します。</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 回帰分析の実行</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>list_fitted1 <span class="op">=</span> [fit_ols(fml, penguins) <span class="cf">for</span> fml <span class="kw">in</span> list_fml]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>このとき <code>list_fitted1</code> は回帰分析の推定結果を要素に持つリストであるため、<a href="https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_ols.md"><code>py4st.compare_ols()</code></a> にそのまま代入することができます。</p>
+<p>このとき <code>list_fitted1</code> は回帰分析の推定結果を要素に持つリストであるため、<a href="../man/compare_ols.html"><code>py4st.compare_ols()</code></a> にそのまま代入することができます。</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>py4st.compare_ols(list_models <span class="op">=</span> list_fitted1) <span class="co"># 表の作成</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top table">
 <colgroup>
@@ -758,7 +779,7 @@ window.Quarto = {
 <span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="bu">len</span>(boot_sample)</span>
 <span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6000</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>次にブートストラップ統計量を集計して結果を確認しますが、ここではごく簡単に <a href="../man/point_range.md"><code>py4st.mean_qi()</code></a> を使って、説明変数別に回帰係数の平均値と分位点を求めています。</p>
+<p>次にブートストラップ統計量を集計して結果を確認しますが、ここではごく簡単に <a href="../man/point_range.html"><code>py4st.mean_qi()</code></a> を使って、説明変数別に回帰係数の平均値と分位点を求めています。</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> boot_sample.groupby([<span class="st">'term'</span>])[[<span class="st">'estimate'</span>]]<span class="op">\</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">apply</span>(py4st.mean_qi)</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>

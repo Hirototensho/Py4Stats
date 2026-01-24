@@ -1,4 +1,4 @@
-# compare_group_means, compare_group_median, plot_mean_diff, plot_median_diff
+# compare_group_means, _median, plot_mean_diff, _median_diff
 
 統計量に基づく2グループの比較と差分の可視化
 

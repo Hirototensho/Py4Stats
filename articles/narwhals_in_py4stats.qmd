@@ -78,7 +78,7 @@ nw.from_native(data)
 
 一方で、narwhals は各バックエンドの完全な互換性を保証するものではないため、特定の操作や型変換についてはバックエンドごとに挙動が異なる場合があります。
 
-## 　`pandas_flavor` を用いた DataFrame メソッド登録について
+## `pandas_flavor` を用いた DataFrame メソッドの登録について
 
 `py4stats.eda_tools` の関数のうち、単一の `DataFrame` オブジェクトを引数として受け取る関数については、`pandas_flavor.register_dataframe_method` を用いて DataFrame メソッドとして登録されています。その結果、以下のような使い方が可能です。
 
