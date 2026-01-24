@@ -1,0 +1,112 @@
+# relocate
+
+データフレームの列を削除することなく並び替える関数
+
+## 概要
+
+`relocate()` 関数は、データフレームに含まれる列を削除することなく並び替えるための関数です。指定した列（1 列または複数列）を、先頭・特定の列の前・特定の列の後に移動させることができます。本関数は、R の [`dplyr:relocate()`](https://dplyr.tidyverse.org/reference/relocate.html) に近い操作感を Python で提供することを目的としています。列の指定には、列名（文字列）だけでなく、`narwhals` の式（Expr）や `Selector` を利用でき、柔軟な列選択
+
+``` python
+relocate(
+      data: IntoFrameT, 
+      *args: Union[str, List[str], narwhals.Expr, narwhals.selectors.Selector], 
+      before: Optional[str] = None,
+      after: Optional[str] = None,
+      place: Optional[Literal["first", "last"]] = None,
+      to_native: bool = True
+    ):
+```
+
+## 引数 Argument
+
+- `data`：**IntoFrameT**（必須）<br>
+  入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト<br>
+  （例：`pandas.DataFrame`、`polars.DataFrame`、`pyarrow.Table`）を指定できます。
+- `*args`（**str / list[str] / narwhals.Expr / narwhals.Selector**）<br>
+  移動したい列を指定します。指定方法は次のとおりです。
+  - 列名（例：`"x"`）
+  - 列名のリスト（例：`["x", "y"]`）
+  - narwhals の式（`Expr`）（例：`nw.col("x")`）
+  - narwhals の `Selector` （例：`ncs.numeric()`）
+
+  指定した順序は、移動後の列順にもそのまま反映されます。
+
+- `before`（**str**, optional）<br>
+  `args` で指定された列を、この列の**直前**に移動します。<br>
+  `after` と同時に指定することはできません。デフォルトは `None` です。
+- `after`（**str**, optional）<br>
+  `args` で指定された列を、この列の**直後**に移動します。<br>
+  `before` と同時に指定することはできません。デフォルトは `None` です。
+
+- `place`（**str**, optional）<br>
+    `*args` で指定された列の、配置場所を指定します。
+    - `"first"`: 選択した列をデータフレームの先頭（最も左）に配置します。
+    - `"last"`: 選択した列をデータフレームの末尾（最も右）に配置します。
+    `place` 引数は `before` または `after` と同時に指定することはできません。
+    未指定（`None`）の場合は `"first"` と同じ挙動になります。
+
+
+- `to_native`（**bool**, optional）<br>
+  `True` の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。<br>
+  `False` の場合、`narwhals.DataFrame` を返します。デフォルトは `True` で、`to_native = False` は、主にライブラリ内部での利用や、`backend` に依存しない後続処理を行う場合を想定したオプションです。
+
+### 返り値
+
+- **IntoFrameT**<br>
+  入力データフレームと同じ列を保持したまま、指定されたルールに従って並び替えられたデータフレームを返します。
+
+## 使用例 Example
+
+``` python
+import py4stats as py4st
+import pandas as pd
+import narwhals.selectors as ncs
+from palmerpenguins import load_penguins
+
+penguins_mini = py4st.filtering_out(penguins, starts_with = 'bill').head(3)
+print(penguins_mini)
+#>   species     island  flipper_length_mm  body_mass_g     sex  year
+#> 0  Adelie  Torgersen              181.0       3750.0    male  2007
+#> 1  Adelie  Torgersen              186.0       3800.0  female  2007
+#> 2  Adelie  Torgersen              195.0       3250.0  female  2007
+```
+
+``` python
+# *args に指定した列は最前列に移動します
+print(py4st.relocate(penguins_mini, 'year', 'sex'))
+#>    year     sex species     island  flipper_length_mm  body_mass_g
+#> 0  2007    male  Adelie  Torgersen              181.0       3750.0
+#> 1  2007  female  Adelie  Torgersen              186.0       3800.0
+#> 2  2007  female  Adelie  Torgersen              195.0       3250.0
+
+# ncs.numeric() を使うことで、数値変数を指定できます
+print(py4st.relocate(penguins_mini, ncs.numeric()))
+#>    flipper_length_mm  body_mass_g  year species     island     sex
+#> 0              181.0       3750.0  2007  Adelie  Torgersen    male
+#> 1              186.0       3800.0  2007  Adelie  Torgersen  female
+#> 2              195.0       3250.0  2007  Adelie  Torgersen  female
+
+# year 列を island 列の直前に移動
+print(py4st.relocate(penguins_mini, 'year', before = 'island'))
+#>   species  year     island  flipper_length_mm  body_mass_g     sex
+#> 0  Adelie  2007  Torgersen              181.0       3750.0    male
+#> 1  Adelie  2007  Torgersen              186.0       3800.0  female
+#> 2  Adelie  2007  Torgersen              195.0       3250.0  female
+
+# year 列を island 列の直後に移動
+print(py4st.relocate(penguins_mini, 'year', after = 'island'))
+#>   species     island  year  flipper_length_mm  body_mass_g     sex
+#> 0  Adelie  Torgersen  2007              181.0       3750.0    male
+#> 1  Adelie  Torgersen  2007              186.0       3800.0  female
+#> 2  Adelie  Torgersen  2007              195.0       3250.0  female
+
+#.  place = 'last' で最後列に移動
+print(py4st.relocate(penguins_mini, 'year', place = 'last'))
+#>   species     island  flipper_length_mm  body_mass_g     sex  year
+#> 0  Adelie  Torgersen              181.0       3750.0    male  2007
+#> 1  Adelie  Torgersen              186.0       3800.0  female  2007
+#> 2  Adelie  Torgersen              195.0       3250.0  female  2007
+```
+
+***
+[Return to **Function reference**.](../reference.qmd)

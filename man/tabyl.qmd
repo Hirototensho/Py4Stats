@@ -1,0 +1,85 @@
+# tabyl
+
+レポートティング向けのクロス集計表を作成
+
+## 概要
+
+データフレームのクロス集計表を作成します。R言語の [`janitor::tabyl()`](https://sfirke.github.io/janitor/reference/tabyl.html)にいくつかの `adorn_` 関数を追加した状態を再現した関数です。初期設定ではクロス集計表の各セルに度数と相対度数を 「度数(相対度数%)`」 の形式で表示します。
+
+```python
+tabyl(
+    data: IntoFrameT,
+    index: str,
+    columns: str,
+    margins: bool = True,
+    margins_name: str = 'All',
+    normalize: Union[bool, Literal["index", "columns", "all"]] = "index",
+    dropna: bool = False,
+    digits: int = 1,
+    **kwargs: Any
+)
+```
+
+## 引数 Argument
+
+- `data`：**IntoFrameT**（必須）<br>
+  入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト<br>
+  （例：`pandas.DataFrame`、`polars.DataFrame`、`pyarrow.Table`）を指定できます。
+- `index`：**str**</br>
+　集計に使用するデータフレームの変数名（必須）。
+- `columns`：**str**</br>
+　集計に使用するデータフレームの変数名（必須）。
+- `margins`：**bool**</br>
+　行または列の合計を追加するかどうかを表すブール値。初期設定は True です。
+- `margins_name`：**bool**</br>
+　行や列の合計の名前。初期設定は `'All'` です。
+- `dropna`：**bool**</br>
+　 欠測値（NaN）を集計から除外するかどうかを表すブール値。初期設定は False です。
+- `normalize`：**str**</br>
+　丸括弧`( )`に表示する相対度数の計算方式。
+    - `index` 各セルの度数を行の和で割り、横方向の相対度数の和が100%になるように計算します。
+    - `columns` 各セルの度数を行の列で割り、縦方向の相対度数の和が100%になるように計算します。
+    - `all` 各セルの度数を総度数で割り、全てのセルの相対度数の和が100%になるように計算します。
+- `digits`：**int**</br>
+　丸括弧`( )`に表示する相対度数の小数点以下の桁数。初期設定は1です。
+- `to_native`（**bool**, optional）<br>
+  `True` の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。<br>
+  `False` の場合、`narwhals.DataFrame` を返します。デフォルトは `True` で、`to_native = False` は、主にライブラリ内部での利用や、`backend` に依存しない後続処理を行う場合を想定したオプションです。
+
+## 使用例
+
+```python
+import py4stats as py4st
+import pandas as pd
+from palmerpenguins import load_penguins
+penguins = load_penguins() # サンプルデータの読み込
+
+# 横方向の和を100%として計算（初期設定）
+print(py4st.tabyl(penguins, 'island', 'species', normalize = 'index'))
+#> species         Adelie   Chinstrap       Gentoo  All
+#> island                                              
+#> Biscoe      44 (26.2%)    0 (0.0%)  124 (73.8%)  168
+#> Dream       56 (45.2%)  68 (54.8%)     0 (0.0%)  124
+#> Torgersen  52 (100.0%)    0 (0.0%)     0 (0.0%)   52
+#> All        152 (44.2%)  68 (19.8%)  124 (36.0%)  344
+
+# 縦方向の和を100%として計算
+print(py4st.tabyl(penguins, 'island', 'species', normalize = 'columns'))
+#> species        Adelie    Chinstrap        Gentoo          All
+#> island                                                       
+#> Biscoe     44 (28.9%)     0 (0.0%)  124 (100.0%)  168 (48.8%)
+#> Dream      56 (36.8%)  68 (100.0%)      0 (0.0%)  124 (36.0%)
+#> Torgersen  52 (34.2%)     0 (0.0%)      0 (0.0%)   52 (15.1%)
+#> All               152           68           124          344
+
+# 全体の和を100%として計算
+print(py4st.tabyl(penguins, 'island', 'species', normalize = 'all'))
+#> species         Adelie   Chinstrap       Gentoo           All
+#> island                                                       
+#> Biscoe      44 (12.8%)    0 (0.0%)  124 (36.0%)   168 (48.8%)
+#> Dream       56 (16.3%)  68 (19.8%)     0 (0.0%)   124 (36.0%)
+#> Torgersen   52 (15.1%)    0 (0.0%)     0 (0.0%)    52 (15.1%)
+#> All        152 (44.2%)  68 (19.8%)  124 (36.0%)  344 (100.0%)
+```
+***
+[Return to **Function reference**.](../reference.qmd)
