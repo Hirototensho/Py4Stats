@@ -1,5 +1,6 @@
-# データ型を判定する論理関数
-## `building_block.is_character()` `building_block.is_logical()` `building_block.is_numeric()` `building_block.is_integer()` `building_block.is_float()`
+# building_block.is_dtypes
+
+データ型を判定する論理関数
 
 ## 概要
 

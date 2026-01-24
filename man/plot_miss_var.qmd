@@ -1,4 +1,4 @@
-# `py4stats.plot_miss_var()`
+# plot_miss_var
 
 ## 概要
 

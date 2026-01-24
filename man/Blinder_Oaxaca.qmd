@@ -1,4 +1,4 @@
-# `py4stats.Blinder_Oaxaca()`, `py4stats.plot_Blinder_Oaxaca()`
+# Blinder_Oaxaca, plot_Blinder_Oaxaca
 
 ## 概要
 
@@ -114,7 +114,7 @@ py4st.plot_Blinder_Oaxaca(
 )
 ```
 
-![plot_Blinder_Oaxaca1.png](image/plot_Blinder_Oaxaca1.png)
+![plot_Blinder_Oaxaca1](image/plot_Blinder_Oaxaca1.png)
 
  `diff_type` を指定することで、一方の統計量だけを表示することもできます。
 
@@ -125,7 +125,7 @@ py4st.plot_Blinder_Oaxaca(
     diff_type = 'unobserved_diff'
 )
 ```
-![plot_Blinder_Oaxaca2.png](image/plot_Blinder_Oaxaca2.png)
+![plot_Blinder_Oaxaca2](image/plot_Blinder_Oaxaca2.png)
 
  グラフのサイズや解像度を指定するには、次のように行います。
 

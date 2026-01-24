@@ -1,4 +1,6 @@
-# `py4stats.set_miss()`
+# set_miss
+
+Series オブジェクトに対する欠測値の挿入
 
 ## 概要
 
@@ -86,4 +88,4 @@ penguins['island'] = py4st.set_miss(
     )
 py4st.plot_miss_var(penguins, values = 'missing_count')
 ```
-![set_miss.png](image/set_miss.png)
+![set_miss](image/set_miss.png)

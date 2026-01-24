@@ -7,7 +7,7 @@ book:
     - index.qmd
     - introduction.qmd
     - reference.qmd
-    - part: "eda_tools"
+    - part: "**EDA**"
       chapters:
       - man/diagnose.qmd
       - man/tabyl.qmd
@@ -27,7 +27,7 @@ book:
       - man/predicate_str.qmd
       - man/is_dummy.qmd
       - man/varidate.qmd
-    - part: "regression_tools"
+    - part: "**Regression**"
       chapters:
       - man/compare_ols.qmd
       - man/compare_mfx.qmd
@@ -36,12 +36,12 @@ book:
       - man/tidy_test.qmd
       - man/glance.qmd
       - man/Blinder_Oaxaca.qmd
-    - part: "heckit_helper"
+    - part: "**heckit_helper**"
       chapters:
       - man/tidy_heckit.qmd
       - man/Heckit_from_formula.qmd
       - man/heckitmfx_compute.qmd
-    - part: "building_block"
+    - part: "**building_block**"
       chapters:
       - man/arg_match.qmd
       - man/assert_dtype.qmd
@@ -49,13 +49,17 @@ book:
       - man/miscellaneous.qmd
       - man/style_pvalue.qmd
       - man/oxford_comma.qmd
-    - part: "articles"
+    - part: "**Articles**"
       chapters:
+      - articles/release_notes.qmd
       - articles/scaling_up_regression.qmd
       - articles/narwhals_in_py4stats.qmd
       - articles/eda_tools_development_status.qmd
       - articles/narwhalsについての考察.qmd
+  site-url: https://github.com/Hirototensho/Py4Stats
   repo-url: https://github.com/Hirototensho/Py4Stats
+  # repo-branch: main                  # main に変更したら、こちらを使います。
+  repo-branch: experiment/quarto
   repo-actions: [source]
 format:
   html:
@@ -67,3 +71,5 @@ format:
       sidebar-width: 250px   # サイドバー幅の最大値
       body-width: 1000px      # メイン本文幅の最大値
       margin-width: 150px    # 余白幅の最大値
+
+number-sections: false

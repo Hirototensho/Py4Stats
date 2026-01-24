@@ -1,4 +1,6 @@
-# `py4stats.tidy_test()`
+# tidy_test
+
+$t$ 検定、$F$ 検定に対応した tidy メソッド
 
 ## 概要
 

@@ -73,7 +73,7 @@ for k, mod in enumerate(list_fitted1):
   ax[k].set_title(f'model {k + 1}')
   ax[k].set_xlabel(f'coefficient (n = {mod.nobs:,.0f})')
 ```
-![scaling_up_regression1.png](image/scaling_up_regression1.png)
+![scaling_up_regression1](image/scaling_up_regression1.png)
 ## グループ別の回帰分析
 
 　次に、データセットのグループ別に回帰分析を行う場合を考えます。この場合、データを受け取ると回帰分析の結果を返す関数 `group_ols` を定義し、回帰式は固定しておきます。
@@ -130,7 +130,7 @@ for k, mod in enumerate(list_fitted2):
   ax[k].set_title(list_groups[k])
   ax[k].set_xlabel(f'coefficient (n = {mod.nobs:,.0f})')
 ```
-![scaling_up_regression2.png](image/scaling_up_regression2.png)
+![scaling_up_regression2](image/scaling_up_regression2.png)
 
 ## ブートストラップ回帰
 
@@ -196,7 +196,7 @@ pt.RainCloud(
 
 ax.axvline(0, ls = "--", color = '#969696');
 ```
-![scaling_up_regression3.png](image/scaling_up_regression3.png)
+![scaling_up_regression3](image/scaling_up_regression3.png)
 
 ### 補足
 

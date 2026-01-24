@@ -1,4 +1,6 @@
-# 簡易なルールベースのデータ検証ツール `py4stats.check_that()` `py4stats.check_viorate()`
+# check_that check_viorate
+
+簡易なルールベースのデータ検証ツール
 
 ## 概要
 
@@ -11,7 +13,11 @@ check_that(
     **kwargs: Any,
 )
 
-check_viorate(data, rule_dict, **kwargs)
+check_viorate(
+    data: IntoFrameT,
+    rule_dict: Union[Mapping[str, str], pd.Series],
+    **kwargs: Any,
+)
 ```
 
 ## 引数 Argument

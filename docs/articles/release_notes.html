@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>eda_toolsの開発状況 – Py4Stats</title>
+<title>Release Notes – Py4Stats</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -30,8 +30,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../articles/narwhalsについての考察.html" rel="next">
-<link href="../articles/narwhals_in_py4stats.html" rel="prev">
+<link href="../articles/scaling_up_regression.html" rel="next">
+<link href="../man/oxford_comma.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
@@ -84,7 +84,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../articles/release_notes.html"><strong>Articles</strong></a></li><li class="breadcrumb-item"><a href="../articles/eda_tools_development_status.html"><span class="chapter-title">eda_toolsの開発状況</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../articles/release_notes.html"><strong>Articles</strong></a></li><li class="breadcrumb-item"><a href="../articles/release_notes.html"><span class="chapter-title">Release Notes</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -352,7 +352,7 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../articles/release_notes.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Release Notes</span></a>
+  <a href="../articles/release_notes.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Release Notes</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -367,7 +367,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../articles/eda_tools_development_status.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">eda_toolsの開発状況</span></a>
+  <a href="../articles/eda_tools_development_status.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">eda_toolsの開発状況</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -387,17 +387,40 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#関数の実装状況一覧" id="toc-関数の実装状況一覧" class="nav-link active" data-scroll-target="#関数の実装状況一覧">関数の実装状況一覧</a></li>
-  <li><a href="#凡例" id="toc-凡例" class="nav-link" data-scroll-target="#凡例">凡例</a></li>
+  <li><a href="#py4stats-v0.3.0-2026-01-23" id="toc-py4stats-v0.3.0-2026-01-23" class="nav-link active" data-scroll-target="#py4stats-v0.3.0-2026-01-23">Py4Stats v0.3.0 2026-01-23</a>
+  <ul class="collapse">
+  <li><a href="#概要summary" id="toc-概要summary" class="nav-link" data-scroll-target="#概要summary">概要（Summary）</a></li>
+  <li><a href="#主な新機能-new-features" id="toc-主な新機能-new-features" class="nav-link" data-scroll-target="#主な新機能-new-features">✨ 主な新機能 （New Features）</a></li>
+  <li><a href="#修正と改善fixes-improvements" id="toc-修正と改善fixes-improvements" class="nav-link" data-scroll-target="#修正と改善fixes-improvements">🛠 修正と改善（Fixes /Improvements）</a></li>
+  </ul></li>
+  <li><a href="#py4stats-v0.2.2-2026-01-19" id="toc-py4stats-v0.2.2-2026-01-19" class="nav-link" data-scroll-target="#py4stats-v0.2.2-2026-01-19">Py4Stats v0.2.2 2026-01-19</a>
+  <ul class="collapse">
+  <li><a href="#概要summary-1" id="toc-概要summary-1" class="nav-link" data-scroll-target="#概要summary-1">概要（Summary）</a></li>
+  <li><a href="#修正と改善fixes-improvements-1" id="toc-修正と改善fixes-improvements-1" class="nav-link" data-scroll-target="#修正と改善fixes-improvements-1">🛠 修正と改善（Fixes /Improvements）</a></li>
+  </ul></li>
+  <li><a href="#py4stats-v0.2.1-2026-01-16" id="toc-py4stats-v0.2.1-2026-01-16" class="nav-link" data-scroll-target="#py4stats-v0.2.1-2026-01-16">Py4Stats v0.2.1 2026-01-16</a>
+  <ul class="collapse">
+  <li><a href="#概要summary-2" id="toc-概要summary-2" class="nav-link" data-scroll-target="#概要summary-2">概要（Summary）</a></li>
+  <li><a href="#主な新機能-new-features-1" id="toc-主な新機能-new-features-1" class="nav-link" data-scroll-target="#主な新機能-new-features-1">✨ 主な新機能 （New Features）</a></li>
+  <li><a href="#修正と改善fixes-improvements-2" id="toc-修正と改善fixes-improvements-2" class="nav-link" data-scroll-target="#修正と改善fixes-improvements-2">🛠 修正と改善（Fixes /Improvements）</a></li>
+  <li><a href="#既知の制限注意点notes" id="toc-既知の制限注意点notes" class="nav-link" data-scroll-target="#既知の制限注意点notes">⚠️ 既知の制限・注意点（Notes）</a></li>
+  </ul></li>
+  <li><a href="#py4stats-v0.1.0-2026-01-11" id="toc-py4stats-v0.1.0-2026-01-11" class="nav-link" data-scroll-target="#py4stats-v0.1.0-2026-01-11">Py4Stats v0.1.0 2026-01-11</a>
+  <ul class="collapse">
+  <li><a href="#概要summary-3" id="toc-概要summary-3" class="nav-link" data-scroll-target="#概要summary-3">概要（Summary）</a></li>
+  <li><a href="#主な新機能-new-features-2" id="toc-主な新機能-new-features-2" class="nav-link" data-scroll-target="#主な新機能-new-features-2">✨ 主な新機能 （New Features）</a></li>
+  <li><a href="#修正と改善fixes-improvements-3" id="toc-修正と改善fixes-improvements-3" class="nav-link" data-scroll-target="#修正と改善fixes-improvements-3">🛠 修正と改善（Fixes /Improvements）</a></li>
+  <li><a href="#既知の制限注意点notes-1" id="toc-既知の制限注意点notes-1" class="nav-link" data-scroll-target="#既知の制限注意点notes-1">⚠️ 既知の制限・注意点（Notes）</a></li>
+  </ul></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/experiment/quarto/articles/eda_tools_development_status.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/experiment/quarto/articles/release_notes.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../articles/release_notes.html"><strong>Articles</strong></a></li><li class="breadcrumb-item"><a href="../articles/eda_tools_development_status.html"><span class="chapter-title">eda_toolsの開発状況</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../articles/release_notes.html"><strong>Articles</strong></a></li><li class="breadcrumb-item"><a href="../articles/release_notes.html"><span class="chapter-title">Release Notes</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-title">eda_toolsの開発状況</span></h1>
+<h1 class="title"><span class="chapter-title">Release Notes</span></h1>
 </div>
 
 
@@ -414,339 +437,135 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>2026年1月24日</p>
-<section id="関数の実装状況一覧" class="level2">
-<h2 class="anchored" data-anchor-id="関数の実装状況一覧">関数の実装状況一覧</h2>
-<table class="table-striped table-hover caption-top table">
-<caption>関数の実装状況一覧</caption>
-<colgroup>
-<col style="width: 19%">
-<col style="width: 15%">
-<col style="width: 8%">
-<col style="width: 8%">
-<col style="width: 9%">
-<col style="width: 37%">
-</colgroup>
-<thead>
-<tr class="header">
-<th style="text-align: left;">functions</th>
-<th style="text-align: left;">Input</th>
-<th style="text-align: left;">Pandas</th>
-<th style="text-align: left;">Polars</th>
-<th style="text-align: left;">Pyarrow</th>
-<th style="text-align: left;">補足</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">Mean</td>
-<td style="text-align: left;">pd.Series</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">❌</td>
-<td style="text-align: left;">❌</td>
-<td style="text-align: left;">pd.DataFrame.eval() での使用を想定した関数</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Median</td>
-<td style="text-align: left;">pd.Series</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">❌</td>
-<td style="text-align: left;">❌</td>
-<td style="text-align: left;">pd.DataFrame.eval() での使用を想定した関数</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Max</td>
-<td style="text-align: left;">pd.Series</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">❌</td>
-<td style="text-align: left;">❌</td>
-<td style="text-align: left;">pd.DataFrame.eval() での使用を想定した関数</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Min</td>
-<td style="text-align: left;">pd.Series</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">❌</td>
-<td style="text-align: left;">❌</td>
-<td style="text-align: left;">pd.DataFrame.eval() での使用を想定した関数</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Pareto_plot</td>
-<td style="text-align: left;">DataFrame</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Sum</td>
-<td style="text-align: left;">pd.Series</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">❌</td>
-<td style="text-align: left;">❌</td>
-<td style="text-align: left;">pd.DataFrame.eval() での使用を想定した関数</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">check_that</td>
-<td style="text-align: left;">DataFrame</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">⭕️</td>
-<td style="text-align: left;">⭕️</td>
-<td style="text-align: left;">実装に pd.DataFrame.eval() を使用</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">check_viorate</td>
-<td style="text-align: left;">DataFrame</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">⭕️</td>
-<td style="text-align: left;">⭕️</td>
-<td style="text-align: left;">実装に pd.DataFrame.eval() を使用</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">compare_df_cols</td>
-<td style="text-align: left;">DataFrame</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">compare_df_record</td>
-<td style="text-align: left;">DataFrame</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">compare_df_stats</td>
-<td style="text-align: left;">DataFrame</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">compare_group_means</td>
-<td style="text-align: left;">DataFrame</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">compare_group_median</td>
-<td style="text-align: left;">DataFrame</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">crosstab</td>
-<td style="text-align: left;">DataFrame</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">⭕️</td>
-<td style="text-align: left;">Pyarrow は Polars 依存の実装</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">diagnose</td>
-<td style="text-align: left;">DataFrame</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">diagnose_category</td>
-<td style="text-align: left;">DataFrame</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">filtering_out</td>
-<td style="text-align: left;">DataFrame</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">freq_table</td>
-<td style="text-align: left;">DataFrame</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">implies_exper</td>
-<td style="text-align: left;">pd.Series</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">❌</td>
-<td style="text-align: left;">❌</td>
-<td style="text-align: left;">pd.DataFrame.eval() での使用を想定した関数</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">is_dummy</td>
-<td style="text-align: left;">DataFrame/Series</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">is_number</td>
-<td style="text-align: left;">Series</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">is_ymd_like</td>
-<td style="text-align: left;">Series</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">is_ymd</td>
-<td style="text-align: left;">Series</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">mean_ci</td>
-<td style="text-align: left;">DataFrame/Series</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">mean_qi</td>
-<td style="text-align: left;">DataFrame/Series</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">median_qi</td>
-<td style="text-align: left;">DataFrame/Series</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">min_max</td>
-<td style="text-align: left;">Series</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">plot_mean_diff</td>
-<td style="text-align: left;">DataFrame</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">plot_median_diff</td>
-<td style="text-align: left;">DataFrame</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">plot_miss_var</td>
-<td style="text-align: left;">DataFrame</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">scale</td>
-<td style="text-align: left;">Series</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">set_miss</td>
-<td style="text-align: left;">Series</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">relocate</td>
-<td style="text-align: left;">DataFrame</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">remove_constant</td>
-<td style="text-align: left;">DataFrame</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">remove_empty</td>
-<td style="text-align: left;">DataFrame</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">tabyl</td>
-<td style="text-align: left;">DataFrame</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">⭕️</td>
-<td style="text-align: left;">⭕️</td>
-<td style="text-align: left;">一部の処理が Pandas 依存</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">weighted_mean</td>
-<td style="text-align: left;">Series</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-</tbody>
-</table>
+<section id="py4stats-v0.3.0-2026-01-23" class="level2">
+<h2 class="anchored" data-anchor-id="py4stats-v0.3.0-2026-01-23">Py4Stats v0.3.0 2026-01-23</h2>
+<section id="概要summary" class="level3">
+<h3 class="anchored" data-anchor-id="概要summary">概要（Summary）</h3>
+<p>このリリースでは Pyt4Stats に幾つかの関数の追加を行いました。 関数のリファクタリングとバグ修正を行いました。今回のリリースでは機能の追加や変更はありません。</p>
 </section>
-<section id="凡例" class="level2">
-<h2 class="anchored" data-anchor-id="凡例">凡例</h2>
+<section id="主な新機能-new-features" class="level3">
+<h3 class="anchored" data-anchor-id="主な新機能-new-features">✨ 主な新機能 （New Features）</h3>
 <ul>
-<li>✅ 実装済/テスト済</li>
-<li>⭕️ 実装済/テスト済（異なるバックエンドに依存）</li>
-<li>🔼 実装済/テスト未</li>
-<li>❌ 未実装</li>
+<li><a href="../man/diagnose_category.html"><code>diagnose_category()</code></a> 関数の追加
+<ul>
+<li>データフレームのカテゴリー変数の要約を提供する関数です。</li>
+</ul></li>
+<li><a href="../man/set_miss.html"><code>set_miss()</code></a> 関数の追加
+<ul>
+<li>Series の非欠測要素のうち、指定された個数または割合を欠測値に置き換えます。</li>
+</ul></li>
+</ul>
+</section>
+<section id="修正と改善fixes-improvements" class="level3">
+<h3 class="anchored" data-anchor-id="修正と改善fixes-improvements">🛠 修正と改善（Fixes /Improvements）</h3>
+<ul>
+<li><p><a href="../man/compare_group_stats.html"><code>compare_group_means(), compare_group_median()</code></a>, <a href="../man/compare_df_cols.html"><code>compare_df_cols(), compare_df_stats()</code></a>: コードをリファクタリングし、引数と同じクラスのデータフレームを出力できるようにしました。この変更により、返り値が <code>pd.DataFrame</code> である場合でも、index が自動では設定されなくなりました。</p></li>
+<li><p><a href="../man/diagnose.html"><code>diagnose()</code></a>: dtype 列が、polars や pyarrow における列のクラスの表記に対してより忠実になるように修正しました。</p></li>
+<li><p><a href="../man/relocate.html"><code>relocate()</code></a> 関数に、指定した列を最後列に配置する機能を追加し、エラーメッセージを改善しました。</p></li>
+<li><p><a href="../man/assert_dtype.html"><code>assert_character()</code></a> および <a href="../man/assert_dtype.html"><code>assert_numeric()</code></a> 系関数のエラーメッセージを改善しました。</p></li>
+<li><p>その他、いくつかの関数のエラーメッセージを改善しました。</p></li>
+</ul>
+</section>
+</section>
+<section id="py4stats-v0.2.2-2026-01-19" class="level2">
+<h2 class="anchored" data-anchor-id="py4stats-v0.2.2-2026-01-19">Py4Stats v0.2.2 2026-01-19</h2>
+<section id="概要summary-1" class="level3">
+<h3 class="anchored" data-anchor-id="概要summary-1">概要（Summary）</h3>
+<p>型ヒントに関する若干の修正と、バグ修正を行いました。今回のリリースでは機能の追加や変更はありません。</p>
+</section>
+<section id="修正と改善fixes-improvements-1" class="level3">
+<h3 class="anchored" data-anchor-id="修正と改善fixes-improvements-1">🛠 修正と改善（Fixes /Improvements）</h3>
+<ul>
+<li><a href="../man/assert_dtype.html"><code>building_block.assert_numeric</code></a> 系関数のリファクタリングを行いました。この変更でメインモジュールの関数の動作に変更はありません。</li>
+<li><a href="../man/compare_group_stats.html"><code>compare_group_means()</code>, <code>compare_group_median()</code></a> のテストコードを実装しました。</li>
+<li><a href="../man/tabyl.html"><code>tabyl()</code></a>: 第一引数 <code>data</code> と同じオブジェクト型をもつ DataFrame を出力できるように実装を修正しました。</li>
+<li><a href="../man/varidate.html"><code>check_that(), check_viorate()</code></a> : 第一引数 <code>data</code> と同じオブジェクト型をもつ DataFrame を出力できるように実装を修正しました。引き続きロジックのコア部分には <code>pd.DataFrame.eval()</code> を使用しており、使用方法に大きな変更はありません。</li>
+<li><a href="../man/predicate_str.html"><code>is_number()</code></a> 関数を修正し、pyarrow.lib.ChunkedArray オブジェクトを代入すると生じるエラーを解消しました。</li>
+</ul>
+</section>
+</section>
+<section id="py4stats-v0.2.1-2026-01-16" class="level2">
+<h2 class="anchored" data-anchor-id="py4stats-v0.2.1-2026-01-16">Py4Stats v0.2.1 2026-01-16</h2>
+<section id="概要summary-2" class="level3">
+<h3 class="anchored" data-anchor-id="概要summary-2">概要（Summary）</h3>
+<p>このリリースでは Pyt4Stats の各モジュールに幾つかの関数の追加を行いました。</p>
+</section>
+<section id="主な新機能-new-features-1" class="level3">
+<h3 class="anchored" data-anchor-id="主な新機能-new-features-1">✨ 主な新機能 （New Features）</h3>
+<ul>
+<li><a href="../man/plot_category.html"><code>plot_category()</code></a> 関数の追加
+<ul>
+<li>カテゴリ変数の回答分布を 100% 積み上げ横棒グラフとして描画する関数です。</li>
+</ul></li>
+<li><a href="../man/plot_miss_var.html"><code>plot_miss_var()</code></a> 関数の追加
+<ul>
+<li>データフレームの各変数について欠測値の量を横棒グラフとして可視化します。</li>
+</ul></li>
+<li><a href="../man/relocate.html"><code>relocate()</code></a> 関数の追加
+<ul>
+<li>データフレームの列を、削除することなく並べ替えます。</li>
+</ul></li>
+<li><a href="../man/scale_wmean.html"><code>weighted_mean()</code>, <code>scale()</code>, <code>min_max()</code></a> 関数の追加
+<ul>
+<li>それぞれ Series オブジェクトの加重平均の計算と、標準化を行う関数です。</li>
+</ul></li>
+</ul>
+</section>
+<section id="修正と改善fixes-improvements-2" class="level3">
+<h3 class="anchored" data-anchor-id="修正と改善fixes-improvements-2">🛠 修正と改善（Fixes /Improvements）</h3>
+<ul>
+<li><code>eda_tools</code> の Pandas ベース実装 <code>eda_tools/_pands.py</code> に、<code>FutureWarning</code> を実装しました。</li>
+<li>ユーザビリティ向上のため、<a href="../man/freq_table.html"><code>freq_table()</code></a> 関数に <code>sort_by</code> 引数を導入しました。
+<ul>
+<li><code>sort_by = 'frequency'</code> なら度数分布表を頻度に応じてソートし（従来の <code>sort = True</code> に相当）、<code>sort_by = 'values'</code> なら <code>subset</code> で指定した列の値に応じてソートします（従来の <code>sort = False</code> に相当）。</li>
+<li>この変更に合わせて、<code>sort</code> 引数は非推奨扱いに変更されています。</li>
+</ul></li>
+<li><a href="../man/Pareto_plot.html"><code>Pareto_plot()</code></a> の <code>aggfunc</code> 引数に、<code>np.mean</code> など <code>values</code> 列を1次元配列として受け取って単一の数値を返す任意の関数を使用できるように改良を行いました。</li>
+<li>その他、<code>py4stats</code> ライブラリ全体のエラーメッセージ改善</li>
+<li><a href="../man/assert_dtype.html"><code>building_block.assert_*</code></a> 系関数の改良を行い、与えられた引数の要素数に関するアサーションと、None やリストを拒否する機能を追加しました。</li>
+<li><a href="../man/compare_ols.html"><code>cmpare_ols()</code></a> および <a href="../man/compare_mfx.html"><code>cmpare_mfx()</code></a> に stars 引数を追加し、有意性のアスタリスクの表示形式を変更できる機能を追加しました。また、その他エラーメッセージの改善を行なっています。</li>
+</ul>
+</section>
+<section id="既知の制限注意点notes" class="level3">
+<h3 class="anchored" data-anchor-id="既知の制限注意点notes">⚠️ 既知の制限・注意点（Notes）</h3>
+<ul>
+<li><code>pyarrow.Table</code> を使用する場合、<a href="../man/plot_category.html"><code>plot_category()</code></a> 関数の一部機能が制限されます。</li>
+</ul>
+</section>
+</section>
+<section id="py4stats-v0.1.0-2026-01-11" class="level2">
+<h2 class="anchored" data-anchor-id="py4stats-v0.1.0-2026-01-11">Py4Stats v0.1.0 2026-01-11</h2>
+<section id="概要summary-3" class="level3">
+<h3 class="anchored" data-anchor-id="概要summary-3">概要（Summary）</h3>
+<p>このリリースでは EDA モジュールの narwhals ベース実装を統合し、パフォーマンスと互換性を大幅に改善しました。いくつかの既知の挙動も修正されています。</p>
+</section>
+<section id="主な新機能-new-features-2" class="level3">
+<h3 class="anchored" data-anchor-id="主な新機能-new-features-2">✨ 主な新機能 （New Features）</h3>
+<ul>
+<li><code>py4stats.eda_tools</code> が Pandas ベースの実装から narwhals ベース実装へ移行しました。
+<ul>
+<li>この変更により、複数バックエンド（pandas / polars / pyarrow）をサポートしました。</li>
+</ul></li>
+<li>Pandas ベースの実装は、当面 <code>py4stats</code> ライブラリのサブモジュール <code>eda_tools._pandas</code> として維持されますが、将来的に廃止される予定です。</li>
+</ul>
+</section>
+<section id="修正と改善fixes-improvements-3" class="level3">
+<h3 class="anchored" data-anchor-id="修正と改善fixes-improvements-3">🛠 修正と改善（Fixes /Improvements）</h3>
+<ul>
+<li><code>bilding_block</code> モジュールの名称を <code>building_block</code> に修正</li>
+<li><code>Py4Stats.building_block</code> モジュールの <a href="../man/assert_dtype.html"><code>assert_*</code> 系関数</a>の出力を <code>AssertionError</code> から <code>ValueError</code> に変更しました。</li>
+<li><code>Py4Stats.eda_tools</code> モジュールの関数の bool 値の引数を中心に、型の不一致があった場合のエラーメッセージを改善しました。</li>
+</ul>
+</section>
+<section id="既知の制限注意点notes-1" class="level3">
+<h3 class="anchored" data-anchor-id="既知の制限注意点notes-1">⚠️ 既知の制限・注意点（Notes）</h3>
+<ul>
+<li>バックエンドの変更に伴い、<a href="../man/freq_table.html"><code>py4st.freq_table()</code></a>、<a href="../man/diagnose.html"><code>py4st.diagnose()</code></a>、<a href="../man/tabyl.html"><code>py4st.tabyl()</code></a> など、従来はインデックス（Index）付きの <code>pandas.DataFrame</code> データフレームが出力されていた関数で、インデックスのない <code>pandas.DataFrame</code> が出力されるように変更されました。</li>
+<li>polars / pyarrow のサポートは experimental であり、一部のエッジケースで動作に違いが出る可能性があります。詳細は <a href="../articles/narwhals_in_py4stats.html">Technical Notes</a> および <a href="../articles/eda_tools_development_status.html">eda_tools開発状況</a> を参照してください。</li>
 </ul>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
@@ -1152,13 +971,13 @@ ul.task-list li input[type="checkbox"] {
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../articles/narwhals_in_py4stats.html" class="pagination-link" aria-label="Technical Notes: py4stats.eda_tools における narwhals ベースの実装">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Technical Notes: py4stats.eda_tools における narwhals ベースの実装</span></span>
+      <a href="../man/oxford_comma.html" class="pagination-link" aria-label="oxford_comma">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">oxford_comma</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../articles/narwhalsについての考察.html" class="pagination-link" aria-label="narwhals についての考察">
-        <span class="nav-page-text"><span class="chapter-title">narwhals についての考察</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../articles/scaling_up_regression.html" class="pagination-link" aria-label="scaling up regression">
+        <span class="nav-page-text"><span class="chapter-title">scaling up regression</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -1167,4 +986,4 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/experiment/quarto/articles/eda_tools_development_status.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/experiment/quarto/articles/release_notes.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></div></div></footer></body></html>

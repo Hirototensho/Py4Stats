@@ -1,4 +1,6 @@
-# 引数のアサーション `building_block.arg_match()`
+# building_block.arg_match 
+
+引数のアサーション
 
 ## 概要
 

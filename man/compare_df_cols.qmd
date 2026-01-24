@@ -1,8 +1,10 @@
-# `py4stats.compare_df_cols()`, `py4stats.compare_df_stats()`
+# compare_df_cols, compare_df_stats
+
+データ型と統計値によるデータフレームの比較
 
 ## 概要
 
-　R言語の [`janitor::compare_df_cols()`](https://sfirke.github.io/janitor/reference/compare_df_cols.html) をオマージュした関数で、`compare_df_cols()` は複数の pandas.DataFrame に含まれる同じ名前を持つ列同士のデータ型 `dtype` を比較し、`compare_df_stats()` は同じ名前を持つ列同士の記述統計量を比較します。
+R言語の [`janitor::compare_df_cols()`](https://sfirke.github.io/janitor/reference/compare_df_cols.html) をオマージュした関数で、`compare_df_cols()` は複数の pandas.DataFrame に含まれる同じ名前を持つ列同士のデータ型 `dtype` を比較し、`compare_df_stats()` は同じ名前を持つ列同士の記述統計量を比較します。
 
 ```python
 compare_df_cols(

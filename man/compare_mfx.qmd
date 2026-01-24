@@ -1,4 +1,6 @@
-# 限界効果の比較：`py4stats.compare_mfx()`
+# compare_mfx
+
+限界効果の比較
 
 ## 概要
 

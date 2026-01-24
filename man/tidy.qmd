@@ -1,4 +1,6 @@
-# `py4stats.tidy()`, `py4stats.tidy_mfx()`
+# tidy, tidy_mfx
+
+線形モデルの推定結果を DataFrame に集約
 
 ## 概要
 

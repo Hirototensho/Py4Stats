@@ -1,14 +1,14 @@
 # `Py4Stats` 
 
-`Py4Stats` は、主に実証研究で用いられる、探索的データ分析および回帰結果レポート用のユーティリティライブラリで、回帰分析を中心とする分析でよく使われるR言語の機能を Python で実装しています。
+`Py4Stats` は、主に実証研究で用いられる、探索的データ分析および回帰結果レポート用のユーティリティライブラリです。回帰分析を中心とする分析でよく使われるR言語の機能を Python で実装しています。
 
 ## 📚 Documentation
 
 Explore the full documentation (Quarto Book) at:
 
-- [🏠 Full Docs](https://hirototensho.github.io/Py4Stats/)
-- [🚀 Get Started](https://hirototensho.github.io/Py4Stats/introduction.html)
-- [📖 API Reference](https://hirototensho.github.io/Py4Stats/reference.html)
+- [🏠 **Full Docs**](https://hirototensho.github.io/Py4Stats/)
+- [🚀 **Get Started**](https://hirototensho.github.io/Py4Stats/introduction.html)
+- [📖 **API Reference**](https://hirototensho.github.io/Py4Stats/reference.html)
 
 ## Installation
 

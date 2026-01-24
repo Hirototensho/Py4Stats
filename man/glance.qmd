@@ -1,4 +1,6 @@
-# `py4stats.glance()`
+# glance
+
+線形モデルの当てはまりの尺度
 
 ## 概要
 

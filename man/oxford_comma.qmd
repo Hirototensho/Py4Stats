@@ -1,8 +1,10 @@
-# 並列文の作成 `oxford_comma()`
+# oxford_comma
+
+文字列のリストから並列文を作成
 
 ## 概要
 
-　文字列のリストを与えると、リストの要素を英文における並列文の形に変換する関数です。表記法については [Wikipedia Serial comma](https://en.wikipedia.org/wiki/Serial_comma) を参照し、コードについては [stack overflow:Grammatical List Join in Python [duplicate]](https://stackoverflow.com/questions/19838976/grammatical-list-join-in-python) を参照しました。
+文字列のリストを与えると、リストの要素を英文における並列文の形に変換する関数です。表記法については [Wikipedia Serial comma](https://en.wikipedia.org/wiki/Serial_comma) を参照し、コードについては [stack overflow:Grammatical List Join in Python [duplicate]](https://stackoverflow.com/questions/19838976/grammatical-list-join-in-python) を参照しました。
 
 ```python
 oxford_comma(x, sep_last = 'and', quotation = True)

@@ -1,4 +1,6 @@
-# 文字列のフォーマットについての論理関数</br> `py4stats.is_number()`, `py4stats.is_ymd()`,  `py4stats.is_ymd_like()`
+# is_number, is_ymd,  is_ymd_like
+
+文字列のフォーマットに判定する論理関数
 
 ## 概要
 

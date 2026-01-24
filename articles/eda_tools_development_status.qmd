@@ -1,7 +1,7 @@
-## eda_toolsの開発状況
-2026年1月22日
+# eda_toolsの開発状況
+2026年1月24日
 
-**eda_toolsの開発状況**
+## 関数の実装状況一覧
 
 | functions            | Input            | Pandas   | Polars   | Pyarrow   | 補足                                       |
 |:---------------------|:-----------------|:---------|:---------|:----------|:------------------------------------------|
@@ -42,6 +42,8 @@
 | remove_empty         | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | tabyl                | DataFrame        | ✅       | ⭕️       | ⭕️        | 一部の処理が Pandas 依存                      |
 | weighted_mean        | Series           | ✅       | ✅       | ✅        |                                            |
+
+: 関数の実装状況一覧 {.striped .hover}
 
 ## 凡例
 

@@ -1,0 +1,95 @@
+# Release Notes
+
+##  Py4Stats v0.3.0 2026-01-23
+
+###  概要（Summary）
+
+このリリースでは Pyt4Stats に幾つかの関数の追加を行いました。
+関数のリファクタリングとバグ修正を行いました。今回のリリースでは機能の追加や変更はありません。
+
+###  ✨ 主な新機能 （New Features）
+
+- [`diagnose_category()`](../man/diagnose_category.qmd) 関数の追加
+  - データフレームのカテゴリー変数の要約を提供する関数です。
+- [`set_miss()`](../man/set_miss.qmd) 関数の追加
+  - Series の非欠測要素のうち、指定された個数または割合を欠測値に置き換えます。
+
+###  🛠 修正と改善（Fixes /Improvements）
+
+- [`compare_group_means(), compare_group_median()`](../man/compare_group_stats.qmd), [`compare_df_cols(), compare_df_stats()`](../man/compare_df_cols.qmd): コードをリファクタリングし、引数と同じクラスのデータフレームを出力できるようにしました。この変更により、返り値が `pd.DataFrame` である場合でも、index が自動では設定されなくなりました。
+
+
+
+- [`diagnose()`](../man/diagnose.qmd): dtype 列が、polars や pyarrow における列のクラスの表記に対してより忠実になるように修正しました。
+- [`relocate()`](../man/relocate.qmd) 関数に、指定した列を最後列に配置する機能を追加し、エラーメッセージを改善しました。
+- [`assert_character()`](../man/assert_dtype.qmd) および [`assert_numeric()`](../man/assert_dtype.qmd) 系関数のエラーメッセージを改善しました。
+- その他、いくつかの関数のエラーメッセージを改善しました。
+
+##  Py4Stats v0.2.2 2026-01-19
+
+###  概要（Summary）
+
+型ヒントに関する若干の修正と、バグ修正を行いました。今回のリリースでは機能の追加や変更はありません。
+
+###  🛠 修正と改善（Fixes /Improvements）
+
+- [`building_block.assert_numeric`](../man/assert_dtype.qmd) 系関数のリファクタリングを行いました。この変更でメインモジュールの関数の動作に変更はありません。
+- [`compare_group_means()`, `compare_group_median()`](../man/compare_group_stats.qmd) のテストコードを実装しました。
+- [`tabyl()`](../man/tabyl.qmd): 第一引数 `data` と同じオブジェクト型をもつ DataFrame を出力できるように実装を修正しました。
+- [`check_that(), check_viorate()`](../man/varidate.qmd) : 第一引数 `data` と同じオブジェクト型をもつ DataFrame を出力できるように実装を修正しました。引き続きロジックのコア部分には `pd.DataFrame.eval()` を使用しており、使用方法に大きな変更はありません。
+- [`is_number()`](../man/predicate_str.qmd) 関数を修正し、pyarrow.lib.ChunkedArray オブジェクトを代入すると生じるエラーを解消しました。
+
+##  Py4Stats v0.2.1 2026-01-16
+
+###  概要（Summary）
+
+このリリースでは Pyt4Stats の各モジュールに幾つかの関数の追加を行いました。
+
+###  ✨ 主な新機能 （New Features）
+
+- [`plot_category()`](../man/plot_category.qmd) 関数の追加
+    - カテゴリ変数の回答分布を 100% 積み上げ横棒グラフとして描画する関数です。
+- [`plot_miss_var()`](../man/plot_miss_var.qmd) 関数の追加
+    - データフレームの各変数について欠測値の量を横棒グラフとして可視化します。
+- [`relocate()`](../man/relocate.qmd) 関数の追加
+    - データフレームの列を、削除することなく並べ替えます。
+- [`weighted_mean()`, `scale()`, `min_max()`](../man/scale_wmean.qmd) 関数の追加
+    - それぞれ Series オブジェクトの加重平均の計算と、標準化を行う関数です。
+
+###  🛠 修正と改善（Fixes /Improvements）
+
+- `eda_tools` の Pandas ベース実装 `eda_tools/_pands.py` に、`FutureWarning` を実装しました。
+- ユーザビリティ向上のため、[`freq_table()`](../man/freq_table.qmd) 関数に `sort_by` 引数を導入しました。
+    - `sort_by = 'frequency'` なら度数分布表を頻度に応じてソートし（従来の `sort = True` に相当）、`sort_by = 'values'`  なら `subset` で指定した列の値に応じてソートします（従来の `sort = False` に相当）。
+    - この変更に合わせて、`sort` 引数は非推奨扱いに変更されています。
+- [`Pareto_plot()`](../man/Pareto_plot.qmd) の `aggfunc` 引数に、`np.mean` など `values` 列を1次元配列として受け取って単一の数値を返す任意の関数を使用できるように改良を行いました。
+- その他、`py4stats` ライブラリ全体のエラーメッセージ改善
+- [`building_block.assert_*`](../man/assert_dtype.qmd) 系関数の改良を行い、与えられた引数の要素数に関するアサーションと、None やリストを拒否する機能を追加しました。
+- [`cmpare_ols()`](../man/compare_ols.qmd) および [`cmpare_mfx()`](../man/compare_mfx.qmd) に stars 引数を追加し、有意性のアスタリスクの表示形式を変更できる機能を追加しました。また、その他エラーメッセージの改善を行なっています。
+
+###  ⚠️ 既知の制限・注意点（Notes）
+
+- `pyarrow.Table` を使用する場合、[`plot_category()`](../man/plot_category.qmd) 関数の一部機能が制限されます。
+
+##  Py4Stats v0.1.0 2026-01-11
+
+###  概要（Summary）
+
+このリリースでは EDA モジュールの narwhals ベース実装を統合し、パフォーマンスと互換性を大幅に改善しました。いくつかの既知の挙動も修正されています。
+
+###  ✨ 主な新機能 （New Features）
+
+- `py4stats.eda_tools` が Pandas ベースの実装から narwhals ベース実装へ移行しました。
+    - この変更により、複数バックエンド（pandas / polars / pyarrow）をサポートしました。
+- Pandas ベースの実装は、当面 `py4stats` ライブラリのサブモジュール `eda_tools._pandas` として維持されますが、将来的に廃止される予定です。
+
+###  🛠 修正と改善（Fixes /Improvements）
+
+- `bilding_block` モジュールの名称を `building_block` に修正
+- `Py4Stats.building_block` モジュールの [`assert_*` 系関数](../man/assert_dtype.qmd)の出力を `AssertionError` から `ValueError` に変更しました。
+- `Py4Stats.eda_tools` モジュールの関数の bool 値の引数を中心に、型の不一致があった場合のエラーメッセージを改善しました。
+
+###  ⚠️ 既知の制限・注意点（Notes）
+
+- バックエンドの変更に伴い、[`py4st.freq_table()`](../man/freq_table.qmd)、[`py4st.diagnose()`](../man/diagnose.qmd)、[`py4st.tabyl()`](../man/tabyl.qmd) など、従来はインデックス（Index）付きの `pandas.DataFrame` データフレームが出力されていた関数で、インデックスのない `pandas.DataFrame` が出力されるように変更されました。
+- polars / pyarrow のサポートは experimental であり、一部のエッジケースで動作に違いが出る可能性があります。詳細は [Technical Notes](./narwhals_in_py4stats.qmd) および [eda_tools開発状況](./eda_tools_development_status.qmd) を参照してください。

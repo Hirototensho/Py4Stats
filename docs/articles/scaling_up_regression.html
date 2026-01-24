@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>eda_toolsの開発状況 – Py4Stats</title>
+<title>scaling up regression – Py4Stats</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,6 +20,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -30,8 +65,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../articles/narwhalsについての考察.html" rel="next">
-<link href="../articles/narwhals_in_py4stats.html" rel="prev">
+<link href="../articles/narwhals_in_py4stats.html" rel="next">
+<link href="../articles/release_notes.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
@@ -71,6 +106,35 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../theme.scss">
 </head>
@@ -84,7 +148,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../articles/release_notes.html"><strong>Articles</strong></a></li><li class="breadcrumb-item"><a href="../articles/eda_tools_development_status.html"><span class="chapter-title">eda_toolsの開発状況</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../articles/release_notes.html"><strong>Articles</strong></a></li><li class="breadcrumb-item"><a href="../articles/scaling_up_regression.html"><span class="chapter-title">scaling up regression</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -357,7 +421,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../articles/scaling_up_regression.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">scaling up regression</span></a>
+  <a href="../articles/scaling_up_regression.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">scaling up regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -367,7 +431,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../articles/eda_tools_development_status.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">eda_toolsの開発状況</span></a>
+  <a href="../articles/eda_tools_development_status.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">eda_toolsの開発状況</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -387,17 +451,21 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#関数の実装状況一覧" id="toc-関数の実装状況一覧" class="nav-link active" data-scroll-target="#関数の実装状況一覧">関数の実装状況一覧</a></li>
-  <li><a href="#凡例" id="toc-凡例" class="nav-link" data-scroll-target="#凡例">凡例</a></li>
+  <li><a href="#複数の回帰式を比較する" id="toc-複数の回帰式を比較する" class="nav-link active" data-scroll-target="#複数の回帰式を比較する">複数の回帰式を比較する</a></li>
+  <li><a href="#ブートストラップ回帰" id="toc-ブートストラップ回帰" class="nav-link" data-scroll-target="#ブートストラップ回帰">ブートストラップ回帰</a>
+  <ul class="collapse">
+  <li><a href="#補足" id="toc-補足" class="nav-link" data-scroll-target="#補足">補足</a></li>
+  </ul></li>
+  <li><a href="#参考文献" id="toc-参考文献" class="nav-link" data-scroll-target="#参考文献">参考文献</a></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/experiment/quarto/articles/eda_tools_development_status.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/experiment/quarto/articles/scaling_up_regression.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../articles/release_notes.html"><strong>Articles</strong></a></li><li class="breadcrumb-item"><a href="../articles/eda_tools_development_status.html"><span class="chapter-title">eda_toolsの開発状況</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../articles/release_notes.html"><strong>Articles</strong></a></li><li class="breadcrumb-item"><a href="../articles/scaling_up_regression.html"><span class="chapter-title">scaling up regression</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-title">eda_toolsの開発状況</span></h1>
+<h1 class="title"><span class="chapter-title">scaling up regression</span></h1>
 </div>
 
 
@@ -414,336 +482,330 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>2026年1月24日</p>
-<section id="関数の実装状況一覧" class="level2">
-<h2 class="anchored" data-anchor-id="関数の実装状況一覧">関数の実装状況一覧</h2>
-<table class="table-striped table-hover caption-top table">
-<caption>関数の実装状況一覧</caption>
+<p>　ここでは実証分析の場面で便利な回帰分析の実装例を紹介します。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> py4stats <span class="im">as</span> py4st</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> statsmodels.formula.api <span class="im">as</span> smf</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> palmerpenguins <span class="im">import</span> load_penguins</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>penguins <span class="op">=</span> load_penguins() <span class="co"># サンプルデータの読み込み</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="複数の回帰式を比較する" class="level2">
+<h2 class="anchored" data-anchor-id="複数の回帰式を比較する">複数の回帰式を比較する</h2>
+<p>　異なる説明変数の組合せを比較したい場合、リスと内包表記を使って実装するとコードが簡潔で扱いやすくなります。まずは <code>smf.ols()</code> をもとに回帰式を受け取って回帰分析の結果を返す関数 <code>fit_ols</code> と、回帰式のリスト<code>list_fml</code> を定義します。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 回帰分析の推定</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> fit_ols(fml, data):</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  res <span class="op">=</span> smf.ols(fml, data <span class="op">=</span> data).fit()</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> res</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>list_fml <span class="op">=</span> [</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'body_mass_g ~ bill_length_mm + species'</span>,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">'body_mass_g ~ bill_length_mm + bill_depth_mm + species'</span>,</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">'body_mass_g ~ bill_length_mm + bill_depth_mm + species + sex'</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>回帰分析の実行部分は次のように記述します。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 回帰分析の実行</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>list_fitted1 <span class="op">=</span> [fit_ols(fml, penguins) <span class="cf">for</span> fml <span class="kw">in</span> list_fml]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>このとき <code>list_fitted1</code> は回帰分析の推定結果を要素に持つリストであるため、<a href="https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_ols.md"><code>py4st.compare_ols()</code></a> にそのまま代入することができます。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>py4st.compare_ols(list_models <span class="op">=</span> list_fitted1) <span class="co"># 表の作成</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="caption-top table">
 <colgroup>
-<col style="width: 19%">
-<col style="width: 15%">
-<col style="width: 8%">
-<col style="width: 8%">
-<col style="width: 9%">
-<col style="width: 37%">
+<col style="width: 32%">
+<col style="width: 22%">
+<col style="width: 23%">
+<col style="width: 22%">
 </colgroup>
 <thead>
 <tr class="header">
-<th style="text-align: left;">functions</th>
-<th style="text-align: left;">Input</th>
-<th style="text-align: left;">Pandas</th>
-<th style="text-align: left;">Polars</th>
-<th style="text-align: left;">Pyarrow</th>
-<th style="text-align: left;">補足</th>
+<th style="text-align: left;">term</th>
+<th style="text-align: left;">model 1</th>
+<th style="text-align: left;">model 2</th>
+<th style="text-align: left;">model 3</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">Mean</td>
-<td style="text-align: left;">pd.Series</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">❌</td>
-<td style="text-align: left;">❌</td>
-<td style="text-align: left;">pd.DataFrame.eval() での使用を想定した関数</td>
+<td style="text-align: left;">Intercept</td>
+<td style="text-align: left;">153.7397</td>
+<td style="text-align: left;">-1742.7202 ***</td>
+<td style="text-align: left;">843.9812 **</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Median</td>
-<td style="text-align: left;">pd.Series</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">❌</td>
-<td style="text-align: left;">❌</td>
-<td style="text-align: left;">pd.DataFrame.eval() での使用を想定した関数</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">(268.9012)</td>
+<td style="text-align: left;">(313.7697)</td>
+<td style="text-align: left;">(403.5956)</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Max</td>
-<td style="text-align: left;">pd.Series</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">❌</td>
-<td style="text-align: left;">❌</td>
-<td style="text-align: left;">pd.DataFrame.eval() での使用を想定した関数</td>
+<td style="text-align: left;">species[T.Chinstrap]</td>
+<td style="text-align: left;">-885.8121 ***</td>
+<td style="text-align: left;">-539.6864 ***</td>
+<td style="text-align: left;">-245.1516 ***</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Min</td>
-<td style="text-align: left;">pd.Series</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">❌</td>
-<td style="text-align: left;">❌</td>
-<td style="text-align: left;">pd.DataFrame.eval() での使用を想定した関数</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">(88.2502)</td>
+<td style="text-align: left;">(86.9425)</td>
+<td style="text-align: left;">(84.5952)</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Pareto_plot</td>
-<td style="text-align: left;">DataFrame</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
+<td style="text-align: left;">species[T.Gentoo]</td>
+<td style="text-align: left;">578.6292 ***</td>
+<td style="text-align: left;">1492.8283 ***</td>
+<td style="text-align: left;">1443.3525 ***</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Sum</td>
-<td style="text-align: left;">pd.Series</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">❌</td>
-<td style="text-align: left;">❌</td>
-<td style="text-align: left;">pd.DataFrame.eval() での使用を想定した関数</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">(75.3623)</td>
+<td style="text-align: left;">(118.4442)</td>
+<td style="text-align: left;">(107.7844)</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">check_that</td>
-<td style="text-align: left;">DataFrame</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">⭕️</td>
-<td style="text-align: left;">⭕️</td>
-<td style="text-align: left;">実装に pd.DataFrame.eval() を使用</td>
+<td style="text-align: left;">bill_length_mm</td>
+<td style="text-align: left;">91.4358 ***</td>
+<td style="text-align: left;">55.6461 ***</td>
+<td style="text-align: left;">26.5366 ***</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">check_viorate</td>
-<td style="text-align: left;">DataFrame</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">⭕️</td>
-<td style="text-align: left;">⭕️</td>
-<td style="text-align: left;">実装に pd.DataFrame.eval() を使用</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">(6.8871)</td>
+<td style="text-align: left;">(7.2326)</td>
+<td style="text-align: left;">(7.2436)</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">compare_df_cols</td>
-<td style="text-align: left;">DataFrame</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
+<td style="text-align: left;">bill_depth_mm</td>
 <td style="text-align: left;"></td>
+<td style="text-align: left;">179.0434 ***</td>
+<td style="text-align: left;">87.9328 ***</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">compare_df_record</td>
-<td style="text-align: left;">DataFrame</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
 <td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">(19.0997)</td>
+<td style="text-align: left;">(20.2192)</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">compare_df_stats</td>
-<td style="text-align: left;">DataFrame</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
+<td style="text-align: left;">sex[T.male]</td>
 <td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">437.2007 ***</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">compare_group_means</td>
-<td style="text-align: left;">DataFrame</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
 <td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">(49.1098)</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">compare_group_median</td>
-<td style="text-align: left;">DataFrame</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
+<td style="text-align: left;">rsquared_adj</td>
+<td style="text-align: left;">0.7810</td>
+<td style="text-align: left;">0.8258</td>
+<td style="text-align: left;">0.8613</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">crosstab</td>
-<td style="text-align: left;">DataFrame</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">⭕️</td>
-<td style="text-align: left;">Pyarrow は Polars 依存の実装</td>
+<td style="text-align: left;">nobs</td>
+<td style="text-align: left;">342</td>
+<td style="text-align: left;">342</td>
+<td style="text-align: left;">333</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">diagnose</td>
-<td style="text-align: left;">DataFrame</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">diagnose_category</td>
-<td style="text-align: left;">DataFrame</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">filtering_out</td>
-<td style="text-align: left;">DataFrame</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">freq_table</td>
-<td style="text-align: left;">DataFrame</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">implies_exper</td>
-<td style="text-align: left;">pd.Series</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">❌</td>
-<td style="text-align: left;">❌</td>
-<td style="text-align: left;">pd.DataFrame.eval() での使用を想定した関数</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">is_dummy</td>
-<td style="text-align: left;">DataFrame/Series</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">is_number</td>
-<td style="text-align: left;">Series</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">is_ymd_like</td>
-<td style="text-align: left;">Series</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">is_ymd</td>
-<td style="text-align: left;">Series</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">mean_ci</td>
-<td style="text-align: left;">DataFrame/Series</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">mean_qi</td>
-<td style="text-align: left;">DataFrame/Series</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">median_qi</td>
-<td style="text-align: left;">DataFrame/Series</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">min_max</td>
-<td style="text-align: left;">Series</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">plot_mean_diff</td>
-<td style="text-align: left;">DataFrame</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">plot_median_diff</td>
-<td style="text-align: left;">DataFrame</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">plot_miss_var</td>
-<td style="text-align: left;">DataFrame</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">scale</td>
-<td style="text-align: left;">Series</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">set_miss</td>
-<td style="text-align: left;">Series</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">relocate</td>
-<td style="text-align: left;">DataFrame</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">remove_constant</td>
-<td style="text-align: left;">DataFrame</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">remove_empty</td>
-<td style="text-align: left;">DataFrame</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">tabyl</td>
-<td style="text-align: left;">DataFrame</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">⭕️</td>
-<td style="text-align: left;">⭕️</td>
-<td style="text-align: left;">一部の処理が Pandas 依存</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">weighted_mean</td>
-<td style="text-align: left;">Series</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;">✅</td>
-<td style="text-align: left;"></td>
+<td style="text-align: left;">df</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">5</td>
 </tr>
 </tbody>
 </table>
+<p>この方法であれば、試したい回帰式のパターンが増えた場合でも、<code>list_fml</code> の要素を追加するだけで済むため、実行部分を変更する必要がありません。<br>
+　また、回帰係数を視覚的に比較するには次のようなコードを使うと良いでしょう。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>plt.rcParams[<span class="st">"figure.autolayout"</span>] <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize <span class="op">=</span> (<span class="fl">3.2</span> <span class="op">*</span> <span class="dv">5</span>, <span class="dv">5</span>), dpi <span class="op">=</span> <span class="dv">100</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> k, mod <span class="kw">in</span> <span class="bu">enumerate</span>(list_fitted1):</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  py4st.coefplot(mod, ax <span class="op">=</span> ax[k])</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  ax[k].set_xlim(<span class="op">-</span><span class="dv">1200</span>, <span class="dv">1800</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  ax[k].set_title(<span class="ss">f'model </span><span class="sc">{</span>k <span class="op">+</span> <span class="dv">1</span><span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  ax[k].set_xlabel(<span class="ss">f'coefficient (n = </span><span class="sc">{</span>mod<span class="sc">.</span>nobs<span class="sc">:,.0f}</span><span class="ss">)'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><img src="image/scaling_up_regression1.png" class="img-fluid" alt="scaling_up_regression1"> ## グループ別の回帰分析</p>
+<p>　次に、データセットのグループ別に回帰分析を行う場合を考えます。この場合、データを受け取ると回帰分析の結果を返す関数 <code>group_ols</code> を定義し、回帰式は固定しておきます。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># グループ別の回帰分析の実行</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> group_ols(data):</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  res <span class="op">=</span> smf.ols(</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>      <span class="st">'body_mass_g ~ bill_length_mm + bill_depth_mm + sex'</span>, </span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>      data <span class="op">=</span> data).fit()</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> res</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>次に <code>pd.DataFrame</code> の <code>.groupby()</code> メソッドを使ってグループ分けを行い、続いて <code>.apply()</code> メソッドを使ってグループ別に回帰分析を実行します。ここでは、実行結果が回帰分析の結果を要素にもつ pd.Series になるので、<code>.to_list()</code> メソッドでリストに変換しています。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>penguins2 <span class="op">=</span> penguins.groupby(<span class="st">'species'</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>list_fitted2 <span class="op">=</span> penguins2.<span class="bu">apply</span>(group_ols).to_list()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>ここまでの準備ができれば、後は <a href="../man/compare_ols.html"><code>py4st.compare_ols()</code></a> で分析結果を比較できます。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>list_groups <span class="op">=</span> <span class="bu">list</span>(penguins2.groups.keys())</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>py4st.compare_ols(</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    list_models <span class="op">=</span> list_fitted2,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    model_name <span class="op">=</span> list_groups</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">term</th>
+<th style="text-align: left;">Adelie</th>
+<th style="text-align: left;">Chinstrap</th>
+<th style="text-align: left;">Gentoo</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Intercept</td>
+<td style="text-align: left;">984.4166</td>
+<td style="text-align: left;">286.2540</td>
+<td style="text-align: left;">1829.0302 ***</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">(601.1999)</td>
+<td style="text-align: left;">(980.5230)</td>
+<td style="text-align: left;">(638.6999)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">sex[T.male]</td>
+<td style="text-align: left;">476.6000 ***</td>
+<td style="text-align: left;">102.9407</td>
+<td style="text-align: left;">536.5500 ***</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">(69.9994)</td>
+<td style="text-align: left;">(119.3246)</td>
+<td style="text-align: left;">(80.3899)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">bill_length_mm</td>
+<td style="text-align: left;">26.8589 **</td>
+<td style="text-align: left;">18.4218</td>
+<td style="text-align: left;">33.6324 ***</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">(11.4707)</td>
+<td style="text-align: left;">(16.0333)</td>
+<td style="text-align: left;">(11.2907)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">bill_depth_mm</td>
+<td style="text-align: left;">78.5228 ***</td>
+<td style="text-align: left;">135.4873 **</td>
+<td style="text-align: left;">92.5900 **</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">(25.1993)</td>
+<td style="text-align: left;">(51.1571)</td>
+<td style="text-align: left;">(41.9318)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">rsquared_adj</td>
+<td style="text-align: left;">0.5822</td>
+<td style="text-align: left;">0.3687</td>
+<td style="text-align: left;">0.6956</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">nobs</td>
+<td style="text-align: left;">146</td>
+<td style="text-align: left;">68</td>
+<td style="text-align: left;">119</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">df</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">3</td>
+</tr>
+</tbody>
+</table>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>plt.rcParams[<span class="st">"figure.autolayout"</span>] <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize <span class="op">=</span> (<span class="fl">3.2</span> <span class="op">*</span> <span class="dv">5</span>, <span class="dv">5</span>), dpi <span class="op">=</span> <span class="dv">100</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> k, mod <span class="kw">in</span> <span class="bu">enumerate</span>(list_fitted2):</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  py4st.coefplot(mod, ax <span class="op">=</span> ax[k])</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  ax[k].set_xlim(<span class="op">-</span><span class="dv">500</span>, <span class="dv">1000</span>)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  ax[k].set_title(list_groups[k])</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  ax[k].set_xlabel(<span class="ss">f'coefficient (n = </span><span class="sc">{</span>mod<span class="sc">.</span>nobs<span class="sc">:,.0f}</span><span class="ss">)'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="image/scaling_up_regression2.png" class="img-fluid figure-img"></p>
+<figcaption>scaling_up_regression2</figcaption>
+</figure>
+</div>
 </section>
-<section id="凡例" class="level2">
-<h2 class="anchored" data-anchor-id="凡例">凡例</h2>
+<section id="ブートストラップ回帰" class="level2">
+<h2 class="anchored" data-anchor-id="ブートストラップ回帰">ブートストラップ回帰</h2>
+<p>　前節でグループ別の回帰分析を行なった方法を応用すると、ブートストラップ法を簡単に実装することができます。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> est_ols(data):</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  fitted <span class="op">=</span> smf.ols(</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>      <span class="st">'body_mass_g ~ bill_length_mm + bill_depth_mm + species + sex'</span>,</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>      data <span class="op">=</span> data).fit()</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> fitted</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>　次にブートストラップ法の実行部分を作成します。ここでは pandas の <code>DataFrame.sample()</code> メソッドを使い、引数に <code>frac = 1, replace = True</code> を指定することで復元抽出を行います。また、ここでは反復回数を Efron, Hastie(2016, p.161)などで推奨されている <span class="math inline">\(B = 1000\)</span> を指定しています。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ブートストラップ法の実装</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>B <span class="op">=</span> <span class="dv">1000</span> <span class="co"># ブートストラップ法の反復回数</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>model_list <span class="op">=</span> [</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    penguins.sample(frac <span class="op">=</span> <span class="dv">1</span>, replace <span class="op">=</span> <span class="va">True</span>, random_state <span class="op">=</span> <span class="dv">123</span>)<span class="op">\</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    .pipe(est_ols) </span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> b <span class="kw">in</span> <span class="bu">range</span>(B)</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>boot_sample <span class="op">=</span> pd.concat([py4st.tidy(mod) <span class="cf">for</span> mod <span class="kw">in</span> model_list])</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="bu">len</span>(boot_sample)</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6000</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>次にブートストラップ統計量を集計して結果を確認しますが、ここではごく簡単に <a href="../man/point_range.md"><code>py4st.mean_qi()</code></a> を使って、説明変数別に回帰係数の平均値と分位点を求めています。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> boot_sample.groupby([<span class="st">'term'</span>])[[<span class="st">'estimate'</span>]]<span class="op">\</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">apply</span>(py4st.mean_qi)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(res.<span class="bu">round</span>(<span class="dv">4</span>))</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                         variable       mean      lower      upper</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; term                                                             </span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Intercept            0  estimate   823.7098   823.7098   823.7098</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; bill_depth_mm        0  estimate   109.9439   109.9439   109.9439</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; bill_length_mm       0  estimate    17.8235    17.8235    17.8235</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; sex[T.male]          0  estimate   474.2673   474.2673   474.2673</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; species[T.Chinstrap] 0  estimate  -191.4717  -191.4717  -191.4717</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; species[T.Gentoo]    0  estimate  1487.5680  1487.5680  1487.5680</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>ブートストラップ法を使うと、次のような回帰係数の分布のグラフを描くこともできます。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> ptitprince <span class="im">as</span> pt</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize <span class="op">=</span> (np.sqrt(<span class="dv">2</span>) <span class="op">*</span> <span class="dv">3</span>, <span class="dv">3</span>), dpi <span class="op">=</span> <span class="dv">150</span>)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>pt.RainCloud(</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    data <span class="op">=</span> boot_sample.sort_index().reset_index()<span class="op">\</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>      .query(<span class="st">'~term.str.contains("Intercept")'</span>),</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> <span class="st">'term'</span>,</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> <span class="st">'estimate'</span>,</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    orient <span class="op">=</span> <span class="st">'h'</span>,</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    ax <span class="op">=</span> ax</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>ax.axvline(<span class="dv">0</span>, ls <span class="op">=</span> <span class="st">"--"</span>, color <span class="op">=</span> <span class="st">'#969696'</span>)<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="image/scaling_up_regression3.png" class="img-fluid figure-img"></p>
+<figcaption>scaling_up_regression3</figcaption>
+</figure>
+</div>
+<section id="補足" class="level3">
+<h3 class="anchored" data-anchor-id="補足">補足</h3>
 <ul>
-<li>✅ 実装済/テスト済</li>
-<li>⭕️ 実装済/テスト済（異なるバックエンドに依存）</li>
-<li>🔼 実装済/テスト未</li>
-<li>❌ 未実装</li>
+<li>データセットが大きい場合、ブートストラップ法の実行には時間がかかるので <code>boot_sample.to_csv('output/boot_sample.csv')</code> を追加して保存しておいた方が、事後的な分析がしやすいと思います。</li>
+<li>今回のような通常の回帰分析であれば、回帰係数の標準誤差は簡単に計算できるためブートストラップ法を使う必要性を感じにくいですが、傾向スコアを用いたIPW推定量など、標準誤差の推定にブートストラップ法が必要になる場合もあります。</li>
+<li>今回は <code>DataFrame.sample()</code> メソッドを使ったごく簡単な方法でブートストラップ法を実装していますが、もう少し効率的な方法もあるのではないかと思います。</li>
+</ul>
+</section>
+</section>
+<section id="参考文献" class="level2">
+<h2 class="anchored" data-anchor-id="参考文献">参考文献</h2>
+<ul>
+<li>Efron, Bradley, and Trevor Hastie. (2016). <em>Computer age statistical inference</em>. Cambridge University Press.</li>
+<li>末石直也(2015)『計量経済学：ミクロデータ分析へのいざない』 日本評論社.</li>
 </ul>
 
 
@@ -1152,13 +1214,13 @@ ul.task-list li input[type="checkbox"] {
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../articles/narwhals_in_py4stats.html" class="pagination-link" aria-label="Technical Notes: py4stats.eda_tools における narwhals ベースの実装">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Technical Notes: py4stats.eda_tools における narwhals ベースの実装</span></span>
+      <a href="../articles/release_notes.html" class="pagination-link" aria-label="Release Notes">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Release Notes</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../articles/narwhalsについての考察.html" class="pagination-link" aria-label="narwhals についての考察">
-        <span class="nav-page-text"><span class="chapter-title">narwhals についての考察</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../articles/narwhals_in_py4stats.html" class="pagination-link" aria-label="Technical Notes: py4stats.eda_tools における narwhals ベースの実装">
+        <span class="nav-page-text"><span class="chapter-title">Technical Notes: py4stats.eda_tools における narwhals ベースの実装</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -1167,4 +1229,4 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/experiment/quarto/articles/eda_tools_development_status.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/experiment/quarto/articles/scaling_up_regression.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></div></div></footer></body></html>

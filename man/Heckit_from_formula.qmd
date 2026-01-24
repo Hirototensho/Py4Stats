@@ -1,4 +1,4 @@
-# `heckit_helper.Heckit_from_formula()`
+# heckit_helper.Heckit_from_formula
 
 ## 概要
 

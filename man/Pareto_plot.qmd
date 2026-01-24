@@ -1,4 +1,6 @@
-# `py4stats.Pareto_plot()`: パレート図の作成
+# Pareto_plot
+
+パレート図の作成
 
 ## 概要
 

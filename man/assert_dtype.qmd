@@ -1,4 +1,6 @@
-# データ型による引数のアサーション
+# building_block.assert_dtypes
+
+データ型による引数のアサーション
 
 ## 概要
 

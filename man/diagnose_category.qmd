@@ -1,4 +1,6 @@
-# カテゴリー変数の要約 `py4stats.diagnose_category()`
+# diagnose_category
+
+カテゴリー変数の要約
 
 ## 概要
 

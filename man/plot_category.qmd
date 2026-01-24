@@ -1,4 +1,4 @@
-# `py4stats.plot_category()`
+# plot_category
 
 カテゴリ変数の回答分布を 100% 積み上げ横棒グラフとして描画します。
 

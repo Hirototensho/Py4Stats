@@ -1,4 +1,6 @@
-# p-値のフォーマットを変更する関数
+# building_block.style_pvalue, 'p_stars'
+
+p-値のフォーマットを変更する関数
 
 ## 概要
 

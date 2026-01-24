@@ -1,8 +1,10 @@
-# 数値変数の点推定と区間推定：`py4stats.mean_qi()` `py4stats.median_qi()` `py4stats.mean_ci()`
+# mean_qi median_qi mean_ci
+
+数値変数の点推定と区間推定
 
 ## 概要
 
-　R言語の [`ggdist::mean_qi()`](https://mjskay.github.io/ggdist/reference/point_interval.html) をオマージュした数値変数の点推定と区間推定を行う関数です。
+R言語の [`ggdist::mean_qi()`](https://mjskay.github.io/ggdist/reference/point_interval.html) をオマージュした数値変数の点推定と区間推定を行う関数です。
 
 ```python
 mean_qi(

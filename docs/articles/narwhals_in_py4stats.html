@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>39&nbsp; Technical Notes: py4stats.eda_tools における narwhals ベースの実装 – Py4Stats</title>
+<title>Technical Notes: py4stats.eda_tools における narwhals ベースの実装 – Py4Stats</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -119,7 +119,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../articles/scaling_up_regression.html">articles</a></li><li class="breadcrumb-item"><a href="../articles/narwhals_in_py4stats.html"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Technical Notes: py4stats.eda_tools における narwhals ベースの実装</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../articles/release_notes.html"><strong>Articles</strong></a></li><li class="breadcrumb-item"><a href="../articles/narwhals_in_py4stats.html"><span class="chapter-title">Technical Notes: py4stats.eda_tools における narwhals ベースの実装</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -149,26 +149,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Readme</span></span></a>
+  <a href="../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Readme</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../introduction.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title"><code>Introduction to Py4Stats</code></span></span></a>
+  <a href="../introduction.html" class="sidebar-item-text sidebar-link"><span class="chapter-title"><code>Introduction to Py4Stats</code></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Function reference</span></span></a>
+  <a href="../reference.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Function reference</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
- <span class="menu-text">eda_tools</span></a>
+ <span class="menu-text"><strong>EDA</strong></span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -176,110 +173,92 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/diagnose.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title"><code>py4stats.diagnose()</code>: データフレームの概要</span></span></a>
+  <a href="../man/diagnose.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">diagnose</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/tabyl.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title"><code>py4stats.tabyl()</code></span></span></a>
+  <a href="../man/tabyl.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">tabyl</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/freq_table.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title"><code>py4stats.freq_table()</code></span></span></a>
+  <a href="../man/freq_table.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">freq_table</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/Pareto_plot.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title"><code>py4stats.Pareto_plot()</code>: パレート図の作成</span></span></a>
+  <a href="../man/Pareto_plot.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Pareto_plot</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/plot_category.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title"><code>py4stats.plot_category()</code></span></span></a>
+  <a href="../man/plot_category.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">plot_category</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/diagnose_category.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">カテゴリー変数の要約 <code>py4stats.diagnose_category()</code></span></span></a>
+  <a href="../man/diagnose_category.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">diagnose_category</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/point_range.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">数値変数の点推定と区間推定：<code>py4stats.mean_qi()</code> <code>py4stats.median_qi()</code> <code>py4stats.mean_ci()</code></span></span></a>
+  <a href="../man/point_range.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">mean_qi median_qi mean_ci</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/remove_empty_constant.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">空白列, 定数列の削除：<code>py4stats.remove_empty()</code>, <code>py4stats.remove_constant()</code></span></span></a>
+  <a href="../man/remove_empty_constant.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">remove_empty, remove_constant</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/filtering_out.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title"><code>py4stats.filtering_out()</code></span></span></a>
+  <a href="../man/filtering_out.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">filtering_out</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/relocate.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title"><code>py4stats.relocate()</code>: 列を削除せずに並び替える</span></span></a>
+  <a href="../man/relocate.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">relocate</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/compare_df_cols.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title"><code>py4stats.compare_df_cols()</code>, <code>py4stats.compare_df_stats()</code></span></span></a>
+  <a href="../man/compare_df_cols.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">compare_df_cols, compare_df_stats</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/compare_group_stats.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">統計量に基づくグループ間比較</span></span></a>
+  <a href="../man/compare_group_stats.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">compare_group_means, compare_group_median, plot_mean_diff, plot_median_diff</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/plot_miss_var.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title"><code>py4stats.plot_miss_var()</code></span></span></a>
+  <a href="../man/plot_miss_var.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">plot_miss_var</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/set_miss.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title"><code>py4stats.set_miss()</code></span></span></a>
+  <a href="../man/set_miss.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">set_miss</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/scale_wmean.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">数値変換・正規化ユーティリティ: <code>py4stats.weighted_mean()</code>, <code>py4stats.scale()</code>, <code>py4stats.min_max()</code></span></span></a>
+  <a href="../man/scale_wmean.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">weighted_mean, scale, min_max</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/predicate_str.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">文字列のフォーマットについての論理関数<br> `py4stats.is_number()`, `py4stats.is_ymd()`,  `py4stats.is_ymd_like()`</span></span></a>
+  <a href="../man/predicate_str.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">is_number, is_ymd, is_ymd_like</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/is_dummy.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">ダミー変数の判定： <code>py4stats.is_dummy()</code></span></span></a>
+  <a href="../man/is_dummy.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">is_dummy</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/varidate.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">簡易なルールベースのデータ検証ツール <code>py4stats.check_that()</code> <code>py4stats.check_viorate()</code></span></span></a>
+  <a href="../man/varidate.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">check_that check_viorate</span></a>
   </div>
 </li>
       </ul>
@@ -287,7 +266,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
- <span class="menu-text">regression_tools</span></a>
+ <span class="menu-text"><strong>Regression</strong></span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -295,44 +274,37 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/compare_ols.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">回帰分析の比較：<code>py4stats.compare_ols()</code></span></span></a>
+  <a href="../man/compare_ols.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">compare_ols</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/compare_mfx.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">限界効果の比較：<code>py4stats.compare_mfx()</code></span></span></a>
+  <a href="../man/compare_mfx.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">compare_mfx</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/coefplot.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">回帰分析による推定値の視覚化：<code>py4stats.coefplot()</code>, <code>py4stats.mfxplot()</code></span></span></a>
+  <a href="../man/coefplot.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">coefplot, mfxplot</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/tidy.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title"><code>py4stats.tidy()</code>, <code>py4stats.tidy_mfx()</code></span></span></a>
+  <a href="../man/tidy.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">tidy, tidy_mfx</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/tidy_test.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title"><code>py4stats.tidy_test()</code></span></span></a>
+  <a href="../man/tidy_test.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">tidy_test</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/glance.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title"><code>py4stats.glance()</code></span></span></a>
+  <a href="../man/glance.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">glance</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/Blinder_Oaxaca.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title"><code>py4stats.Blinder_Oaxaca()</code>, <code>py4stats.plot_Blinder_Oaxaca()</code></span></span></a>
+  <a href="../man/Blinder_Oaxaca.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Blinder_Oaxaca, plot_Blinder_Oaxaca</span></a>
   </div>
 </li>
       </ul>
@@ -340,7 +312,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
- <span class="menu-text">heckit_helper</span></a>
+ <span class="menu-text"><strong>heckit_helper</strong></span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -348,20 +320,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/tidy_heckit.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title"><code>heckit_helper.tidy_heckit()</code></span></span></a>
+  <a href="../man/tidy_heckit.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">heckit_helper.tidy_heckit</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/Heckit_from_formula.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title"><code>heckit_helper.Heckit_from_formula()</code></span></span></a>
+  <a href="../man/Heckit_from_formula.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">heckit_helper.Heckit_from_formula</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/heckitmfx_compute.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title"><code>heckit_helper.heckitmfx_compute()</code></span></span></a>
+  <a href="../man/heckitmfx_compute.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">heckit_helper.heckitmfx_compute</span></a>
   </div>
 </li>
       </ul>
@@ -369,7 +338,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
- <span class="menu-text">building_block</span></a>
+ <span class="menu-text"><strong>building_block</strong></span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -377,38 +346,32 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/arg_match.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">引数のアサーション <code>building_block.arg_match()</code></span></span></a>
+  <a href="../man/arg_match.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">building_block.arg_match</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/assert_dtype.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">データ型による引数のアサーション</span></span></a>
+  <a href="../man/assert_dtype.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">building_block.assert_dtypes</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/is_dtype.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">データ型を判定する論理関数</span></span></a>
+  <a href="../man/is_dtype.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">building_block.is_dtypes</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/miscellaneous.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">数字のフォーマットを変更する関数</span></span></a>
+  <a href="../man/miscellaneous.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">building_block.style_number, style_percent, style_percent</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/style_pvalue.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">p-値のフォーマットを変更する関数</span></span></a>
+  <a href="../man/style_pvalue.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">building_block.style_pvalue, ‘p_stars’</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/oxford_comma.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">並列文の作成 <code>oxford_comma()</code></span></span></a>
+  <a href="../man/oxford_comma.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">oxford_comma</span></a>
   </div>
 </li>
       </ul>
@@ -416,7 +379,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
- <span class="menu-text">articles</span></a>
+ <span class="menu-text"><strong>Articles</strong></span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -424,26 +387,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../articles/scaling_up_regression.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">scaling up regression</span></span></a>
+  <a href="../articles/release_notes.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Release Notes</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../articles/narwhals_in_py4stats.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Technical Notes: py4stats.eda_tools における narwhals ベースの実装</span></span></a>
+  <a href="../articles/scaling_up_regression.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">scaling up regression</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../articles/eda_tools_development_status.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">eda_toolsの開発状況</span></span></a>
+  <a href="../articles/narwhals_in_py4stats.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Technical Notes: py4stats.eda_tools における narwhals ベースの実装</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../articles/narwhalsについての考察.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">narwhals についての考察</span></span></a>
+  <a href="../articles/eda_tools_development_status.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">eda_toolsの開発状況</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../articles/narwhalsについての考察.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">narwhals についての考察</span></a>
   </div>
 </li>
       </ul>
@@ -458,21 +422,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#概要" id="toc-概要" class="nav-link active" data-scroll-target="#概要"><span class="header-section-number">39.1</span> 概要</a></li>
-  <li><a href="#対応している-dataframe-バックエンドについて" id="toc-対応している-dataframe-バックエンドについて" class="nav-link" data-scroll-target="#対応している-dataframe-バックエンドについて"><span class="header-section-number">39.2</span> 対応している DataFrame バックエンドについて</a></li>
-  <li><a href="#narwhals-を用いた関数の返り値の型について" id="toc-narwhals-を用いた関数の返り値の型について" class="nav-link" data-scroll-target="#narwhals-を用いた関数の返り値の型について"><span class="header-section-number">39.3</span> narwhals を用いた関数の返り値の型について</a></li>
-  <li><a href="#narwhals-を用いた実装方針について" id="toc-narwhals-を用いた実装方針について" class="nav-link" data-scroll-target="#narwhals-を用いた実装方針について"><span class="header-section-number">39.4</span> narwhals を用いた実装方針について</a></li>
-  <li><a href="#pandas_flavor-を用いた-dataframe-メソッド登録について" id="toc-pandas_flavor-を用いた-dataframe-メソッド登録について" class="nav-link" data-scroll-target="#pandas_flavor-を用いた-dataframe-メソッド登録について"><span class="header-section-number">39.5</span> 　<code>pandas_flavor</code> を用いた DataFrame メソッド登録について</a></li>
-  <li><a href="#今後について" id="toc-今後について" class="nav-link" data-scroll-target="#今後について"><span class="header-section-number">39.6</span> 今後について</a></li>
+  <li><a href="#概要" id="toc-概要" class="nav-link active" data-scroll-target="#概要">概要</a></li>
+  <li><a href="#対応している-dataframe-バックエンドについて" id="toc-対応している-dataframe-バックエンドについて" class="nav-link" data-scroll-target="#対応している-dataframe-バックエンドについて">対応している DataFrame バックエンドについて</a></li>
+  <li><a href="#narwhals-を用いた関数の返り値の型について" id="toc-narwhals-を用いた関数の返り値の型について" class="nav-link" data-scroll-target="#narwhals-を用いた関数の返り値の型について">narwhals を用いた関数の返り値の型について</a></li>
+  <li><a href="#narwhals-を用いた実装方針について" id="toc-narwhals-を用いた実装方針について" class="nav-link" data-scroll-target="#narwhals-を用いた実装方針について">narwhals を用いた実装方針について</a></li>
+  <li><a href="#pandas_flavor-を用いた-dataframe-メソッド登録について" id="toc-pandas_flavor-を用いた-dataframe-メソッド登録について" class="nav-link" data-scroll-target="#pandas_flavor-を用いた-dataframe-メソッド登録について">　<code>pandas_flavor</code> を用いた DataFrame メソッド登録について</a></li>
+  <li><a href="#今後について" id="toc-今後について" class="nav-link" data-scroll-target="#今後について">今後について</a></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/main/articles/narwhals_in_py4stats.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/experiment/quarto/articles/narwhals_in_py4stats.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../articles/scaling_up_regression.html">articles</a></li><li class="breadcrumb-item"><a href="../articles/narwhals_in_py4stats.html"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Technical Notes: py4stats.eda_tools における narwhals ベースの実装</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../articles/release_notes.html"><strong>Articles</strong></a></li><li class="breadcrumb-item"><a href="../articles/narwhals_in_py4stats.html"><span class="chapter-title">Technical Notes: py4stats.eda_tools における narwhals ベースの実装</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Technical Notes: py4stats.eda_tools における narwhals ベースの実装</span></h1>
+<h1 class="title"><span class="chapter-title">Technical Notes: py4stats.eda_tools における narwhals ベースの実装</span></h1>
 </div>
 
 
@@ -489,14 +453,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="概要" class="level2" data-number="39.1">
-<h2 data-number="39.1" class="anchored" data-anchor-id="概要"><span class="header-section-number">39.1</span> 概要</h2>
+<section id="概要" class="level2">
+<h2 class="anchored" data-anchor-id="概要">概要</h2>
 <p><code>py4stats.eda_tools</code> モジュールは、複数の DataFrame バックエンドに対して共通の API を提供することを目的として、<a href="https://narwhals-dev.github.io/narwhals/"><code>narwhals</code></a> ライブラリを用いて実装されています。</p>
 <p>本ドキュメントでは、本モジュールの内部実装に関する前提条件や、バックエンドの違いに起因する挙動上の注意点について説明します。</p>
 <p>通常の利用にあたって本ドキュメントを読む必要はありませんが、実装の詳細や挙動の違いが気になる場合には参考にしてください。</p>
 </section>
-<section id="対応している-dataframe-バックエンドについて" class="level2" data-number="39.2">
-<h2 data-number="39.2" class="anchored" data-anchor-id="対応している-dataframe-バックエンドについて"><span class="header-section-number">39.2</span> 対応している DataFrame バックエンドについて</h2>
+<section id="対応している-dataframe-バックエンドについて" class="level2">
+<h2 class="anchored" data-anchor-id="対応している-dataframe-バックエンドについて">対応している DataFrame バックエンドについて</h2>
 <p>　<code>py4stats.eda_tools</code> モジュールの関数は、第一引数として <a href="https://narwhals-dev.github.io/narwhals/api-reference/narwhals/#narwhals.from_native"><code>narwhals.from_native()</code></a> によって <code>nw.DataFrame</code> 型へ変換可能な DataFrame オブジェクトを受け取ります。</p>
 <p>具体的には、以下のようなバックエンドを想定しています。</p>
 <ul>
@@ -507,8 +471,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>本ライブラリの動作確認は、基本的に <code>pandas.DataFrame</code> を用いて実施しています。そのため、<code>polars</code> や <code>pyarrow</code> を使用した場合には、バックエンド固有の仕様差や未検証の挙動により、一部の関数でエラーが発生する可能性があります。そのような挙動が確認された場合は、<strong>Issue 等での報告を歓迎</strong>します。</p>
 <p>　また、バックエンド別の実装状況については <a href="../articles/eda_tools_development_status.html">eda_tools開発状況</a> も参照して下さい。</p>
 </section>
-<section id="narwhals-を用いた関数の返り値の型について" class="level2" data-number="39.3">
-<h2 data-number="39.3" class="anchored" data-anchor-id="narwhals-を用いた関数の返り値の型について"><span class="header-section-number">39.3</span> narwhals を用いた関数の返り値の型について</h2>
+<section id="narwhals-を用いた関数の返り値の型について" class="level2">
+<h2 class="anchored" data-anchor-id="narwhals-を用いた関数の返り値の型について">narwhals を用いた関数の返り値の型について</h2>
 <p><code>py4stats.eda_tools</code> モジュールの関数のうち、<a href="../man/diagnose.html"><code>py4stats.diagnose()</code></a> など、第一引数にデータフレームを取る関数の返り値の型は、<code>to_native</code> 引数の値によって変化します。<br> 　初期設定である <code>to_nativ = True</code> の場合には、第一引数に入力されたデータフレームと同じ型のデータフレームが出力され、<code>to_nativ = False</code> の場合には <code>narwhals.DataFrame</code> 型のデータフレームが出力されます。<code>to_nativ = False</code> のオプションは、主にライブラリ内部での利用や、データフレームのバックエンドに依存しない後続処理を行いたい場合を想定したオプションです。</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> py4stats <span class="im">as</span> py4st</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
@@ -539,16 +503,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">type</span>(py4st.diagnose(mroz_pa, to_native <span class="op">=</span> <span class="va">False</span>)))</span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;class 'narwhals.dataframe.DataFrame'&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
-<section id="narwhals-を用いた実装方針について" class="level2" data-number="39.4">
-<h2 data-number="39.4" class="anchored" data-anchor-id="narwhals-を用いた実装方針について"><span class="header-section-number">39.4</span> narwhals を用いた実装方針について</h2>
+<section id="narwhals-を用いた実装方針について" class="level2">
+<h2 class="anchored" data-anchor-id="narwhals-を用いた実装方針について">narwhals を用いた実装方針について</h2>
 <p>　内部実装では、関数の冒頭で</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>nw.from_native(data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>を用いて入力データを nw.DataFrame に変換し、以降の処理を narwhals の抽象 API 上で行っています。</p>
 <p>この設計により、DataFrame バックエンドごとの差異を最小限に抑えつつ、将来的な拡張性を確保することを目的としています。</p>
 <p>一方で、narwhals は各バックエンドの完全な互換性を保証するものではないため、特定の操作や型変換についてはバックエンドごとに挙動が異なる場合があります。</p>
 </section>
-<section id="pandas_flavor-を用いた-dataframe-メソッド登録について" class="level2" data-number="39.5">
-<h2 data-number="39.5" class="anchored" data-anchor-id="pandas_flavor-を用いた-dataframe-メソッド登録について"><span class="header-section-number">39.5</span> 　<code>pandas_flavor</code> を用いた DataFrame メソッド登録について</h2>
+<section id="pandas_flavor-を用いた-dataframe-メソッド登録について" class="level2">
+<h2 class="anchored" data-anchor-id="pandas_flavor-を用いた-dataframe-メソッド登録について">　<code>pandas_flavor</code> を用いた DataFrame メソッド登録について</h2>
 <p><code>py4stats.eda_tools</code> の関数のうち、単一の <code>DataFrame</code> オブジェクトを引数として受け取る関数については、<code>pandas_flavor.register_dataframe_method</code> を用いて DataFrame メソッドとして登録されています。その結果、以下のような使い方が可能です。</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>df.diagnose()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>ただし、<code>pandas_flavor</code> は pandas の拡張を前提とした仕組みであるため、このメソッド形式の呼び出しは、<code>pandas.DataFrame</code> を対象としています。 　polars.DataFrame や pyarrow ベースのオブジェクトを使用する場合には、関数として直接呼び出す形での利用を推奨します。</p>
@@ -556,8 +520,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>py4st.diagnose(df)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
-<section id="今後について" class="level2" data-number="39.6">
-<h2 data-number="39.6" class="anchored" data-anchor-id="今後について"><span class="header-section-number">39.6</span> 今後について</h2>
+<section id="今後について" class="level2">
+<h2 class="anchored" data-anchor-id="今後について">今後について</h2>
 <p>　<code>py4stats.eda_tools</code> モジュールは、今後も narwhals ベースの実装を主軸として改良・拡張を行っていく予定です。一方で、従来の pandas ベースの実装については、互換性のために当面は保持される予定ですが、機能追加は行わない予定です。バックエンドごとの挙動差や制限事項については、必要に応じて本ドキュメントを更新していきます。</p>
 
 
@@ -637,7 +601,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/github\.com\/Hirototensho\/Py4Stats");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
@@ -967,12 +931,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
       <a href="../articles/scaling_up_regression.html" class="pagination-link" aria-label="scaling up regression">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">scaling up regression</span></span>
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">scaling up regression</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
       <a href="../articles/eda_tools_development_status.html" class="pagination-link" aria-label="eda_toolsの開発状況">
-        <span class="nav-page-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">eda_toolsの開発状況</span></span> <i class="bi bi-arrow-right-short"></i>
+        <span class="nav-page-text"><span class="chapter-title">eda_toolsの開発状況</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -981,4 +945,4 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/main/articles/narwhals_in_py4stats.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/experiment/quarto/articles/narwhals_in_py4stats.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></div></div></footer></body></html>

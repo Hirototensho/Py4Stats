@@ -1,4 +1,4 @@
-# `heckit_helper.heckitmfx_compute()`
+# heckit_helper.heckitmfx_compute
 
 ## 概要
 
