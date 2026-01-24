@@ -19,3 +19,5 @@ venv/
 *.egg-info/
 build/
 dist/
+/.quarto/
+**/*.quarto_ipynb

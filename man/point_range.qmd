@@ -1,0 +1,82 @@
+# mean_qi median_qi mean_ci
+
+数値変数の点推定と区間推定
+
+## 概要
+
+R言語の [`ggdist::mean_qi()`](https://mjskay.github.io/ggdist/reference/point_interval.html) をオマージュした数値変数の点推定と区間推定を行う関数です。
+
+```python
+mean_qi(
+    data: Union[IntoFrameT, SeriesT],
+    width: float = 0.975,
+    interpolation: str = 'midpoint',
+    to_native: bool = True
+)
+mean_qi(
+    data: Union[IntoFrameT, SeriesT],
+    width: float = 0.975,
+    interpolation: str = 'midpoint',
+    to_native: bool = True
+)
+
+median_qi(
+    data: Union[IntoFrameT, IntoSeriesT],
+    width: float = 0.975,
+    interpolation: str = 'midpoint',
+    to_native: bool = True
+)
+
+mean_ci(
+    data: Union[IntoFrameT, IntoSeriesT],
+    width: float = 0.975,
+    to_native: bool = True
+)
+```
+
+## 引数 Argument
+
+- `data`：**IntoFrameT or IntoSeriesT**（必須）<br>
+  入力データ。narwhals が受け入れ可能な DataFrame もしくは Series 互換オブジェクト
+  （例：`pandas.DataFrame`、`polars.DataFrame`、`pyarrow.Table`）を指定できます。
+- `width`：**float**<br>
+　分位点区間の幅、もしくは信頼区間の計算に用いる信頼係数。
+- `to_native`（**bool**, optional）<br>
+  `True` の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。<br>
+  `False` の場合、`narwhals.DataFrame` を返します。デフォルトは `True` で、`to_native = False` は、主にライブラリ内部での利用や、`backend` に依存しない後続処理を行う場合を想定したオプションです。
+
+## 使用例 Examples
+
+```python
+import py4stats as py4st
+import pandas as pd
+from palmerpenguins import load_penguins
+penguins = load_penguins() # サンプルデータの読み込み
+
+print(py4st.mean_qi(penguins['bill_length_mm']).round(2))
+#>          variable   mean  lower  upper
+#> 0  bill_length_mm  43.92   34.8   53.1
+
+
+print(py4st.median_qi(penguins['bill_length_mm']).round(2))
+#>          variable  median  lower  upper
+#> 0  bill_length_mm   44.45   34.8   53.1
+
+print(py4st.mean_ci(penguins['bill_length_mm']).round(2))
+#>          variable   mean  lower  upper
+#> 0  bill_length_mm  43.92  43.26  44.58
+
+print(py4st.mean_ci(penguins[['bill_length_mm', 'bill_depth_mm']]).round(2))
+#>          variable   mean  lower  upper
+#> 0  bill_length_mm  43.92  43.26  44.58
+#> 1   bill_depth_mm  17.15  16.91  17.39
+
+print(penguins.groupby('species')[['bill_length_mm']].apply(py4st.median_qi).round(2))
+#>                    variable  median  lower  upper
+#> species                                          
+#> Adelie    0  bill_length_mm   38.80  34.05  44.10
+#> Chinstrap 0  bill_length_mm   49.55  42.45  55.00
+#> Gentoo    0  bill_length_mm   47.30  42.65  53.85
+```
+***
+[Return to **Function reference**.](../reference.qmd)

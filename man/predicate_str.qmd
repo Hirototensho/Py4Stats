@@ -1,0 +1,122 @@
+# is_number, is_ymd,  is_ymd_like
+
+文字列のフォーマットに判定する論理関数
+
+## 概要
+
+`Series` の要素が、特定のフォーマットにそった文字列かどうかを判定する関数です。
+
+```python
+is_number(
+  data:IntoSeriesT, 
+  na_default:bool = True, 
+  to_native: bool = True
+  )
+
+is_ymd(
+  data:IntoSeriesT, 
+  na_default:bool = True, 
+  to_native: bool = True
+  )
+
+is_ymd_like(
+  data:IntoSeriesT, 
+  na_default:bool = True, 
+  to_native: bool = True
+  )
+```
+
+- `py4stats.is_number()`：与えられた文字列が数字かどうかを判定します。
+- `py4stats.is_ymd()`：与えられた文字列が `yyyy-mm-dd` フォーマットにそった値かどうかを判定します。
+- `py4stats.is_ymd_like()`：与えられた文字列が'2024年3月3日' のような `yyyy-mm-dd` に近いフォーマットの値かどうかを判定します。
+
+## 引数 Argument
+
+- `data`：**IntoSeriesT**（必須）
+- 入力データ。narwhals が受け入れ可能な Series 互換オブジェクト
+  （例：`pandas.Series`、`polars.DataFrame`、`pyarrow.Table`）を指定できます。
+- `na_default`：**bool**</br>
+ 　NA値に対して関数が返す値。`na_default = True` （初期設定）であれば `None` や  `NaN` には True を返し、`na_default = False` であれば  False が返します。
+- `to_native`（**bool**, optional）<br>
+  `True` の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。<br>
+  `False` の場合、`narwhals.DataFrame` を返します。デフォルトは `True` で、`to_native = False` は、主にライブラリ内部での利用や、`backend` に依存しない後続処理を行う場合を想定したオプションです。
+
+
+
+## 使用例
+
+```python
+import py4stats as py4st
+import pandas as pd
+import numpy as np
+
+s = pd.Series([
+    '123', "0.12", "1e+07", '-31', '2個', '1A',
+    "2024-03-03", "2024年3月3日", "24年3月3日", '令和6年3月3日',
+    '0120-123-456', "apple", "不明", None, np.nan
+    ])
+
+print(s[py4st.is_number(s)])
+#> 0       123
+#> 1      0.12
+#> 2     1e+07
+#> 3       -31
+#> 13     None
+#> 14      NaN
+#> dtype: object
+
+print(s[py4st.is_ymd(s)])
+#> 6     2024-03-03
+#> 13          None
+#> 14           NaN
+#> dtype: object
+
+print(s[py4st.is_ymd_like(s)])
+#> 6     2024-03-03
+#> 7      2024年3月3日
+#> 8        24年3月3日
+#> 9       令和6年3月3日
+#> 13          None
+#> 14           NaN
+#> dtype: object
+```
+
+　実践的な使用例として[「厚生労働省 ４．食中毒統計資料」](https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/kenkou_iryou/shokuhin/syokuchu/04.html)のうち、2020年の食中毒事件一覧を考えます。東京都のデータを取り出て`'摂食者数'`の列を見ると、数字が並んでいるものの `dtype` は `object` となっており、数字ではない値が含まれていることが疑われます。
+
+```python
+# 厚生労働省：食中毒統計資料より
+data = pd.read_excel('https://www.mhlw.go.jp/content/R2itiran.xlsx', header = 1)\
+  .query('都道府県名等.str.contains("東京")')
+
+print(data['摂食者数'])
+#> 280    41
+#> 281    86
+#> 282     3
+#> 283    10
+#> 284     3
+#>        ..
+#> 381     2
+#> 382     2
+#> 383     4
+#> 384     6
+#> 385     4
+#> Name: 摂食者数, Length: 106, dtype: object
+```
+
+`eda.is_number()` を使うと数字以外にどのような値が含まれているかを確認できるため、これをもとに「不明」となっている部分は `NaN` に置き換えるなどの対処法が考えられます。
+
+```python
+print(data.loc[~py4st.is_number(data['摂食者数']), '摂食者数'])
+#> 285    不明
+#> 315    不明
+#> 374    不明
+#> 375    不明
+#> 377    不明
+#> 378    不明
+#> 379    不明
+#> 380    不明
+#> Name: 摂食者数, dtype: object
+```
+
+***
+[Return to **Function reference**.](../reference.qmd)

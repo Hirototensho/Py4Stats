@@ -1,0 +1,89 @@
+# weighted_mean, scale, min_max
+
+加重平均と標準化・正規化ユーティリティ
+
+## 概要
+
+探索的データ解析（EDA）で頻繁に用いられる**加重平均の計算**および **数値データの正規化・標準化**を行う関数群です。
+内部では narwhals を利用することで、pandas・polars など複数のデータフレーム／シリーズ実装に対して共通の API を提供しています。
+
+``` python
+weighted_mean(
+    x: IntoSeriesT, 
+    w: IntoSeriesT, 
+    dropna:bool = False
+    ) -> float:
+
+scale(
+    x: Union[IntoSeriesT, pd.DataFrame], 
+    ddof: int = 1, to_native: bool = True
+    ) -> IntoSeriesT:
+
+min_max(
+    x: Union[IntoSeriesT, pd.DataFrame], 
+    to_native: bool = True
+    ) -> IntoSeriesT:
+```
+
+`weighted_mean()`: 数値系列 `x` と対応する重み `w` を用いて、加重平均を計算します。欠損値の扱いを制御するためのオプションを備えています。
+
+`scale()`: 数値データを **Z スコア標準化**します。系列データを主な対象としますが、`pandas.DataFrame` に対しても専用実装により列単位での標準化をサポートしています。
+
+`min_max()`: 数値データを Min-Max Normarization により $[0, 1]$ の範囲に変換します。`scale()` と同様に、Series を主対象としつつ `pandas.DataFrame` にも対応しています。
+
+## 引数 Argument
+
+- `x`：**IntoSeriesT or pd.DataFrame**（必須）<br>
+    - narwhals が受け入れ可能な Series 互換オブジェクト（例：`pandas.Series`、`polars.Series`）を指定できます。`scale()`関数と `min_max()`関数のみ `pandas.DataFrame` を指定することができ、この場合、各列ごとに変換が適用されます。
+- `w`：**IntoSeriesT**（必須）<br>
+  `x` に対応する重みを表す数値系列。`x` と同じ長さである必要があります。narwhals が受け入れ可能な Series 互換オブジェクト（例：`pandas.Series`、`polars.Series`）を指定できます。
+- `ddof`（**int**, optional）`scale(), min_max()` のみ <br>
+  標準偏差の計算に用いる自由度調整量（delta degrees of freedom）。デフォルトは `1` です。
+- `dropna`（**bool**, optional）`scale(), min_max()` のみ <br>
+  `True` の場合、`x` または `w` のいずれかが欠損値（NaN）である観測を計算前に除外します。デフォルトは `False` です。
+- `to_native`（**bool**, optional）`scale(), min_max()` のみ <br>
+  `True` の場合、入力と同じ型の Series（e.g. pandas / polars / pyarrow）を返します。<br>
+  `False` の場合、`Series` を返します。デフォルトは `True` で、`to_native = False` は、主にライブラリ内部での利用や、`backend` に依存しない後続処理を行う場合を想定したオプションです。
+
+---
+
+## 返り値 Value
+
+- **weighted_mean**
+  - `float`
+  - 加重平均
+
+- **scale**
+  - `IntoSeriesT`
+  - 平均 0、標準偏差 1 に標準化された値を返します。
+
+- **min_max**
+  - `IntoSeriesT`
+  - 最小値が 0、最大値が 1 となるよう正規化された値を返します。
+
+## 使用例 Example
+
+``` python
+import py4stats as py4st
+import pandas as pd
+from palmerpenguins import load_penguins
+penguins = load_penguins() # サンプルデータの読み込
+
+x1 = penguins.groupby('species')['bill_length_mm'].mean()
+w = penguins.groupby('species')['bill_length_mm'].count()
+
+print(
+    f"{py4st.weighted_mean(x1, w) :.2f}, "
+    f"{penguins['bill_length_mm'].mean() :.2f}"
+)
+#> 43.92, 43.92
+
+x2 = penguins['bill_length_mm']
+z1 = py4st.scale(x2)
+print(f"{z1.mean():.2f}, {z1.std():.2f}")
+#> 0.00, 1.00
+
+z2 = py4st.min_max(x2)
+print(f"{z2.min():.2f}, {z2.max():.2f}")
+#> 0.00, 1.00
+```

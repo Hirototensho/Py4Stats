@@ -1,0 +1,163 @@
+# Function reference
+
+## Main Module
+
+### `py4stats.eda_tools`
+
+`py4stats.eda_tools` モジュールは、探索的データ解析と前処理に関する機能を提供します。複数の DataFrame バックエンドに対して共通の API を提供することを目的として、[`narwhals`](https://narwhals-dev.github.io/narwhals/) ライブラリを用いて実装されています。詳細は [Technical Notes](articles/narwhals_in_py4stats.qmd) を参照してください。
+
+#### データフレームの概要
+
+[`py4stats.diagnose()`](man/diagnose.qmd)
+
+[`py4stats.diagnose_category()`](man/diagnose_category.qmd)
+
+#### クロス集計
+
+[`py4stats.tabyl()`](man/tabyl.qmd)
+
+[`py4stats.freq_table()`](man/freq_table.qmd)
+
+[`py4stats.Pareto_plot()`](man/Pareto_plot.qmd)
+
+[`py4stats.plot_category()`](man/plot_category.qmd)
+
+### 数値変数の点推定と区間推定
+
+[`py4stats.mean_qi()`](man/point_range.qmd)
+[`py4stats.median_qi()`](man/point_range.qmd)
+[`py4stats.mean_ci()`](man/point_range.qmd)
+
+#### データフレームの列や行の削除
+
+[`py4stats.remove_empty()`](man/remove_empty_constant.qmd)  
+[`py4stats.remove_constant()`](man/remove_empty_constant.qmd)
+
+[`py4stats.filtering_out()`](man/filtering_out.qmd)
+
+#### データフレームの列の並べ替え
+
+[`py4stats.relocate()`](man/relocate.qmd)  
+
+
+#### 複数のデータフレームの比較
+
+[`py4stats.compare_df_cols()`](man/compare_df_cols.qmd)
+[`py4stats.compare_df_stats()`](man/compare_df_cols.qmd)
+
+#### 簡易なグループ別統計量の比較
+
+[`py4stats.compare_group_means()`](man/compare_group_stats.qmd)
+[`py4stats.compare_group_median()`](man/compare_group_stats.qmd)
+
+[`py4stats.plot_mean_diff()`](man/compare_group_stats.qmd)
+[`py4stats.plot_median_diff()`](man/compare_group_stats.qmd)
+
+#### 簡易な欠測値の可視化
+
+[`py4stats.plot_miss_var()`](man/plot_miss_var.qmd)
+
+[`py4stats.set_miss()`](man/set_miss.qmd)
+
+#### 数値変数の集計と標準化
+
+[`py4stats.weighted_mean()`](man/scale_wmean.qmd)
+[`py4stats.scale()`](man/scale_wmean.qmd)
+[`py4stats.min_max()`](man/scale_wmean.qmd)
+
+#### 論理関数
+
+[`py4stats.is_number()`](man/predicate_str.qmd)
+[`py4stats.is_ymd()`](man/predicate_str.qmd)
+[`py4stats.is_ymd_like()`](man/predicate_str.qmd)
+
+[`py4stats.is_dummy()`](man/is_dummy.qmd)
+
+#### 簡易なルールベースのデータ検証ツール
+
+[`py4stats.check_that()`](man/varidate.qmd) [`py4stats.check_viorate()`](man/varidate.qmd)
+
+***
+
+### `py4stats.regression_tools`
+
+`py4stats.regression_tools` は [`statsmodels`](https://www.statsmodels.org/stable/index.html) ライブラリで作成された回帰分析の結果についての可視化と表作成を補助する機能を提供するモジュールです。
+
+#### 線形モデルの比較
+
+[`py4stats.compare_ols()`](man/compare_ols.qmd)
+
+[`py4stats.compare_mfx()`](man/compare_mfx.qmd)
+
+#### 線形モデルの可視化
+
+[`py4stats.coefplot()`](man/coefplot.qmd) [`py4stats.mfxplot()`](man/coefplot.qmd)
+
+#### 線形モデルを作表するためのバックエンド関数
+
+[`py4stats.tidy()`](man/tidy.qmd)[`py4stats.tidy_mfx()`](man/tidy.qmd)
+
+[`py4stats.tidy_test()`](man/tidy_test.qmd)
+
+[`py4stats.glance()`](man/glance.qmd)
+
+#### Blinder-Oaxaca分解
+
+[`py4stats.Blinder_Oaxaca()`](man/Blinder_Oaxaca.qmd)
+[`py4stats.plot_Blinder_Oaxaca()`](man/Blinder_Oaxaca.qmd)
+
+## Sub Module
+
+### `py4stats.heckit_helper`
+
+`py4stats.regression_tools` の関数を [`py4etrics.heckit`](https://github.com/Py4Etrics/py4etrics) ライブラリで実装された Heckit モデルに対応させるためのメソッドを提供します。
+
+[`heckit_helper.Heckit_from_formula()`](man/Heckit_from_formula.qmd)
+
+[`heckit_helper.tidy_heckit()`](man/tidy_heckit.qmd)
+
+[`heckit_helper.heckitmfx_compute()`](man/heckitmfx_compute.qmd)
+
+***
+### `py4stats.building_block`
+
+`py4stats` ライブラリの実装に使用するアサーション関数やユーティリティ関数を提供します。
+`building_block` モジュール自体は外部から呼び出すことなく内部実装に使用することを想定しています。
+
+### 引数のアサーション関数
+
+[`building_block.arg_match()`](man/arg_match.qmd)
+
+[`building_block.assert_character()`](man/assert_dtype.qmd)
+[`building_block.assert_logical()`](man/assert_dtype.qmd)
+[`building_block.assert_numeric()`](man/assert_dtype.qmd)
+[`building_block.assert_integer()`](man/assert_dtype.qmd)
+[`building_block.assert_count()`](man/assert_dtype.qmd)
+[`building_block.assert_float()`](man/assert_dtype.qmd)
+
+### データ型を判定する論理関数
+
+[`building_block.is_character()`](man/is_dtype.qmd)
+[`building_block.is_logical()`](man/is_dtype.qmd)
+[`building_block.is_numeric()`](man/is_dtype.qmd)
+[`building_block.is_integer()`](man/is_dtype.qmd)
+[`building_block.is_float()`](man/is_dtype.qmd)
+
+### 数字のフォーマット
+
+[`building_block.style_number()`](man/miscellaneous.qmd)
+[`building_block.style_currency()`](man/miscellaneous.qmd)
+[`building_block.style_percent()`](man/miscellaneous.qmd)
+
+[`building_block.style_pvalue()`](man/style_pvalue.qmd)
+[`building_block.p_stars()`](man/style_pvalue.qmd)
+
+### 並列文の作成
+
+[`building_block.oxford_comma()`](man/oxford_comma.qmd)
+[`building_block.oxford_comma_and()`](man/oxford_comma.qmd)
+[`building_block.oxford_comma_or()`](man/oxford_comma.qmd)
+
+***
+[Jump to **Get started**.](./introduction.qmd)  
+[Jump to **Readme**.](./index.qmd)

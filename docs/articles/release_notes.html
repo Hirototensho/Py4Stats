@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Release Notes – Py4Stats</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../articles/scaling_up_regression.html" rel="next">
+<link href="../man/oxford_comma.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-322e28c2ea576fd4147837fb8c5b7a3d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../theme.scss">
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../articles/release_notes.html"><strong>Articles</strong></a></li><li class="breadcrumb-item"><a href="../articles/release_notes.html"><span class="chapter-title">Release Notes</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Py4Stats</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/Hirototensho/Py4Stats" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Readme</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../introduction.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Introduction to Py4Stats</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Function reference</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text"><strong>EDA</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/diagnose.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">diagnose</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/tabyl.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">tabyl</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/freq_table.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">freq_table</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/Pareto_plot.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Pareto_plot</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/plot_category.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">plot_category</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/diagnose_category.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">diagnose_category</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/point_range.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">mean_qi median_qi mean_ci</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/remove_empty_constant.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">remove_empty, remove_constant</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/filtering_out.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">filtering_out</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/relocate.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">relocate</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/compare_df_cols.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">compare_df_cols, compare_df_stats</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/compare_group_stats.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">compare_group_means, compare_group_median, plot_mean_diff, plot_median_diff</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/plot_miss_var.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">plot_miss_var</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/set_miss.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">set_miss</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/scale_wmean.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">weighted_mean, scale, min_max</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/predicate_str.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">is_number, is_ymd, is_ymd_like</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/is_dummy.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">is_dummy</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/varidate.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">check_that check_viorate</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text"><strong>Regression</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/compare_ols.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">compare_ols</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/compare_mfx.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">compare_mfx</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/coefplot.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">coefplot, mfxplot</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/tidy.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">tidy, tidy_mfx</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/tidy_test.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">tidy_test</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/glance.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">glance</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/Blinder_Oaxaca.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Blinder_Oaxaca, plot_Blinder_Oaxaca</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text"><strong>heckit_helper</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/tidy_heckit.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">heckit_helper.tidy_heckit</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/Heckit_from_formula.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">heckit_helper.Heckit_from_formula</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/heckitmfx_compute.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">heckit_helper.heckitmfx_compute</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text"><strong>building_block</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/arg_match.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">building_block.arg_match</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/assert_dtype.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">building_block.assert_dtypes</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/is_dtype.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">building_block.is_dtypes</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/miscellaneous.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">building_block.style_number, style_percent, style_percent</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/style_pvalue.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">building_block.style_pvalue, ‘p_stars’</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/oxford_comma.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">oxford_comma</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text"><strong>Articles</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../articles/release_notes.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Release Notes</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../articles/scaling_up_regression.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">scaling up regression</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../articles/narwhals_in_py4stats.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Technical Notes: py4stats.eda_tools における narwhals ベースの実装</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../articles/eda_tools_development_status.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">eda_toolsの開発状況</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../articles/narwhalsについての考察.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">narwhals についての考察</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#py4stats-v0.3.0-2026-01-23" id="toc-py4stats-v0.3.0-2026-01-23" class="nav-link active" data-scroll-target="#py4stats-v0.3.0-2026-01-23">Py4Stats v0.3.0 2026-01-23</a>
+  <ul class="collapse">
+  <li><a href="#概要summary" id="toc-概要summary" class="nav-link" data-scroll-target="#概要summary">概要（Summary）</a></li>
+  <li><a href="#主な新機能-new-features" id="toc-主な新機能-new-features" class="nav-link" data-scroll-target="#主な新機能-new-features">✨ 主な新機能 （New Features）</a></li>
+  <li><a href="#修正と改善fixes-improvements" id="toc-修正と改善fixes-improvements" class="nav-link" data-scroll-target="#修正と改善fixes-improvements">🛠 修正と改善（Fixes /Improvements）</a></li>
+  </ul></li>
+  <li><a href="#py4stats-v0.2.2-2026-01-19" id="toc-py4stats-v0.2.2-2026-01-19" class="nav-link" data-scroll-target="#py4stats-v0.2.2-2026-01-19">Py4Stats v0.2.2 2026-01-19</a>
+  <ul class="collapse">
+  <li><a href="#概要summary-1" id="toc-概要summary-1" class="nav-link" data-scroll-target="#概要summary-1">概要（Summary）</a></li>
+  <li><a href="#修正と改善fixes-improvements-1" id="toc-修正と改善fixes-improvements-1" class="nav-link" data-scroll-target="#修正と改善fixes-improvements-1">🛠 修正と改善（Fixes /Improvements）</a></li>
+  </ul></li>
+  <li><a href="#py4stats-v0.2.1-2026-01-16" id="toc-py4stats-v0.2.1-2026-01-16" class="nav-link" data-scroll-target="#py4stats-v0.2.1-2026-01-16">Py4Stats v0.2.1 2026-01-16</a>
+  <ul class="collapse">
+  <li><a href="#概要summary-2" id="toc-概要summary-2" class="nav-link" data-scroll-target="#概要summary-2">概要（Summary）</a></li>
+  <li><a href="#主な新機能-new-features-1" id="toc-主な新機能-new-features-1" class="nav-link" data-scroll-target="#主な新機能-new-features-1">✨ 主な新機能 （New Features）</a></li>
+  <li><a href="#修正と改善fixes-improvements-2" id="toc-修正と改善fixes-improvements-2" class="nav-link" data-scroll-target="#修正と改善fixes-improvements-2">🛠 修正と改善（Fixes /Improvements）</a></li>
+  <li><a href="#既知の制限注意点notes" id="toc-既知の制限注意点notes" class="nav-link" data-scroll-target="#既知の制限注意点notes">⚠️ 既知の制限・注意点（Notes）</a></li>
+  </ul></li>
+  <li><a href="#py4stats-v0.1.0-2026-01-11" id="toc-py4stats-v0.1.0-2026-01-11" class="nav-link" data-scroll-target="#py4stats-v0.1.0-2026-01-11">Py4Stats v0.1.0 2026-01-11</a>
+  <ul class="collapse">
+  <li><a href="#概要summary-3" id="toc-概要summary-3" class="nav-link" data-scroll-target="#概要summary-3">概要（Summary）</a></li>
+  <li><a href="#主な新機能-new-features-2" id="toc-主な新機能-new-features-2" class="nav-link" data-scroll-target="#主な新機能-new-features-2">✨ 主な新機能 （New Features）</a></li>
+  <li><a href="#修正と改善fixes-improvements-3" id="toc-修正と改善fixes-improvements-3" class="nav-link" data-scroll-target="#修正と改善fixes-improvements-3">🛠 修正と改善（Fixes /Improvements）</a></li>
+  <li><a href="#既知の制限注意点notes-1" id="toc-既知の制限注意点notes-1" class="nav-link" data-scroll-target="#既知の制限注意点notes-1">⚠️ 既知の制限・注意点（Notes）</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/main/articles/release_notes.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../articles/release_notes.html"><strong>Articles</strong></a></li><li class="breadcrumb-item"><a href="../articles/release_notes.html"><span class="chapter-title">Release Notes</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-title">Release Notes</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="py4stats-v0.3.0-2026-01-23" class="level2">
+<h2 class="anchored" data-anchor-id="py4stats-v0.3.0-2026-01-23">Py4Stats v0.3.0 2026-01-23</h2>
+<section id="概要summary" class="level3">
+<h3 class="anchored" data-anchor-id="概要summary">概要（Summary）</h3>
+<p>このリリースでは Pyt4Stats に幾つかの関数の追加を行いました。 関数のリファクタリングとバグ修正を行いました。今回のリリースでは機能の追加や変更はありません。</p>
+</section>
+<section id="主な新機能-new-features" class="level3">
+<h3 class="anchored" data-anchor-id="主な新機能-new-features">✨ 主な新機能 （New Features）</h3>
+<ul>
+<li><a href="../man/diagnose_category.html"><code>diagnose_category()</code></a> 関数の追加
+<ul>
+<li>データフレームのカテゴリー変数の要約を提供する関数です。</li>
+</ul></li>
+<li><a href="../man/set_miss.html"><code>set_miss()</code></a> 関数の追加
+<ul>
+<li>Series の非欠測要素のうち、指定された個数または割合を欠測値に置き換えます。</li>
+</ul></li>
+</ul>
+</section>
+<section id="修正と改善fixes-improvements" class="level3">
+<h3 class="anchored" data-anchor-id="修正と改善fixes-improvements">🛠 修正と改善（Fixes /Improvements）</h3>
+<ul>
+<li><p><a href="../man/compare_group_stats.html"><code>compare_group_means(), compare_group_median()</code></a>, <a href="../man/compare_df_cols.html"><code>compare_df_cols(), compare_df_stats()</code></a>: コードをリファクタリングし、引数と同じクラスのデータフレームを出力できるようにしました。この変更により、返り値が <code>pd.DataFrame</code> である場合でも、index が自動では設定されなくなりました。</p></li>
+<li><p><a href="../man/diagnose.html"><code>diagnose()</code></a>: dtype 列が、polars や pyarrow における列のクラスの表記に対してより忠実になるように修正しました。</p></li>
+<li><p><a href="../man/relocate.html"><code>relocate()</code></a> 関数に、指定した列を最後列に配置する機能を追加し、エラーメッセージを改善しました。</p></li>
+<li><p><a href="../man/assert_dtype.html"><code>assert_character()</code></a> および <a href="../man/assert_dtype.html"><code>assert_numeric()</code></a> 系関数のエラーメッセージを改善しました。</p></li>
+<li><p>その他、いくつかの関数のエラーメッセージを改善しました。</p></li>
+</ul>
+</section>
+</section>
+<section id="py4stats-v0.2.2-2026-01-19" class="level2">
+<h2 class="anchored" data-anchor-id="py4stats-v0.2.2-2026-01-19">Py4Stats v0.2.2 2026-01-19</h2>
+<section id="概要summary-1" class="level3">
+<h3 class="anchored" data-anchor-id="概要summary-1">概要（Summary）</h3>
+<p>型ヒントに関する若干の修正と、バグ修正を行いました。今回のリリースでは機能の追加や変更はありません。</p>
+</section>
+<section id="修正と改善fixes-improvements-1" class="level3">
+<h3 class="anchored" data-anchor-id="修正と改善fixes-improvements-1">🛠 修正と改善（Fixes /Improvements）</h3>
+<ul>
+<li><a href="../man/assert_dtype.html"><code>building_block.assert_numeric</code></a> 系関数のリファクタリングを行いました。この変更でメインモジュールの関数の動作に変更はありません。</li>
+<li><a href="../man/compare_group_stats.html"><code>compare_group_means()</code>, <code>compare_group_median()</code></a> のテストコードを実装しました。</li>
+<li><a href="../man/tabyl.html"><code>tabyl()</code></a>: 第一引数 <code>data</code> と同じオブジェクト型をもつ DataFrame を出力できるように実装を修正しました。</li>
+<li><a href="../man/varidate.html"><code>check_that(), check_viorate()</code></a> : 第一引数 <code>data</code> と同じオブジェクト型をもつ DataFrame を出力できるように実装を修正しました。引き続きロジックのコア部分には <code>pd.DataFrame.eval()</code> を使用しており、使用方法に大きな変更はありません。</li>
+<li><a href="../man/predicate_str.html"><code>is_number()</code></a> 関数を修正し、pyarrow.lib.ChunkedArray オブジェクトを代入すると生じるエラーを解消しました。</li>
+</ul>
+</section>
+</section>
+<section id="py4stats-v0.2.1-2026-01-16" class="level2">
+<h2 class="anchored" data-anchor-id="py4stats-v0.2.1-2026-01-16">Py4Stats v0.2.1 2026-01-16</h2>
+<section id="概要summary-2" class="level3">
+<h3 class="anchored" data-anchor-id="概要summary-2">概要（Summary）</h3>
+<p>このリリースでは Pyt4Stats の各モジュールに幾つかの関数の追加を行いました。</p>
+</section>
+<section id="主な新機能-new-features-1" class="level3">
+<h3 class="anchored" data-anchor-id="主な新機能-new-features-1">✨ 主な新機能 （New Features）</h3>
+<ul>
+<li><a href="../man/plot_category.html"><code>plot_category()</code></a> 関数の追加
+<ul>
+<li>カテゴリ変数の回答分布を 100% 積み上げ横棒グラフとして描画する関数です。</li>
+</ul></li>
+<li><a href="../man/plot_miss_var.html"><code>plot_miss_var()</code></a> 関数の追加
+<ul>
+<li>データフレームの各変数について欠測値の量を横棒グラフとして可視化します。</li>
+</ul></li>
+<li><a href="../man/relocate.html"><code>relocate()</code></a> 関数の追加
+<ul>
+<li>データフレームの列を、削除することなく並べ替えます。</li>
+</ul></li>
+<li><a href="../man/scale_wmean.html"><code>weighted_mean()</code>, <code>scale()</code>, <code>min_max()</code></a> 関数の追加
+<ul>
+<li>それぞれ Series オブジェクトの加重平均の計算と、標準化を行う関数です。</li>
+</ul></li>
+</ul>
+</section>
+<section id="修正と改善fixes-improvements-2" class="level3">
+<h3 class="anchored" data-anchor-id="修正と改善fixes-improvements-2">🛠 修正と改善（Fixes /Improvements）</h3>
+<ul>
+<li><code>eda_tools</code> の Pandas ベース実装 <code>eda_tools/_pands.py</code> に、<code>FutureWarning</code> を実装しました。</li>
+<li>ユーザビリティ向上のため、<a href="../man/freq_table.html"><code>freq_table()</code></a> 関数に <code>sort_by</code> 引数を導入しました。
+<ul>
+<li><code>sort_by = 'frequency'</code> なら度数分布表を頻度に応じてソートし（従来の <code>sort = True</code> に相当）、<code>sort_by = 'values'</code> なら <code>subset</code> で指定した列の値に応じてソートします（従来の <code>sort = False</code> に相当）。</li>
+<li>この変更に合わせて、<code>sort</code> 引数は非推奨扱いに変更されています。</li>
+</ul></li>
+<li><a href="../man/Pareto_plot.html"><code>Pareto_plot()</code></a> の <code>aggfunc</code> 引数に、<code>np.mean</code> など <code>values</code> 列を1次元配列として受け取って単一の数値を返す任意の関数を使用できるように改良を行いました。</li>
+<li>その他、<code>py4stats</code> ライブラリ全体のエラーメッセージ改善</li>
+<li><a href="../man/assert_dtype.html"><code>building_block.assert_*</code></a> 系関数の改良を行い、与えられた引数の要素数に関するアサーションと、None やリストを拒否する機能を追加しました。</li>
+<li><a href="../man/compare_ols.html"><code>cmpare_ols()</code></a> および <a href="../man/compare_mfx.html"><code>cmpare_mfx()</code></a> に stars 引数を追加し、有意性のアスタリスクの表示形式を変更できる機能を追加しました。また、その他エラーメッセージの改善を行なっています。</li>
+</ul>
+</section>
+<section id="既知の制限注意点notes" class="level3">
+<h3 class="anchored" data-anchor-id="既知の制限注意点notes">⚠️ 既知の制限・注意点（Notes）</h3>
+<ul>
+<li><code>pyarrow.Table</code> を使用する場合、<a href="../man/plot_category.html"><code>plot_category()</code></a> 関数の一部機能が制限されます。</li>
+</ul>
+</section>
+</section>
+<section id="py4stats-v0.1.0-2026-01-11" class="level2">
+<h2 class="anchored" data-anchor-id="py4stats-v0.1.0-2026-01-11">Py4Stats v0.1.0 2026-01-11</h2>
+<section id="概要summary-3" class="level3">
+<h3 class="anchored" data-anchor-id="概要summary-3">概要（Summary）</h3>
+<p>このリリースでは EDA モジュールの narwhals ベース実装を統合し、パフォーマンスと互換性を大幅に改善しました。いくつかの既知の挙動も修正されています。</p>
+</section>
+<section id="主な新機能-new-features-2" class="level3">
+<h3 class="anchored" data-anchor-id="主な新機能-new-features-2">✨ 主な新機能 （New Features）</h3>
+<ul>
+<li><code>py4stats.eda_tools</code> が Pandas ベースの実装から narwhals ベース実装へ移行しました。
+<ul>
+<li>この変更により、複数バックエンド（pandas / polars / pyarrow）をサポートしました。</li>
+</ul></li>
+<li>Pandas ベースの実装は、当面 <code>py4stats</code> ライブラリのサブモジュール <code>eda_tools._pandas</code> として維持されますが、将来的に廃止される予定です。</li>
+</ul>
+</section>
+<section id="修正と改善fixes-improvements-3" class="level3">
+<h3 class="anchored" data-anchor-id="修正と改善fixes-improvements-3">🛠 修正と改善（Fixes /Improvements）</h3>
+<ul>
+<li><code>bilding_block</code> モジュールの名称を <code>building_block</code> に修正</li>
+<li><code>Py4Stats.building_block</code> モジュールの <a href="../man/assert_dtype.html"><code>assert_*</code> 系関数</a>の出力を <code>AssertionError</code> から <code>ValueError</code> に変更しました。</li>
+<li><code>Py4Stats.eda_tools</code> モジュールの関数の bool 値の引数を中心に、型の不一致があった場合のエラーメッセージを改善しました。</li>
+</ul>
+</section>
+<section id="既知の制限注意点notes-1" class="level3">
+<h3 class="anchored" data-anchor-id="既知の制限注意点notes-1">⚠️ 既知の制限・注意点（Notes）</h3>
+<ul>
+<li>バックエンドの変更に伴い、<a href="../man/freq_table.html"><code>py4st.freq_table()</code></a>、<a href="../man/diagnose.html"><code>py4st.diagnose()</code></a>、<a href="../man/tabyl.html"><code>py4st.tabyl()</code></a> など、従来はインデックス（Index）付きの <code>pandas.DataFrame</code> データフレームが出力されていた関数で、インデックスのない <code>pandas.DataFrame</code> が出力されるように変更されました。</li>
+<li>polars / pyarrow のサポートは experimental であり、一部のエッジケースで動作に違いが出る可能性があります。詳細は <a href="../articles/narwhals_in_py4stats.html">Technical Notes</a> および <a href="../articles/eda_tools_development_status.html">eda_tools開発状況</a> を参照してください。</li>
+</ul>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/github\.com\/Hirototensho\/Py4Stats");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../man/oxford_comma.html" class="pagination-link" aria-label="oxford_comma">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">oxford_comma</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../articles/scaling_up_regression.html" class="pagination-link" aria-label="scaling up regression">
+        <span class="nav-page-text"><span class="chapter-title">scaling up regression</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/main/articles/release_notes.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></div></div></footer></body></html>
