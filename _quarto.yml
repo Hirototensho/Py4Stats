@@ -58,8 +58,8 @@ book:
       - articles/narwhalsについての考察.qmd
   site-url: https://github.com/Hirototensho/Py4Stats
   repo-url: https://github.com/Hirototensho/Py4Stats
-  # repo-branch: main                  # main に変更したら、こちらを使います。
-  repo-branch: experiment/quarto
+  repo-branch: main                  # main に変更したら、こちらを使います。
+  # repo-branch: experiment/quarto
   repo-actions: [source]
 format:
   html:
