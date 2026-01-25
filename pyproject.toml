@@ -1,8 +1,8 @@
 [project]
 name = 'py4stats'
 version = '0.3.1'
-license = "MIT"
-
+license = {file = "LICENSE"}
+keywords = ["python", "statistical-analysis", "exporatory-data-analysis"]
 description = "Simple helper tools of statistical analysis for Python."
 
 authors = [
