@@ -108,3 +108,64 @@ build.assert_integer(arg, arg_name = 'arg')   # 整数値(int)
 build.assert_count(arg, arg_name = 'arg')     # 非負整数値(int)
 build.assert_float(arg, arg_name = 'arg')     # フロート値(float)
 ```
+
+### narwhals が受け入れ可能な互換オブジェクトに `singledispatch` する方法
+
+#### 結論
+
+- DataFrame の場合 `@foo.register(nw.typing.IntoDataFrame)` を使う
+- Series の場合 `@foo.register(nw.typing.IntoSeries)` を使う
+
+#### 詳細
+
+`functools.singledispatch` を使って総称関数を定義する場合、`@singledispatch` デコレータで総称関数を定義したあと、`@foo.register(Class)` デコレータでクラス毎のメソッド関数を定義します。
+
+narwhals が受け入れ可能な DataFrame 互換オブジェクトに対するメソッドを定義する場合には、`nw.typing.IntoDataFrame` を使い、Series 互換オブジェクトに対するメソッドを定義する場合には `nw.typing.IntoSeries` を使います。
+
+``` python
+# 実装例
+import narwhals as nw
+from functools import singledispatch
+
+@singledispatch
+def foo(x):
+    return 'I am some object'
+
+@foo.register(nw.typing.IntoDataFrame)
+def foo_df(x):
+    return  'I am a DataFrame'
+
+@foo.register(nw.typing.IntoSeries)
+def foo_s(x):
+    return 'I am a Series'
+```
+
+
+``` python
+# 動作例
+import pandas as pd
+import polars as pl
+import pyarrow as pa
+
+data_pd = pd.DataFrame({'x':[1, 2, 3], 'y':['a', 'b', 'c']})
+data_pl = pl.from_pandas(data_pd)
+data_pa = pa.Table.from_pandas(data_pd)
+data_nw = nw.from_native(data_pd)
+
+data_dict = {
+    'df_pd' :data_pd, 'df_pl' :data_pl, 'df_pa' :data_pa, 'df_nw' :data_nw,
+    's_pd' :data_pd['x'], 's_pl' :data_pl['x'], 's_pa' :data_pa['x'], 's_nw':data_nw['x'],
+    'int': 1 
+}
+
+[f"{k}: {foo(x)}" for k, x in zip(data_dict.keys(), data_dict.values())]
+#> ["df_pd: 'I am a DataFrame'",
+#>  "df_pl: 'I am a DataFrame'",
+#>  "df_pa: 'I am a DataFrame'",
+#>  "df_nw: 'I am a DataFrame'",
+#>  "s_pd: 'I am a Series'",
+#>  "s_pl: 'I am a Series'",
+#>  "s_pa: 'I am a Series'",
+#>  "s_nw: 'I am a Series'",
+#>  "int: 'I am some object'"]
+```

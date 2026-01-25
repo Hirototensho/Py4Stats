@@ -16,6 +16,8 @@ import narwhals.selectors as ncs
 from py4stats.eda_tools import _nw as eda_nw
 from py4stats import building_block as build # py4stats のプログラミングを補助する関数群
 
+from typing import (Literal)
+
 import pathlib
 tests_path = pathlib.Path(__file__).parent
 
@@ -112,6 +114,8 @@ def _assert_df_eq(
         check_dtype: bool = False, 
         reset_index: bool = True, 
         update_fixture: bool = False,
+        read_by: Literal['narwhals', 'pandas'] = 'narwhals',
+        write_by: Literal['narwhals', 'pandas'] = 'narwhals',
         **kwarg
         ) -> None:
     
@@ -119,12 +123,21 @@ def _assert_df_eq(
         output_df = nw.from_native(output_df)
 
     if update_fixture:
-        output_df.write_csv(path_fixture)
+        if write_by == 'narwhals':
+            output_df.write_csv(path_fixture)
+        elif write_by == 'pandas':
+            if hasattr(output_df, 'to_pandas'): output_df = output_df.to_pandas()
+            output_df.to_csv(path_fixture, index = False)
 
-    expected_df = nw.read_csv(path_fixture, backend = output_df.implementation)
     
-    output_df = output_df.to_pandas()
-    expected_df = expected_df.to_pandas()
+    if read_by == 'narwhals':
+        expected_df = nw.read_csv(path_fixture, backend = output_df.implementation)
+        expected_df = expected_df.to_pandas()
+    elif read_by == 'pandas':
+        expected_df = pd.read_csv(path_fixture)
+    
+    if hasattr(expected_df, 'to_pandas'): expected_df = expected_df.to_pandas()
+    if hasattr(output_df, 'to_pandas'): output_df = output_df.to_pandas()
 
     if reset_index:
         output_df = output_df.reset_index(drop = True)
@@ -662,59 +675,86 @@ def test_plot_median_diff(backend, stats_diff) -> None:
     assert len(ax.get_lines()) > 0 and len(ax.collections) > 0
 
 # ================================================================
-# mean_qi / median_qi / mean_ci (Pandas)
+# mean_qi / median_qi / mean_ci (DataFrame)
 # ================================================================
-def test_mean_qi_pd() -> None:
-    output_df = eda_nw.mean_qi(penguins, to_native = False)
-    # output_df.write_csv(f'{tests_path}/fixtures/mean_qi_nw.csv')
-    _assert_df_fixture_new(output_df, 'mean_qi_nw.csv')
 
-def test_median_qi_pd() -> None:
-    output_df = eda_nw.median_qi(penguins, to_native = False)
-    # output_df.write_csv(f'{tests_path}/fixtures/median_qi_nw.csv')
-    _assert_df_fixture_new(output_df, 'median_qi_nw.csv')
+@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
 
-def test_mean_ci_pd() -> None:
-    output_df = eda_nw.mean_ci(penguins, to_native = False)
-    # output_df.write_csv(f'{tests_path}/fixtures/mean_ci_nw.csv')
-    _assert_df_fixture_new(output_df, 'mean_ci_nw.csv')
+def test_mean_qi(backend) -> None:
+    
+    path = f'{tests_path}/fixtures/mean_qi_{backend}.csv'
+    
+    output_df = eda_nw.mean_qi(penguins_dict.get(backend), to_native = False)
+    
+    _assert_df_eq(
+            output_df, path_fixture = path, 
+            update_fixture = True
+        )
 
+@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
+def test_median_qi(backend) -> None:
+    
+    path = f'{tests_path}/fixtures/median_qi_{backend}.csv'
+    
+    output_df = eda_nw.median_qi(penguins_dict.get(backend), to_native = False)
+    
+    _assert_df_eq(
+            output_df, path_fixture = path, 
+            update_fixture = True
+        )
+
+@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
+def test_mean_ci(backend) -> None:
+    
+    path = f'{tests_path}/fixtures/mean_ci_{backend}.csv'
+    
+    output_df = eda_nw.mean_ci(penguins_dict.get(backend), to_native = False)
+    
+    _assert_df_eq(
+            output_df, path_fixture = path, 
+            update_fixture = True
+        )
+    
 # ================================================================
-# mean_qi / median_qi / mean_ci (polars)
+# mean_qi / median_qi / mean_ci (Series)
 # ================================================================
-def test_mean_qi_pl() -> None:
-    output_df = eda_nw.mean_qi(penguins_pl, to_native = False)
-    # output_df.write_csv(f'{tests_path}/fixtures/mean_qi_pl.csv')
-    _assert_df_fixture_new(output_df, 'mean_qi_pl.csv')
 
-def test_median_qi_pl() -> None:
-    output_df = eda_nw.median_qi(penguins_pl, to_native = False)
-    # output_df.write_csv(f'{tests_path}/fixtures/median_qi_pl.csv')
-    _assert_df_fixture_new(output_df, 'median_qi_pl.csv')
+@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
 
-def test_mean_ci_pl() -> None:
-    output_df = eda_nw.mean_ci(penguins_pl, to_native = False)
-    # output_df.write_csv(f'{tests_path}/fixtures/mean_ci_pl.csv')
-    _assert_df_fixture_new(output_df, 'mean_ci_pl.csv')
+def test_mean_qi_series(backend) -> None:
+    
+    path = f'{tests_path}/fixtures/mean_qi_series_{backend}.csv'
+    
+    output_df = eda_nw.mean_qi(penguins_dict.get(backend)['body_mass_g'], to_native = False)
+    
+    _assert_df_eq(
+            output_df, path_fixture = path, 
+            update_fixture = True
+        )
 
-# ================================================================
-# mean_qi / median_qi / mean_ci (pyarrow)
-# ================================================================
-def test_mean_qi_pa() -> None:
-    output_df = eda_nw.mean_qi(penguins_pa, to_native = False)
-    # output_df.write_csv(f'{tests_path}/fixtures/mean_qi_pa.csv')
-    _assert_df_fixture_new(output_df, 'mean_qi_pa.csv')
+@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
+def test_median_qi_series(backend) -> None:
+    
+    path = f'{tests_path}/fixtures/median_qi_series_{backend}.csv'
+    
+    output_df = eda_nw.median_qi(penguins_dict.get(backend)['body_mass_g'], to_native = False)
+    
+    _assert_df_eq(
+            output_df, path_fixture = path, 
+            update_fixture = True
+        )
 
-def test_median_qi_pa() -> None:
-    output_df = eda_nw.median_qi(penguins_pa, to_native = False)
-    # output_df.write_csv(f'{tests_path}/fixtures/median_qi_pa.csv')
-    _assert_df_fixture_new(output_df, 'median_qi_pa.csv')
-
-def test_mean_ci_pa() -> None:
-    output_df = eda_nw.mean_ci(penguins_pa, to_native = False)
-    # output_df.write_csv(f'{tests_path}/fixtures/mean_ci_pa.csv')
-    _assert_df_fixture_new(output_df, 'mean_ci_pa.csv')
-
+@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
+def test_mean_ci_series(backend) -> None:
+    
+    path = f'{tests_path}/fixtures/mean_ci_series_{backend}.csv'
+    
+    output_df = eda_nw.mean_ci(penguins_dict.get(backend)['body_mass_g'], to_native = False)
+    
+    _assert_df_eq(
+            output_df, path_fixture = path, 
+            update_fixture = True
+        )
 # =======================================================================
 # plot_miss_var
 # =======================================================================
