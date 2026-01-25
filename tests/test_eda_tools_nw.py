@@ -534,11 +534,15 @@ def test_diagnose_category_pl():
     output_df = eda_nw.diagnose_category(pl.from_pandas(pm2)).to_pandas()
     # output_df.to_csv(f'{tests_path}/fixtures/diagnose_category_pl.csv', index = False)
     _assert_df_fixture(output_df, 'diagnose_category_pl.csv', index_col = None)
+    
+    eda_nw.diagnose_category(penguins_pl) # ダミー変数がなくても動作することも確認しておきます
 
 def test_diagnose_category_pa():
     output_df = eda_nw.diagnose_category(pa.Table.from_pandas(pm2)).to_pandas()
     # output_df.to_csv(f'{tests_path}/fixtures/diagnose_category_pa.csv', index = False)
     _assert_df_fixture(output_df, 'diagnose_category_pa.csv', index_col = None)
+
+    eda_nw.diagnose_category(penguins_pa) # ダミー変数がなくても動作することも確認しておきます
 
 # =========================================================
 # Pareto_plot_nw
