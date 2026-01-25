@@ -9,8 +9,6 @@ authors = [
     { name = "Hiroto Tensho"}
 ]
 
-url = 'https://github.com/Hirototensho/Py4Stats'
-
 dependencies = [
     'matplotlib>=3.10.8',
     'narwhals>=2.15.0',
@@ -31,3 +29,8 @@ dependencies = [
     'varname>=0.15.1',
     'wooldridge>=0.5.0'
 ]
+
+[project.urls]
+Repository = "https://github.com/Hirototensho/Py4Stats"
+Documentation = "https://hirototensho.github.io/Py4Stats/index.html"
+Changelog = "https://hirototensho.github.io/Py4Stats/articles/release_notes.html"
