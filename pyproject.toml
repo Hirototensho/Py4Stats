@@ -1,6 +1,16 @@
 [project]
 name = 'py4stats'
-version = '0.2.0'
+version = '0.3.1'
+license = "MIT"
+
+description = "Simple helper tools of statistical analysis for Python."
+
+authors = [
+    { name = "Hiroto Tensho"}
+]
+
+url = 'https://github.com/Hirototensho/Py4Stats'
+
 dependencies = [
     'matplotlib>=3.10.8',
     'narwhals>=2.15.0',
