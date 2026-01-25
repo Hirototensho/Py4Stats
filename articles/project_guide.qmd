@@ -169,3 +169,50 @@ data_dict = {
 #>  "s_nw: 'I am a Series'",
 #>  "int: 'I am some object'"]
 ```
+
+## 総称関数の実装に関する覚書
+
+### 総称関数に登録されたメソッドの確認
+
+#### 結論
+
+- ある関数に登録されたメソッド全体を確認するには `foo.registry` を使い
+- ある関数に登録された特定のクラスのメソッドを確認するには `foo.dispatch(Class)` を使います
+
+#### 詳細
+
+ある総称関数に、どのようなメソッドが登録されているかは、`.registry` 属性で確認することができます。`.registry` は `{型: 実装関数}` の辞書であり、`object` クラスはデフォルト実装に対応しています。
+
+
+``` python
+import py4stats as py4st
+import pprint
+import pandas as pd
+
+registry = py4st.is_dummy.registry
+print(pd.Series(registry).apply(lambda x: x.__name__))
+#> <class 'object'>                                         is_dummy
+#> <class 'narwhals._native.NativeSeries'>           is_dummy_series
+#> <class 'narwhals.series.Series'>                  is_dummy_series
+#> <class 'narwhals._native.NativeDataFrame'>    is_dummy_data_frame
+#> <class 'narwhals.dataframe.DataFrame'>        is_dummy_data_frame
+#> <class 'tuple'>                                     is_dummy_list
+#> <class 'list'>                                      is_dummy_list
+#> dtype: object
+```
+
+また、`.dispatch(Class)` メソッドで特定のオブジェクトクラスに対して実装されたメソッド関数を確認することができます。
+
+``` python
+print(py4st.is_dummy.dispatch(pd.DataFrame).__name__)
+#> is_dummy_data_frame
+
+print(py4st.is_dummy.dispatch(pd.Series).__name__)
+#> is_dummy_series
+
+print(py4st.is_dummy.dispatch(list).__name__)
+#> is_dummy_list
+
+print(py4st.is_dummy.dispatch(int).__name__) # デフォルト実装
+#> is_dummy
+```

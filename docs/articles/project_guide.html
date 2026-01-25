@@ -233,7 +233,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/compare_group_stats.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">compare_group_means, _median, plot_mean_diff, _median_diff</span></a>
+  <a href="../man/compare_group_stats.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">compare_group_means, _median<br> plot_mean_diff, _median_diff</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -453,6 +453,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#引数のアサーション" id="toc-引数のアサーション" class="nav-link" data-scroll-target="#引数のアサーション">引数のアサーション</a></li>
   <li><a href="#narwhals-が受け入れ可能な互換オブジェクトに-singledispatch-する方法" id="toc-narwhals-が受け入れ可能な互換オブジェクトに-singledispatch-する方法" class="nav-link" data-scroll-target="#narwhals-が受け入れ可能な互換オブジェクトに-singledispatch-する方法">narwhals が受け入れ可能な互換オブジェクトに <code>singledispatch</code> する方法</a></li>
   </ul></li>
+  <li><a href="#総称関数の実装に関する覚書" id="toc-総称関数の実装に関する覚書" class="nav-link" data-scroll-target="#総称関数の実装に関する覚書">総称関数の実装に関する覚書</a>
+  <ul class="collapse">
+  <li><a href="#総称関数に登録されたメソッドの確認" id="toc-総称関数に登録されたメソッドの確認" class="nav-link" data-scroll-target="#総称関数に登録されたメソッドの確認">総称関数に登録されたメソッドの確認</a></li>
+  </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/main/articles/project_guide.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></nav>
     </div>
@@ -634,6 +638,49 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  "s_pa: 'I am a Series'",</span></span>
 <span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  "s_nw: 'I am a Series'",</span></span>
 <span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  "int: 'I am some object'"]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+</section>
+<section id="総称関数の実装に関する覚書" class="level2">
+<h2 class="anchored" data-anchor-id="総称関数の実装に関する覚書">総称関数の実装に関する覚書</h2>
+<section id="総称関数に登録されたメソッドの確認" class="level3">
+<h3 class="anchored" data-anchor-id="総称関数に登録されたメソッドの確認">総称関数に登録されたメソッドの確認</h3>
+<section id="結論-1" class="level4">
+<h4 class="anchored" data-anchor-id="結論-1">結論</h4>
+<ul>
+<li>ある関数に登録されたメソッド全体を確認するには <code>foo.registry</code> を使い</li>
+<li>ある関数に登録された特定のクラスのメソッドを確認するには <code>foo.dispatch(Class)</code> を使います</li>
+</ul>
+</section>
+<section id="詳細-1" class="level4">
+<h4 class="anchored" data-anchor-id="詳細-1">詳細</h4>
+<p>ある総称関数に、どのようなメソッドが登録されているかは、<code>.registry</code> 属性で確認することができます。<code>.registry</code> は <code>{型: 実装関数}</code> の辞書であり、<code>object</code> クラスはデフォルト実装に対応しています。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> py4stats <span class="im">as</span> py4st</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pprint</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>registry <span class="op">=</span> py4st.is_dummy.registry</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(pd.Series(registry).<span class="bu">apply</span>(<span class="kw">lambda</span> x: x.<span class="va">__name__</span>))</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;class 'object'&gt;                                         is_dummy</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;class 'narwhals._native.NativeSeries'&gt;           is_dummy_series</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;class 'narwhals.series.Series'&gt;                  is_dummy_series</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;class 'narwhals._native.NativeDataFrame'&gt;    is_dummy_data_frame</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;class 'narwhals.dataframe.DataFrame'&gt;        is_dummy_data_frame</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;class 'tuple'&gt;                                     is_dummy_list</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;class 'list'&gt;                                      is_dummy_list</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; dtype: object</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>また、<code>.dispatch(Class)</code> メソッドで特定のオブジェクトクラスに対して実装されたメソッド関数を確認することができます。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(py4st.is_dummy.dispatch(pd.DataFrame).<span class="va">__name__</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; is_dummy_data_frame</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(py4st.is_dummy.dispatch(pd.Series).<span class="va">__name__</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; is_dummy_series</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(py4st.is_dummy.dispatch(<span class="bu">list</span>).<span class="va">__name__</span>)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; is_dummy_list</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(py4st.is_dummy.dispatch(<span class="bu">int</span>).<span class="va">__name__</span>) <span class="co"># デフォルト実装</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; is_dummy</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 
 
 </section>
