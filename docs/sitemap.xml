@@ -2,174 +2,174 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/index.html</loc>
-    <lastmod>2026-01-24T10:16:02.658Z</lastmod>
+    <lastmod>2026-01-24T08:32:54.023Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/introduction.html</loc>
-    <lastmod>2026-01-24T10:16:02.658Z</lastmod>
+    <lastmod>2026-01-24T08:32:54.023Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/reference.html</loc>
-    <lastmod>2026-01-24T10:16:02.664Z</lastmod>
+    <lastmod>2026-01-24T08:32:54.029Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/diagnose.html</loc>
-    <lastmod>2026-01-24T14:36:53.413Z</lastmod>
+    <lastmod>2026-01-24T14:44:10.634Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/tabyl.html</loc>
-    <lastmod>2026-01-24T14:36:53.413Z</lastmod>
+    <lastmod>2026-01-24T14:44:10.636Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/freq_table.html</loc>
-    <lastmod>2026-01-24T14:36:53.432Z</lastmod>
+    <lastmod>2026-01-24T14:44:10.634Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/Pareto_plot.html</loc>
-    <lastmod>2026-01-24T10:16:02.659Z</lastmod>
+    <lastmod>2026-01-24T08:32:54.023Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/plot_category.html</loc>
-    <lastmod>2026-01-24T10:16:02.662Z</lastmod>
+    <lastmod>2026-01-24T08:32:54.027Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/diagnose_category.html</loc>
-    <lastmod>2026-01-24T14:36:53.432Z</lastmod>
+    <lastmod>2026-01-24T14:44:10.634Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/point_range.html</loc>
-    <lastmod>2026-01-24T14:36:53.408Z</lastmod>
+    <lastmod>2026-01-24T14:44:10.635Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/remove_empty_constant.html</loc>
-    <lastmod>2026-01-24T14:36:53.408Z</lastmod>
+    <lastmod>2026-01-24T14:44:10.635Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/filtering_out.html</loc>
-    <lastmod>2026-01-24T14:36:53.408Z</lastmod>
+    <lastmod>2026-01-24T14:44:10.634Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/relocate.html</loc>
-    <lastmod>2026-01-24T14:36:53.408Z</lastmod>
+    <lastmod>2026-01-24T14:44:10.635Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/compare_df_cols.html</loc>
-    <lastmod>2026-01-24T10:16:02.659Z</lastmod>
+    <lastmod>2026-01-24T08:32:54.024Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/compare_group_stats.html</loc>
-    <lastmod>2026-01-24T14:36:53.425Z</lastmod>
+    <lastmod>2026-01-24T14:44:10.634Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/plot_miss_var.html</loc>
-    <lastmod>2026-01-24T10:16:02.663Z</lastmod>
+    <lastmod>2026-01-24T08:32:54.027Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/set_miss.html</loc>
-    <lastmod>2026-01-24T14:36:53.408Z</lastmod>
+    <lastmod>2026-01-24T14:44:10.635Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/scale_wmean.html</loc>
-    <lastmod>2026-01-24T14:37:52.575Z</lastmod>
+    <lastmod>2026-01-24T14:44:10.635Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/predicate_str.html</loc>
-    <lastmod>2026-01-24T14:36:53.425Z</lastmod>
+    <lastmod>2026-01-24T14:44:10.635Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/is_dummy.html</loc>
-    <lastmod>2026-01-24T14:38:07.046Z</lastmod>
+    <lastmod>2026-01-24T14:44:10.635Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/varidate.html</loc>
-    <lastmod>2026-01-24T14:36:53.408Z</lastmod>
+    <lastmod>2026-01-24T14:44:10.636Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/compare_ols.html</loc>
-    <lastmod>2026-01-24T10:16:02.661Z</lastmod>
+    <lastmod>2026-01-24T08:32:54.024Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/compare_mfx.html</loc>
-    <lastmod>2026-01-24T10:16:02.661Z</lastmod>
+    <lastmod>2026-01-24T08:32:54.024Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/coefplot.html</loc>
-    <lastmod>2026-01-24T10:16:02.659Z</lastmod>
+    <lastmod>2026-01-24T08:32:54.024Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/tidy.html</loc>
-    <lastmod>2026-01-24T10:16:02.663Z</lastmod>
+    <lastmod>2026-01-24T09:33:36.104Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/tidy_test.html</loc>
-    <lastmod>2026-01-24T10:16:02.663Z</lastmod>
+    <lastmod>2026-01-24T08:32:54.028Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/glance.html</loc>
-    <lastmod>2026-01-24T10:16:02.661Z</lastmod>
+    <lastmod>2026-01-24T08:32:54.026Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/Blinder_Oaxaca.html</loc>
-    <lastmod>2026-01-24T10:16:02.659Z</lastmod>
+    <lastmod>2026-01-24T08:32:54.023Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/tidy_heckit.html</loc>
-    <lastmod>2026-01-24T10:16:02.663Z</lastmod>
+    <lastmod>2026-01-24T08:32:54.028Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/Heckit_from_formula.html</loc>
-    <lastmod>2026-01-24T10:16:02.659Z</lastmod>
+    <lastmod>2026-01-24T08:32:54.023Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/heckitmfx_compute.html</loc>
-    <lastmod>2026-01-24T10:16:02.661Z</lastmod>
+    <lastmod>2026-01-24T08:32:54.026Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/arg_match.html</loc>
-    <lastmod>2026-01-24T10:16:02.659Z</lastmod>
+    <lastmod>2026-01-24T08:32:54.024Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/assert_dtype.html</loc>
-    <lastmod>2026-01-24T10:16:02.659Z</lastmod>
+    <lastmod>2026-01-24T08:32:54.024Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/is_dtype.html</loc>
-    <lastmod>2026-01-24T10:16:02.662Z</lastmod>
+    <lastmod>2026-01-24T08:32:54.027Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/miscellaneous.html</loc>
-    <lastmod>2026-01-24T10:16:02.662Z</lastmod>
+    <lastmod>2026-01-24T08:44:04.472Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/style_pvalue.html</loc>
-    <lastmod>2026-01-24T10:16:02.663Z</lastmod>
+    <lastmod>2026-01-24T08:42:51.791Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/oxford_comma.html</loc>
-    <lastmod>2026-01-24T10:16:02.662Z</lastmod>
+    <lastmod>2026-01-24T08:50:27.875Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/articles/release_notes.html</loc>
-    <lastmod>2026-01-24T10:16:02.631Z</lastmod>
+    <lastmod>2026-01-24T08:32:54.010Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/articles/scaling_up_regression.html</loc>
-    <lastmod>2026-01-24T10:16:02.631Z</lastmod>
+    <lastmod>2026-01-24T09:35:39.143Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/articles/narwhals_in_py4stats.html</loc>
-    <lastmod>2026-01-24T10:16:02.631Z</lastmod>
+    <lastmod>2026-01-24T09:31:26.823Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/articles/project_guide.html</loc>
-    <lastmod>2026-01-24T10:16:02.631Z</lastmod>
+    <lastmod>2026-01-25T06:55:22.465Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/articles/eda_tools_development_status.html</loc>
-    <lastmod>2026-01-24T10:16:02.630Z</lastmod>
+    <lastmod>2026-01-24T08:32:54.010Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/articles/narwhalsについての考察.html</loc>
-    <lastmod>2026-01-24T10:16:02.631Z</lastmod>
+    <lastmod>2026-01-24T08:32:54.010Z</lastmod>
   </url>
 </urlset>
