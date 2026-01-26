@@ -183,7 +183,7 @@ print(res.round(4))
 ```python
 import ptitprince as pt
 
-fig, ax = plt.subplots(figsize = (np.sqrt(2) * 3, 3), dpi = 150)
+fig, ax = plt.subplots(figsize = (1.618 * 4, 4), dpi = 100)
 
 pt.RainCloud(
     data = boot_sample.sort_index().reset_index()\
@@ -191,6 +191,7 @@ pt.RainCloud(
     x = 'term',
     y = 'estimate',
     orient = 'h',
+    hue = 'term',
     ax = ax
 );
 
