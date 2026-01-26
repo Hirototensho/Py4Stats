@@ -1172,7 +1172,7 @@
     "href": "man/tidy.html",
     "title": "tidy, tidy_mfx",
     "section": "",
-    "text": "概要\n線形モデルの推定結果を DataFrame に集約\nR言語の broom::tidy() をオマージュした関数で、sm.ols() や smf.logit() などの推定結果を pands.DataFrame に変換します。py4stats.tidy() は回帰係数と関連する検定結果を表示し、 py4stats.tidy_mfx() は限界効果と関連する検定結果を表示します。",
+    "text": "概要\n線形モデルの推定結果を DataFrame に集約\ntidy() はR言語の broom::tidy() をオマージュした関数で、sm.ols() や smf.logit() などの推定結果を pands.DataFrame に変換します。py4stats.tidy() は回帰係数と関連する検定結果を表示し、 py4stats.tidy_mfx() は限界効果と関連する検定結果を表示します。",
     "crumbs": [
       "**Regression**",
       "<span class='chapter-number'>25</span>  <span class='chapter-title'>tidy, tidy_mfx</span>"
@@ -1216,7 +1216,7 @@
     "href": "man/tidy.html#使用例-examples",
     "title": "tidy, tidy_mfx",
     "section": "使用例 Examples",
-    "text": "使用例 Examples\nimport pandas as pd\nimport numpy as np\nfrom palmerpenguins import load_penguins\nimport statsmodels.formula.api as smf\n\nfrom py4stats import regression_tools as reg # 回帰分析の要約\npenguins = load_penguins() # サンプルデータの読み込み\n# 回帰分析の実行\nfit1 = smf.ols('body_mass_g ~ bill_length_mm + species', data = penguins).fit()\n\nprint(py4st.tidy(fit1).round(4))\n#&gt;                       estimate   std_err  statistics  p_value  conf_lower  conf_higher\n#&gt; term                                                                                  \n#&gt; Intercept             153.7397  268.9012      0.5717   0.5679   -375.1910     682.6704\n#&gt; species[T.Chinstrap] -885.8121   88.2502    -10.0375   0.0000  -1059.4008    -712.2234\n#&gt; species[T.Gentoo]     578.6292   75.3623      7.6780   0.0000    430.3909     726.8674\n#&gt; bill_length_mm         91.4358    6.8871     13.2764   0.0000     77.8888     104.9828\npenguins['female'] = np.where(penguins['sex'] == 'female', 1, 0)\n\n# ロジスティック回帰の実行\nfit_logit1 = smf.logit('female ~ body_mass_g + bill_length_mm + bill_depth_mm', data = penguins).fit()\n\nprint(py4st.tidy_mfx(fit_logit1).round(4))\n#&gt;                 estimate  std_err  statistics  p_value  conf_lower  conf_higher\n#&gt; body_mass_g      -0.0004   0.0000    -17.6561   0.0000     -0.0004      -0.0003\n#&gt; bill_length_mm   -0.0053   0.0036     -1.4628   0.1435     -0.0123       0.0018\n#&gt; bill_depth_mm    -0.1490   0.0051    -29.1681   0.0000     -0.1591      -0.1390",
+    "text": "使用例 Examples\nimport pandas as pd\nimport numpy as np\nfrom palmerpenguins import load_penguins\nimport statsmodels.formula.api as smf\n\nimport py4stats as py4st\npenguins = load_penguins() # サンプルデータの読み込み\n# 回帰分析の実行\nfit1 = smf.ols('body_mass_g ~ bill_length_mm + species', data = penguins).fit()\n\nprint(py4st.tidy(fit1).round(4))\n#&gt;                       estimate   std_err  statistics  p_value  conf_lower  conf_higher\n#&gt; term                                                                                  \n#&gt; Intercept             153.7397  268.9012      0.5717   0.5679   -375.1910     682.6704\n#&gt; species[T.Chinstrap] -885.8121   88.2502    -10.0375   0.0000  -1059.4008    -712.2234\n#&gt; species[T.Gentoo]     578.6292   75.3623      7.6780   0.0000    430.3909     726.8674\n#&gt; bill_length_mm         91.4358    6.8871     13.2764   0.0000     77.8888     104.9828\npenguins['female'] = np.where(penguins['sex'] == 'female', 1, 0)\n\n# ロジスティック回帰の実行\nfit_logit1 = smf.logit('female ~ body_mass_g + bill_length_mm + bill_depth_mm', data = penguins).fit()\n\nprint(py4st.tidy_mfx(fit_logit1).round(4))\n#&gt;                 estimate  std_err  statistics  p_value  conf_lower  conf_higher\n#&gt; body_mass_g      -0.0004   0.0000    -17.6561   0.0000     -0.0004      -0.0003\n#&gt; bill_length_mm   -0.0053   0.0036     -1.4628   0.1435     -0.0123       0.0018\n#&gt; bill_depth_mm    -0.1490   0.0051    -29.1681   0.0000     -0.1591      -0.1390",
     "crumbs": [
       "**Regression**",
       "<span class='chapter-number'>25</span>  <span class='chapter-title'>tidy, tidy_mfx</span>"
@@ -1227,7 +1227,7 @@
     "href": "man/tidy.html#注意点",
     "title": "tidy, tidy_mfx",
     "section": "注意点",
-    "text": "注意点\n　参考にしたR言語の broom::tidy() は様々な種類のモデルに対応したジェネリック関数として定義されていますが、py4stats.tidy() と py4stats.tidy_mfx() では対応しているモデルが限定的であることにご注意ください。py4st.tidy() のメソッドが定義されているオブジェクトのクラスを確認するには次のコードを実行して下さい。\nlist(py4st.tidy.registry.keys())\npy4stats.tidy() は functools.singledispatch を用いたジェネリック関数として実装しています。 Py4Etrics モジュールの py4etrics.heckit.Heckit() で作成された HeckitResults クラスのオブジェクト用のメソッドについては heckit_helper.tidy_heckit() を参照してください。\n\nReturn to Function reference.",
+    "text": "注意点\n参考にしたR言語の broom::tidy() は様々な種類のモデルに対応したジェネリック関数として定義されていますが、py4stats.tidy() と py4stats.tidy_mfx() では対応しているモデルが限定的であることにご注意ください。py4st.tidy() のメソッドが定義されているオブジェクトのクラスを確認するには次のコードを実行して下さい。\nimport py4stats as py4st\nlist(py4st.tidy.registry.keys())\npy4stats.tidy() は functools.singledispatch を用いたジェネリック関数として実装しています。 Py4Etrics モジュールの py4etrics.heckit.Heckit() で作成された HeckitResults クラスのオブジェクト用のメソッドについては heckit_helper.tidy_heckit() を参照してください。\n\nReturn to Function reference.",
     "crumbs": [
       "**Regression**",
       "<span class='chapter-number'>25</span>  <span class='chapter-title'>tidy, tidy_mfx</span>"
@@ -1348,7 +1348,7 @@
     "href": "man/glance.html#注意点",
     "title": "glance",
     "section": "注意点",
-    "text": "注意点\n　参考にしたR言語の bloom::glance() は様々な種類のモデルに対応したジェネリック関数として定義されていますが、py4st.glance() は現段階では限られたモデルにしか対応していません。py4st.glance() のメソッドが定義されているオブジェクトのクラスを確認するには次のコードを実行して下さい。\nlist(py4st.glance.registry.keys())\n\nReturn to Function reference.",
+    "text": "注意点\n参考にしたR言語の bloom::glance() は様々な種類のモデルに対応したジェネリック関数として定義されていますが、py4st.glance() は現段階では限られたモデルにしか対応していません。py4st.glance() のメソッドが定義されているオブジェクトのクラスを確認するには次のコードを実行して下さい。\nimport py4stats as py4st\nlist(py4st.glance.registry.keys())\n\nReturn to Function reference.",
     "crumbs": [
       "**Regression**",
       "<span class='chapter-number'>27</span>  <span class='chapter-title'>glance</span>"
@@ -2173,7 +2173,7 @@
     "href": "articles/project_guide.html#総称関数の実装に関する覚書",
     "title": "Project Guide",
     "section": "総称関数の実装に関する覚書",
-    "text": "総称関数の実装に関する覚書\n\n総称関数に登録されたメソッドの確認\n\n結論\n\nある関数に登録されたメソッド全体を確認するには foo.registry を使い\nある関数に登録された特定のクラスのメソッドを確認するには foo.dispatch(Class) を使います\n\n\n\n詳細\nある総称関数に、どのようなメソッドが登録されているかは、.registry 属性で確認することができます。.registry は {型: 実装関数} の辞書であり、object クラスはデフォルト実装に対応しています。\nimport py4stats as py4st\nimport pprint\nimport pandas as pd\n\nregistry = py4st.is_dummy.registry\nprint(pd.Series(registry).apply(lambda x: x.__name__))\n#&gt; &lt;class 'object'&gt;                                         is_dummy\n#&gt; &lt;class 'narwhals._native.NativeSeries'&gt;           is_dummy_series\n#&gt; &lt;class 'narwhals.series.Series'&gt;                  is_dummy_series\n#&gt; &lt;class 'narwhals._native.NativeDataFrame'&gt;    is_dummy_data_frame\n#&gt; &lt;class 'narwhals.dataframe.DataFrame'&gt;        is_dummy_data_frame\n#&gt; &lt;class 'tuple'&gt;                                     is_dummy_list\n#&gt; &lt;class 'list'&gt;                                      is_dummy_list\n#&gt; dtype: object\nまた、.dispatch(Class) メソッドで特定のオブジェクトクラスに対して実装されたメソッド関数を確認することができます。\nprint(py4st.is_dummy.dispatch(pd.DataFrame).__name__)\n#&gt; is_dummy_data_frame\n\nprint(py4st.is_dummy.dispatch(pd.Series).__name__)\n#&gt; is_dummy_series\n\nprint(py4st.is_dummy.dispatch(list).__name__)\n#&gt; is_dummy_list\n\nprint(py4st.is_dummy.dispatch(int).__name__) # デフォルト実装\n#&gt; is_dummy",
+    "text": "総称関数の実装に関する覚書\n\n総称関数に登録されたメソッドの確認\n\n結論\n\nある関数に登録されたメソッド全体を確認するには foo.registry を使い\nある関数に登録された特定のクラスのメソッドを確認するには foo.dispatch(Class) を使います\n\n\n\n詳細\nある総称関数に、どのようなメソッドが登録されているかは、.registry 属性で確認することができます。.registry は {型: 実装関数} の辞書であり、object クラスはデフォルト実装に対応しています。\nimport py4stats as py4st\nimport pandas as pd\n\nregistry = py4st.is_dummy.registry\nprint(pd.Series(registry).apply(lambda x: x.__name__))\n#&gt; &lt;class 'object'&gt;                                         is_dummy\n#&gt; &lt;class 'narwhals._native.NativeSeries'&gt;           is_dummy_series\n#&gt; &lt;class 'narwhals.series.Series'&gt;                  is_dummy_series\n#&gt; &lt;class 'narwhals._native.NativeDataFrame'&gt;    is_dummy_data_frame\n#&gt; &lt;class 'narwhals.dataframe.DataFrame'&gt;        is_dummy_data_frame\n#&gt; &lt;class 'tuple'&gt;                                     is_dummy_list\n#&gt; &lt;class 'list'&gt;                                      is_dummy_list\n#&gt; dtype: object\nまた、.dispatch(Class) メソッドで特定のオブジェクトクラスに対して実装されたメソッド関数を確認することができます。\nprint(py4st.is_dummy.dispatch(pd.DataFrame).__name__)\n#&gt; is_dummy_data_frame\n\nprint(py4st.is_dummy.dispatch(pd.Series).__name__)\n#&gt; is_dummy_series\n\nprint(py4st.is_dummy.dispatch(list).__name__)\n#&gt; is_dummy_list\n\nprint(py4st.is_dummy.dispatch(int).__name__) # デフォルト実装\n#&gt; is_dummy",
     "crumbs": [
       "**Contributing Notes**",
       "<span class='chapter-number'>41</span>  <span class='chapter-title'>Project Guide</span>"

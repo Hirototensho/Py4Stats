@@ -186,7 +186,6 @@ data_dict = {
 
 ``` python
 import py4stats as py4st
-import pprint
 import pandas as pd
 
 registry = py4st.is_dummy.registry

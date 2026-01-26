@@ -4,7 +4,7 @@
 
 ## 概要
 
-　R言語の [`broom::tidy()`](https://broom.tidymodels.org/reference/tidy.lm.html) をオマージュした関数で、[`sm.ols()`](https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.OLS.html) や [`smf.logit()`](https://www.statsmodels.org/stable/generated/statsmodels.formula.api.logit.html) などの推定結果を `pands.DataFrame` に変換します。`py4stats.tidy()` は回帰係数と関連する検定結果を表示し、 `py4stats.tidy_mfx()` は限界効果と関連する検定結果を表示します。
+`tidy()` はR言語の [`broom::tidy()`](https://broom.tidymodels.org/reference/tidy.lm.html) をオマージュした関数で、[`sm.ols()`](https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.OLS.html) や [`smf.logit()`](https://www.statsmodels.org/stable/generated/statsmodels.formula.api.logit.html) などの推定結果を `pands.DataFrame` に変換します。`py4stats.tidy()` は回帰係数と関連する検定結果を表示し、 `py4stats.tidy_mfx()` は限界効果と関連する検定結果を表示します。
 
 ```python
 tidy(
@@ -75,7 +75,7 @@ import numpy as np
 from palmerpenguins import load_penguins
 import statsmodels.formula.api as smf
 
-from py4stats import regression_tools as reg # 回帰分析の要約
+import py4stats as py4st
 penguins = load_penguins() # サンプルデータの読み込み
 ```
 
@@ -108,9 +108,10 @@ print(py4st.tidy_mfx(fit_logit1).round(4))
 
 ## 注意点
 
-　参考にしたR言語の [`broom::tidy()`](https://broom.tidymodels.org/reference/tidy.lm.html) は様々な種類のモデルに対応したジェネリック関数として定義されていますが、`py4stats.tidy()` と `py4stats.tidy_mfx()` では対応しているモデルが限定的であることにご注意ください。`py4st.tidy()` のメソッドが定義されているオブジェクトのクラスを確認するには次のコードを実行して下さい。
+参考にしたR言語の [`broom::tidy()`](https://broom.tidymodels.org/reference/tidy.lm.html) は様々な種類のモデルに対応したジェネリック関数として定義されていますが、`py4stats.tidy()` と `py4stats.tidy_mfx()` では対応しているモデルが限定的であることにご注意ください。`py4st.tidy()` のメソッドが定義されているオブジェクトのクラスを確認するには次のコードを実行して下さい。
 
 ```python
+import py4stats as py4st
 list(py4st.tidy.registry.keys())
 ```
 
