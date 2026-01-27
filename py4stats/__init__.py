@@ -126,5 +126,5 @@ __all__ = [
     ]
 
 __author__ = 'Hiroto Tensho'
-__version__ = '0.3.1'
+__version__ = '0.4.0'
 __copyright__ = 'Copyright (c) 2024-2026 Hiroto Tensho'

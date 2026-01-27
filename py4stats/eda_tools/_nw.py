@@ -4359,16 +4359,19 @@ def review_casting(before: IntoFrameT, after: IntoFrameT) -> str:
         to_native = False
         ).drop_nulls()
 
+    name_w = res_compare.select(
+        len = nw.col("term").str.len_chars()
+        )['len'].max()
+
     if build.length(res_compare) >= 1:
         col_cast = [
-            f"  '{row[0]}': {row[1]} to {row[2]}"
+            f"  {row[0]:<{name_w}} {row[1]} -> {row[2]}"
             for row in res_compare.iter_rows()
             ]
         cast_message = f'The following columns have changed their type:\n{"\n".join(col_cast)}'
     else: 
         cast_message = 'No existing columns had their type changed.'
     return cast_message
-
 
 
 # In[ ]:
@@ -4396,65 +4399,74 @@ def review_col_addition(columns_before, columns_after) -> str:
 # In[ ]:
 
 
-def review_missing(before: IntoFrameT, after: IntoFrameT) -> str:
-    compare_miss = diagnose(before, to_native = False)\
-        .select('columns', 'missing_percent')\
-        .join(
-            diagnose(after, to_native = False)\
-            .select('columns', 'missing_percent'),
-            on = 'columns'
-            )
+def format_missing_lines(miss_table):
+    rows_list = [
+        dict(zip(miss_table.columns, row)) 
+        for row in miss_table.iter_rows()
+        ]
 
-    increased = compare_miss.filter(
-        nw.col('missing_percent') < nw.col('missing_percent_right')
-    )
-    decreased = compare_miss.filter(
-        nw.col('missing_percent') > nw.col('missing_percent_right')
-    )
-    if build.length(increased) == 0 and build.length(decreased) == 0:
-        return 'No existing columns decreased the number of missing values.'
+    names = [f"  {row.get('columns')} " for row in rows_list]
+    name_w = max(len(n) for n in names)  # 列名の表示幅
+    # 欠測数の表示幅
+    count_w = len(str(max(max(
+            row.get('missing_count'), 
+            row.get('missing_count_after')
+            ) for row in rows_list
+            ))) 
+    # 欠測率の表示幅
+    pct_w = len(f"{(max(max(
+        row.get('missing_percent'), 
+        row.get('missing_percent_after')
+        ) for row in rows_list
+        )):.2f}") 
 
-    miss_review = []
-    if build.length(increased) >= 1:
-        col_cast = [
-            f"  '{row[0]}': {row[1]:.2f}% to {row[2]:.2f}%"
-            for row in increased.iter_rows()
-            ]
-        miss_review += [f'Increase in missing values:\n{"\n".join(col_cast)}']
-    else: 
-        miss_review += ['No existing columns increased the number of missing values.']
-
-    if build.length(decreased) >= 1:
-        col_cast = [
-            f"  '{row[0]}': {row[1]:.2f}% to {row[2]:.2f}%"
-            for row in decreased.iter_rows()
-            ]
-        miss_review += [f'Decrease in missing values:\n{"\n".join(col_cast)}']
-    else: 
-        miss_review += ['None of the existing columns decreases in the number of missing values.']
-    result = '\n\n'.join(miss_review)
-    return result
+    col_miss = []
+    for i, row in enumerate(rows_list):
+        c_before, p_before = row.get('missing_count'), row.get('missing_percent')
+        c_after, p_after = row.get('missing_count_after'), row.get('missing_percent_after')
+        col_miss += [
+                f"{names[i]:<{name_w}} before {c_before:>{count_w}} ({p_before:>{pct_w}.2f}%) " +\
+                f"-> after {c_after:>{count_w}} ({p_after:>{pct_w}.2f}%)"
+                ]
+    return col_miss
 
 
 # In[ ]:
 
 
-def review_casting(before: IntoFrameT, after: IntoFrameT) -> str:
-    res_compare = compare_df_cols(
-        [before, after], return_match = 'mismatch', 
-        to_native = False
-        ).drop_nulls()
+def review_missing(before: IntoFrameT, after: IntoFrameT) -> str:
+    compare_miss = diagnose(before, to_native = False)\
+        .select('columns', 'missing_count', 'missing_percent')\
+        .join(
+            diagnose(after, to_native = False)\
+            .select('columns', 'missing_count', 'missing_percent'),
+            on = 'columns', suffix = "_after"
+            )
 
-    if build.length(res_compare) >= 1:
-        col_cast = [
-            f"  '{row[0]}': {row[1]} to {row[2]}"
-            for row in res_compare.iter_rows()
-            ]
-        cast_message = f'The following columns have changed their type:\n{"\n".join(col_cast)}'
+    increased = compare_miss.filter(
+        nw.col('missing_percent') < nw.col('missing_percent_after')
+    )
+    decreased = compare_miss.filter(
+        nw.col('missing_percent') > nw.col('missing_percent_after')
+    )
+    if build.length(increased) == 0 and build.length(decreased) == 0:
+        return 'No existing columns decreased the number of missing values.'
+
+    # return increased, decreased
+    miss_review = []
+    if build.length(increased) >= 1:
+        col_miss = format_missing_lines(increased)
+        miss_review += [f'Increase in missing values:\n{"\n".join(col_miss)}']
     else: 
-        cast_message = 'No existing columns had their type changed.'
-    return cast_message
+        miss_review += ['No existing columns increased the number of missing values.']
 
+    if build.length(decreased) >= 1:
+        col_miss = format_missing_lines(decreased)
+        miss_review += [f'Decrease in missing values:\n{"\n".join(col_miss)}']
+    else: 
+        miss_review += ['None of the existing columns decreases in the number of missing values.']
+    result = '\n\n'.join(miss_review)
+    return result
 
 
 # In[ ]:
@@ -4466,19 +4478,19 @@ def shape_change(before: int, after: int) -> str:
     return f" (No change)"
 
 
-
 # In[ ]:
 
 
 def review_shape(before: IntoFrameT, after: IntoFrameT) -> str:
     row_o, col_o = before.shape
     row_n, col_n = after.shape
+    d_o = len(str(np.max([row_o, col_o])))
+    d_n = len(str(np.max([row_n, col_n])))
 
     shpe_message = f"The shape of DataFrame:\n" + \
-                f"   Rows: before {row_o:,} -> after {row_n:,}{shape_change(row_o, row_n)}\n" + \
-                f"   Cols: before {col_o:,} -> after {col_n:,}{shape_change(col_o, col_n)}"
+                f"   Rows: before {row_o:>{d_o},} -> after {row_n:>{d_n},}{shape_change(row_o, row_n)}\n" + \
+                f"   Cols: before {col_o:>{d_o},} -> after {col_n:>{d_n},}{shape_change(col_o, col_n)}"
     return shpe_message
-
 
 
 # In[ ]:

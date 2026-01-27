@@ -1,21 +1,21 @@
-============ Review of wrangling =============
+=================== Review of wrangling ====================
 The shape of DataFrame:
    Rows: before 344 -> after 333 (-11)
-   Cols: before 8 -> after 10 (+2)
+   Cols: before   8 -> after  10 (+2)
 
 Column(s) 'heavy' and 'const' were added, 
 No columns were removed.
 
 The following columns have changed their type:
-  'species': String to Categorical
-  'year': Int64 to Float64
+  species String -> Categorical
+  year    Int64 -> Float64
 
 Increase in missing values:
-  'flipper_length_mm': 0.58% to 10.21%
+  flipper_length_mm  before  2 ( 0.58%) -> after 34 (10.21%)
 
 Decrease in missing values:
-  'bill_length_mm': 0.58% to 0.00%
-  'bill_depth_mm': 0.58% to 0.00%
-  'body_mass_g': 0.58% to 0.00%
-  'sex': 3.20% to 0.00%
-==============================================
+  bill_length_mm  before  2 (0.58%) -> after  0 (0.00%)
+  bill_depth_mm   before  2 (0.58%) -> after  0 (0.00%)
+  body_mass_g     before  2 (0.58%) -> after  0 (0.00%)
+  sex             before 11 (3.20%) -> after  0 (0.00%)
+============================================================
