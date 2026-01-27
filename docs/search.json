@@ -34,7 +34,7 @@
     "href": "introduction.html",
     "title": "Introduction to Py4Stats",
     "section": "",
-    "text": "py4stats.eda_tools\nここでは Py4Stats の主な機能を紹介します。実装されている関数の一覧は Function reference を参照してください。\n探索的データ解析と前処理に関する機能を提供するモジュールです。このモジュールは、複数の DataFrame バックエンドに対して共通の API を提供することを目的として、narwhals ライブラリを用いて実装されています。詳細は Technical Notes: py4stats.eda_tools における narwhals ベースの実装 を参照してください。\npy4stats.diagnose()：R言語のdlookr::diagnose()を再現した関数で、データの全般的な状態についての要約を提供します。\npy4stats.tabyl()：R言語の janitor::tabyl()を参考にした、クロス集計表を作成する関数です。\npy4stats.freq_table()：R言語のDescTools::Freq()をオマージュした、1変数の度数分布表を計算する関数。度数 freq と相対度数 perc に加えて、それぞれの累積値を計算します。\n引数 group を指定すると、グループ別の度数分布表を計算できます。\npy4stats.remove_empty()：完全に空白な列や行の削除する関数。R言語の janitor::remove_empty() をオマージュした関数で、全ての要素が NaN である列や行をデータフレームから除外します。\npy4stats.remove_constant()：定数列の削除。R言語の janitor::remove_constant() をオマージュした関数で、1種類だけの要素からなる列をデータフレームから除外します。\npy4stats.filtering_out()：pandas の DataFrame.filter() メソッドでは引数 like に文字列を指定することで、列名に特定の文字列を含む列を選択できますが、反対に py4stats.filtering_out() では列名に特定の文字列を含む列を除外します。実装の一部はR言語の dplyr::select() を参考にしました。",
+    "text": "py4stats.eda_tools\nここでは Py4Stats の主な機能を紹介します。実装されている関数の一覧は Function reference を参照してください。\n探索的データ解析と前処理に関する機能を提供するモジュールです。このモジュールは、複数の DataFrame バックエンドに対して共通の API を提供することを目的として、narwhals ライブラリを用いて実装されています。詳細は Technical Notes: py4stats.eda_tools における narwhals ベースの実装 を参照してください。\npy4stats.diagnose()：R言語のdlookr::diagnose()を再現した関数で、データの全般的な状態についての要約を提供します。\npy4stats.tabyl()：R言語の janitor::tabyl()を参考にした、クロス集計表を作成する関数です。\npy4stats.freq_table()：R言語のDescTools::Freq()をオマージュした、1変数の度数分布表を計算する関数。度数 freq と相対度数 perc に加えて、それぞれの累積値を計算します。\n引数 group を指定すると、グループ別の度数分布表を計算できます。\npy4stats.remove_empty()：完全に空白な列や行の削除する関数。R言語の janitor::remove_empty() をオマージュした関数で、全ての要素が NaN である列や行をデータフレームから除外します。\npy4stats.remove_constant()：定数列の削除。R言語の janitor::remove_constant() をオマージュした関数で、1種類だけの要素からなる列をデータフレームから除外します。\npy4stats.filtering_out()：列名に特定の文字列を含む列や、特定の文字列で始まる/終わる列を除外します。実装の一部はR言語の dplyr::select() を参考にしました。\npy4stats.review_wrangling():データ前処理（wrangling）による変更点をレビュー形式で要約して、文字列として出力する関数です。データフレームの形状（行数・列数）の変化に加えて、データ型（dtype）の変化欠測値やカテゴリー変数における水準の増減を報告します。",
     "crumbs": [
       "<span class='chapter-number'>2</span>  <span class='chapter-title'>Introduction to Py4Stats</span>"
     ]
@@ -44,7 +44,7 @@
     "href": "introduction.html#py4stats.eda_tools",
     "title": "Introduction to Py4Stats",
     "section": "",
-    "text": "import pandas as pd\nimport numpy as np\nfrom palmerpenguins import load_penguins\npenguins = load_penguins() # サンプルデータの読み込み\n\nprint(py4st.diagnose(penguins).round(4))\n#&gt;                      dtype  missing_count  missing_percent  unique_count  unique_rate\n#&gt; species             object              0           0.0000             3       0.8721\n#&gt; island              object              0           0.0000             3       0.8721\n#&gt; bill_length_mm     float64              2           0.5814           164      47.6744\n#&gt; bill_depth_mm      float64              2           0.5814            80      23.2558\n#&gt; flipper_length_mm  float64              2           0.5814            55      15.9884\n#&gt; body_mass_g        float64              2           0.5814            94      27.3256\n#&gt; sex                 object             11           3.1977             2       0.5814\n#&gt; year                 int64              0           0.0000             3       0.8721\n\nprint(py4st.tabyl(penguins, 'island', 'species'))\n#&gt; species         Adelie   Chinstrap       Gentoo  All\n#&gt; island                                              \n#&gt; Biscoe      44 (26.2%)    0 (0.0%)  124 (73.8%)  168\n#&gt; Dream       56 (45.2%)  68 (54.8%)     0 (0.0%)  124\n#&gt; Torgersen  52 (100.0%)    0 (0.0%)     0 (0.0%)   52\n#&gt; All        152 (44.2%)  68 (19.8%)  124 (36.0%)  344\n\nprint(py4st.freq_table(penguins, 'species'))\n#&gt;            freq      perc  cumfreq   cumperc\n#&gt; species                                     \n#&gt; Adelie      152  0.441860      152  0.441860\n#&gt; Gentoo      124  0.360465      276  0.802326\n#&gt; Chinstrap    68  0.197674      344  1.000000\n\npenguins2 = penguins.assign(bill_length_mm2 = pd.cut(penguins['bill_length_mm'], 6))\n\nprint(\n    py4st.freq_table(penguins2, ['species', 'bill_length_mm2'], sort = False)\n    )\n#&gt;                             freq      perc  cumfreq   cumperc\n#&gt; species   bill_length_mm2\n#&gt; Adelie    (32.072, 38.975]    79  0.523179       79  0.523179\n#&gt;           (38.975, 45.85]     71  0.470199      150  0.993377\n#&gt;           (45.85, 52.725]      1  0.006623      151  1.000000\n#&gt;           (52.725, 59.6]       0  0.000000      151  1.000000\n#&gt; Chinstrap (32.072, 38.975]     0  0.000000        0  0.000000\n#&gt;           (38.975, 45.85]     13  0.191176       13  0.191176\n#&gt;           (45.85, 52.725]     50  0.735294       63  0.926471\n#&gt;           (52.725, 59.6]       5  0.073529       68  1.000000\n#&gt; Gentoo    (32.072, 38.975]     0  0.000000        0  0.000000\n#&gt;           (38.975, 45.85]     40  0.325203       40  0.325203\n#&gt;           (45.85, 52.725]     78  0.634146      118  0.959350\n#&gt;           (52.725, 59.6]       5  0.040650      123  1.000000\n\npenguins2 = penguins.loc[:, ['species', 'body_mass_g']].copy()\npenguins2.loc[:, 'empty'] = np.nan\npenguins2.loc[344, :] = np.nan\n\nprint(penguins2.tail(3))\n#&gt;        species  body_mass_g  empty\n#&gt; 342  Chinstrap       4100.0    NaN\n#&gt; 343  Chinstrap       3775.0    NaN\n#&gt; 344        NaN          NaN    NaN\n\n# 完全に空白な行と列を削除。\nprint(py4st.remove_empty(penguins2, quiet = False).tail(3))\n#&gt; Removing 1 empty column(s) out of 3 columns(Removed: empty).\n#&gt; Removing 1 empty row(s) out of 345 rows(Removed: 344). \n#&gt;        species  body_mass_g\n#&gt; 341  Chinstrap       3775.0\n#&gt; 342  Chinstrap       4100.0\n#&gt; 343  Chinstrap       3775.0\n\n# 完全に空白な列のみ削除。\nprint(py4st.remove_empty(penguins2, rows = False, quiet = False).tail(3))\n#&gt; Removing 1 empty column(s) out of 3 columns(Removed: empty).\n#&gt;        species  body_mass_g\n#&gt; 342  Chinstrap       4100.0\n#&gt; 343  Chinstrap       3775.0\n#&gt; 344        NaN          NaN\n\n# 完全に空白な行のみ削除。\nprint(py4st.remove_empty(penguins2, cols = False, quiet = False).tail(3))\n#&gt; Removing 1 empty row(s) out of 345 rows(Removed: 344). \n#&gt;        species  body_mass_g  empty\n#&gt; 341  Chinstrap       3775.0    NaN\n#&gt; 342  Chinstrap       4100.0    NaN\n#&gt; 343  Chinstrap       3775.0    NaN\n\npenguins2 = penguins.loc[:, ['species', 'body_mass_g']].copy()\npenguins2.loc[:, 'constant'] = 'c'\n\nprint(penguins2.head(3))\n#&gt;   species  body_mass_g constant\n#&gt; 0  Adelie       3750.0        c\n#&gt; 1  Adelie       3800.0        c\n#&gt; 2  Adelie       3250.0        c\n\nprint(py4st.remove_constant(penguins2, quiet = False).head(3))\n#&gt; Removing 1 constant column(s) out of 3 column(s)(Removed: constant). \n#&gt;   species  body_mass_g\n#&gt; 0  Adelie       3750.0\n#&gt; 1  Adelie       3800.0\n#&gt; 2  Adelie       3250.0\n\n# 列名に 'length' を含む列を除外\nprint(py4st.filtering_out(penguins, contains = 'length').head(3))\n#&gt;   species     island  bill_depth_mm  body_mass_g     sex  year  female\n#&gt; 0  Adelie  Torgersen           18.7       3750.0    male  2007       0\n#&gt; 1  Adelie  Torgersen           17.4       3800.0  female  2007       1\n#&gt; 2  Adelie  Torgersen           18.0       3250.0  female  2007       1\n\n# 列名が 'bill' から始まる列を除外\nprint(py4st.filtering_out(penguins, starts_with = 'bill').head(3))\n#&gt;   species     island  flipper_length_mm  body_mass_g     sex  year  female\n#&gt; 0  Adelie  Torgersen              181.0       3750.0    male  2007       0\n#&gt; 1  Adelie  Torgersen              186.0       3800.0  female  2007       1\n#&gt; 2  Adelie  Torgersen              195.0       3250.0  female  2007       1\n\n# 列名が '_mm' で終わる列を除外\nprint(py4st.filtering_out(penguins, ends_with = '_mm').head(3))\n#&gt;   species     island  body_mass_g     sex  year  female\n#&gt; 0  Adelie  Torgersen       3750.0    male  2007       0\n#&gt; 1  Adelie  Torgersen       3800.0  female  2007       1\n#&gt; 2  Adelie  Torgersen       3250.0  female  2007       1",
+    "text": "import pandas as pd\nimport numpy as np\nfrom palmerpenguins import load_penguins\npenguins = load_penguins() # サンプルデータの読み込み\n\nprint(py4st.diagnose(penguins).round(4))\n#&gt;                      dtype  missing_count  missing_percent  unique_count  unique_rate\n#&gt; species             object              0           0.0000             3       0.8721\n#&gt; island              object              0           0.0000             3       0.8721\n#&gt; bill_length_mm     float64              2           0.5814           164      47.6744\n#&gt; bill_depth_mm      float64              2           0.5814            80      23.2558\n#&gt; flipper_length_mm  float64              2           0.5814            55      15.9884\n#&gt; body_mass_g        float64              2           0.5814            94      27.3256\n#&gt; sex                 object             11           3.1977             2       0.5814\n#&gt; year                 int64              0           0.0000             3       0.8721\n\nprint(py4st.tabyl(penguins, 'island', 'species'))\n#&gt; species         Adelie   Chinstrap       Gentoo  All\n#&gt; island                                              \n#&gt; Biscoe      44 (26.2%)    0 (0.0%)  124 (73.8%)  168\n#&gt; Dream       56 (45.2%)  68 (54.8%)     0 (0.0%)  124\n#&gt; Torgersen  52 (100.0%)    0 (0.0%)     0 (0.0%)   52\n#&gt; All        152 (44.2%)  68 (19.8%)  124 (36.0%)  344\n\nprint(py4st.freq_table(penguins, 'species'))\n#&gt;            freq      perc  cumfreq   cumperc\n#&gt; species                                     \n#&gt; Adelie      152  0.441860      152  0.441860\n#&gt; Gentoo      124  0.360465      276  0.802326\n#&gt; Chinstrap    68  0.197674      344  1.000000\n\npenguins2 = penguins.assign(bill_length_mm2 = pd.cut(penguins['bill_length_mm'], 6))\n\nprint(\n    py4st.freq_table(penguins2, ['species', 'bill_length_mm2'], sort = False)\n    )\n#&gt;                             freq      perc  cumfreq   cumperc\n#&gt; species   bill_length_mm2\n#&gt; Adelie    (32.072, 38.975]    79  0.523179       79  0.523179\n#&gt;           (38.975, 45.85]     71  0.470199      150  0.993377\n#&gt;           (45.85, 52.725]      1  0.006623      151  1.000000\n#&gt;           (52.725, 59.6]       0  0.000000      151  1.000000\n#&gt; Chinstrap (32.072, 38.975]     0  0.000000        0  0.000000\n#&gt;           (38.975, 45.85]     13  0.191176       13  0.191176\n#&gt;           (45.85, 52.725]     50  0.735294       63  0.926471\n#&gt;           (52.725, 59.6]       5  0.073529       68  1.000000\n#&gt; Gentoo    (32.072, 38.975]     0  0.000000        0  0.000000\n#&gt;           (38.975, 45.85]     40  0.325203       40  0.325203\n#&gt;           (45.85, 52.725]     78  0.634146      118  0.959350\n#&gt;           (52.725, 59.6]       5  0.040650      123  1.000000\n\npenguins2 = penguins.loc[:, ['species', 'body_mass_g']].copy()\npenguins2.loc[:, 'empty'] = np.nan\npenguins2.loc[344, :] = np.nan\n\nprint(penguins2.tail(3))\n#&gt;        species  body_mass_g  empty\n#&gt; 342  Chinstrap       4100.0    NaN\n#&gt; 343  Chinstrap       3775.0    NaN\n#&gt; 344        NaN          NaN    NaN\n\n# 完全に空白な行と列を削除。\nprint(py4st.remove_empty(penguins2, quiet = False).tail(3))\n#&gt; Removing 1 empty column(s) out of 3 columns(Removed: empty).\n#&gt; Removing 1 empty row(s) out of 345 rows(Removed: 344). \n#&gt;        species  body_mass_g\n#&gt; 341  Chinstrap       3775.0\n#&gt; 342  Chinstrap       4100.0\n#&gt; 343  Chinstrap       3775.0\n\n# 完全に空白な列のみ削除。\nprint(py4st.remove_empty(penguins2, rows = False, quiet = False).tail(3))\n#&gt; Removing 1 empty column(s) out of 3 columns(Removed: empty).\n#&gt;        species  body_mass_g\n#&gt; 342  Chinstrap       4100.0\n#&gt; 343  Chinstrap       3775.0\n#&gt; 344        NaN          NaN\n\n# 完全に空白な行のみ削除。\nprint(py4st.remove_empty(penguins2, cols = False, quiet = False).tail(3))\n#&gt; Removing 1 empty row(s) out of 345 rows(Removed: 344). \n#&gt;        species  body_mass_g  empty\n#&gt; 341  Chinstrap       3775.0    NaN\n#&gt; 342  Chinstrap       4100.0    NaN\n#&gt; 343  Chinstrap       3775.0    NaN\n\npenguins2 = penguins.loc[:, ['species', 'body_mass_g']].copy()\npenguins2.loc[:, 'constant'] = 'c'\n\nprint(penguins2.head(3))\n#&gt;   species  body_mass_g constant\n#&gt; 0  Adelie       3750.0        c\n#&gt; 1  Adelie       3800.0        c\n#&gt; 2  Adelie       3250.0        c\n\nprint(py4st.remove_constant(penguins2, quiet = False).head(3))\n#&gt; Removing 1 constant column(s) out of 3 column(s)(Removed: constant). \n#&gt;   species  body_mass_g\n#&gt; 0  Adelie       3750.0\n#&gt; 1  Adelie       3800.0\n#&gt; 2  Adelie       3250.0\n\n# 列名に 'length' を含む列を除外\nprint(py4st.filtering_out(penguins, contains = 'length').head(3))\n#&gt;   species     island  bill_depth_mm  body_mass_g     sex  year  female\n#&gt; 0  Adelie  Torgersen           18.7       3750.0    male  2007       0\n#&gt; 1  Adelie  Torgersen           17.4       3800.0  female  2007       1\n#&gt; 2  Adelie  Torgersen           18.0       3250.0  female  2007       1\n\n# 列名が 'bill' から始まる列を除外\nprint(py4st.filtering_out(penguins, starts_with = 'bill').head(3))\n#&gt;   species     island  flipper_length_mm  body_mass_g     sex  year  female\n#&gt; 0  Adelie  Torgersen              181.0       3750.0    male  2007       0\n#&gt; 1  Adelie  Torgersen              186.0       3800.0  female  2007       1\n#&gt; 2  Adelie  Torgersen              195.0       3250.0  female  2007       1\n\n# 列名が '_mm' で終わる列を除外\nprint(py4st.filtering_out(penguins, ends_with = '_mm').head(3))\n#&gt;   species     island  body_mass_g     sex  year  female\n#&gt; 0  Adelie  Torgersen       3750.0    male  2007       0\n#&gt; 1  Adelie  Torgersen       3800.0  female  2007       1\n#&gt; 2  Adelie  Torgersen       3250.0  female  2007       1\n\ngentoo = penguins.query(\"species == 'Gentoo'\")\nprint(py4st.review_wrangling(penguins, gentoo))\n#&gt; ========================= Review of wrangling ==========================\n#&gt; The shape of DataFrame:\n#&gt;    Rows: before 344 -&gt; after 124 (-220)\n#&gt;    Cols: before   8 -&gt; after   8 (No change)\n#&gt; \n#&gt; No columns were added or removed.\n#&gt; \n#&gt; No existing columns had their type changed.\n#&gt; \n#&gt; Increase in missing values:\n#&gt;   bill_length_mm     before  2 (0.58%) -&gt; after  1 (0.81%)\n#&gt;   bill_depth_mm      before  2 (0.58%) -&gt; after  1 (0.81%)\n#&gt;   flipper_length_mm  before  2 (0.58%) -&gt; after  1 (0.81%)\n#&gt;   body_mass_g        before  2 (0.58%) -&gt; after  1 (0.81%)\n#&gt;   sex                before 11 (3.20%) -&gt; after  5 (4.03%)\n#&gt; \n#&gt; None of the existing columns decreases in the number of missing values.\n#&gt; \n#&gt; The following columns show changes in categories:\n#&gt;   species:\n#&gt;     addition:  None\n#&gt;     removal:  'Adelie' and 'Chinstrap'\n#&gt;   island:\n#&gt;     addition:  None\n#&gt;     removal:  'Torgersen' and 'Dream'\n#&gt; ========================================================================",
     "crumbs": [
       "<span class='chapter-number'>2</span>  <span class='chapter-title'>Introduction to Py4Stats</span>"
     ]
@@ -629,149 +629,6 @@
     ]
   },
   {
-    "objectID": "man/compare_group_stats.html",
-    "href": "man/compare_group_stats.html",
-    "title": "compare_group_means, _median plot_mean_diff, _median_diff",
-    "section": "",
-    "text": "概要\n統計量に基づく2グループの比較と差分の可視化\nこれら関数は、入力された2つのデータフレームについて、各数値変数の統計量に基づいた比較を提供します。",
-    "crumbs": [
-      "**EDA**",
-      "<span class='chapter-number'>15</span>  <span class='chapter-title'>compare_group_means, _median<br> plot_mean_diff, _median_diff</span>"
-    ]
-  },
-  {
-    "objectID": "man/compare_group_stats.html#概要",
-    "href": "man/compare_group_stats.html#概要",
-    "title": "compare_group_means, _median plot_mean_diff, _median_diff",
-    "section": "",
-    "text": "compare_group_means(\n    group1: IntoFrameT,\n    group2: IntoFrameT,\n    group_names: Sequence[str] = ('group1', 'group2'),\n    columns: Literal['common', 'all'] = 'all',\n    to_native: bool = True\n    )\n\ncompare_group_median(\n    group1: IntoFrameT,\n    group2: IntoFrameT,\n    group_names: Sequence[str] = ('group1', 'group2'),\n    columns: Literal['common', 'all'] = 'all',\n    to_native: bool = True\n    )\n\nplot_mean_diff(\n    group1: IntoFrameT,\n    group2: IntoFrameT,\n    stats_diff: Literal[\"norm_diff\", \"abs_diff\", \"rel_diff\"] = \"norm_diff\",\n    ax: Optional[Axes] = None,\n    )\n\nplot_median_diff(\n    group1: IntoFrameT,\n    group2: IntoFrameT,\n    stats_diff: Literal[\"abs_diff\", \"rel_diff\"] = \"rel_diff\",\n    ax: Optional[Axes] = None,\n    )",
-    "crumbs": [
-      "**EDA**",
-      "<span class='chapter-number'>15</span>  <span class='chapter-title'>compare_group_means, _median<br> plot_mean_diff, _median_diff</span>"
-    ]
-  },
-  {
-    "objectID": "man/compare_group_stats.html#引数-argument",
-    "href": "man/compare_group_stats.html#引数-argument",
-    "title": "compare_group_means, _median plot_mean_diff, _median_diff",
-    "section": "引数 Argument",
-    "text": "引数 Argument\n\ngroup1（必須）a pandas.DataFrame  　数値変数を含む pandas.DataFrame で group2 との比較対象となるもの\ngroup2（必須）a pandas.DataFrame  　数値変数を含む pandas.DataFrame で group1 との比較対象となるもの\ngroup_names list of str  　表頭に表示するグループの名前。['group1', 'group2'] のように、2つの要素をもつ文字列のリストとして指定してください。\ncolumns str  2つのグループの結果を結合する際に含める変数を指定します。\n\n\"common\": 両方のグループに存在する変数のみが含まれます。\n\"all\": いずれかのグループに存在する全ての変数が含まれます。この場合、一方のグループにのみ存在する変数についての差分統計量は、欠損値（例：NaN または None）となります。\n\nto_native（bool, optional） True の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。 False の場合、narwhals.DataFrame を返します。デフォルトは True で、to_native = False は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。\nstats_diff: str （plot_mean_diff() および plot_median_diff() のみ） 　グラフの描画に使用する差分統計量。'norm_diff'（plot_mean_diff() のみ）、'abs_diff', 'rel_diff' のいずれかから選ぶことができます。",
-    "crumbs": [
-      "**EDA**",
-      "<span class='chapter-number'>15</span>  <span class='chapter-title'>compare_group_means, _median<br> plot_mean_diff, _median_diff</span>"
-    ]
-  },
-  {
-    "objectID": "man/compare_group_stats.html#返り値-value",
-    "href": "man/compare_group_stats.html#返り値-value",
-    "title": "compare_group_means, _median plot_mean_diff, _median_diff",
-    "section": "返り値 Value",
-    "text": "返り値 Value\n　compare_group_means()関数および, compare_group_median() 関数では、次の値をもつ pandas.DataFrame が出力されます。\n\ngroup1, group2（初期設定の場合） 　各グループにおける記述統計統計量の値\nnorm_diff（compare_group_means() のみ） 　標準化された平均値の差で、2つのグループの平均値を \\(\\bar{X}_1\\), \\(\\bar{X}_2\\)、分散を \\(s^2_1, s^2_2\\) とし、サンプルサイズを \\(n_1, n_2\\) とするとき、次式のように定義されます。\n\n\\[\n\\delta = \\frac{\\bar{X}_1  - \\bar{X}_2}{s},~~~~~ s^2 = \\frac{(n_1-1)s_1^2 + (n_2-1)s_2^2}{n_1 + n_2 - 2}\n\\]\n\nabs_diff 2つのグループの記述統計量の絶対差\nrel_diff 2つのグループの記述統計量の相対差。2つのグループの記述統計量を \\(\\bar{X}_1\\), \\(\\bar{X}_2\\) とするとき、次式のように定義されます。\n\n\\[\n\\delta = \\cfrac{\\bar{X}_1  - \\bar{X}_2}{\\cfrac{\\bar{X}_1  + \\bar{X}_2}{2}}\n= 2 \\cdot \\frac{\\bar{X}_1  - \\bar{X}_2}{\\bar{X}_1  + \\bar{X}_2}\n\\]\nplot_mean_diff() 関数および, plot_median_diff() 関数では、グループ別の記述統計両の差をグラフとして可視化します。詳細は使用例を参照して下さい。",
-    "crumbs": [
-      "**EDA**",
-      "<span class='chapter-number'>15</span>  <span class='chapter-title'>compare_group_means, _median<br> plot_mean_diff, _median_diff</span>"
-    ]
-  },
-  {
-    "objectID": "man/compare_group_stats.html#使用例-examples",
-    "href": "man/compare_group_stats.html#使用例-examples",
-    "title": "compare_group_means, _median plot_mean_diff, _median_diff",
-    "section": "使用例 Examples",
-    "text": "使用例 Examples\nimport pandas as pd\nimport py4stats as py4st\nfrom palmerpenguins import load_penguins\n\npenguins = load_penguins().drop('year', axis = 1) # サンプルデータの読み込み\nres1 = py4st.compare_group_means(\n    penguins.query('species == \"Gentoo\"'),\n    penguins.query('species == \"Adelie\"')\n)\nprint(res1.round(3))\n#&gt;             variable    group1    group2  norm_diff  abs_diff  rel_diff\n#&gt; 0      bill_depth_mm    14.982    18.346     -3.012     3.364    -0.202\n#&gt; 1     bill_length_mm    47.505    38.791      3.048     8.713     0.202\n#&gt; 2        body_mass_g  5076.016  3700.662      2.868  1375.354     0.313\n#&gt; 3  flipper_length_mm   217.187   189.954      4.180    27.233     0.134\nres2 = py4st.compare_group_median(\n    penguins.query('species == \"Gentoo\"'),\n    penguins.query('species == \"Adelie\"'),\n    group_names = ['Gentoo', 'Adelie']\n)\nprint(res2.round(3))\n#&gt;             variable    Gentoo    Adelie  abs_diff  rel_diff\n#&gt; 0      bill_depth_mm    14.982    18.346     3.364    -0.202\n#&gt; 1     bill_length_mm    47.505    38.791     8.713     0.202\n#&gt; 2        body_mass_g  5076.016  3700.662  1375.354     0.313\n#&gt; 3  flipper_length_mm   217.187   189.954    27.233     0.134\npy4st.plot_mean_diff(\n    penguins.query('species == \"Gentoo\"'),\n    penguins.query('species == \"Adelie\"'),\n    stats_diff = 'norm_diff'\n)\n\n\n\nplot_mean_diff1\n\n\npy4st.plot_mean_diff(\n    penguins.query('species == \"Gentoo\"'),\n    penguins.query('species == \"Adelie\"'),\n    stats_diff = 'abs_diff'\n)\n\n\n\nplot_mean_diff2\n\n\npy4st.plot_median_diff(\n    penguins.query('species == \"Gentoo\"'),\n    penguins.query('species == \"Adelie\"'),\n    stats_diff = 'rel_diff'\n)\n\n\n\nplot_median_diff1\n\n\n\nReturn to Function reference.",
-    "crumbs": [
-      "**EDA**",
-      "<span class='chapter-number'>15</span>  <span class='chapter-title'>compare_group_means, _median<br> plot_mean_diff, _median_diff</span>"
-    ]
-  },
-  {
-    "objectID": "man/plot_miss_var.html",
-    "href": "man/plot_miss_var.html",
-    "title": "plot_miss_var",
-    "section": "",
-    "text": "概要\nR言語の naniar::gg_miss_var() をオマージュした関数で、データフレームの各変数について欠測値の量を横棒グラフとして可視化します。欠損値統計の計算には py4stats.diagnose() を使用しています。",
-    "crumbs": [
-      "**EDA**",
-      "<span class='chapter-number'>16</span>  <span class='chapter-title'>plot_miss_var</span>"
-    ]
-  },
-  {
-    "objectID": "man/plot_miss_var.html#概要",
-    "href": "man/plot_miss_var.html#概要",
-    "title": "plot_miss_var",
-    "section": "",
-    "text": "plot_miss_var(\n    data: IntoFrameT,\n    values: Literal['missing_percent', 'missing_count'] = 'missing_percent', \n    sort: bool = True, \n    miss_only: bool = False, \n    top_n: Optional[int] = None,\n    fontsize: int = 12,\n    ax: Optional[Axes] = None,\n    color: str = '#478FCE',\n    **kwargs: Any\n)",
-    "crumbs": [
-      "**EDA**",
-      "<span class='chapter-number'>16</span>  <span class='chapter-title'>plot_miss_var</span>"
-    ]
-  },
-  {
-    "objectID": "man/plot_miss_var.html#引数-argument",
-    "href": "man/plot_miss_var.html#引数-argument",
-    "title": "plot_miss_var",
-    "section": "引数 Argument",
-    "text": "引数 Argument\n\ndata：IntoFrameT（必須） 入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト （例：pandas.DataFrame、polars.DataFrame、pyarrow.Table）を指定できます。\nnormalize：str 　グラフに表示する値の種類。\n\nmissing_percent 列毎の欠測率をパーセンテージで表示します。\ncolumns 列毎の欠測数を表示します。\n\nsort：bool プロット前に選択した指標で列をソートするかどうか。初期設定は True です。。\nmiss_only：bool 欠測値を含まない列を除外するかどうか。True だと欠測値を含まない列を除外し、False（初期設定）だと省略せずに全ての列を表示します。\ntop_n：int 棒グラフを表示するグラフの個数。top_n = None（初期設定）の場合、すべての棒グラフを表示し、整数値が指定された場合、欠測率（数）の上位 top_n 件が表示されます。\nax 　matplotlib の ax オブジェクト。複数のグラフを並べる場合などに使用します。\nfontsize：int 　軸ラベルなどのフォントサイズ。\npalette：list of str 　グラフの描画に使用する色コード。棒グラフの色に対応します。",
-    "crumbs": [
-      "**EDA**",
-      "<span class='chapter-number'>16</span>  <span class='chapter-title'>plot_miss_var</span>"
-    ]
-  },
-  {
-    "objectID": "man/plot_miss_var.html#使用例-example",
-    "href": "man/plot_miss_var.html#使用例-example",
-    "title": "plot_miss_var",
-    "section": "使用例 Example",
-    "text": "使用例 Example\nimport py4stats as py4st\nimport pandas as pd\nfrom palmerpenguins import load_penguins\npenguins = load_penguins() # サンプルデータの読み込\n\npy4st.plot_miss_var(penguins)\n\n\n\nplot_miss_var1\n\n\npy4st.plot_miss_var(penguins, values = 'missing_count', miss_only = True)\n\n\n\nplot_miss_var2\n\n\n\nReturn to Function reference.",
-    "crumbs": [
-      "**EDA**",
-      "<span class='chapter-number'>16</span>  <span class='chapter-title'>plot_miss_var</span>"
-    ]
-  },
-  {
-    "objectID": "man/set_miss.html",
-    "href": "man/set_miss.html",
-    "title": "set_miss",
-    "section": "",
-    "text": "概要\nSeries オブジェクトに対する欠測値の挿入\nこの関数は、Series の非欠測要素のうち、指定された個数または割合を欠測値に置き換えます。narwhals を利用することで、複数の Series バックエンドに対応しています。主にテストデータの作成や、欠測データのシミュレーションを目的とした関数です。",
-    "crumbs": [
-      "**EDA**",
-      "<span class='chapter-number'>17</span>  <span class='chapter-title'>set_miss</span>"
-    ]
-  },
-  {
-    "objectID": "man/set_miss.html#概要",
-    "href": "man/set_miss.html#概要",
-    "title": "set_miss",
-    "section": "",
-    "text": "set_miss(\n    x: IntoSeriesT, \n    n: Optional[int] = None,\n    prop: Optional[float] = None, \n    method: Literal['random', 'first', 'last'] = 'random', \n    random_state: Optional[int] = None, \n    na_value: Any = None,\n    to_native: bool = True\n    )",
-    "crumbs": [
-      "**EDA**",
-      "<span class='chapter-number'>17</span>  <span class='chapter-title'>set_miss</span>"
-    ]
-  },
-  {
-    "objectID": "man/set_miss.html#引数-argument",
-    "href": "man/set_miss.html#引数-argument",
-    "title": "set_miss",
-    "section": "引数 Argument",
-    "text": "引数 Argument\n\ndata：IntoFrameT（必須） 入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト （例：pandas.DataFrame、polars.DataFrame、pyarrow.Table）を指定できます。\nn：int  処理後の Series に含まれる欠測値の目標個数。すでに n 個以上の欠測値が含まれている場合は、新たな欠測値は追加されず、警告が発せられます。\nprop：float  処理後の Series に含まれる欠測値の目標割合。0 から 1 の間で指定してください。すでに欠測値の割合が prop 以上である場合は、新たな欠測値は追加されず、警告が発せられます。\nmethod: str: 欠測値に置き換える要素の選択方法。\n\n'random': 非欠測要素の中からランダムに選択します。\n'first': Series の先頭から選択します。\n'last': Series の末尾から選択します。 デフォルトは 'random' です。\n\nrandom_state (int, optional): method = 'random' の場合に使用する乱数シード。再現性のある結果を得るために指定できます。 method が 'random' 以外の場合、random_state は無視されます。\nna_value: (Any) 欠測値として使用する値。デフォルトは None です。\nto_native（bool, optional） True の場合、入力と同じ型の Series（e.g. pandas / polars / pyarrow）を返します。 False の場合、narwhals.Series を返します。デフォルトは True で、to_native = False は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。",
-    "crumbs": [
-      "**EDA**",
-      "<span class='chapter-number'>17</span>  <span class='chapter-title'>set_miss</span>"
-    ]
-  },
-  {
-    "objectID": "man/set_miss.html#使用例-example",
-    "href": "man/set_miss.html#使用例-example",
-    "title": "set_miss",
-    "section": "使用例 Example",
-    "text": "使用例 Example\nimport pandas as pd\nfrom py4stats import set_miss\ns = pd.Series([1, 2, 3, 4, 5])\npy4st.set_miss(s, n = 2, method='first')\n#&gt; 0    NaN\n#&gt; 1    NaN\n#&gt; 2    3.0\n#&gt; 3    4.0\n#&gt; 4    5.0\n#&gt; dtype: float64\n\ns_miss = py4st.set_miss(s, prop=0.4, method='random', random_state=0)\n#&gt; 0    1.0\n#&gt; 1    NaN\n#&gt; 2    3.0\n#&gt; 3    NaN\n#&gt; 4    5.0\n#&gt; dtype: float64\nx に代入された Series オブジェクトに、既に指定された以上の欠測値が含まれていた場合、次のように欠測値を追加せず UserWarning を出します。\npy4st.set_miss(s_miss, n = 2)\n#&gt; UserWarning: Already contained 2(&gt;= n) missing value(s) in `x`, \n#&gt; no additional missing values were added.\n#&gt; 0    1.0\n#&gt; 1    NaN\n#&gt; 2    3.0\n#&gt; 3    NaN\n#&gt; 4    5.0\n#&gt; dtype: float64\nfrom palmerpenguins import load_penguins\npenguins = load_penguins() # サンプルデータの読み込\n\npenguins['island'] = py4st.set_miss(\n    penguins['island'], \n    n = 100, method='first'\n    )\npy4st.plot_miss_var(penguins, values = 'missing_count')\n\n\n\nset_miss",
-    "crumbs": [
-      "**EDA**",
-      "<span class='chapter-number'>17</span>  <span class='chapter-title'>set_miss</span>"
-    ]
-  },
-  {
     "objectID": "man/review_wrangling.html",
     "href": "man/review_wrangling.html",
     "title": "review_wrangling",
@@ -779,7 +636,7 @@
     "text": "概要\nデータ前処理（wrangling）による変更点をレビュー形式で要約して、文字列として出力する関数です。\nこの関数は、前処理の前後（before / after）の DataFrame（相当）を比較し、変更点をユーザーが読みやすいレポート文字列として返します。",
     "crumbs": [
       "**EDA**",
-      "<span class='chapter-number'>18</span>  <span class='chapter-title'>review_wrangling</span>"
+      "<span class='chapter-number'>15</span>  <span class='chapter-title'>review_wrangling</span>"
     ]
   },
   {
@@ -787,10 +644,10 @@
     "href": "man/review_wrangling.html#概要",
     "title": "review_wrangling",
     "section": "",
-    "text": "review_wrangling(before: IntoFrameT, after: IntoFrameT) -&gt; str",
+    "text": "review_wrangling(\n    before: IntoFrameT, \n    after: IntoFrameT, \n    title: str = 'Review of wrangling'\n    ) -&gt; str:",
     "crumbs": [
       "**EDA**",
-      "<span class='chapter-number'>18</span>  <span class='chapter-title'>review_wrangling</span>"
+      "<span class='chapter-number'>15</span>  <span class='chapter-title'>review_wrangling</span>"
     ]
   },
   {
@@ -798,10 +655,10 @@
     "href": "man/review_wrangling.html#引数-argument",
     "title": "review_wrangling",
     "section": "引数 Argument",
-    "text": "引数 Argument\n\nbefore：IntoFrameT（必須） 前処理（wrangling）を行う前のデータフレーム。narwhals が受け入れ可能な DataFrame 互換オブジェクト （例：pandas.DataFrame、polars.DataFrame、pyarrow.Table）を指定できます。\nafter：IntoFrameT（必須） 前処理（wrangling）を行った後のデータフレーム。",
+    "text": "引数 Argument\n\nbefore：IntoFrameT（必須） 前処理（wrangling）を行う前のデータフレーム。narwhals が受け入れ可能な DataFrame 互換オブジェクト （例：pandas.DataFrame、polars.DataFrame、pyarrow.Table）を指定できます。\nafter：IntoFrameT（必須） 前処理（wrangling）を行った後のデータフレーム。\ntitle：str（必須） 出力されるレビューテキストのタイトル。空でない文字列を指定した場合、タイトルとともにヘッダーとフッターが追加されます。",
     "crumbs": [
       "**EDA**",
-      "<span class='chapter-number'>18</span>  <span class='chapter-title'>review_wrangling</span>"
+      "<span class='chapter-number'>15</span>  <span class='chapter-title'>review_wrangling</span>"
     ]
   },
   {
@@ -812,7 +669,7 @@
     "text": "返り値 Value\nbefore と after の差分を要約した、整形済みの複数行文字列。レビューに含まれる主な項目は次のとおりです。\n\nデータフレームの形状（行数・列数）の変化\n列の追加・削除\n既存列のデータ型（dtype）の変化\n欠測値の増加・減少\nカテゴリー変数における水準の増加・減少",
     "crumbs": [
       "**EDA**",
-      "<span class='chapter-number'>18</span>  <span class='chapter-title'>review_wrangling</span>"
+      "<span class='chapter-number'>15</span>  <span class='chapter-title'>review_wrangling</span>"
     ]
   },
   {
@@ -820,10 +677,10 @@
     "href": "man/review_wrangling.html#使用例-examples",
     "title": "review_wrangling",
     "section": "使用例 Examples",
-    "text": "使用例 Examples\nimport py4stats as py4st\nfrom palmerpenguins import load_penguins\nold = load_penguins() # サンプルデータの読み込\nnew = penguins.copy().dropna()\nprint(py4st.review_wrangling(old, new))\n#&gt; =================== Review of wrangling ====================\n#&gt; The shape of DataFrame:\n#&gt;    Rows: before 344 -&gt; after 333 (-11)\n#&gt;    Cols: before   8 -&gt; after   8 (No change)\n#&gt; \n#&gt; No columns were added or removed.\n#&gt; \n#&gt; No existing columns had their type changed.\n#&gt; \n#&gt; No existing columns increased the number of missing values.\n#&gt; \n#&gt; Decrease in missing values:\n#&gt;   bill_length_mm     before  2 (0.58%) -&gt; after  0 (0.00%)\n#&gt;   bill_depth_mm      before  2 (0.58%) -&gt; after  0 (0.00%)\n#&gt;   flipper_length_mm  before  2 (0.58%) -&gt; after  0 (0.00%)\n#&gt;   body_mass_g        before  2 (0.58%) -&gt; after  0 (0.00%)\n#&gt;   sex                before 11 (3.20%) -&gt; after  0 (0.00%)\n#&gt; \n#&gt; The following columns show changes in categories.\n#&gt;   sex:\n#&gt;     addition:  None\n#&gt;     removal:  'nan'\n#&gt; ============================================================\ns = new['body_mass_g']\nnew['heavy'] = np.where(s &gt;= s.quantile(0.75), True, False)\nnew['species'] = pd.Categorical(new['species'])\nnew['year'] = new['year'].astype(float)\nnew['const'] = 1\n\nnew['flipper_length_mm'] = py4st.set_miss(\n    new['flipper_length_mm'], prop = 0.1,\n    # random_state = 123\n    random_state = 1230\n    )\n\nnew = py4st.filtering_out(new, 'sex')\nprint(py4st.review_wrangling(old, new))\n#&gt; =================== Review of wrangling ====================\n#&gt; The shape of DataFrame:\n#&gt;    Rows: before 344 -&gt; after 187 (-157)\n#&gt;    Cols: before   8 -&gt; after   9 (+1)\n#&gt; \n#&gt; Column(s) 'heavy' and 'const' were added, \n#&gt; Column(s) 'sex' were removed.\n#&gt; \n#&gt; The following columns have changed their type:\n#&gt;   species object -&gt; category\n#&gt;   year    int64 -&gt; float64\n#&gt; \n#&gt; Increase in missing values:\n#&gt;   flipper_length_mm  before  2 ( 0.58%) -&gt; after 19 (10.16%)\n#&gt; \n#&gt; Decrease in missing values:\n#&gt;   bill_length_mm  before 2 (0.58%) -&gt; after 0 (0.00%)\n#&gt;   bill_depth_mm   before 2 (0.58%) -&gt; after 0 (0.00%)\n#&gt;   body_mass_g     before 2 (0.58%) -&gt; after 0 (0.00%)\n#&gt; \n#&gt; The following columns show changes in categories.\n#&gt;   species:\n#&gt;     addition:  None\n#&gt;     removal:  'Adelie'\n#&gt;   island:\n#&gt;     addition:  None\n#&gt;     removal:  'Torgersen'\n#&gt; ============================================================",
+    "text": "使用例 Examples\nimport py4stats as py4st\nfrom palmerpenguins import load_penguins\nold = load_penguins() # サンプルデータの読み込\nnew = penguins.copy().dropna()\nprint(py4st.review_wrangling(old, new))\n#&gt; =================== Review of wrangling ====================\n#&gt; The shape of DataFrame:\n#&gt;    Rows: before 344 -&gt; after 333 (-11)\n#&gt;    Cols: before   8 -&gt; after   8 (No change)\n#&gt; \n#&gt; No columns were added or removed.\n#&gt; \n#&gt; No existing columns had their type changed.\n#&gt; \n#&gt; No existing columns increased the number of missing values.\n#&gt; \n#&gt; Decrease in missing values:\n#&gt;   bill_length_mm     before  2 (0.58%) -&gt; after  0 (0.00%)\n#&gt;   bill_depth_mm      before  2 (0.58%) -&gt; after  0 (0.00%)\n#&gt;   flipper_length_mm  before  2 (0.58%) -&gt; after  0 (0.00%)\n#&gt;   body_mass_g        before  2 (0.58%) -&gt; after  0 (0.00%)\n#&gt;   sex                before 11 (3.20%) -&gt; after  0 (0.00%)\n#&gt; \n#&gt; The following columns show changes in categories:\n#&gt;   sex:\n#&gt;     addition:  None\n#&gt;     removal:  'nan'\n#&gt; ============================================================\ns = new['body_mass_g']\nnew['heavy'] = np.where(s &gt;= s.quantile(0.75), True, False)\nnew['species'] = pd.Categorical(new['species'])\nnew['year'] = new['year'].astype(float)\nnew['const'] = 1\n\nnew['flipper_length_mm'] = py4st.set_miss(\n    new['flipper_length_mm'], prop = 0.1,\n    # random_state = 123\n    random_state = 1230\n    )\n\nnew = py4st.filtering_out(new, 'sex')\nprint(py4st.review_wrangling(old, new))\n#&gt; =================== Review of wrangling ====================\n#&gt; The shape of DataFrame:\n#&gt;    Rows: before 344 -&gt; after 187 (-157)\n#&gt;    Cols: before   8 -&gt; after   9 (+1)\n#&gt; \n#&gt; Column(s) 'heavy' and 'const' were added.\n#&gt; Column(s) 'sex' were removed.\n#&gt; \n#&gt; The following columns have changed their type:\n#&gt;   species object -&gt; category\n#&gt;   year    int64 -&gt; float64\n#&gt; \n#&gt; Increase in missing values:\n#&gt;   flipper_length_mm  before  2 ( 0.58%) -&gt; after 19 (10.16%)\n#&gt; \n#&gt; Decrease in missing values:\n#&gt;   bill_length_mm  before 2 (0.58%) -&gt; after 0 (0.00%)\n#&gt;   bill_depth_mm   before 2 (0.58%) -&gt; after 0 (0.00%)\n#&gt;   body_mass_g     before 2 (0.58%) -&gt; after 0 (0.00%)\n#&gt; \n#&gt; The following columns show changes in categories:\n#&gt;   species:\n#&gt;     addition:  None\n#&gt;     removal:  'Adelie'\n#&gt;   island:\n#&gt;     addition:  None\n#&gt;     removal:  'Torgersen'\n#&gt; ============================================================",
     "crumbs": [
       "**EDA**",
-      "<span class='chapter-number'>18</span>  <span class='chapter-title'>review_wrangling</span>"
+      "<span class='chapter-number'>15</span>  <span class='chapter-title'>review_wrangling</span>"
     ]
   },
   {
@@ -834,7 +691,7 @@
     "text": "Notes\n本関数では、before と after が同一の DataFrame バックエンド（例：どちらも pandas、またはどちらも polars）であることを前提としています。異なるバックエンドを混在させた場合、エラーが発生します。",
     "crumbs": [
       "**EDA**",
-      "<span class='chapter-number'>18</span>  <span class='chapter-title'>review_wrangling</span>"
+      "<span class='chapter-number'>15</span>  <span class='chapter-title'>review_wrangling</span>"
     ]
   },
   {
@@ -845,7 +702,150 @@
     "text": "参考 See also\n列のデータ型に基づいた比較については compare_df_cols() を、数値変数の統計値に基づいた比較については compare_df_stats() もご参照ください。\n\nReturn to Function reference.",
     "crumbs": [
       "**EDA**",
-      "<span class='chapter-number'>18</span>  <span class='chapter-title'>review_wrangling</span>"
+      "<span class='chapter-number'>15</span>  <span class='chapter-title'>review_wrangling</span>"
+    ]
+  },
+  {
+    "objectID": "man/compare_group_stats.html",
+    "href": "man/compare_group_stats.html",
+    "title": "compare_group_means, _median plot_mean_diff, _median_diff",
+    "section": "",
+    "text": "概要\n統計量に基づく2グループの比較と差分の可視化\nこれら関数は、入力された2つのデータフレームについて、各数値変数の統計量に基づいた比較を提供します。",
+    "crumbs": [
+      "**EDA**",
+      "<span class='chapter-number'>16</span>  <span class='chapter-title'>compare_group_means, _median<br> plot_mean_diff, _median_diff</span>"
+    ]
+  },
+  {
+    "objectID": "man/compare_group_stats.html#概要",
+    "href": "man/compare_group_stats.html#概要",
+    "title": "compare_group_means, _median plot_mean_diff, _median_diff",
+    "section": "",
+    "text": "compare_group_means(\n    group1: IntoFrameT,\n    group2: IntoFrameT,\n    group_names: Sequence[str] = ('group1', 'group2'),\n    columns: Literal['common', 'all'] = 'all',\n    to_native: bool = True\n    )\n\ncompare_group_median(\n    group1: IntoFrameT,\n    group2: IntoFrameT,\n    group_names: Sequence[str] = ('group1', 'group2'),\n    columns: Literal['common', 'all'] = 'all',\n    to_native: bool = True\n    )\n\nplot_mean_diff(\n    group1: IntoFrameT,\n    group2: IntoFrameT,\n    stats_diff: Literal[\"norm_diff\", \"abs_diff\", \"rel_diff\"] = \"norm_diff\",\n    ax: Optional[Axes] = None,\n    )\n\nplot_median_diff(\n    group1: IntoFrameT,\n    group2: IntoFrameT,\n    stats_diff: Literal[\"abs_diff\", \"rel_diff\"] = \"rel_diff\",\n    ax: Optional[Axes] = None,\n    )",
+    "crumbs": [
+      "**EDA**",
+      "<span class='chapter-number'>16</span>  <span class='chapter-title'>compare_group_means, _median<br> plot_mean_diff, _median_diff</span>"
+    ]
+  },
+  {
+    "objectID": "man/compare_group_stats.html#引数-argument",
+    "href": "man/compare_group_stats.html#引数-argument",
+    "title": "compare_group_means, _median plot_mean_diff, _median_diff",
+    "section": "引数 Argument",
+    "text": "引数 Argument\n\ngroup1（必須）a pandas.DataFrame  　数値変数を含む pandas.DataFrame で group2 との比較対象となるもの\ngroup2（必須）a pandas.DataFrame  　数値変数を含む pandas.DataFrame で group1 との比較対象となるもの\ngroup_names list of str  　表頭に表示するグループの名前。['group1', 'group2'] のように、2つの要素をもつ文字列のリストとして指定してください。\ncolumns str  2つのグループの結果を結合する際に含める変数を指定します。\n\n\"common\": 両方のグループに存在する変数のみが含まれます。\n\"all\": いずれかのグループに存在する全ての変数が含まれます。この場合、一方のグループにのみ存在する変数についての差分統計量は、欠損値（例：NaN または None）となります。\n\nto_native（bool, optional） True の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。 False の場合、narwhals.DataFrame を返します。デフォルトは True で、to_native = False は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。\nstats_diff: str （plot_mean_diff() および plot_median_diff() のみ） 　グラフの描画に使用する差分統計量。'norm_diff'（plot_mean_diff() のみ）、'abs_diff', 'rel_diff' のいずれかから選ぶことができます。",
+    "crumbs": [
+      "**EDA**",
+      "<span class='chapter-number'>16</span>  <span class='chapter-title'>compare_group_means, _median<br> plot_mean_diff, _median_diff</span>"
+    ]
+  },
+  {
+    "objectID": "man/compare_group_stats.html#返り値-value",
+    "href": "man/compare_group_stats.html#返り値-value",
+    "title": "compare_group_means, _median plot_mean_diff, _median_diff",
+    "section": "返り値 Value",
+    "text": "返り値 Value\n　compare_group_means()関数および, compare_group_median() 関数では、次の値をもつ pandas.DataFrame が出力されます。\n\ngroup1, group2（初期設定の場合） 　各グループにおける記述統計統計量の値\nnorm_diff（compare_group_means() のみ） 　標準化された平均値の差で、2つのグループの平均値を \\(\\bar{X}_1\\), \\(\\bar{X}_2\\)、分散を \\(s^2_1, s^2_2\\) とし、サンプルサイズを \\(n_1, n_2\\) とするとき、次式のように定義されます。\n\n\\[\n\\delta = \\frac{\\bar{X}_1  - \\bar{X}_2}{s},~~~~~ s^2 = \\frac{(n_1-1)s_1^2 + (n_2-1)s_2^2}{n_1 + n_2 - 2}\n\\]\n\nabs_diff 2つのグループの記述統計量の絶対差\nrel_diff 2つのグループの記述統計量の相対差。2つのグループの記述統計量を \\(\\bar{X}_1\\), \\(\\bar{X}_2\\) とするとき、次式のように定義されます。\n\n\\[\n\\delta = \\cfrac{\\bar{X}_1  - \\bar{X}_2}{\\cfrac{\\bar{X}_1  + \\bar{X}_2}{2}}\n= 2 \\cdot \\frac{\\bar{X}_1  - \\bar{X}_2}{\\bar{X}_1  + \\bar{X}_2}\n\\]\nplot_mean_diff() 関数および, plot_median_diff() 関数では、グループ別の記述統計両の差をグラフとして可視化します。詳細は使用例を参照して下さい。",
+    "crumbs": [
+      "**EDA**",
+      "<span class='chapter-number'>16</span>  <span class='chapter-title'>compare_group_means, _median<br> plot_mean_diff, _median_diff</span>"
+    ]
+  },
+  {
+    "objectID": "man/compare_group_stats.html#使用例-examples",
+    "href": "man/compare_group_stats.html#使用例-examples",
+    "title": "compare_group_means, _median plot_mean_diff, _median_diff",
+    "section": "使用例 Examples",
+    "text": "使用例 Examples\nimport pandas as pd\nimport py4stats as py4st\nfrom palmerpenguins import load_penguins\n\npenguins = load_penguins().drop('year', axis = 1) # サンプルデータの読み込み\nres1 = py4st.compare_group_means(\n    penguins.query('species == \"Gentoo\"'),\n    penguins.query('species == \"Adelie\"')\n)\nprint(res1.round(3))\n#&gt;             variable    group1    group2  norm_diff  abs_diff  rel_diff\n#&gt; 0      bill_depth_mm    14.982    18.346     -3.012     3.364    -0.202\n#&gt; 1     bill_length_mm    47.505    38.791      3.048     8.713     0.202\n#&gt; 2        body_mass_g  5076.016  3700.662      2.868  1375.354     0.313\n#&gt; 3  flipper_length_mm   217.187   189.954      4.180    27.233     0.134\nres2 = py4st.compare_group_median(\n    penguins.query('species == \"Gentoo\"'),\n    penguins.query('species == \"Adelie\"'),\n    group_names = ['Gentoo', 'Adelie']\n)\nprint(res2.round(3))\n#&gt;             variable    Gentoo    Adelie  abs_diff  rel_diff\n#&gt; 0      bill_depth_mm    14.982    18.346     3.364    -0.202\n#&gt; 1     bill_length_mm    47.505    38.791     8.713     0.202\n#&gt; 2        body_mass_g  5076.016  3700.662  1375.354     0.313\n#&gt; 3  flipper_length_mm   217.187   189.954    27.233     0.134\npy4st.plot_mean_diff(\n    penguins.query('species == \"Gentoo\"'),\n    penguins.query('species == \"Adelie\"'),\n    stats_diff = 'norm_diff'\n)\n\n\n\nplot_mean_diff1\n\n\npy4st.plot_mean_diff(\n    penguins.query('species == \"Gentoo\"'),\n    penguins.query('species == \"Adelie\"'),\n    stats_diff = 'abs_diff'\n)\n\n\n\nplot_mean_diff2\n\n\npy4st.plot_median_diff(\n    penguins.query('species == \"Gentoo\"'),\n    penguins.query('species == \"Adelie\"'),\n    stats_diff = 'rel_diff'\n)\n\n\n\nplot_median_diff1\n\n\n\nReturn to Function reference.",
+    "crumbs": [
+      "**EDA**",
+      "<span class='chapter-number'>16</span>  <span class='chapter-title'>compare_group_means, _median<br> plot_mean_diff, _median_diff</span>"
+    ]
+  },
+  {
+    "objectID": "man/plot_miss_var.html",
+    "href": "man/plot_miss_var.html",
+    "title": "plot_miss_var",
+    "section": "",
+    "text": "概要\nR言語の naniar::gg_miss_var() をオマージュした関数で、データフレームの各変数について欠測値の量を横棒グラフとして可視化します。欠損値統計の計算には py4stats.diagnose() を使用しています。",
+    "crumbs": [
+      "**EDA**",
+      "<span class='chapter-number'>17</span>  <span class='chapter-title'>plot_miss_var</span>"
+    ]
+  },
+  {
+    "objectID": "man/plot_miss_var.html#概要",
+    "href": "man/plot_miss_var.html#概要",
+    "title": "plot_miss_var",
+    "section": "",
+    "text": "plot_miss_var(\n    data: IntoFrameT,\n    values: Literal['missing_percent', 'missing_count'] = 'missing_percent', \n    sort: bool = True, \n    miss_only: bool = False, \n    top_n: Optional[int] = None,\n    fontsize: int = 12,\n    ax: Optional[Axes] = None,\n    color: str = '#478FCE',\n    **kwargs: Any\n)",
+    "crumbs": [
+      "**EDA**",
+      "<span class='chapter-number'>17</span>  <span class='chapter-title'>plot_miss_var</span>"
+    ]
+  },
+  {
+    "objectID": "man/plot_miss_var.html#引数-argument",
+    "href": "man/plot_miss_var.html#引数-argument",
+    "title": "plot_miss_var",
+    "section": "引数 Argument",
+    "text": "引数 Argument\n\ndata：IntoFrameT（必須） 入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト （例：pandas.DataFrame、polars.DataFrame、pyarrow.Table）を指定できます。\nnormalize：str 　グラフに表示する値の種類。\n\nmissing_percent 列毎の欠測率をパーセンテージで表示します。\ncolumns 列毎の欠測数を表示します。\n\nsort：bool プロット前に選択した指標で列をソートするかどうか。初期設定は True です。。\nmiss_only：bool 欠測値を含まない列を除外するかどうか。True だと欠測値を含まない列を除外し、False（初期設定）だと省略せずに全ての列を表示します。\ntop_n：int 棒グラフを表示するグラフの個数。top_n = None（初期設定）の場合、すべての棒グラフを表示し、整数値が指定された場合、欠測率（数）の上位 top_n 件が表示されます。\nax 　matplotlib の ax オブジェクト。複数のグラフを並べる場合などに使用します。\nfontsize：int 　軸ラベルなどのフォントサイズ。\npalette：list of str 　グラフの描画に使用する色コード。棒グラフの色に対応します。",
+    "crumbs": [
+      "**EDA**",
+      "<span class='chapter-number'>17</span>  <span class='chapter-title'>plot_miss_var</span>"
+    ]
+  },
+  {
+    "objectID": "man/plot_miss_var.html#使用例-example",
+    "href": "man/plot_miss_var.html#使用例-example",
+    "title": "plot_miss_var",
+    "section": "使用例 Example",
+    "text": "使用例 Example\nimport py4stats as py4st\nimport pandas as pd\nfrom palmerpenguins import load_penguins\npenguins = load_penguins() # サンプルデータの読み込\n\npy4st.plot_miss_var(penguins)\n\n\n\nplot_miss_var1\n\n\npy4st.plot_miss_var(penguins, values = 'missing_count', miss_only = True)\n\n\n\nplot_miss_var2\n\n\n\nReturn to Function reference.",
+    "crumbs": [
+      "**EDA**",
+      "<span class='chapter-number'>17</span>  <span class='chapter-title'>plot_miss_var</span>"
+    ]
+  },
+  {
+    "objectID": "man/set_miss.html",
+    "href": "man/set_miss.html",
+    "title": "set_miss",
+    "section": "",
+    "text": "概要\nSeries オブジェクトに対する欠測値の挿入\nこの関数は、Series の非欠測要素のうち、指定された個数または割合を欠測値に置き換えます。narwhals を利用することで、複数の Series バックエンドに対応しています。主にテストデータの作成や、欠測データのシミュレーションを目的とした関数です。",
+    "crumbs": [
+      "**EDA**",
+      "<span class='chapter-number'>18</span>  <span class='chapter-title'>set_miss</span>"
+    ]
+  },
+  {
+    "objectID": "man/set_miss.html#概要",
+    "href": "man/set_miss.html#概要",
+    "title": "set_miss",
+    "section": "",
+    "text": "set_miss(\n    x: IntoSeriesT, \n    n: Optional[int] = None,\n    prop: Optional[float] = None, \n    method: Literal['random', 'first', 'last'] = 'random', \n    random_state: Optional[int] = None, \n    na_value: Any = None,\n    to_native: bool = True\n    )",
+    "crumbs": [
+      "**EDA**",
+      "<span class='chapter-number'>18</span>  <span class='chapter-title'>set_miss</span>"
+    ]
+  },
+  {
+    "objectID": "man/set_miss.html#引数-argument",
+    "href": "man/set_miss.html#引数-argument",
+    "title": "set_miss",
+    "section": "引数 Argument",
+    "text": "引数 Argument\n\ndata：IntoFrameT（必須） 入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト （例：pandas.DataFrame、polars.DataFrame、pyarrow.Table）を指定できます。\nn：int  処理後の Series に含まれる欠測値の目標個数。すでに n 個以上の欠測値が含まれている場合は、新たな欠測値は追加されず、警告が発せられます。\nprop：float  処理後の Series に含まれる欠測値の目標割合。0 から 1 の間で指定してください。すでに欠測値の割合が prop 以上である場合は、新たな欠測値は追加されず、警告が発せられます。\nmethod: str: 欠測値に置き換える要素の選択方法。\n\n'random': 非欠測要素の中からランダムに選択します。\n'first': Series の先頭から選択します。\n'last': Series の末尾から選択します。 デフォルトは 'random' です。\n\nrandom_state (int, optional): method = 'random' の場合に使用する乱数シード。再現性のある結果を得るために指定できます。 method が 'random' 以外の場合、random_state は無視されます。\nna_value: (Any) 欠測値として使用する値。デフォルトは None です。\nto_native（bool, optional） True の場合、入力と同じ型の Series（e.g. pandas / polars / pyarrow）を返します。 False の場合、narwhals.Series を返します。デフォルトは True で、to_native = False は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。",
+    "crumbs": [
+      "**EDA**",
+      "<span class='chapter-number'>18</span>  <span class='chapter-title'>set_miss</span>"
+    ]
+  },
+  {
+    "objectID": "man/set_miss.html#使用例-example",
+    "href": "man/set_miss.html#使用例-example",
+    "title": "set_miss",
+    "section": "使用例 Example",
+    "text": "使用例 Example\nimport pandas as pd\nfrom py4stats import set_miss\ns = pd.Series([1, 2, 3, 4, 5])\npy4st.set_miss(s, n = 2, method='first')\n#&gt; 0    NaN\n#&gt; 1    NaN\n#&gt; 2    3.0\n#&gt; 3    4.0\n#&gt; 4    5.0\n#&gt; dtype: float64\n\ns_miss = py4st.set_miss(s, prop=0.4, method='random', random_state=0)\n#&gt; 0    1.0\n#&gt; 1    NaN\n#&gt; 2    3.0\n#&gt; 3    NaN\n#&gt; 4    5.0\n#&gt; dtype: float64\nx に代入された Series オブジェクトに、既に指定された以上の欠測値が含まれていた場合、次のように欠測値を追加せず UserWarning を出します。\npy4st.set_miss(s_miss, n = 2)\n#&gt; UserWarning: Already contained 2(&gt;= n) missing value(s) in `x`, \n#&gt; no additional missing values were added.\n#&gt; 0    1.0\n#&gt; 1    NaN\n#&gt; 2    3.0\n#&gt; 3    NaN\n#&gt; 4    5.0\n#&gt; dtype: float64\nfrom palmerpenguins import load_penguins\npenguins = load_penguins() # サンプルデータの読み込\n\npenguins['island'] = py4st.set_miss(\n    penguins['island'], \n    n = 100, method='first'\n    )\npy4st.plot_miss_var(penguins, values = 'missing_count')\n\n\n\nset_miss",
+    "crumbs": [
+      "**EDA**",
+      "<span class='chapter-number'>18</span>  <span class='chapter-title'>set_miss</span>"
     ]
   },
   {

@@ -4541,7 +4541,11 @@ def make_header(text: str, title: str) -> str:
 # In[ ]:
 
 
-def review_wrangling(before: IntoFrameT, after: IntoFrameT) -> str:
+def review_wrangling(
+        before: IntoFrameT, 
+        after: IntoFrameT, 
+        title: str = 'Review of wrangling'
+        ) -> str:
     """Review and summarize differences introduced by data wrangling.
 
     This function compares two DataFrame-like objects representing the state
@@ -4570,6 +4574,10 @@ def review_wrangling(before: IntoFrameT, after: IntoFrameT) -> str:
             (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
         after (IntoFrameT):
             The DataFrame after wrangling.
+        title (str, optional):
+            The title of the output review text. 
+            If a non-empty string is specified, a header and footer will be added 
+            alongside the title.
 
     Returns:
         str:
@@ -4591,6 +4599,8 @@ def review_wrangling(before: IntoFrameT, after: IntoFrameT) -> str:
         ...
         ==============================================
     """
+    build.assert_character(title, arg_name = 'title', len_arg = 1)
+
     before_nw = nw.from_native(before)
     after_nw = nw.from_native(after)
 
@@ -4610,7 +4620,9 @@ def review_wrangling(before: IntoFrameT, after: IntoFrameT) -> str:
 
     result = '\n\n'.join(review)
     # ヘッダーとフッターの追加
-    result = f"{make_header(result, ' Review of wrangling ')}\n{result}"
-    result = f"{result}\n{make_header(result, '=')}"
+    if title:
+        result = f"{make_header(result, f' {title} ')}\n{result}"
+        result = f"{result}\n{make_header(result, '=')}"
+
     return result
 
