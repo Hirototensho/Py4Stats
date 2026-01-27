@@ -45,6 +45,8 @@
 [`py4stats.compare_df_cols()`](man/compare_df_cols.qmd)
 [`py4stats.compare_df_stats()`](man/compare_df_cols.qmd)
 
+[`py4stats.review_wrangling()`](man/review_wrangling.qmd)
+
 #### 簡易なグループ別統計量の比較
 
 [`py4stats.compare_group_means()`](man/compare_group_stats.qmd)
@@ -58,10 +60,6 @@
 [`py4stats.plot_miss_var()`](man/plot_miss_var.qmd)
 
 [`py4stats.set_miss()`](man/set_miss.qmd)
-
-#### 前処理による変更点のレビュー
-
-[`py4stats.set_miss()`](man/review_wrangling.qmd)
 
 #### 数値変数の集計と標準化
 

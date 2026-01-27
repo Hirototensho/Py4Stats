@@ -1181,8 +1181,8 @@ df_modify = {
     'pl':(pl.from_pandas(old), pl.from_pandas(new)),
     'pa':(pa.Table.from_pandas(old), pa.Table.from_pandas(new))
 }
-# update_fixture = True
 update_fixture = False
+# update_fixture = True
 
 @pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
 def test_review_wrangling(backend):

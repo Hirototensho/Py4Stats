@@ -74,7 +74,7 @@
     "href": "reference.html#main-module",
     "title": "Function reference",
     "section": "",
-    "text": "py4stats.eda_tools\npy4stats.eda_tools モジュールは、探索的データ解析と前処理に関する機能を提供します。複数の DataFrame バックエンドに対して共通の API を提供することを目的として、narwhals ライブラリを用いて実装されています。詳細は Technical Notes を参照してください。\n\nデータフレームの概要\npy4stats.diagnose()\npy4stats.diagnose_category()\n\n\nクロス集計\npy4stats.tabyl()\npy4stats.freq_table()\npy4stats.Pareto_plot()\npy4stats.plot_category()\n\n\n\n数値変数の点推定と区間推定\npy4stats.mean_qi() py4stats.median_qi() py4stats.mean_ci()\n\nデータフレームの列や行の削除\npy4stats.remove_empty()\npy4stats.remove_constant()\npy4stats.filtering_out()\n\n\nデータフレームの列の並べ替え\npy4stats.relocate()\n\n\n複数のデータフレームの比較\npy4stats.compare_df_cols() py4stats.compare_df_stats()\n\n\n簡易なグループ別統計量の比較\npy4stats.compare_group_means() py4stats.compare_group_median()\npy4stats.plot_mean_diff() py4stats.plot_median_diff()\n\n\n簡易な欠測値の可視化\npy4stats.plot_miss_var()\npy4stats.set_miss()\n\n\n前処理による変更点のレビュー\npy4stats.set_miss()\n\n\n数値変数の集計と標準化\npy4stats.weighted_mean() py4stats.scale() py4stats.min_max()\n\n\n論理関数\npy4stats.is_number() py4stats.is_ymd() py4stats.is_ymd_like()\npy4stats.is_dummy()\n\n\n簡易なルールベースのデータ検証ツール\npy4stats.check_that() py4stats.check_viorate()\n\n\n\n\npy4stats.regression_tools\npy4stats.regression_tools は statsmodels ライブラリで作成された回帰分析の結果についての可視化と表作成を補助する機能を提供するモジュールです。\n\n線形モデルの比較\npy4stats.compare_ols()\npy4stats.compare_mfx()\n\n\n線形モデルの可視化\npy4stats.coefplot() py4stats.mfxplot()\n\n\n線形モデルを作表するためのバックエンド関数\npy4stats.tidy()py4stats.tidy_mfx()\npy4stats.tidy_test()\npy4stats.glance()\n\n\nBlinder-Oaxaca分解\npy4stats.Blinder_Oaxaca() py4stats.plot_Blinder_Oaxaca()",
+    "text": "py4stats.eda_tools\npy4stats.eda_tools モジュールは、探索的データ解析と前処理に関する機能を提供します。複数の DataFrame バックエンドに対して共通の API を提供することを目的として、narwhals ライブラリを用いて実装されています。詳細は Technical Notes を参照してください。\n\nデータフレームの概要\npy4stats.diagnose()\npy4stats.diagnose_category()\n\n\nクロス集計\npy4stats.tabyl()\npy4stats.freq_table()\npy4stats.Pareto_plot()\npy4stats.plot_category()\n\n\n\n数値変数の点推定と区間推定\npy4stats.mean_qi() py4stats.median_qi() py4stats.mean_ci()\n\nデータフレームの列や行の削除\npy4stats.remove_empty()\npy4stats.remove_constant()\npy4stats.filtering_out()\n\n\nデータフレームの列の並べ替え\npy4stats.relocate()\n\n\n複数のデータフレームの比較\npy4stats.compare_df_cols() py4stats.compare_df_stats()\npy4stats.review_wrangling()\n\n\n簡易なグループ別統計量の比較\npy4stats.compare_group_means() py4stats.compare_group_median()\npy4stats.plot_mean_diff() py4stats.plot_median_diff()\n\n\n簡易な欠測値の可視化\npy4stats.plot_miss_var()\npy4stats.set_miss()\n\n\n数値変数の集計と標準化\npy4stats.weighted_mean() py4stats.scale() py4stats.min_max()\n\n\n論理関数\npy4stats.is_number() py4stats.is_ymd() py4stats.is_ymd_like()\npy4stats.is_dummy()\n\n\n簡易なルールベースのデータ検証ツール\npy4stats.check_that() py4stats.check_viorate()\n\n\n\n\npy4stats.regression_tools\npy4stats.regression_tools は statsmodels ライブラリで作成された回帰分析の結果についての可視化と表作成を補助する機能を提供するモジュールです。\n\n線形モデルの比較\npy4stats.compare_ols()\npy4stats.compare_mfx()\n\n\n線形モデルの可視化\npy4stats.coefplot() py4stats.mfxplot()\n\n\n線形モデルを作表するためのバックエンド関数\npy4stats.tidy()py4stats.tidy_mfx()\npy4stats.tidy_test()\npy4stats.glance()\n\n\nBlinder-Oaxaca分解\npy4stats.Blinder_Oaxaca() py4stats.plot_Blinder_Oaxaca()",
     "crumbs": [
       "<span class='chapter-number'>3</span>  <span class='chapter-title'>Function reference</span>"
     ]
@@ -809,7 +809,7 @@
     "href": "man/review_wrangling.html#返り値-value",
     "title": "review_wrangling",
     "section": "返り値 Value",
-    "text": "返り値 Value\nbefore と after の差分を要約した、整形済みの複数行文字列。レビューに含まれる主な項目は次のとおりです。\n\nデータフレームの形状（行数・列数）の変化\n列の追加・削除\n既存列のデータ型（dtype）の変化\n欠測値割合（missing percent）の増加・減少",
+    "text": "返り値 Value\nbefore と after の差分を要約した、整形済みの複数行文字列。レビューに含まれる主な項目は次のとおりです。\n\nデータフレームの形状（行数・列数）の変化\n列の追加・削除\n既存列のデータ型（dtype）の変化\n欠測値の増加・減少\nカテゴリー変数における水準の増加・減少",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>18</span>  <span class='chapter-title'>review_wrangling</span>"
@@ -820,7 +820,7 @@
     "href": "man/review_wrangling.html#使用例-examples",
     "title": "review_wrangling",
     "section": "使用例 Examples",
-    "text": "使用例 Examples\nimport py4stats as py4st\nfrom palmerpenguins import load_penguins\nold = load_penguins() # サンプルデータの読み込\nnew = penguins.copy().dropna()\nprint(py4st.review_wrangling(old, new))\n#&gt; =================== Review of wrangling ====================\n#&gt; The shape of DataFrame:\n#&gt;    Rows: before 344 -&gt; after 333 (-11)\n#&gt;    Cols: before   8 -&gt; after   8 (No change)\n#&gt; \n#&gt; No columns were added or removed.\n#&gt; \n#&gt; No existing columns had their type changed.\n#&gt; \n#&gt; No existing columns increased the number of missing values.\n#&gt; \n#&gt; Decrease in missing values:\n#&gt;   bill_length_mm     before  2 (0.58%) -&gt; after  0 (0.00%)\n#&gt;   bill_depth_mm      before  2 (0.58%) -&gt; after  0 (0.00%)\n#&gt;   flipper_length_mm  before  2 (0.58%) -&gt; after  0 (0.00%)\n#&gt;   body_mass_g        before  2 (0.58%) -&gt; after  0 (0.00%)\n#&gt;   sex                before 11 (3.20%) -&gt; after  0 (0.00%)\n#&gt; ============================================================\ns = new['body_mass_g']\nnew['heavy'] = np.where(s &gt;= s.quantile(0.75), True, False)\nnew['species'] = pd.Categorical(new['species'])\nnew['year'] = new['year'].astype(float)\nnew['const'] = 1\n\nnew['flipper_length_mm'] = py4st.set_miss(\n    new['flipper_length_mm'], prop = 0.1,\n    # random_state = 123\n    random_state = 1230\n    )\n\nnew = py4st.filtering_out(new, 'sex')\nprint(py4st.review_wrangling(old, new))\n#&gt; =================== Review of wrangling ====================\n#&gt; The shape of DataFrame:\n#&gt;    Rows: before 344 -&gt; after 333 (-11)\n#&gt;    Cols: before   8 -&gt; after   9 (+1)\n#&gt; \n#&gt; Column(s) 'heavy' and 'const' were added, \n#&gt; Column(s) 'sex' were removed.\n#&gt; \n#&gt; The following columns have changed their type:\n#&gt;   species object -&gt; category\n#&gt;   year    int64 -&gt; float64\n#&gt; \n#&gt; Increase in missing values:\n#&gt;   flipper_length_mm  before  2 ( 0.58%) -&gt; after 34 (10.21%)\n#&gt; \n#&gt; Decrease in missing values:\n#&gt;   bill_length_mm  before 2 (0.58%) -&gt; after 0 (0.00%)\n#&gt;   bill_depth_mm   before 2 (0.58%) -&gt; after 0 (0.00%)\n#&gt;   body_mass_g     before 2 (0.58%) -&gt; after 0 (0.00%)\n#&gt; ============================================================",
+    "text": "使用例 Examples\nimport py4stats as py4st\nfrom palmerpenguins import load_penguins\nold = load_penguins() # サンプルデータの読み込\nnew = penguins.copy().dropna()\nprint(py4st.review_wrangling(old, new))\n#&gt; =================== Review of wrangling ====================\n#&gt; The shape of DataFrame:\n#&gt;    Rows: before 344 -&gt; after 333 (-11)\n#&gt;    Cols: before   8 -&gt; after   8 (No change)\n#&gt; \n#&gt; No columns were added or removed.\n#&gt; \n#&gt; No existing columns had their type changed.\n#&gt; \n#&gt; No existing columns increased the number of missing values.\n#&gt; \n#&gt; Decrease in missing values:\n#&gt;   bill_length_mm     before  2 (0.58%) -&gt; after  0 (0.00%)\n#&gt;   bill_depth_mm      before  2 (0.58%) -&gt; after  0 (0.00%)\n#&gt;   flipper_length_mm  before  2 (0.58%) -&gt; after  0 (0.00%)\n#&gt;   body_mass_g        before  2 (0.58%) -&gt; after  0 (0.00%)\n#&gt;   sex                before 11 (3.20%) -&gt; after  0 (0.00%)\n#&gt; \n#&gt; The following columns show changes in categories.\n#&gt;   sex:\n#&gt;     addition:  None\n#&gt;     removal:  'nan'\n#&gt; ============================================================\ns = new['body_mass_g']\nnew['heavy'] = np.where(s &gt;= s.quantile(0.75), True, False)\nnew['species'] = pd.Categorical(new['species'])\nnew['year'] = new['year'].astype(float)\nnew['const'] = 1\n\nnew['flipper_length_mm'] = py4st.set_miss(\n    new['flipper_length_mm'], prop = 0.1,\n    # random_state = 123\n    random_state = 1230\n    )\n\nnew = py4st.filtering_out(new, 'sex')\nprint(py4st.review_wrangling(old, new))\n#&gt; =================== Review of wrangling ====================\n#&gt; The shape of DataFrame:\n#&gt;    Rows: before 344 -&gt; after 187 (-157)\n#&gt;    Cols: before   8 -&gt; after   9 (+1)\n#&gt; \n#&gt; Column(s) 'heavy' and 'const' were added, \n#&gt; Column(s) 'sex' were removed.\n#&gt; \n#&gt; The following columns have changed their type:\n#&gt;   species object -&gt; category\n#&gt;   year    int64 -&gt; float64\n#&gt; \n#&gt; Increase in missing values:\n#&gt;   flipper_length_mm  before  2 ( 0.58%) -&gt; after 19 (10.16%)\n#&gt; \n#&gt; Decrease in missing values:\n#&gt;   bill_length_mm  before 2 (0.58%) -&gt; after 0 (0.00%)\n#&gt;   bill_depth_mm   before 2 (0.58%) -&gt; after 0 (0.00%)\n#&gt;   body_mass_g     before 2 (0.58%) -&gt; after 0 (0.00%)\n#&gt; \n#&gt; The following columns show changes in categories.\n#&gt;   species:\n#&gt;     addition:  None\n#&gt;     removal:  'Adelie'\n#&gt;   island:\n#&gt;     addition:  None\n#&gt;     removal:  'Torgersen'\n#&gt; ============================================================",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>18</span>  <span class='chapter-title'>review_wrangling</span>"
@@ -831,7 +831,18 @@
     "href": "man/review_wrangling.html#notes",
     "title": "review_wrangling",
     "section": "Notes",
-    "text": "Notes\n本関数では、before と after が同一の DataFrame バックエンド（例：どちらも pandas、またはどちらも polars）であることを前提としています。異なるバックエンドを混在させた場合、エラーが発生します。\n\nReturn to Function reference.",
+    "text": "Notes\n本関数では、before と after が同一の DataFrame バックエンド（例：どちらも pandas、またはどちらも polars）であることを前提としています。異なるバックエンドを混在させた場合、エラーが発生します。",
+    "crumbs": [
+      "**EDA**",
+      "<span class='chapter-number'>18</span>  <span class='chapter-title'>review_wrangling</span>"
+    ]
+  },
+  {
+    "objectID": "man/review_wrangling.html#参考-see-also",
+    "href": "man/review_wrangling.html#参考-see-also",
+    "title": "review_wrangling",
+    "section": "参考 See also",
+    "text": "参考 See also\n列のデータ型に基づいた比較については compare_df_cols() を、数値変数の統計値に基づいた比較については compare_df_stats() もご参照ください。\n\nReturn to Function reference.",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>18</span>  <span class='chapter-title'>review_wrangling</span>"
@@ -1117,18 +1128,18 @@
     "href": "man/compare_ols.html#補足",
     "title": "compare_ols",
     "section": "補足",
-    "text": "補足\n　　table_style = 'two_line' としたとき、初期設定ではの回帰係数とp-値の間に改行記号 '\\n'が挿入されます。そのため、print() 関数や display() 関数を使った出力では、改行記号 '\\n' がそのまま表示されます。この場合でも、pd.DataFrame.to_excel() や pd.DataFrame.to_markdown() を使って Excel ファイルや markdown の表に変換していただくと、改行として反映されます。",
+    "text": "補足\ntable_style = 'two_line' としたとき、初期設定ではの回帰係数とp-値の間に改行記号 '\\n'が挿入されます。そのため、print() 関数や display() 関数を使った出力では、改行記号 '\\n' がそのまま表示されます。この場合でも、pd.DataFrame.to_excel() や pd.DataFrame.to_markdown() を使って Excel ファイルや markdown の表に変換していただくと、改行として反映されます。",
     "crumbs": [
       "**Regression**",
       "<span class='chapter-number'>23</span>  <span class='chapter-title'>compare_ols</span>"
     ]
   },
   {
-    "objectID": "man/compare_ols.html#参照-see-also",
-    "href": "man/compare_ols.html#参照-see-also",
+    "objectID": "man/compare_ols.html#参考-see-also",
+    "href": "man/compare_ols.html#参考-see-also",
     "title": "compare_ols",
-    "section": "参照 see also",
-    "text": "参照 see also\n　一般化線形モデルの限界効果を比較する場合は py4stats.compare_mfx()をご利用ください。\n\nReturn to Function reference.",
+    "section": "参考 see also",
+    "text": "参考 see also\n一般化線形モデルの限界効果を比較する場合は py4stats.compare_mfx()をご利用ください。\n\nReturn to Function reference.",
     "crumbs": [
       "**Regression**",
       "<span class='chapter-number'>23</span>  <span class='chapter-title'>compare_ols</span>"

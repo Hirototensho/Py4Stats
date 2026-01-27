@@ -4383,7 +4383,7 @@ def review_col_addition(columns_before, columns_after) -> str:
     if added or removed:
         col_adition = []
         if added:
-            col_adition += [f"Column(s) {build.oxford_comma_and(added)} were added, "]
+            col_adition += [f"Column(s) {build.oxford_comma_and(added)} were added."]
         else:
             col_adition += ['No columns were added. ']
         if removed:
@@ -4504,7 +4504,7 @@ def review_category(before: IntoFrameT, after: IntoFrameT) -> str:
     cols2 = after_nw.select(ncs.string(), ncs.categorical(), ncs.boolean()).columns
     cols_compare = [c for c in cols1 if c in cols2]
 
-    change_category = ['The following columns show changes in categories.']
+    change_category = ['The following columns show changes in categories:']
 
     for col in cols_compare:
         unique_before = before_nw[col].unique().to_list()
@@ -4541,7 +4541,11 @@ def make_header(text: str, title: str) -> str:
 # In[ ]:
 
 
-def review_wrangling(before: IntoFrameT, after: IntoFrameT) -> str:
+def review_wrangling(
+        before: IntoFrameT, 
+        after: IntoFrameT, 
+        title: str = 'Review of wrangling'
+        ) -> str:
     """Review and summarize differences introduced by data wrangling.
 
     This function compares two DataFrame-like objects representing the state
@@ -4553,6 +4557,7 @@ def review_wrangling(before: IntoFrameT, after: IntoFrameT) -> str:
       - Added and removed columns.
       - Changes in column data types.
       - Increases and decreases in the proportion of missing values.
+      - Increase and decrease in levels of categorical variables.
 
     The output is formatted with a header and footer for readability and is
     intended for inspection in interactive sessions (e.g. notebooks) or
@@ -4569,6 +4574,10 @@ def review_wrangling(before: IntoFrameT, after: IntoFrameT) -> str:
             (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
         after (IntoFrameT):
             The DataFrame after wrangling.
+        title (str, optional):
+            The title of the output review text. 
+            If a non-empty string is specified, a header and footer will be added 
+            alongside the title.
 
     Returns:
         str:
@@ -4590,6 +4599,8 @@ def review_wrangling(before: IntoFrameT, after: IntoFrameT) -> str:
         ...
         ==============================================
     """
+    build.assert_character(title, arg_name = 'title', len_arg = 1)
+
     before_nw = nw.from_native(before)
     after_nw = nw.from_native(after)
 
@@ -4609,7 +4620,9 @@ def review_wrangling(before: IntoFrameT, after: IntoFrameT) -> str:
 
     result = '\n\n'.join(review)
     # ヘッダーとフッターの追加
-    result = f"{make_header(result, ' Review of wrangling ')}\n{result}"
-    result = f"{result}\n{make_header(result, '=')}"
+    if title:
+        result = f"{make_header(result, f' {title} ')}\n{result}"
+        result = f"{result}\n{make_header(result, '=')}"
+
     return result
 
