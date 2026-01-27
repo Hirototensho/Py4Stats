@@ -39,12 +39,15 @@ review_wrangling(
 ``` python
 import py4stats as py4st
 from palmerpenguins import load_penguins
-old = load_penguins() # サンプルデータの読み込
-new = penguins.copy().dropna()
+
+before = load_penguins() # サンプルデータの読み込
+after = before.copy().dropna()
 ```
 
+`review_wrangling()` 関数は前処理前後のデータフレームを比較し、上記の4項目に関する変化をレビューとして出力します。各項目の変化を報告しますが、変化がなかった場合にも変化がなかったことを報告するようにしています。
+
 ``` python
-print(py4st.review_wrangling(old, new))
+print(py4st.review_wrangling(before, after))
 #> =================== Review of wrangling ====================
 #> The shape of DataFrame:
 #>    Rows: before 344 -> after 333 (-11)
@@ -71,23 +74,26 @@ print(py4st.review_wrangling(old, new))
 ```
 
 ``` python
-s = new['body_mass_g']
-new['heavy'] = np.where(s >= s.quantile(0.75), True, False)
-new['species'] = pd.Categorical(new['species'])
-new['year'] = new['year'].astype(float)
-new['const'] = 1
+after = py4st.filtering_out(after, 'sex')
 
-new['flipper_length_mm'] = py4st.set_miss(
-    new['flipper_length_mm'], prop = 0.1,
-    # random_state = 123
+s = after['body_mass_g']
+after['heavy'] = np.where(s >= s.quantile(0.75), True, False)
+after['species'] = pd.Categorical(after['species'])
+after['year'] = after['year'].astype(float)
+after['const'] = 1
+
+after['flipper_length_mm'] = py4st.set_miss(
+    after['flipper_length_mm'], prop = 0.1,
     random_state = 1230
     )
 
-new = py4st.filtering_out(new, 'sex')
+after = after.query('species != "Adelie"')
 ```
 
+`review_wrangling()` では、カテゴリー変数についてユニーク値の変化を追っているため、データの抽出による暗黙的なカテゴリーの除外（e.g. `species = 'Adelie'` を除外したことで `island = 'Torgersen'` が除外された）も報告することができます。
+
 ``` python
-print(py4st.review_wrangling(old, new))
+print(py4st.review_wrangling(before, after))
 #> =================== Review of wrangling ====================
 #> The shape of DataFrame:
 #>    Rows: before 344 -> after 187 (-157)
@@ -120,7 +126,10 @@ print(py4st.review_wrangling(old, new))
 
 ## Notes
 
-本関数では、`before` と `after` が同一の DataFrame バックエンド（例：どちらも pandas、またはどちらも polars）であることを前提としています。異なるバックエンドを混在させた場合、エラーが発生します。
+- 本関数では、`before` と `after` が同一の DataFrame バックエンド（例：どちらも pandas、またはどちらも polars）であることを前提としています。異なるバックエンドを混在させた場合、エラーが発生します。
+
+- `review_wrangling()` 関数は、行（レコード）単位の差分（値の変更・削除など）を追跡していません。これは、レコード単位の差分を追跡するためには index が必要になり、特定のバックエンド（e.g. Pandas）への依存が生じることと、前処理では行の並び替えや index の再設定によって before と after のレコード対応付けが曖昧になりやすいことが理由です。そのため、本関数は個々のレコードの変化ではなく、データセット全体に生じた構造的な変化をレビューする関数として設計しています。
+
 
 ## 参考 See also
 
