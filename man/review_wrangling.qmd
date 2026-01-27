@@ -70,11 +70,11 @@ new['flipper_length_mm'] = py4st.set_miss(
     # random_state = 123
     random_state = 1230
     )
+
+new = py4st.filtering_out(new, 'sex')
 ```
 
 ``` python
-new = py4st.filtering_out(new, 'sex')
-
 print(py4st.review_wrangling(old, new))
 #> =================== Review of wrangling ====================
 #> The shape of DataFrame:
