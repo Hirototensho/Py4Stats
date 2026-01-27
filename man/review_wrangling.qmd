@@ -55,6 +55,11 @@ print(py4st.review_wrangling(old, new))
 #>   flipper_length_mm  before  2 (0.58%) -> after  0 (0.00%)
 #>   body_mass_g        before  2 (0.58%) -> after  0 (0.00%)
 #>   sex                before 11 (3.20%) -> after  0 (0.00%)
+#> 
+#> The following columns show changes in categories.
+#>   sex:
+#>     addition:  None
+#>     removal:  'nan'
 #> ============================================================
 ```
 
@@ -78,7 +83,7 @@ new = py4st.filtering_out(new, 'sex')
 print(py4st.review_wrangling(old, new))
 #> =================== Review of wrangling ====================
 #> The shape of DataFrame:
-#>    Rows: before 344 -> after 333 (-11)
+#>    Rows: before 344 -> after 187 (-157)
 #>    Cols: before   8 -> after   9 (+1)
 #> 
 #> Column(s) 'heavy' and 'const' were added, 
@@ -89,12 +94,20 @@ print(py4st.review_wrangling(old, new))
 #>   year    int64 -> float64
 #> 
 #> Increase in missing values:
-#>   flipper_length_mm  before  2 ( 0.58%) -> after 34 (10.21%)
+#>   flipper_length_mm  before  2 ( 0.58%) -> after 19 (10.16%)
 #> 
 #> Decrease in missing values:
 #>   bill_length_mm  before 2 (0.58%) -> after 0 (0.00%)
 #>   bill_depth_mm   before 2 (0.58%) -> after 0 (0.00%)
 #>   body_mass_g     before 2 (0.58%) -> after 0 (0.00%)
+#> 
+#> The following columns show changes in categories.
+#>   species:
+#>     addition:  None
+#>     removal:  'Adelie'
+#>   island:
+#>     addition:  None
+#>     removal:  'Torgersen'
 #> ============================================================
 ```
 

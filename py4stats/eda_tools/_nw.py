@@ -4496,6 +4496,41 @@ def review_shape(before: IntoFrameT, after: IntoFrameT) -> str:
 # In[ ]:
 
 
+def review_category(before: IntoFrameT, after: IntoFrameT) -> str:
+    before_nw = nw.from_native(before)
+    after_nw  = nw.from_native(after)
+
+    cols1 = before_nw.select(ncs.string(), ncs.categorical(), ncs.boolean()).columns
+    cols2 = after_nw.select(ncs.string(), ncs.categorical(), ncs.boolean()).columns
+    cols_compare = [c for c in cols1 if c in cols2]
+
+    change_category = ['The following columns show changes in categories.']
+
+    for col in cols_compare:
+        unique_before = before_nw[col].unique().to_list()
+        unique_after = after_nw[col].unique().to_list()
+
+        added = list_minus(unique_after, unique_before)
+        removed = list_minus(unique_before, unique_after)
+
+        if added or removed:
+            change_category += [f"  {col}:"]
+            if added:
+                change_category += [f"    addition: {build.oxford_comma_and(added)}"]
+            else:
+                change_category += [f"    addition:  None"]
+            if removed:
+                change_category += [f"    removal:  {build.oxford_comma_and(removed)}"]
+            else:
+                change_category += [f"    removal:   None"]
+    if len(change_category) > 1:
+        return '\n'.join(change_category)
+    else: return 'No columns had categories added or removed.'
+
+
+# In[ ]:
+
+
 import math
 def make_header(text: str, title: str) -> str:
     max_len = np.max([len(s) for s in text.split('\n')])
@@ -4570,7 +4605,10 @@ def review_wrangling(before: IntoFrameT, after: IntoFrameT) -> str:
     review += [review_col_addition(before_nw.columns, after_nw.columns)]
     review += [review_casting(before, after)]
     review += [review_missing(before_nw, after_nw)]
+    review += [review_category(before_nw, after_nw)]
+
     result = '\n\n'.join(review)
+    # ヘッダーとフッターの追加
     result = f"{make_header(result, ' Review of wrangling ')}\n{result}"
     result = f"{result}\n{make_header(result, '=')}"
     return result
