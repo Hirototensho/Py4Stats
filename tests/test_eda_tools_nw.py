@@ -1160,3 +1160,38 @@ def test_set_miss(backend):
 
     assert build.is_missing(miss_n).sum() == 100
     assert np.isclose(build.is_missing(miss_prop).mean(), 0.3, atol = 0.001)
+
+# ================================================================
+# review_wrangling
+# ================================================================
+old = pd.read_csv(f'{tests_path}/fixtures/penguins.csv')
+new = penguins.copy().dropna()
+s = new['body_mass_g']
+new['heavy'] = np.where(s >= s.quantile(0.75), True, False)
+new['species'] = pd.Categorical(new['species'])
+new['year'] = new['year'].astype(float)
+new['const'] = 1
+new['flipper_length_mm'] = eda_nw.set_miss(
+    new['flipper_length_mm'], prop = 0.1,
+    random_state = 123
+    )
+
+df_modify = {
+    'pd':(old, new),
+    'pl':(pl.from_pandas(old), pl.from_pandas(new)),
+    'pa':(pa.Table.from_pandas(old), pa.Table.from_pandas(new))
+}
+update_fixture = False
+
+@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
+def test_review_wrangling(backend):
+    output = eda_nw.review_wrangling(*df_modify.get(backend))
+
+    if update_fixture:
+        with open(f'{tests_path}/fixtures/review_wrangling_{backend}.txt', 'w', encoding='utf-8') as f:
+            f.write(output)
+    
+    with open(f'{tests_path}/fixtures/review_wrangling_{backend}.txt', 'r', encoding='utf-8') as f:
+            expected = f.read()
+    
+    assert output == expected

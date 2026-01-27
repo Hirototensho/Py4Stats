@@ -50,6 +50,7 @@ from .eda_tools._nw import (
     plot_mean_diff,
     plot_median_diff,
     plot_miss_var,
+    review_wrangling,
     scale,
     set_miss,
     relocate,

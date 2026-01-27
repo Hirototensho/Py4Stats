@@ -252,6 +252,8 @@ import pandas_flavor as pf
 
 import warnings
 
+import math
+
 
 # In[ ]:
 
@@ -3718,160 +3720,162 @@ def set_miss(
     na_value: Any = None,
     to_native: bool = True
     ):
-  """Insert missing values into a Series.
+    """Insert missing values into a Series.
 
-  This function replaces a specified number or proportion of non-missing
-  elements in a Series with missing values. It supports multiple Series
-  backends via narwhals and is primarily intended for generating test data
-  or simulating missingness.
+    This function replaces a specified number or proportion of non-missing
+    elements in a Series with missing values. It supports multiple Series
+    backends via narwhals and is primarily intended for generating test data
+    or simulating missingness.
 
-  Exactly one of `n` or `prop` must be specified.
+    Exactly one of `n` or `prop` must be specified.
 
-  Args:
-      x (IntoSeriesT):
-          Input Series. Any Series-like object supported by narwhals
-          (e.g., pandas.Series, polars.Series, pyarrow.ChunkedArray)
-          can be used.
-      n (int, optional):
-          Target number of missing values in the Series after processing.
-          If the Series already contains `n` or more missing values,
-          no additional missing values are added and a warning is issued.
-      prop (float, optional):
-          Target proportion of missing values in the Series after processing.
-          Must be between 0 and 1. If the current proportion of missing
-          values is greater than or equal to `prop`, no additional missing
-          values are added and a warning is issued.
-      method ({'random', 'first', 'last'}, optional):
-          Strategy for selecting elements to be replaced with missing values.
-          - ``'random'``: randomly select non-missing elements.
-          - ``'first'``: select from the beginning of the Series.
-          - ``'last'``: select from the end of the Series.
-          Defaults to ``'random'``.
-      random_state (int, optional):
-          Random seed used when ``method='random'`` to ensure reproducibility.
-      na_value (Any, optional):
-          Value used to represent missing data. Defaults to ``None``.
-        to_native (bool, optional):
-            If True, return the result as a native Series class of 'x'.
-            If False, return a `narwhals.Series`.
+    Args:
+    x (IntoSeriesT):
+        Input Series. Any Series-like object supported by narwhals
+        (e.g., pandas.Series, polars.Series, pyarrow.ChunkedArray)
+        can be used.
+    n (int, optional):
+        Target number of missing values in the Series after processing.
+        If the Series already contains `n` or more missing values,
+        no additional missing values are added and a warning is issued.
+    prop (float, optional):
+        Target proportion of missing values in the Series after processing.
+        Must be between 0 and 1. If the current proportion of missing
+        values is greater than or equal to `prop`, no additional missing
+        values are added and a warning is issued.
+    method ({'random', 'first', 'last'}, optional):
+        Strategy for selecting elements to be replaced with missing values.
+        - ``'random'``: randomly select non-missing elements.
+        - ``'first'``: select from the beginning of the Series.
+        - ``'last'``: select from the end of the Series.
+        Defaults to ``'random'``.
+    random_state (int, optional):
+        Random seed used when ``method='random'`` to ensure reproducibility.
+    na_value (Any, optional):
+        Value used to represent missing data. Defaults to ``None``.
+    to_native (bool, optional):
+        If True, return the result as a native Series class of 'x'.
+        If False, return a `narwhals.Series`.
 
-  Returns:
-      IntoSeriesT or narwhals.Series:
-          Series with additional missing values inserted. The return type
-          depends on the value of ``to_native``.
+    Returns:
+    IntoSeriesT or narwhals.Series:
+        Series with additional missing values inserted. The return type
+        depends on the value of ``to_native``.
 
-  Raises:
-      ValueError:
-          If neither or both of `n` and `prop` are specified.
+    Raises:
+    ValueError:
+        If neither or both of `n` and `prop` are specified.
 
-  Warns:
-      UserWarning:
-          If the input Series already contains the specified number or
-          proportion of missing values and no additional missing values
-          are added.
+    Warns:
+    UserWarning:
+        If the input Series already contains the specified number or
+        proportion of missing values and no additional missing values
+        are added.
 
-  Examples:
-      >>> import pandas as pd
-      >>> import py4stats as py4st
-      >>> s = pd.Series([1, 2, 3, 4, 5])
-      >>> py4st.set_miss(s, n=2, method='first')
-      0    NaN
-      1    NaN
-      2    3.0
-      3    4.0
-      4    5.0
-      dtype: float64
+    Examples:
+    >>> import pandas as pd
+    >>> import py4stats as py4st
+    >>> s = pd.Series([1, 2, 3, 4, 5])
+    >>> py4st.set_miss(s, n=2, method='first')
+    0    NaN
+    1    NaN
+    2    3.0
+    3    4.0
+    4    5.0
+    dtype: float64
 
-      >>> py4st.set_miss(s, prop=0.4, method='random', random_state=0)
-      0    1.0
-      1    NaN
-      2    3.0
-      3    NaN
-      4    5.0
-      dtype: float64
-  """
-  x_nw = nw.from_native(x, series_only = True)
+    >>> py4st.set_miss(s, prop=0.4, method='random', random_state=0)
+    0    1.0
+    1    NaN
+    2    3.0
+    3    NaN
+    4    5.0
+    dtype: float64
+    """
+    x_nw = nw.from_native(x, series_only = True)
 
-  # 引数のアサーション ==================================================================
-  if not((n is not None) ^ (prop is not None)):
-    raise ValueError("Exactly one of `n` and `prop` must be specified.")
+    # 引数のアサーション ==================================================================
+    if not((n is not None) ^ (prop is not None)):
+        raise ValueError("Exactly one of `n` and `prop` must be specified.")
 
-  build.assert_logical(to_native, arg_name = 'to_native')
+    build.assert_logical(to_native, arg_name = 'to_native')
 
-  n_miss = x_nw.null_count()
-  p_miss = n_miss / x_nw.shape[0]
+    n_miss = x_nw.null_count()
+    p_miss = n_miss / x_nw.shape[0]
 
-  method = build.arg_match(
+    method = build.arg_match(
     method, arg_name = 'method',
     values = ['random', 'first', 'last']
     )
-  build.assert_count(
-     n, arg_name = 'n',
-     lower = 0, upper = len(x), 
-     nullable = True, scalar_only = True
-     )
-  build.assert_numeric(
-     prop, arg_name = 'prop',
-     lower = 0, upper = 1, 
-     nullable = True, scalar_only = True
-     )
+    build.assert_count(
+    n, arg_name = 'n',
+    lower = 0, upper = len(x), 
+    nullable = True, scalar_only = True
+    )
+    build.assert_numeric(
+    prop, arg_name = 'prop',
+    lower = 0, upper = 1, 
+    nullable = True, scalar_only = True
+    )
 
-  # 欠測値代入個数の計算 =================================================================
-  idx = pd.Series(np.arange(len(x_nw)))
-  non_miss = idx[~build.is_missing(x_nw)]
+    # 欠測値代入個数の計算 =================================================================
+    idx = pd.Series(np.arange(len(x_nw)))
+    non_miss = idx[~build.is_missing(x_nw)]
 
-  if n is not None: 
-    n_to_miss = np.max([n - n_miss, 0])
+    if n is not None: 
+        n_to_miss = np.max([n - n_miss, 0])
 
-    if n_to_miss <=0:
-      warnings.warn(
-         f"Already contained {n_miss}(>= n) missing value(s) in `x`, "
-        "no additional missing values were added.",
-        category = UserWarning,
-        stacklevel = 2
-      )
-      if to_native: return x_nw.to_native()
-      return x_nw
+        if n_to_miss <=0:
+            warnings.warn(
+                f"Already contained {n_miss}(>= n) missing value(s) in `x`, "
+            "no additional missing values were added.",
+            category = UserWarning,
+            stacklevel = 2
+            )
+            if to_native: return x_nw.to_native()
+            return x_nw
 
-  elif prop is not None: 
-    n_non_miss = non_miss.shape[0]
+    elif prop is not None: 
+        n_non_miss = non_miss.shape[0]
 
-    n_to_miss = int(np.max([
+        n_to_miss = int(np.max([
         np.ceil(n_non_miss * (prop - p_miss)), 0
-      ]))
+        ]))
 
-    if prop <= p_miss:
-      warnings.warn(
-        f"Already contained {p_miss:.3f}(>= prop) missing value(s) in `x`, "
-        "no additional missing values were added.",
-        category = UserWarning,
-        stacklevel = 2
-      )
-      if to_native: return x_nw.to_native()
-      return x_nw
+        if prop <= p_miss:
+            warnings.warn(
+            f"Already contained {p_miss:.3f}(>= prop) missing value(s) in `x`, "
+            "no additional missing values were added.",
+            category = UserWarning,
+            stacklevel = 2
+            )
+            if to_native: return x_nw.to_native()
+            return x_nw
 
-  # 欠測値代入位置の決定 =====================================================================
+    # 欠測値代入位置の決定 =====================================================================
 
-  match method:
-    case 'random':
-        index_to_na = non_miss.sample(n = n_to_miss, random_state = random_state)
-    case 'first':
-        index_to_na = non_miss.head(n_to_miss)
-    case 'last':
-        index_to_na = non_miss.tail(n_to_miss)
+    match method:
+        case 'random':
+            index_to_na = non_miss.sample(n = n_to_miss, random_state = random_state)
+        case 'first':
+            index_to_na = non_miss.head(n_to_miss)
+        case 'last':
+            index_to_na = non_miss.tail(n_to_miss)
+    # 欠測値の代入と結果の出力 ===================================================================
+    x_with_na = [na_value if i in index_to_na else v 
+            for i, v in enumerate(x_nw)]
 
-  # 欠測値の代入と結果の出力 ===================================================================
-  x_with_na = [na_value if i in index_to_na else v 
-               for i, v in enumerate(x_nw)]
+    result = nw.Series.from_iterable(
+        name = x_nw.name,
+        values = x_with_na,
+        backend = x_nw.implementation
+    )
+    if not to_native: return result
 
-  result = nw.Series.from_iterable(
-      name = x_nw.name,
-      values = x_with_na,
-      backend = x_nw.implementation
-  )
-
-  if to_native: return result.to_native()
-  return result
+    result_native = nw.to_native(result)
+    if x_nw.implementation.is_pandas_like():
+        result_native.index = x.index
+    return result_native
 
 
 # # `relocate()`
@@ -4335,4 +4339,227 @@ def plot_category(
         show_vline = show_vline,
         ax = ax
     )
+
+
+# ### `review_wrangling()`
+
+# In[ ]:
+
+
+def list_minus(x, y):
+    return [v for v in x if v not in y]
+
+
+# In[ ]:
+
+
+def review_casting(before: IntoFrameT, after: IntoFrameT) -> str:
+    res_compare = compare_df_cols(
+        [before, after], return_match = 'mismatch', 
+        to_native = False
+        ).drop_nulls()
+
+    if build.length(res_compare) >= 1:
+        col_cast = [
+            f"  '{row[0]}': {row[1]} to {row[2]}"
+            for row in res_compare.iter_rows()
+            ]
+        cast_message = f'The following columns have changed their type:\n{"\n".join(col_cast)}'
+    else: 
+        cast_message = 'No existing columns had their type changed.'
+    return cast_message
+
+
+
+# In[ ]:
+
+
+def review_col_addition(columns_before, columns_after) -> str:
+    added = list_minus(columns_after, columns_before)
+    removed = list_minus(columns_before, columns_after)
+    if added or removed:
+        col_adition = []
+        if added:
+            col_adition += [f"Column(s) {build.oxford_comma_and(added)} were added, "]
+        else:
+            col_adition += ['No columns were added. ']
+        if removed:
+            col_adition += [f"Column(s) {build.oxford_comma_and(removed)} were removed."]
+        else:
+            col_adition += ['No columns were removed.']
+
+        return '\n'.join(col_adition)
+    else: return 'No columns were added or removed.'
+
+
+
+# In[ ]:
+
+
+def review_missing(before: IntoFrameT, after: IntoFrameT) -> str:
+    compare_miss = diagnose(before, to_native = False)\
+        .select('columns', 'missing_percent')\
+        .join(
+            diagnose(after, to_native = False)\
+            .select('columns', 'missing_percent'),
+            on = 'columns'
+            )
+
+    increased = compare_miss.filter(
+        nw.col('missing_percent') < nw.col('missing_percent_right')
+    )
+    decreased = compare_miss.filter(
+        nw.col('missing_percent') > nw.col('missing_percent_right')
+    )
+    if build.length(increased) == 0 and build.length(decreased) == 0:
+        return 'No existing columns decreased the number of missing values.'
+
+    miss_review = []
+    if build.length(increased) >= 1:
+        col_cast = [
+            f"  '{row[0]}': {row[1]:.2f}% to {row[2]:.2f}%"
+            for row in increased.iter_rows()
+            ]
+        miss_review += [f'Increase in missing values:\n{"\n".join(col_cast)}']
+    else: 
+        miss_review += ['No existing columns increased the number of missing values.']
+
+    if build.length(decreased) >= 1:
+        col_cast = [
+            f"  '{row[0]}': {row[1]:.2f}% to {row[2]:.2f}%"
+            for row in decreased.iter_rows()
+            ]
+        miss_review += [f'Decrease in missing values:\n{"\n".join(col_cast)}']
+    else: 
+        miss_review += ['None of the existing columns decreases in the number of missing values.']
+    result = '\n\n'.join(miss_review)
+    return result
+
+
+# In[ ]:
+
+
+def review_casting(before: IntoFrameT, after: IntoFrameT) -> str:
+    res_compare = compare_df_cols(
+        [before, after], return_match = 'mismatch', 
+        to_native = False
+        ).drop_nulls()
+
+    if build.length(res_compare) >= 1:
+        col_cast = [
+            f"  '{row[0]}': {row[1]} to {row[2]}"
+            for row in res_compare.iter_rows()
+            ]
+        cast_message = f'The following columns have changed their type:\n{"\n".join(col_cast)}'
+    else: 
+        cast_message = 'No existing columns had their type changed.'
+    return cast_message
+
+
+
+# In[ ]:
+
+
+def shape_change(before: int, after: int) -> str:
+    if after > before: return f" (+{after - before:,})"
+    if after < before: return f" ({after - before:,})"
+    return f" (No change)"
+
+
+
+# In[ ]:
+
+
+def review_shape(before: IntoFrameT, after: IntoFrameT) -> str:
+    row_o, col_o = before.shape
+    row_n, col_n = after.shape
+
+    shpe_message = f"The shape of DataFrame:\n" + \
+                f"   Rows: before {row_o:,} -> after {row_n:,}{shape_change(row_o, row_n)}\n" + \
+                f"   Cols: before {col_o:,} -> after {col_n:,}{shape_change(col_o, col_n)}"
+    return shpe_message
+
+
+
+# In[ ]:
+
+
+import math
+def make_header(text: str, title: str) -> str:
+    max_len = np.max([len(s) for s in text.split('\n')])
+    len_header = math.ceil(max_len / 2.) * 2
+    return title.center(len_header, '=')
+
+
+# In[ ]:
+
+
+def review_wrangling(before: IntoFrameT, after: IntoFrameT) -> str:
+    """Review and summarize differences introduced by data wrangling.
+
+    This function compares two DataFrame-like objects representing the state
+    of a dataset before and after wrangling, and returns a human-readable
+    review report as a formatted string.
+
+    The review includes the following aspects:
+      - Changes in the shape of the DataFrame (rows and columns).
+      - Added and removed columns.
+      - Changes in column data types.
+      - Increases and decreases in the proportion of missing values.
+
+    The output is formatted with a header and footer for readability and is
+    intended for inspection in interactive sessions (e.g. notebooks) or
+    logging during exploratory data analysis.
+
+    Internally, the function uses `narwhals` to support multiple DataFrame
+    backends (e.g. pandas, polars), while type comparison relies on the
+    original input objects.
+
+    Args:
+        before (IntoFrameT):
+            The original DataFrame before wrangling. 
+            Any DataFrame-like object supported by narwhals
+            (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
+        after (IntoFrameT):
+            The DataFrame after wrangling.
+
+    Returns:
+        str:
+            A formatted, multi-line string summarizing the differences between
+            `before` and `after`.
+
+    Raises:
+        ValueError:
+        This function assumes that `before` and `after` use the same DataFrame
+        backend (e.g. both pandas or both polars). Mixing different backends
+        is not supported and will raise an error.
+
+    Examples:
+        >>> print(py4st.review_wrangling(before, after))
+        ============ Review of wrangling ============
+        The shape of DataFrame:
+           Rows: before 344 -> after 333 (-11)
+           Cols: before 8 -> after 9 (+1)
+        ...
+        ==============================================
+    """
+    before_nw = nw.from_native(before)
+    after_nw = nw.from_native(after)
+
+    if before_nw.implementation is not after_nw.implementation:
+        raise TypeError(
+             "review_wrangling() requires `before` and `after` to use the same backend.\n"
+            f"Got before={before_nw.implementation!r}, after={after_nw.implementation!r}.\n"
+            "Please make sure that  `before` and `after` are the same backend (e.g., both pandas, both polars)."
+        )
+
+    review = []
+    review += [review_shape(before_nw, after_nw)]
+    review += [review_col_addition(before_nw.columns, after_nw.columns)]
+    review += [review_casting(before, after)]
+    review += [review_missing(before_nw, after_nw)]
+    result = '\n\n'.join(review)
+    result = f"{make_header(result, ' Review of wrangling ')}\n{result}"
+    result = f"{result}\n{make_header(result, '=')}"
+    return result
 

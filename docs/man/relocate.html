@@ -248,6 +248,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../man/review_wrangling.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">review_wrangling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../man/scale_wmean.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">weighted_mean, scale, min_max</span></a>
   </div>
 </li>
@@ -446,7 +451,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#概要" id="toc-概要" class="nav-link active" data-scroll-target="#概要">概要</a></li>
   <li><a href="#引数-argument" id="toc-引数-argument" class="nav-link" data-scroll-target="#引数-argument">引数 Argument</a>
   <ul class="collapse">
-  <li><a href="#返り値" id="toc-返り値" class="nav-link" data-scroll-target="#返り値">返り値</a></li>
+  <li><a href="#返り値-value" id="toc-返り値-value" class="nav-link" data-scroll-target="#返り値-value">返り値 Value</a></li>
   </ul></li>
   <li><a href="#使用例-example" id="toc-使用例-example" class="nav-link" data-scroll-target="#使用例-example">使用例 Example</a></li>
   </ul>
@@ -508,8 +513,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </ul></li>
 <li><p><code>to_native</code>（<strong>bool</strong>, optional）<br> <code>True</code> の場合、入力と同じ型のデータフレーム（e.g.&nbsp;pandas / polars / pyarrow）を返します。<br> <code>False</code> の場合、<code>narwhals.DataFrame</code> を返します。デフォルトは <code>True</code> で、<code>to_native = False</code> は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。</p></li>
 </ul>
-<section id="返り値" class="level3">
-<h3 class="anchored" data-anchor-id="返り値">返り値</h3>
+<section id="返り値-value" class="level3">
+<h3 class="anchored" data-anchor-id="返り値-value">返り値 Value</h3>
 <ul>
 <li><strong>IntoFrameT</strong><br> 入力データフレームと同じ列を保持したまま、指定されたルールに従って並び替えられたデータフレームを返します。</li>
 </ul>

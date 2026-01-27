@@ -19,7 +19,7 @@ diagnose(data: IntoFrameT, to_native: bool = True)
   `True` の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。<br>
   `False` の場合、`narwhals.DataFrame` を返します。デフォルトは `True` で、`to_native = False` は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。
 
-## 返り値
+## 返り値 Value
 
 - `dtype`：該当する列のpandasにおけるデータの型。「〇〇の個数」や「〇〇の金額」といったデータの `dtype` が `object` や `String` になっていたら、文字列として読み込まれているので要注意です。
 - `missing_count`：1列のなかで `NaN` などの欠測値になっている数

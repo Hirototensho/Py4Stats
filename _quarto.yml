@@ -24,6 +24,7 @@ book:
       - man/compare_group_stats.qmd
       - man/plot_miss_var.qmd
       - man/set_miss.qmd
+      - man/review_wrangling.qmd
       - man/scale_wmean.qmd
       - man/predicate_str.qmd
       - man/is_dummy.qmd

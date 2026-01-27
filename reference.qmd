@@ -59,6 +59,10 @@
 
 [`py4stats.set_miss()`](man/set_miss.qmd)
 
+#### 前処理による変更点のレビュー
+
+[`py4stats.set_miss()`](man/review_wrangling.qmd)
+
 #### 数値変数の集計と標準化
 
 [`py4stats.weighted_mean()`](man/scale_wmean.qmd)
