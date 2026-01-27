@@ -252,6 +252,8 @@ import pandas_flavor as pf
 
 import warnings
 
+import math
+
 
 # In[ ]:
 
@@ -952,18 +954,19 @@ def compare_df_record(
     return result
 
 
-# ## グループ別平均（中央値）の比較
+# ## enframe
 
 # In[ ]:
 
 
+@singledispatch
 def enframe(
     data: Any,
     row_id:int = 0,
     name: str = 'name',
     value: str = 'value',
     backend: Optional[Union[str, nw.Implementation]] = None,
-    names: list[str] = None,
+    names: Optional[Union[list[str], list[int]]] = None,
     to_native: bool = True,
     **keywarg: Any
 ) -> IntoFrameT:
@@ -1037,40 +1040,32 @@ def enframe(
         0    x      1
         1    y      2
     """
-    # 引数のアサーション =======================================================
-    build.assert_count(row_id, arg_name = 'row_id', len_arg = 1)
-    build.assert_character(name, arg_name = 'name', len_arg = 1)
-    build.assert_character(value, arg_name = 'value', len_arg = 1)
-    build.assert_character(names, arg_name = 'names', nullable = True)
-    build.assert_logical(to_native, arg_name = 'to_native')
-    # =======================================================================
-
-    try:
-        data = nw.from_native(data, allow_series = True)
-    finally:
-        args_dict = locals()
-        args_dict.pop('data')
-        return enframe_default(data, **args_dict)
-
-@singledispatch
-def enframe_default(data, **keywarg: Any) -> None:
     raise NotImplementedError(f'enframe mtethod for object {type(data)} is not implemented.')
 
 
 # In[ ]:
 
 
-@enframe_default.register(nw.DataFrame)
+@enframe.register(nw.DataFrame)
+@enframe.register(nw.typing.IntoDataFrame)
 def enframe_table(
     data: IntoFrameT,
     row_id:int = 0,
     name: str = 'name',
     value: str = 'value',
-    names: Union[list[str]] = None,
+    names: Optional[Union[list[str], list[int]]] = None,
     backend: Optional[Union[str, nw.Implementation]] = None,
     to_native: bool = True,
     **keywarg: Any
 ) -> IntoFrameT:
+    # 引数のアサーション =======================================================
+    build.assert_count(row_id, arg_name = 'row_id', len_arg = 1)
+    build.assert_character(name, arg_name = 'name', len_arg = 1)
+    build.assert_character(value, arg_name = 'value', len_arg = 1)
+    # build.assert_character(names, arg_name = 'names', nullable = True)
+    build.assert_logical(to_native, arg_name = 'to_native')
+    # =======================================================================
+    data = nw.from_native(data, allow_series = True)
 
     if backend is None:
         backend = data.implementation
@@ -1089,29 +1084,24 @@ def enframe_table(
 # In[ ]:
 
 
-@enframe_default.register(nw.series.Series)
-@enframe_default.register(list)
-@enframe_default.register(tuple)
-def enframe_series(
+@enframe.register(list)
+@enframe.register(tuple)
+def enframe_iterable(
     data: Union[nw.Series, list, tuple],
     name: str = 'name',
     value: str = 'value',
-    names: Union[list[str]] = None,
+    names: Optional[Union[list[str], list[int]]] = None,
     backend: Optional[Union[str, nw.Implementation]] = None,
     to_native: bool = True,
     **keywarg: Any
 ) -> IntoFrameT:
-
-    if backend is None:
-        if hasattr(data, 'implementation'):
-            backend = data.implementation
-        else:
-            backend = 'pandas'
-    if names is None:
-        if hasattr(data, 'implementation') and (data.implementation.is_pandas()):
-            names = data.to_pandas().index.to_list()
-        else:
-            names = range(build.length(data))
+    # 引数のアサーション =======================================================
+    build.assert_character(name, arg_name = 'name', len_arg = 1)
+    build.assert_character(value, arg_name = 'value', len_arg = 1)
+    build.assert_logical(to_native, arg_name = 'to_native')
+    # =======================================================================
+    if backend is None: backend = 'pandas'
+    if names is None: names = range(build.length(data))
 
     result = nw.from_dict({
         name: names,
@@ -1125,17 +1115,56 @@ def enframe_series(
 # In[ ]:
 
 
-@enframe_default.register(dict)
-def enframe_dict(
-    data: dict,
+@enframe.register(nw.typing.IntoSeries)
+def enframe_series(
+    data: IntoSeriesT,
     name: str = 'name',
     value: str = 'value',
-    names: Union[list[str]] = None,
+    names: Optional[Union[list[str], list[int]]] = None,
     backend: Optional[Union[str, nw.Implementation]] = None,
     to_native: bool = True,
     **keywarg: Any
 ) -> IntoFrameT:
+    # 引数のアサーション =======================================================
+    build.assert_character(name, arg_name = 'name', len_arg = 1)
+    build.assert_character(value, arg_name = 'value', len_arg = 1)
+    # build.assert_character(names, arg_name = 'names', nullable = True)
+    build.assert_logical(to_native, arg_name = 'to_native')
+    # =======================================================================
+    data = nw.from_native(data, allow_series = True)
 
+    if backend is None:
+        if hasattr(data, 'implementation'):
+            backend = data.implementation
+        else:
+            backend = 'pandas'
+    if names is None:
+        if hasattr(data, 'implementation') and (data.implementation.is_pandas()):
+            names = data.to_pandas().index.to_list()
+
+    args_dict = locals()
+    args_dict.pop('data')
+    return enframe_iterable(data, **args_dict)
+
+
+# In[ ]:
+
+
+@enframe.register(dict)
+def enframe_dict(
+    data: dict,
+    name: str = 'name',
+    value: str = 'value',
+    names: Optional[Union[list[str], list[int]]] = None,
+    backend: Optional[Union[str, nw.Implementation]] = None,
+    to_native: bool = True,
+    **keywarg: Any
+) -> IntoFrameT:
+    # 引数のアサーション =======================================================
+    build.assert_character(name, arg_name = 'name', len_arg = 1)
+    build.assert_character(value, arg_name = 'value', len_arg = 1)
+    build.assert_logical(to_native, arg_name = 'to_native')
+    # =======================================================================
     if backend is None: backend = 'pandas'
     if names is None:   names = data.keys()
 
@@ -1147,6 +1176,8 @@ def enframe_dict(
     if to_native: return result.to_native()
     return result
 
+
+# ## グループ別平均（中央値）の比較
 
 # In[ ]:
 
@@ -1835,6 +1866,9 @@ def tabyl(
     return result
 
 
+# ## カテゴリー変数の要約
+# ### is_dummy
+
 # In[ ]:
 
 
@@ -1842,10 +1876,11 @@ def tabyl(
 @pf.register_series_method
 @singledispatch
 def is_dummy(
-    data: Union[IntoFrameT, IntoSeriesT],
+    data: Union[list, IntoFrameT, IntoSeriesT],
     cording: Sequence[Any] = (0, 1),
     dropna: bool = True,
     to_pd_series: bool = False,
+    to_native: bool = True,
     **kwargs
 ) -> Union[bool, IntoSeriesT, IntoFrameT]:
     """
@@ -1860,20 +1895,24 @@ def is_dummy(
 
     Args:
         data:
-            Input data to check. Can be a Series-like or DataFrame-like object
-            supported by narwhals (e.g., ``pandas.Series``,
+            Input data to check. Can be a list or Series-like or DataFrame-like 
+            object supported by narwhals (e.g., ``pandas.Series``,
             ``pandas.DataFrame``, ``polars.Series``, ``polars.DataFrame``,
             ``pyarrow.Table``).
         cording:
             Sequence of allowed dummy codes. The input is considered valid if
             its unique values exactly match this set.
             Defaults to ``(0, 1)``.
-        dropna (bool):
+        dropna (bool, optional):
             Whether to drop NaN from data before value check.
-        to_pd_series:
+        to_pd_series (bool, optional)::
             Controls the return type when ``data`` is DataFrame-like.
             If True, returns a ``pandas.Series`` indexed by column names.
             If False, returns a Python list of boolean values.
+        to_native (bool, optional):
+            Controls the return type when ``data`` is DataFrame-like.
+            If True, returns the result as a native Series of the input
+            backend. If False, returns a ``narwhals.Series``. Defaults to `True`.
         **kwargs:
             Additional keyword arguments (reserved for future extensions).
 
@@ -1894,68 +1933,78 @@ def is_dummy(
         - Missing values are not explicitly handled and will affect the
           result according to the underlying data representation.
     """
-    build.assert_logical(to_pd_series, arg_name = 'to_pd_series')
-    build.assert_logical(dropna, arg_name = 'dropna')
+    raise NotImplementedError(f'is_dummy mtethod for object {type(data)} is not implemented.')
 
-    data_nw = nw.from_native(data, allow_series = True)
-    return is_dummy(data_nw, cording, dropna, to_pd_series)
 
 
 # In[ ]:
 
 
 @is_dummy.register(nw.Series)
+@is_dummy.register(nw.typing.IntoSeries)
 def is_dummy_series(
     data: IntoSeriesT,
     cording: Sequence[Any] = (0, 1),
     dropna: bool = True,
-    to_pd_series: bool = False,
     **kwargs
 ) -> bool:
-    if dropna: data = data.drop_nulls()
-    return set(data) == set(cording)
+    build.assert_logical(dropna, arg_name = 'dropna')
 
+    data_nw = nw.from_native(data, series_only = True)
+    if dropna: data_nw = data_nw.drop_nulls()
 
-# In[ ]:
+    return set(data_nw) == set(cording)
 
-
-@is_dummy.register(list)
-def is_dummy_list(
-    data: list,
+@is_dummy.register(nw.DataFrame)
+@is_dummy.register(nw.typing.IntoDataFrame)
+def is_dummy_data_frame(
+    data: IntoFrameT,
     cording: Sequence[Any] = (0, 1),
     dropna: bool = True,
     to_pd_series: bool = False,
+    to_native: bool = True,
     **kwargs
-) -> bool:
-    return set(data) == set(cording)
-
-
-# In[ ]:
-
-
-@is_dummy.register(nw.DataFrame)
-def is_dummy_data_frame(
-        data: IntoFrameT, 
-        cording: Sequence[Any] = (0, 1),
-        dropna: bool = True,
-        to_pd_series: bool = False,
-        **kwargs
-        ) -> Union[IntoFrameT, pd.Series]:
+) -> IntoSeriesT:
+    build.assert_logical(dropna, arg_name = 'dropna')
+    build.assert_logical(to_pd_series, arg_name = 'to_pd_series')
+    build.assert_logical(to_native, arg_name = 'to_native')
 
     data_nw = nw.from_native(data)
 
-    result = data_nw.select(
+    result_df = data_nw.select(
         nw.all().map_batches(
-            lambda x: is_dummy_series(x, cording), 
+            lambda x: is_dummy_series(x, cording, dropna = dropna), 
             return_dtype = nw.Boolean,
             returns_scalar = True
             )
     )
+    if to_pd_series: return result_df.to_pandas().loc[0, :]
 
-    if to_pd_series: 
-        return result.to_pandas().loc[0, :]
-    return list(result.row(0))
+    result = nw.Series.from_iterable(
+        name = 'is_dummy',
+        values = result_df.row(0),
+        backend = data_nw.implementation
+    )
+    if to_native: return result.to_native()
+    return result
 
+@is_dummy.register(list)
+@is_dummy.register(tuple)
+def is_dummy_list(
+    data: list,
+    cording: Sequence[Any] = (0, 1),
+    dropna: bool = True,
+    **kwargs
+) -> bool:
+    build.assert_logical(dropna, arg_name = 'dropna')
+
+    if dropna:
+        data = [v for v in data if not build.is_missing(v).all()]
+
+    return set(data) == set(cording)
+
+
+# ### entropy
 
 # In[ ]:
 
@@ -2072,9 +2121,11 @@ def diagnose_category(data: IntoFrameT, dropna: bool = True, to_native: bool = T
     res_is_dummy = is_dummy(data_nw, to_pd_series = True)
     dummy_col = res_is_dummy[res_is_dummy].index.to_list()
 
+    if dummy_col:
+        data_nw = data_nw.with_columns(nw.col(dummy_col).cast(nw.String))
+
     df = (
         data_nw
-        .with_columns(nw.col(dummy_col).cast(nw.String))\
         .select(
             ncs.categorical(),
             ncs.by_dtype(nw.String), 
@@ -2183,7 +2234,11 @@ def weighted_mean(x: IntoSeriesT, w: IntoSeriesT, dropna:bool = False) -> float:
 
 
 @singledispatch
-def scale(x: Union[IntoSeriesT, pd.DataFrame], ddof: int = 1, to_native: bool = True) -> IntoSeriesT:
+def scale(
+    x: Union[IntoSeriesT, pd.DataFrame], 
+    ddof: int = 1, 
+    to_native: bool = True
+    ) -> IntoSeriesT:
     """Standardize a numeric series by Z-score scaling.
 
     This function standardizes numeric data by subtracting the mean
@@ -2219,23 +2274,29 @@ def scale(x: Union[IntoSeriesT, pd.DataFrame], ddof: int = 1, to_native: bool = 
         ValueError:
             If `ddof` is not a non-negative integer.
     """
+    raise NotImplementedError(f'scale mtethod for object {type(x)} is not implemented.')
+
+@scale.register(nw.Series)
+@scale.register(nw.typing.IntoSeries)
+def scale_series(x: IntoSeriesT, ddof: int = 1, to_native: bool = True) -> IntoSeriesT:
     build.assert_count(ddof, arg_name = 'ddof')
     build.assert_logical(to_native, arg_name = 'to_native')
 
     x = nw.from_native(x, series_only = True)
 
-    build.assert_numeric(x.drop_nulls(), arg_name = 'x')
+    build.assert_numeric(x, arg_name = 'x', any_missing = True)
 
     z = (x - x.mean()) / x.std(ddof = ddof)
     if to_native: return z.to_native()
     return z
+
 
 @scale.register(pd.DataFrame)
 def scale_pandas(x: pd.DataFrame, ddof: int = 1, to_native: bool = True) -> IntoSeriesT:
     build.assert_count(ddof, arg_name = 'ddof')
     build.assert_logical(to_native, arg_name = 'to_native')
 
-    z = (x - x.mean()) / x.std(ddof = ddof)
+    z = (x - x.mean(numeric_only = True)) / x.std(ddof = ddof, numeric_only = True)
 
     if to_native: return z
     return nw.from_native(z, allow_series = True)
@@ -2276,11 +2337,16 @@ def min_max(x: Union[IntoSeriesT, pd.DataFrame], to_native: bool = True) -> Into
         ValueError:
             If `x` is not numeric.
     """
+    raise NotImplementedError(f'min_max mtethod for object {type(x)} is not implemented.')
+
+@min_max.register(nw.Series)
+@min_max.register(nw.typing.IntoSeries)
+def min_max_series(x: Union[IntoSeriesT, pd.DataFrame], to_native: bool = True) -> IntoSeriesT:
     build.assert_logical(to_native, arg_name = 'to_native')
 
     x = nw.from_native(x, series_only = True)
 
-    build.assert_numeric(x.drop_nulls(), arg_name = 'x')
+    build.assert_numeric(x, arg_name = 'x', any_missing = True)
 
     z = (x - x.min()) / (x.max() - x.min())
     if to_native: return z.to_native()
@@ -2290,7 +2356,8 @@ def min_max(x: Union[IntoSeriesT, pd.DataFrame], to_native: bool = True) -> Into
 def min_max_pandas(x: pd.DataFrame, to_native: bool = True) -> IntoSeriesT:
     build.assert_logical(to_native, arg_name = 'to_native')
 
-    z = (x - x.min()) / (x.max() - x.min())
+    z = (x - x.min(numeric_only = True)) / \
+        (x.max(numeric_only = True) - x.min(numeric_only = True))
 
     if to_native: return z
     return nw.from_native(z, allow_series = True)
@@ -2519,11 +2586,11 @@ def filtering_out(
             Input DataFrame. Any DataFrame-like object supported by narwhals
             (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
         *args (Union[str, List[str], narwhals.Expr, narwhals.Selector]):
-            Columns to relocate. Each element may be:
+            Columns or index to exclude. Each element may be:
             - a column name (`str`)
-            - a list of column names
-            - a narwhals expression
-            - a narwhals selector
+            - a list of column names or index
+            - a narwhals expression (for `axis = 'columns'`)
+            - a narwhals selector   (for `axis = 'columns'`)
             The order of columns specified here is preserved in the output.
         contains (str or None):
             Exclude labels that contain this substring.
@@ -2631,7 +2698,7 @@ def filtering_out(
         return data_nw
 
 
-# # パレート図を作図する関数
+# ## パレート図を作図する関数
 
 # In[ ]:
 
@@ -2826,7 +2893,7 @@ def make_Pareto_plot(
     ax2.yaxis.set_tick_params(labelsize = fontsize * 0.9);
 
 
-# ### 代表値 + 区間推定関数
+# ## 代表値 + 区間推定関数
 # 
 # ```python
 # import pandas as pd
@@ -2869,6 +2936,8 @@ interpolation_values = [
     ]
 
 
+# ### mean_qi 
+
 # In[ ]:
 
 
@@ -2906,6 +2975,20 @@ def mean_qi(
         AssertionError:
             If `width` is not in (0, 1).
     """
+    raise NotImplementedError(f'mean_qi mtethod for object {type(data)} is not implemented.')
+
+
+# In[ ]:
+
+
+@mean_qi.register(nw.DataFrame)
+@mean_qi.register(nw.typing.IntoDataFrame)
+def mean_qi_data_frame(
+    data: IntoFrameT,
+    width: float = 0.975,
+    interpolation: Interpolation = 'midpoint',
+    to_native: bool = True
+    ) -> pd.DataFrame:
     # 引数のアサーション =======================================================
     build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
     build.assert_logical(to_native, arg_name = 'to_native')
@@ -2914,49 +2997,48 @@ def mean_qi(
         values = interpolation_values
         )
     # =======================================================================
-
-    data_nw = nw.from_native(data, allow_series = True)
-    return mean_qi(
-        data_nw, interpolation = interpolation, 
-        width = width, to_native = to_native
-        )
-
-@mean_qi.register(nw.DataFrame)
-def mean_qi_data_frame(
-    data: IntoFrameT,
-    width: float = 0.975,
-    interpolation: Interpolation = 'midpoint',
-    to_native: bool = True
-    ) -> pd.DataFrame:
-
     df_numeric = nw.from_native(data).select(ncs.numeric())
 
     result = nw.from_dict({
         'variable': df_numeric.columns,
-        'mean': df_numeric.select(ncs.numeric().mean()).row(0),
+        'mean': df_numeric.select(nw.all().mean()).row(0),
         'lower': df_numeric.select(
-            ncs.numeric().quantile(1 - width, interpolation = interpolation)
+            nw.all().quantile(1 - width, interpolation = interpolation)
             ).row(0),
         'upper': df_numeric.select(
-            ncs.numeric().quantile(width, interpolation = interpolation)
+            nw.all().quantile(width, interpolation = interpolation)
             ).row(0)
         }, backend = df_numeric.implementation
         )
     if to_native: return result.to_native()
     return result
 
+
+# In[ ]:
+
+
 @mean_qi.register(nw.Series)
+@mean_qi.register(nw.typing.IntoSeries)
 def mean_qi_series(
     data: SeriesT,
     width: float = 0.975,
     interpolation: Interpolation = 'midpoint',
     to_native: bool = True
     ):
-
-    data_nw = nw.from_native(data, allow_series=True)
+    # 引数のアサーション =======================================================
+    build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
+    build.assert_logical(to_native, arg_name = 'to_native')
+    interpolation = build.arg_match(
+        interpolation, arg_name = 'interpolation',
+        values = interpolation_values
+        )
+    # =======================================================================
+    data_nw = nw.from_native(data, series_only = True)
+    if data_nw.name: variable = data_nw.name
+    else: variable = 'x'
 
     result = nw.from_dict({
-        'variable': [data_nw.name],
+        'variable': [variable],
         'mean': [data_nw.mean()],
         'lower': [data_nw.quantile(1 - width, interpolation = interpolation)],
         'upper': [data_nw.quantile(width, interpolation = interpolation)]
@@ -2965,6 +3047,8 @@ def mean_qi_series(
     if to_native: return result.to_native()
     return result
 
+
+# ### median_qi
 
 # In[ ]:
 
@@ -3003,6 +3087,20 @@ def median_qi(
         AssertionError:
             If `width` is not in (0, 1).
     """
+    raise NotImplementedError(f'median_qi mtethod for object {type(data)} is not implemented.')
+
+
+# In[ ]:
+
+
+@median_qi.register(nw.DataFrame)
+@median_qi.register(nw.typing.IntoDataFrame)
+def median_qi_data_frame(
+    data: IntoFrameT,
+    width: float = 0.975,
+    interpolation: Interpolation = 'midpoint',
+    to_native: bool = True
+) -> IntoFrameT:
     # 引数のアサーション =======================================================
     build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
     build.assert_logical(to_native, arg_name = 'to_native')
@@ -3012,47 +3110,46 @@ def median_qi(
         )
     # =======================================================================
 
-    data_nw = nw.from_native(data, allow_series = True)
-    return median_qi(
-        data_nw, interpolation = interpolation, 
-        width = width, to_native = to_native
-        )
-
-@median_qi.register(nw.DataFrame)
-def median_qi_data_frame(
-    data: IntoFrameT,
-    width: float = 0.975,
-    interpolation: Interpolation = 'midpoint',
-    to_native: bool = True
-) -> IntoFrameT:
-
     df_numeric = nw.from_native(data).select(ncs.numeric())
 
     result = nw.from_dict({
         'variable': df_numeric.columns,
-        'median': df_numeric.select(ncs.numeric().median()).row(0),
+        'median': df_numeric.select(nw.all().median()).row(0),
         'lower': df_numeric.select(
-            ncs.numeric().quantile(1 - width, interpolation = interpolation)
+            nw.all().quantile(1 - width, interpolation = interpolation)
             ).row(0),
         'upper': df_numeric.select(
-            ncs.numeric().quantile(width, interpolation = interpolation)
+            nw.all().quantile(width, interpolation = interpolation)
             ).row(0)
         }, backend = df_numeric.implementation
         )
     if to_native: return result.to_native()
     return result
 
+
 @median_qi.register(nw.Series)
+@median_qi.register(nw.typing.IntoSeries)
 def median_qi_series(
     data: IntoSeriesT,
     width: float = 0.975,
     interpolation: Interpolation = 'midpoint',
     to_native: bool = True
 ) -> IntoFrameT:
+    # 引数のアサーション =======================================================
+    build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
+    build.assert_logical(to_native, arg_name = 'to_native')
+    interpolation = build.arg_match(
+        interpolation, arg_name = 'interpolation',
+        values = interpolation_values
+        )
+    # =======================================================================
+
     data_nw = nw.from_native(data, allow_series=True)
+    if data_nw.name: variable = data_nw.name
+    else: variable = 'x'
 
     result = nw.from_dict({
-        'variable': [data_nw.name],
+        'variable': [variable],
         'median': [data_nw.median()],
         'lower': [data_nw.quantile(1 - width, interpolation = interpolation)],
         'upper': [data_nw.quantile(width, interpolation = interpolation)]
@@ -3061,6 +3158,8 @@ def median_qi_series(
     if to_native: return result.to_native()
     return result
 
+
+# ### mean_ci
 
 # In[ ]:
 
@@ -3102,23 +3201,23 @@ def mean_ci(
         Uses t critical value with df = n - 1:
         `t.isf((1 - width) / 2, df=n-1)`.
     """
-    # 引数のアサーション =======================================================
-    build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
-    build.assert_logical(to_native, arg_name = 'to_native')
-    # =======================================================================
+    raise NotImplementedError(f'mean_ci mtethod for object {type(data)} is not implemented.')
 
-    data_nw = nw.from_native(data, allow_series = True)
 
-    return mean_ci(
-        data_nw, width = width, to_native = to_native
-    )
+# In[ ]:
+
 
 @mean_ci.register(nw.DataFrame)
+@mean_ci.register(nw.typing.IntoDataFrame)
 def mean_ci_data_frame(
     data: IntoFrameT,
     width: float = 0.975,
     to_native: bool = True
 ) -> IntoFrameT:
+    # 引数のアサーション =======================================================
+    build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
+    build.assert_logical(to_native, arg_name = 'to_native')
+    # =======================================================================
     df_numeric = nw.from_native(data).select(ncs.numeric())
     n = len(df_numeric)
     t_alpha = t.isf((1 - width) / 2, df = n - 1)
@@ -3138,19 +3237,27 @@ def mean_ci_data_frame(
     return result
 
 @mean_ci.register(nw.Series)
+@mean_ci.register(nw.typing.IntoSeries)
 def mean_ci_series(
     data: SeriesT,
     width: float = 0.975,
     to_native: bool = True
 ) -> IntoFrameT:
+    # 引数のアサーション =======================================================
+    build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
+    build.assert_logical(to_native, arg_name = 'to_native')
+    # =======================================================================
     data_nw = nw.from_native(data, allow_series=True)
+    if data_nw.name: variable = data_nw.name
+    else: variable = 'x'
+
     n = len(data_nw)
     t_alpha = t.isf((1 - width) / 2, df = n - 1)
     x_mean = data_nw.mean()
     x_std = data_nw.std()
 
     result = nw.from_dict({
-        'variable': [data_nw.name],
+        'variable': [variable],
         'mean':[x_mean],
         'lower':[x_mean - t_alpha * x_std / np.sqrt(n)],
         'upper':[x_mean + t_alpha * x_std / np.sqrt(n)],
@@ -3613,160 +3720,162 @@ def set_miss(
     na_value: Any = None,
     to_native: bool = True
     ):
-  """Insert missing values into a Series.
+    """Insert missing values into a Series.
 
-  This function replaces a specified number or proportion of non-missing
-  elements in a Series with missing values. It supports multiple Series
-  backends via narwhals and is primarily intended for generating test data
-  or simulating missingness.
+    This function replaces a specified number or proportion of non-missing
+    elements in a Series with missing values. It supports multiple Series
+    backends via narwhals and is primarily intended for generating test data
+    or simulating missingness.
 
-  Exactly one of `n` or `prop` must be specified.
+    Exactly one of `n` or `prop` must be specified.
 
-  Args:
-      x (IntoSeriesT):
-          Input Series. Any Series-like object supported by narwhals
-          (e.g., pandas.Series, polars.Series, pyarrow.ChunkedArray)
-          can be used.
-      n (int, optional):
-          Target number of missing values in the Series after processing.
-          If the Series already contains `n` or more missing values,
-          no additional missing values are added and a warning is issued.
-      prop (float, optional):
-          Target proportion of missing values in the Series after processing.
-          Must be between 0 and 1. If the current proportion of missing
-          values is greater than or equal to `prop`, no additional missing
-          values are added and a warning is issued.
-      method ({'random', 'first', 'last'}, optional):
-          Strategy for selecting elements to be replaced with missing values.
-          - ``'random'``: randomly select non-missing elements.
-          - ``'first'``: select from the beginning of the Series.
-          - ``'last'``: select from the end of the Series.
-          Defaults to ``'random'``.
-      random_state (int, optional):
-          Random seed used when ``method='random'`` to ensure reproducibility.
-      na_value (Any, optional):
-          Value used to represent missing data. Defaults to ``None``.
-        to_native (bool, optional):
-            If True, return the result as a native Series class of 'x'.
-            If False, return a `narwhals.Series`.
+    Args:
+    x (IntoSeriesT):
+        Input Series. Any Series-like object supported by narwhals
+        (e.g., pandas.Series, polars.Series, pyarrow.ChunkedArray)
+        can be used.
+    n (int, optional):
+        Target number of missing values in the Series after processing.
+        If the Series already contains `n` or more missing values,
+        no additional missing values are added and a warning is issued.
+    prop (float, optional):
+        Target proportion of missing values in the Series after processing.
+        Must be between 0 and 1. If the current proportion of missing
+        values is greater than or equal to `prop`, no additional missing
+        values are added and a warning is issued.
+    method ({'random', 'first', 'last'}, optional):
+        Strategy for selecting elements to be replaced with missing values.
+        - ``'random'``: randomly select non-missing elements.
+        - ``'first'``: select from the beginning of the Series.
+        - ``'last'``: select from the end of the Series.
+        Defaults to ``'random'``.
+    random_state (int, optional):
+        Random seed used when ``method='random'`` to ensure reproducibility.
+    na_value (Any, optional):
+        Value used to represent missing data. Defaults to ``None``.
+    to_native (bool, optional):
+        If True, return the result as a native Series class of 'x'.
+        If False, return a `narwhals.Series`.
 
-  Returns:
-      IntoSeriesT or narwhals.Series:
-          Series with additional missing values inserted. The return type
-          depends on the value of ``to_native``.
+    Returns:
+    IntoSeriesT or narwhals.Series:
+        Series with additional missing values inserted. The return type
+        depends on the value of ``to_native``.
 
-  Raises:
-      ValueError:
-          If neither or both of `n` and `prop` are specified.
+    Raises:
+    ValueError:
+        If neither or both of `n` and `prop` are specified.
 
-  Warns:
-      UserWarning:
-          If the input Series already contains the specified number or
-          proportion of missing values and no additional missing values
-          are added.
+    Warns:
+    UserWarning:
+        If the input Series already contains the specified number or
+        proportion of missing values and no additional missing values
+        are added.
 
-  Examples:
-      >>> import pandas as pd
-      >>> import py4stats as py4st
-      >>> s = pd.Series([1, 2, 3, 4, 5])
-      >>> py4st.set_miss(s, n=2, method='first')
-      0    NaN
-      1    NaN
-      2    3.0
-      3    4.0
-      4    5.0
-      dtype: float64
+    Examples:
+    >>> import pandas as pd
+    >>> import py4stats as py4st
+    >>> s = pd.Series([1, 2, 3, 4, 5])
+    >>> py4st.set_miss(s, n=2, method='first')
+    0    NaN
+    1    NaN
+    2    3.0
+    3    4.0
+    4    5.0
+    dtype: float64
 
-      >>> py4st.set_miss(s, prop=0.4, method='random', random_state=0)
-      0    1.0
-      1    NaN
-      2    3.0
-      3    NaN
-      4    5.0
-      dtype: float64
-  """
-  x_nw = nw.from_native(x, series_only = True)
+    >>> py4st.set_miss(s, prop=0.4, method='random', random_state=0)
+    0    1.0
+    1    NaN
+    2    3.0
+    3    NaN
+    4    5.0
+    dtype: float64
+    """
+    x_nw = nw.from_native(x, series_only = True)
 
-  # 引数のアサーション ==================================================================
-  if not((n is not None) ^ (prop is not None)):
-    raise ValueError("Exactly one of `n` and `prop` must be specified.")
+    # 引数のアサーション ==================================================================
+    if not((n is not None) ^ (prop is not None)):
+        raise ValueError("Exactly one of `n` and `prop` must be specified.")
 
-  build.assert_logical(to_native, arg_name = 'to_native')
+    build.assert_logical(to_native, arg_name = 'to_native')
 
-  n_miss = x_nw.null_count()
-  p_miss = n_miss / x_nw.shape[0]
+    n_miss = x_nw.null_count()
+    p_miss = n_miss / x_nw.shape[0]
 
-  method = build.arg_match(
+    method = build.arg_match(
     method, arg_name = 'method',
     values = ['random', 'first', 'last']
     )
-  build.assert_count(
-     n, arg_name = 'n',
-     lower = 0, upper = len(x), 
-     nullable = True, scalar_only = True
-     )
-  build.assert_numeric(
-     prop, arg_name = 'prop',
-     lower = 0, upper = 1, 
-     nullable = True, scalar_only = True
-     )
+    build.assert_count(
+    n, arg_name = 'n',
+    lower = 0, upper = len(x), 
+    nullable = True, scalar_only = True
+    )
+    build.assert_numeric(
+    prop, arg_name = 'prop',
+    lower = 0, upper = 1, 
+    nullable = True, scalar_only = True
+    )
 
-  # 欠測値代入個数の計算 =================================================================
-  idx = pd.Series(np.arange(len(x_nw)))
-  non_miss = idx[~build.is_missing(x_nw)]
+    # 欠測値代入個数の計算 =================================================================
+    idx = pd.Series(np.arange(len(x_nw)))
+    non_miss = idx[~build.is_missing(x_nw)]
 
-  if n is not None: 
-    n_to_miss = np.max([n - n_miss, 0])
+    if n is not None: 
+        n_to_miss = np.max([n - n_miss, 0])
 
-    if n_to_miss <=0:
-      warnings.warn(
-         f"Already contained {n_miss}(>= n) missing value(s) in `x`, "
-        "no additional missing values were added.",
-        category = UserWarning,
-        stacklevel = 2
-      )
-      if to_native: return x_nw.to_native()
-      return x_nw
+        if n_to_miss <=0:
+            warnings.warn(
+                f"Already contained {n_miss}(>= n) missing value(s) in `x`, "
+            "no additional missing values were added.",
+            category = UserWarning,
+            stacklevel = 2
+            )
+            if to_native: return x_nw.to_native()
+            return x_nw
 
-  elif prop is not None: 
-    n_non_miss = non_miss.shape[0]
+    elif prop is not None: 
+        n_non_miss = non_miss.shape[0]
 
-    n_to_miss = int(np.max([
+        n_to_miss = int(np.max([
         np.ceil(n_non_miss * (prop - p_miss)), 0
-      ]))
+        ]))
 
-    if prop <= p_miss:
-      warnings.warn(
-        f"Already contained {p_miss:.3f}(>= prop) missing value(s) in `x`, "
-        "no additional missing values were added.",
-        category = UserWarning,
-        stacklevel = 2
-      )
-      if to_native: return x_nw.to_native()
-      return x_nw
+        if prop <= p_miss:
+            warnings.warn(
+            f"Already contained {p_miss:.3f}(>= prop) missing value(s) in `x`, "
+            "no additional missing values were added.",
+            category = UserWarning,
+            stacklevel = 2
+            )
+            if to_native: return x_nw.to_native()
+            return x_nw
 
-  # 欠測値代入位置の決定 =====================================================================
+    # 欠測値代入位置の決定 =====================================================================
 
-  match method:
-    case 'random':
-        index_to_na = non_miss.sample(n = n_to_miss, random_state = random_state)
-    case 'first':
-        index_to_na = non_miss.head(n_to_miss)
-    case 'last':
-        index_to_na = non_miss.tail(n_to_miss)
+    match method:
+        case 'random':
+            index_to_na = non_miss.sample(n = n_to_miss, random_state = random_state)
+        case 'first':
+            index_to_na = non_miss.head(n_to_miss)
+        case 'last':
+            index_to_na = non_miss.tail(n_to_miss)
+    # 欠測値の代入と結果の出力 ===================================================================
+    x_with_na = [na_value if i in index_to_na else v 
+            for i, v in enumerate(x_nw)]
 
-  # 欠測値の代入と結果の出力 ===================================================================
-  x_with_na = [na_value if i in index_to_na else v 
-               for i, v in enumerate(x_nw)]
+    result = nw.Series.from_iterable(
+        name = x_nw.name,
+        values = x_with_na,
+        backend = x_nw.implementation
+    )
+    if not to_native: return result
 
-  result = nw.Series.from_iterable(
-      name = x_nw.name,
-      values = x_with_na,
-      backend = x_nw.implementation
-  )
-
-  if to_native: return result.to_native()
-  return result
+    result_native = nw.to_native(result)
+    if x_nw.implementation.is_pandas_like():
+        result_native.index = x.index
+    return result_native
 
 
 # # `relocate()`
@@ -3922,23 +4031,7 @@ def relocate(
     """
     # 引数のアサーション ======================================
     build.assert_logical(to_native, arg_name = 'to_native')
-    _assert_selectors(*args, nullable = True)
-
-    # is_varid = [
-    #     isinstance(v, str) or
-    #     (build.is_character(v) and isinstance(v, list)) or
-    #     isinstance(v, nw.expr.Expr) or
-    #     isinstance(v, nw.selectors.Selector)
-    #     for v in args
-    #     ]
-
-    # if not all(is_varid):
-    #     invalids = [v for i, v in enumerate(args) if not is_varid[i]]
-    #     message = "Argument `*args` must be of type 'str', list of 'str', 'narwhals.Expr' or 'narwhals.Selector'\n"\
-    #     + f"            The value(s) of {build.oxford_comma_and(invalids)} cannot be accepted.\n"\
-    #     + "            Examples of valid inputs: 'x', ['x', 'y'], ncs.numeric(), nw.col('x')"
-
-    #     raise ValueError(message)
+    _assert_selectors(*args)
 
     build.assert_character(before, arg_name = 'before', nullable = True, scalar_only = True)
     build.assert_character(after, arg_name = 'after', nullable = True, scalar_only = True)
@@ -4246,4 +4339,290 @@ def plot_category(
         show_vline = show_vline,
         ax = ax
     )
+
+
+# ### `review_wrangling()`
+
+# In[ ]:
+
+
+def list_minus(x, y):
+    return [v for v in x if v not in y]
+
+
+# In[ ]:
+
+
+def review_casting(before: IntoFrameT, after: IntoFrameT) -> str:
+    res_compare = compare_df_cols(
+        [before, after], return_match = 'mismatch', 
+        to_native = False
+        ).drop_nulls()
+
+    name_w = res_compare.select(
+        len = nw.col("term").str.len_chars()
+        )['len'].max()
+
+    if build.length(res_compare) >= 1:
+        col_cast = [
+            f"  {row[0]:<{name_w}} {row[1]} -> {row[2]}"
+            for row in res_compare.iter_rows()
+            ]
+        cast_message = f'The following columns have changed their type:\n{"\n".join(col_cast)}'
+    else: 
+        cast_message = 'No existing columns had their type changed.'
+    return cast_message
+
+
+# In[ ]:
+
+
+def review_col_addition(columns_before, columns_after) -> str:
+    added = list_minus(columns_after, columns_before)
+    removed = list_minus(columns_before, columns_after)
+    if added or removed:
+        col_adition = []
+        if added:
+            col_adition += [f"Column(s) {build.oxford_comma_and(added)} were added."]
+        else:
+            col_adition += ['No columns were added. ']
+        if removed:
+            col_adition += [f"Column(s) {build.oxford_comma_and(removed)} were removed."]
+        else:
+            col_adition += ['No columns were removed.']
+
+        return '\n'.join(col_adition)
+    else: return 'No columns were added or removed.'
+
+
+
+# In[ ]:
+
+
+def format_missing_lines(miss_table):
+    rows_list = [
+        dict(zip(miss_table.columns, row)) 
+        for row in miss_table.iter_rows()
+        ]
+
+    names = [f"  {row.get('columns')} " for row in rows_list]
+    name_w = max(len(n) for n in names)  # 列名の表示幅
+    # 欠測数の表示幅
+    count_w = len(str(max(max(
+            row.get('missing_count'), 
+            row.get('missing_count_after')
+            ) for row in rows_list
+            ))) 
+    # 欠測率の表示幅
+    pct_w = len(f"{(max(max(
+        row.get('missing_percent'), 
+        row.get('missing_percent_after')
+        ) for row in rows_list
+        )):.2f}") 
+
+    col_miss = []
+    for i, row in enumerate(rows_list):
+        c_before, p_before = row.get('missing_count'), row.get('missing_percent')
+        c_after, p_after = row.get('missing_count_after'), row.get('missing_percent_after')
+        col_miss += [
+                f"{names[i]:<{name_w}} before {c_before:>{count_w}} ({p_before:>{pct_w}.2f}%) " +\
+                f"-> after {c_after:>{count_w}} ({p_after:>{pct_w}.2f}%)"
+                ]
+    return col_miss
+
+
+# In[ ]:
+
+
+def review_missing(before: IntoFrameT, after: IntoFrameT) -> str:
+    compare_miss = diagnose(before, to_native = False)\
+        .select('columns', 'missing_count', 'missing_percent')\
+        .join(
+            diagnose(after, to_native = False)\
+            .select('columns', 'missing_count', 'missing_percent'),
+            on = 'columns', suffix = "_after"
+            )
+
+    increased = compare_miss.filter(
+        nw.col('missing_percent') < nw.col('missing_percent_after')
+    )
+    decreased = compare_miss.filter(
+        nw.col('missing_percent') > nw.col('missing_percent_after')
+    )
+    if build.length(increased) == 0 and build.length(decreased) == 0:
+        return 'No existing columns decreased the number of missing values.'
+
+    # return increased, decreased
+    miss_review = []
+    if build.length(increased) >= 1:
+        col_miss = format_missing_lines(increased)
+        miss_review += [f'Increase in missing values:\n{"\n".join(col_miss)}']
+    else: 
+        miss_review += ['No existing columns increased the number of missing values.']
+
+    if build.length(decreased) >= 1:
+        col_miss = format_missing_lines(decreased)
+        miss_review += [f'Decrease in missing values:\n{"\n".join(col_miss)}']
+    else: 
+        miss_review += ['None of the existing columns decreases in the number of missing values.']
+    result = '\n\n'.join(miss_review)
+    return result
+
+
+# In[ ]:
+
+
+def shape_change(before: int, after: int) -> str:
+    if after > before: return f" (+{after - before:,})"
+    if after < before: return f" ({after - before:,})"
+    return f" (No change)"
+
+
+# In[ ]:
+
+
+def review_shape(before: IntoFrameT, after: IntoFrameT) -> str:
+    row_o, col_o = before.shape
+    row_n, col_n = after.shape
+    d_o = len(str(np.max([row_o, col_o])))
+    d_n = len(str(np.max([row_n, col_n])))
+
+    shpe_message = f"The shape of DataFrame:\n" + \
+                f"   Rows: before {row_o:>{d_o},} -> after {row_n:>{d_n},}{shape_change(row_o, row_n)}\n" + \
+                f"   Cols: before {col_o:>{d_o},} -> after {col_n:>{d_n},}{shape_change(col_o, col_n)}"
+    return shpe_message
+
+
+# In[ ]:
+
+
+def review_category(before: IntoFrameT, after: IntoFrameT) -> str:
+    before_nw = nw.from_native(before)
+    after_nw  = nw.from_native(after)
+
+    cols1 = before_nw.select(ncs.string(), ncs.categorical(), ncs.boolean()).columns
+    cols2 = after_nw.select(ncs.string(), ncs.categorical(), ncs.boolean()).columns
+    cols_compare = [c for c in cols1 if c in cols2]
+
+    change_category = ['The following columns show changes in categories:']
+
+    for col in cols_compare:
+        unique_before = before_nw[col].unique().to_list()
+        unique_after = after_nw[col].unique().to_list()
+
+        added = list_minus(unique_after, unique_before)
+        removed = list_minus(unique_before, unique_after)
+
+        if added or removed:
+            change_category += [f"  {col}:"]
+            if added:
+                change_category += [f"    addition: {build.oxford_comma_and(added)}"]
+            else:
+                change_category += [f"    addition:  None"]
+            if removed:
+                change_category += [f"    removal:  {build.oxford_comma_and(removed)}"]
+            else:
+                change_category += [f"    removal:   None"]
+    if len(change_category) > 1:
+        return '\n'.join(change_category)
+    else: return 'No columns had categories added or removed.'
+
+
+# In[ ]:
+
+
+import math
+def make_header(text: str, title: str) -> str:
+    max_len = np.max([len(s) for s in text.split('\n')])
+    len_header = math.ceil(max_len / 2.) * 2
+    return title.center(len_header, '=')
+
+
+# In[ ]:
+
+
+def review_wrangling(
+        before: IntoFrameT, 
+        after: IntoFrameT, 
+        title: str = 'Review of wrangling'
+        ) -> str:
+    """Review and summarize differences introduced by data wrangling.
+
+    This function compares two DataFrame-like objects representing the state
+    of a dataset before and after wrangling, and returns a human-readable
+    review report as a formatted string.
+
+    The review includes the following aspects:
+      - Changes in the shape of the DataFrame (rows and columns).
+      - Added and removed columns.
+      - Changes in column data types.
+      - Increases and decreases in the proportion of missing values.
+      - Increase and decrease in levels of categorical variables.
+
+    The output is formatted with a header and footer for readability and is
+    intended for inspection in interactive sessions (e.g. notebooks) or
+    logging during exploratory data analysis.
+
+    Internally, the function uses `narwhals` to support multiple DataFrame
+    backends (e.g. pandas, polars), while type comparison relies on the
+    original input objects.
+
+    Args:
+        before (IntoFrameT):
+            The original DataFrame before wrangling. 
+            Any DataFrame-like object supported by narwhals
+            (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
+        after (IntoFrameT):
+            The DataFrame after wrangling.
+        title (str, optional):
+            The title of the output review text. 
+            If a non-empty string is specified, a header and footer will be added 
+            alongside the title.
+
+    Returns:
+        str:
+            A formatted, multi-line string summarizing the differences between
+            `before` and `after`.
+
+    Raises:
+        ValueError:
+        This function assumes that `before` and `after` use the same DataFrame
+        backend (e.g. both pandas or both polars). Mixing different backends
+        is not supported and will raise an error.
+
+    Examples:
+        >>> print(py4st.review_wrangling(before, after))
+        ============ Review of wrangling ============
+        The shape of DataFrame:
+           Rows: before 344 -> after 333 (-11)
+           Cols: before 8 -> after 9 (+1)
+        ...
+        ==============================================
+    """
+    build.assert_character(title, arg_name = 'title', len_arg = 1)
+
+    before_nw = nw.from_native(before)
+    after_nw = nw.from_native(after)
+
+    if before_nw.implementation is not after_nw.implementation:
+        raise TypeError(
+             "review_wrangling() requires `before` and `after` to use the same backend.\n"
+            f"Got before={before_nw.implementation!r}, after={after_nw.implementation!r}.\n"
+            "Please make sure that  `before` and `after` are the same backend (e.g., both pandas, both polars)."
+        )
+
+    review = []
+    review += [review_shape(before_nw, after_nw)]
+    review += [review_col_addition(before_nw.columns, after_nw.columns)]
+    review += [review_casting(before, after)]
+    review += [review_missing(before_nw, after_nw)]
+    review += [review_category(before_nw, after_nw)]
+
+    result = '\n\n'.join(review)
+    # ヘッダーとフッターの追加
+    if title:
+        result = f"{make_header(result, f' {title} ')}\n{result}"
+        result = f"{result}\n{make_header(result, '=')}"
+
+    return result
 

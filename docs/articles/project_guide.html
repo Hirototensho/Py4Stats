@@ -233,7 +233,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/compare_group_stats.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">compare_group_means, _median, plot_mean_diff, _median_diff</span></a>
+  <a href="../man/review_wrangling.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">review_wrangling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/compare_group_stats.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">compare_group_means, _median<br> plot_mean_diff, _median_diff</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -451,6 +456,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#デザインパターン" id="toc-デザインパターン" class="nav-link" data-scroll-target="#デザインパターン">デザインパターン</a>
   <ul class="collapse">
   <li><a href="#引数のアサーション" id="toc-引数のアサーション" class="nav-link" data-scroll-target="#引数のアサーション">引数のアサーション</a></li>
+  <li><a href="#narwhals-が受け入れ可能な互換オブジェクトに-singledispatch-する方法" id="toc-narwhals-が受け入れ可能な互換オブジェクトに-singledispatch-する方法" class="nav-link" data-scroll-target="#narwhals-が受け入れ可能な互換オブジェクトに-singledispatch-する方法">narwhals が受け入れ可能な互換オブジェクトに <code>singledispatch</code> する方法</a></li>
+  </ul></li>
+  <li><a href="#総称関数の実装に関する覚書" id="toc-総称関数の実装に関する覚書" class="nav-link" data-scroll-target="#総称関数の実装に関する覚書">総称関数の実装に関する覚書</a>
+  <ul class="collapse">
+  <li><a href="#総称関数に登録されたメソッドの確認" id="toc-総称関数に登録されたメソッドの確認" class="nav-link" data-scroll-target="#総称関数に登録されたメソッドの確認">総称関数に登録されたメソッドの確認</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/main/articles/project_guide.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></nav>
@@ -578,8 +588,106 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>build.assert_integer(arg, arg_name <span class="op">=</span> <span class="st">'arg'</span>)   <span class="co"># 整数値(int)</span></span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>build.assert_count(arg, arg_name <span class="op">=</span> <span class="st">'arg'</span>)     <span class="co"># 非負整数値(int)</span></span>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>build.assert_float(arg, arg_name <span class="op">=</span> <span class="st">'arg'</span>)     <span class="co"># フロート値(float)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="narwhals-が受け入れ可能な互換オブジェクトに-singledispatch-する方法" class="level3">
+<h3 class="anchored" data-anchor-id="narwhals-が受け入れ可能な互換オブジェクトに-singledispatch-する方法">narwhals が受け入れ可能な互換オブジェクトに <code>singledispatch</code> する方法</h3>
+<section id="結論" class="level4">
+<h4 class="anchored" data-anchor-id="結論">結論</h4>
+<ul>
+<li>DataFrame の場合 <code>@foo.register(nw.typing.IntoDataFrame)</code> を使う</li>
+<li>Series の場合 <code>@foo.register(nw.typing.IntoSeries)</code> を使う</li>
+</ul>
+</section>
+<section id="詳細" class="level4">
+<h4 class="anchored" data-anchor-id="詳細">詳細</h4>
+<p><code>functools.singledispatch</code> を使って総称関数を定義する場合、<code>@singledispatch</code> デコレータで総称関数を定義したあと、<code>@foo.register(Class)</code> デコレータでクラス毎のメソッド関数を定義します。</p>
+<p>narwhals が受け入れ可能な DataFrame 互換オブジェクトに対するメソッドを定義する場合には、<code>nw.typing.IntoDataFrame</code> を使い、Series 互換オブジェクトに対するメソッドを定義する場合には <code>nw.typing.IntoSeries</code> を使います。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 実装例</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> narwhals <span class="im">as</span> nw</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> functools <span class="im">import</span> singledispatch</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="at">@singledispatch</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> foo(x):</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="st">'I am some object'</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="at">@foo.register</span>(nw.typing.IntoDataFrame)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> foo_df(x):</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span>  <span class="st">'I am a DataFrame'</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="at">@foo.register</span>(nw.typing.IntoSeries)</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> foo_s(x):</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="st">'I am a Series'</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 動作例</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pyarrow <span class="im">as</span> pa</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>data_pd <span class="op">=</span> pd.DataFrame({<span class="st">'x'</span>:[<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>], <span class="st">'y'</span>:[<span class="st">'a'</span>, <span class="st">'b'</span>, <span class="st">'c'</span>]})</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>data_pl <span class="op">=</span> pl.from_pandas(data_pd)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>data_pa <span class="op">=</span> pa.Table.from_pandas(data_pd)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>data_nw <span class="op">=</span> nw.from_native(data_pd)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>data_dict <span class="op">=</span> {</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">'df_pd'</span> :data_pd, <span class="st">'df_pl'</span> :data_pl, <span class="st">'df_pa'</span> :data_pa, <span class="st">'df_nw'</span> :data_nw,</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">'s_pd'</span> :data_pd[<span class="st">'x'</span>], <span class="st">'s_pl'</span> :data_pl[<span class="st">'x'</span>], <span class="st">'s_pa'</span> :data_pa[<span class="st">'x'</span>], <span class="st">'s_nw'</span>:data_nw[<span class="st">'x'</span>],</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">'int'</span>: <span class="dv">1</span> </span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>[<span class="ss">f"</span><span class="sc">{</span>k<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>foo(x)<span class="sc">}</span><span class="ss">"</span> <span class="cf">for</span> k, x <span class="kw">in</span> <span class="bu">zip</span>(data_dict.keys(), data_dict.values())]</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ["df_pd: 'I am a DataFrame'",</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  "df_pl: 'I am a DataFrame'",</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  "df_pa: 'I am a DataFrame'",</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  "df_nw: 'I am a DataFrame'",</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  "s_pd: 'I am a Series'",</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  "s_pl: 'I am a Series'",</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  "s_pa: 'I am a Series'",</span></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  "s_nw: 'I am a Series'",</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  "int: 'I am some object'"]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+</section>
+<section id="総称関数の実装に関する覚書" class="level2">
+<h2 class="anchored" data-anchor-id="総称関数の実装に関する覚書">総称関数の実装に関する覚書</h2>
+<section id="総称関数に登録されたメソッドの確認" class="level3">
+<h3 class="anchored" data-anchor-id="総称関数に登録されたメソッドの確認">総称関数に登録されたメソッドの確認</h3>
+<section id="結論-1" class="level4">
+<h4 class="anchored" data-anchor-id="結論-1">結論</h4>
+<ul>
+<li>ある関数に登録されたメソッド全体を確認するには <code>foo.registry</code> を使い</li>
+<li>ある関数に登録された特定のクラスのメソッドを確認するには <code>foo.dispatch(Class)</code> を使います</li>
+</ul>
+</section>
+<section id="詳細-1" class="level4">
+<h4 class="anchored" data-anchor-id="詳細-1">詳細</h4>
+<p>ある総称関数に、どのようなメソッドが登録されているかは、<code>.registry</code> 属性で確認することができます。<code>.registry</code> は <code>{型: 実装関数}</code> の辞書であり、<code>object</code> クラスはデフォルト実装に対応しています。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> py4stats <span class="im">as</span> py4st</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>registry <span class="op">=</span> py4st.is_dummy.registry</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(pd.Series(registry).<span class="bu">apply</span>(<span class="kw">lambda</span> x: x.<span class="va">__name__</span>))</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;class 'object'&gt;                                         is_dummy</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;class 'narwhals._native.NativeSeries'&gt;           is_dummy_series</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;class 'narwhals.series.Series'&gt;                  is_dummy_series</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;class 'narwhals._native.NativeDataFrame'&gt;    is_dummy_data_frame</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;class 'narwhals.dataframe.DataFrame'&gt;        is_dummy_data_frame</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;class 'tuple'&gt;                                     is_dummy_list</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;class 'list'&gt;                                      is_dummy_list</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; dtype: object</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>また、<code>.dispatch(Class)</code> メソッドで特定のオブジェクトクラスに対して実装されたメソッド関数を確認することができます。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(py4st.is_dummy.dispatch(pd.DataFrame).<span class="va">__name__</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; is_dummy_data_frame</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(py4st.is_dummy.dispatch(pd.Series).<span class="va">__name__</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; is_dummy_series</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(py4st.is_dummy.dispatch(<span class="bu">list</span>).<span class="va">__name__</span>)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; is_dummy_list</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(py4st.is_dummy.dispatch(<span class="bu">int</span>).<span class="va">__name__</span>) <span class="co"># デフォルト実装</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; is_dummy</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 
 
+</section>
 </section>
 </section>
 

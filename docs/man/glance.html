@@ -233,7 +233,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/compare_group_stats.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">compare_group_means, _median, plot_mean_diff, _median_diff</span></a>
+  <a href="../man/review_wrangling.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">review_wrangling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/compare_group_stats.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">compare_group_means, _median<br> plot_mean_diff, _median_diff</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -515,8 +520,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="注意点" class="level2">
 <h2 class="anchored" data-anchor-id="注意点">注意点</h2>
-<p>　参考にしたR言語の <a href="https://broom.tidymodels.org/reference/glance.lm.html"><code>bloom::glance()</code></a> は様々な種類のモデルに対応したジェネリック関数として定義されていますが、<code>py4st.glance()</code> は現段階では限られたモデルにしか対応していません。<code>py4st.glance()</code> のメソッドが定義されているオブジェクトのクラスを確認するには次のコードを実行して下さい。</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="bu">list</span>(py4st.glance.registry.keys())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>参考にしたR言語の <a href="https://broom.tidymodels.org/reference/glance.lm.html"><code>bloom::glance()</code></a> は様々な種類のモデルに対応したジェネリック関数として定義されていますが、<code>py4st.glance()</code> は現段階では限られたモデルにしか対応していません。<code>py4st.glance()</code> のメソッドが定義されているオブジェクトのクラスを確認するには次のコードを実行して下さい。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> py4stats <span class="im">as</span> py4st</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="bu">list</span>(py4st.glance.registry.keys())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <hr>
 <p><a href="../reference.html">Return to <strong>Function reference</strong>.</a></p>
 

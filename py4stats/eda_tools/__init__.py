@@ -28,10 +28,12 @@ from ._nw import (
     median_qi,
     min_max,
     missing_percent,
+    normalized_entropy,
     plot_category,
     plot_mean_diff,
     plot_median_diff,
     plot_miss_var,
+    review_wrangling,
     scale,
     set_miss,
     relocate,
@@ -128,10 +130,11 @@ __all__ = [
     'plot_median_diff',
     'remove_constant',
     'remove_empty',
-    # 'set_n_miss',
+    # 'set_miss',
     # 'set_prop_miss',
+    'review_wrangling'
     'singledispatch',
-    'std_entropy',
+    'normalized_entropy',
     'tabyl',
     'weighted_mean'
     ]

@@ -233,7 +233,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/compare_group_stats.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">compare_group_means, _median, plot_mean_diff, _median_diff</span></a>
+  <a href="../man/review_wrangling.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">review_wrangling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/compare_group_stats.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">compare_group_means, _median<br> plot_mean_diff, _median_diff</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -447,7 +452,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#引数-argument" id="toc-引数-argument" class="nav-link" data-scroll-target="#引数-argument">引数 Argument</a></li>
   <li><a href="#使用例-examples" id="toc-使用例-examples" class="nav-link" data-scroll-target="#使用例-examples">使用例 Examples</a></li>
   <li><a href="#補足" id="toc-補足" class="nav-link" data-scroll-target="#補足">補足</a></li>
-  <li><a href="#参照-see-also" id="toc-参照-see-also" class="nav-link" data-scroll-target="#参照-see-also">参照 see also</a></li>
+  <li><a href="#参考-see-also" id="toc-参考-see-also" class="nav-link" data-scroll-target="#参考-see-also">参考 see also</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/main/man/compare_ols.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></nav>
     </div>
@@ -976,11 +981,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="補足" class="level2">
 <h2 class="anchored" data-anchor-id="補足">補足</h2>
-<p>　　<code>table_style = 'two_line'</code> としたとき、初期設定ではの回帰係数とp-値の間に改行記号 <code>'\n'</code>が挿入されます。<code>そのため、print()</code> 関数や <code>display()</code> 関数を使った出力では、改行記号 <code>'\n'</code> がそのまま表示されます。この場合でも、<a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_excel.html"><code>pd.DataFrame.to_excel()</code></a> や <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_markdown.html"><code>pd.DataFrame.to_markdown()</code></a> を使って Excel ファイルや markdown の表に変換していただくと、改行として反映されます。</p>
+<p><code>table_style = 'two_line'</code> としたとき、初期設定ではの回帰係数とp-値の間に改行記号 <code>'\n'</code>が挿入されます。<code>そのため、print()</code> 関数や <code>display()</code> 関数を使った出力では、改行記号 <code>'\n'</code> がそのまま表示されます。この場合でも、<a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_excel.html"><code>pd.DataFrame.to_excel()</code></a> や <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_markdown.html"><code>pd.DataFrame.to_markdown()</code></a> を使って Excel ファイルや markdown の表に変換していただくと、改行として反映されます。</p>
 </section>
-<section id="参照-see-also" class="level2">
-<h2 class="anchored" data-anchor-id="参照-see-also">参照 see also</h2>
-<p>　一般化線形モデルの限界効果を比較する場合は <a href="../man/compare_mfx.html"><code>py4stats.compare_mfx()</code></a>をご利用ください。</p>
+<section id="参考-see-also" class="level2">
+<h2 class="anchored" data-anchor-id="参考-see-also">参考 see also</h2>
+<p>一般化線形モデルの限界効果を比較する場合は <a href="../man/compare_mfx.html"><code>py4stats.compare_mfx()</code></a>をご利用ください。</p>
 <hr>
 <p><a href="../reference.html">Return to <strong>Function reference</strong>.</a></p>
 

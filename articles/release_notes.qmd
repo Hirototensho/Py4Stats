@@ -1,5 +1,24 @@
 # Release Notes
 
+## Py4Stats v0.4.0 2026-01-27
+
+### 概要（Summary）
+
+このリリースでは `review_wrangling()` 関数を追加し、既存関数のリファクタリングとバグ修正を行いました。
+
+### ✨ 主な新機能 （New Features）
+
+- [`review_wrangling()`](../man/review_wrangling.qmd) 関数の追加
+  - データ前処理（wrangling）による変更点をレビュー形式で要約して、文字列として出力する関数です。
+
+### 🛠 修正と改善（Fixes /Improvements）
+
+- [`relocate()`](../man/relocate.qmd): `*args` 引数が未指定であった場合のエラーメッセージを改善しました。
+- [`is_dummy()`](../man/is_dummy.qmd): `data` 引数に list を代入した場合でも  `dropna = True` が正しく機能するように修正しました。
+- [`mean_qi(), median_qi(), mean_ci()`](../man/point_range.qmd), [`scale(), min_max()`](../man/scale_wmean.qmd)
+  - 関数のリファクタリングを実施し、メソッドが未実装のオブジェクトを代入したときのエラーメッセージを改善しました。
+- [`set_miss()`](../man/set_miss.qmd): pd.DataFram に使用した場合、欠測率が `prop` で指定した値より高くなる現象を修正しました。
+
 ##  Py4Stats v0.3.0 2026-01-23
 
 ###  概要（Summary）

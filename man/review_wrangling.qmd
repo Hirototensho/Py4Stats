@@ -1,0 +1,131 @@
+# review_wrangling
+
+データ前処理（wrangling）による変更点をレビュー形式で要約して、文字列として出力する関数です。
+
+## 概要
+
+この関数は、前処理の前後（before / after）の DataFrame（相当）を比較し、変更点をユーザーが読みやすいレポート文字列として返します。
+
+``` python
+review_wrangling(
+    before: IntoFrameT, 
+    after: IntoFrameT, 
+    title: str = 'Review of wrangling'
+    ) -> str:
+```
+
+## 引数 Argument
+
+- `before`：**IntoFrameT**（必須）<br>
+  前処理（wrangling）を行う前のデータフレーム。narwhals が受け入れ可能な DataFrame 互換オブジェクト<br>
+  （例：`pandas.DataFrame`、`polars.DataFrame`、`pyarrow.Table`）を指定できます。
+- `after`：**IntoFrameT**（必須）<br>
+  前処理（wrangling）を行った後のデータフレーム。
+- `title`：**str**（必須）<br>
+    出力されるレビューテキストのタイトル。空でない文字列を指定した場合、タイトルとともにヘッダーとフッターが追加されます。
+
+## 返り値 Value
+
+`before` と `after` の差分を要約した、整形済みの複数行文字列。レビューに含まれる主な項目は次のとおりです。
+
+- データフレームの形状（行数・列数）の変化
+- 列の追加・削除
+- 既存列のデータ型（dtype）の変化
+- 欠測値の増加・減少
+- カテゴリー変数における水準の増加・減少
+
+## 使用例 Examples
+
+``` python
+import py4stats as py4st
+from palmerpenguins import load_penguins
+old = load_penguins() # サンプルデータの読み込
+new = penguins.copy().dropna()
+```
+
+``` python
+print(py4st.review_wrangling(old, new))
+#> =================== Review of wrangling ====================
+#> The shape of DataFrame:
+#>    Rows: before 344 -> after 333 (-11)
+#>    Cols: before   8 -> after   8 (No change)
+#> 
+#> No columns were added or removed.
+#> 
+#> No existing columns had their type changed.
+#> 
+#> No existing columns increased the number of missing values.
+#> 
+#> Decrease in missing values:
+#>   bill_length_mm     before  2 (0.58%) -> after  0 (0.00%)
+#>   bill_depth_mm      before  2 (0.58%) -> after  0 (0.00%)
+#>   flipper_length_mm  before  2 (0.58%) -> after  0 (0.00%)
+#>   body_mass_g        before  2 (0.58%) -> after  0 (0.00%)
+#>   sex                before 11 (3.20%) -> after  0 (0.00%)
+#> 
+#> The following columns show changes in categories:
+#>   sex:
+#>     addition:  None
+#>     removal:  'nan'
+#> ============================================================
+```
+
+``` python
+s = new['body_mass_g']
+new['heavy'] = np.where(s >= s.quantile(0.75), True, False)
+new['species'] = pd.Categorical(new['species'])
+new['year'] = new['year'].astype(float)
+new['const'] = 1
+
+new['flipper_length_mm'] = py4st.set_miss(
+    new['flipper_length_mm'], prop = 0.1,
+    # random_state = 123
+    random_state = 1230
+    )
+
+new = py4st.filtering_out(new, 'sex')
+```
+
+``` python
+print(py4st.review_wrangling(old, new))
+#> =================== Review of wrangling ====================
+#> The shape of DataFrame:
+#>    Rows: before 344 -> after 187 (-157)
+#>    Cols: before   8 -> after   9 (+1)
+#> 
+#> Column(s) 'heavy' and 'const' were added.
+#> Column(s) 'sex' were removed.
+#> 
+#> The following columns have changed their type:
+#>   species object -> category
+#>   year    int64 -> float64
+#> 
+#> Increase in missing values:
+#>   flipper_length_mm  before  2 ( 0.58%) -> after 19 (10.16%)
+#> 
+#> Decrease in missing values:
+#>   bill_length_mm  before 2 (0.58%) -> after 0 (0.00%)
+#>   bill_depth_mm   before 2 (0.58%) -> after 0 (0.00%)
+#>   body_mass_g     before 2 (0.58%) -> after 0 (0.00%)
+#> 
+#> The following columns show changes in categories:
+#>   species:
+#>     addition:  None
+#>     removal:  'Adelie'
+#>   island:
+#>     addition:  None
+#>     removal:  'Torgersen'
+#> ============================================================
+```
+
+## Notes
+
+本関数では、`before` と `after` が同一の DataFrame バックエンド（例：どちらも pandas、またはどちらも polars）であることを前提としています。異なるバックエンドを混在させた場合、エラーが発生します。
+
+## 参考 See also
+
+列のデータ型に基づいた比較については [`compare_df_cols()`](./compare_df_cols.qmd) を、数値変数の統計値に基づいた比較については [`compare_df_stats()`](./compare_df_cols.qmd) もご参照ください。
+
+***
+[Return to **Function reference**.](../reference.qmd)
+

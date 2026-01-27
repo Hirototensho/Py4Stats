@@ -108,3 +108,110 @@ build.assert_integer(arg, arg_name = 'arg')   # 整数値(int)
 build.assert_count(arg, arg_name = 'arg')     # 非負整数値(int)
 build.assert_float(arg, arg_name = 'arg')     # フロート値(float)
 ```
+
+### narwhals が受け入れ可能な互換オブジェクトに `singledispatch` する方法
+
+#### 結論
+
+- DataFrame の場合 `@foo.register(nw.typing.IntoDataFrame)` を使う
+- Series の場合 `@foo.register(nw.typing.IntoSeries)` を使う
+
+#### 詳細
+
+`functools.singledispatch` を使って総称関数を定義する場合、`@singledispatch` デコレータで総称関数を定義したあと、`@foo.register(Class)` デコレータでクラス毎のメソッド関数を定義します。
+
+narwhals が受け入れ可能な DataFrame 互換オブジェクトに対するメソッドを定義する場合には、`nw.typing.IntoDataFrame` を使い、Series 互換オブジェクトに対するメソッドを定義する場合には `nw.typing.IntoSeries` を使います。
+
+``` python
+# 実装例
+import narwhals as nw
+from functools import singledispatch
+
+@singledispatch
+def foo(x):
+    return 'I am some object'
+
+@foo.register(nw.typing.IntoDataFrame)
+def foo_df(x):
+    return  'I am a DataFrame'
+
+@foo.register(nw.typing.IntoSeries)
+def foo_s(x):
+    return 'I am a Series'
+```
+
+
+``` python
+# 動作例
+import pandas as pd
+import polars as pl
+import pyarrow as pa
+
+data_pd = pd.DataFrame({'x':[1, 2, 3], 'y':['a', 'b', 'c']})
+data_pl = pl.from_pandas(data_pd)
+data_pa = pa.Table.from_pandas(data_pd)
+data_nw = nw.from_native(data_pd)
+
+data_dict = {
+    'df_pd' :data_pd, 'df_pl' :data_pl, 'df_pa' :data_pa, 'df_nw' :data_nw,
+    's_pd' :data_pd['x'], 's_pl' :data_pl['x'], 's_pa' :data_pa['x'], 's_nw':data_nw['x'],
+    'int': 1 
+}
+
+[f"{k}: {foo(x)}" for k, x in zip(data_dict.keys(), data_dict.values())]
+#> ["df_pd: 'I am a DataFrame'",
+#>  "df_pl: 'I am a DataFrame'",
+#>  "df_pa: 'I am a DataFrame'",
+#>  "df_nw: 'I am a DataFrame'",
+#>  "s_pd: 'I am a Series'",
+#>  "s_pl: 'I am a Series'",
+#>  "s_pa: 'I am a Series'",
+#>  "s_nw: 'I am a Series'",
+#>  "int: 'I am some object'"]
+```
+
+## 総称関数の実装に関する覚書
+
+### 総称関数に登録されたメソッドの確認
+
+#### 結論
+
+- ある関数に登録されたメソッド全体を確認するには `foo.registry` を使い
+- ある関数に登録された特定のクラスのメソッドを確認するには `foo.dispatch(Class)` を使います
+
+#### 詳細
+
+ある総称関数に、どのようなメソッドが登録されているかは、`.registry` 属性で確認することができます。`.registry` は `{型: 実装関数}` の辞書であり、`object` クラスはデフォルト実装に対応しています。
+
+
+``` python
+import py4stats as py4st
+import pandas as pd
+
+registry = py4st.is_dummy.registry
+print(pd.Series(registry).apply(lambda x: x.__name__))
+#> <class 'object'>                                         is_dummy
+#> <class 'narwhals._native.NativeSeries'>           is_dummy_series
+#> <class 'narwhals.series.Series'>                  is_dummy_series
+#> <class 'narwhals._native.NativeDataFrame'>    is_dummy_data_frame
+#> <class 'narwhals.dataframe.DataFrame'>        is_dummy_data_frame
+#> <class 'tuple'>                                     is_dummy_list
+#> <class 'list'>                                      is_dummy_list
+#> dtype: object
+```
+
+また、`.dispatch(Class)` メソッドで特定のオブジェクトクラスに対して実装されたメソッド関数を確認することができます。
+
+``` python
+print(py4st.is_dummy.dispatch(pd.DataFrame).__name__)
+#> is_dummy_data_frame
+
+print(py4st.is_dummy.dispatch(pd.Series).__name__)
+#> is_dummy_series
+
+print(py4st.is_dummy.dispatch(list).__name__)
+#> is_dummy_list
+
+print(py4st.is_dummy.dispatch(int).__name__) # デフォルト実装
+#> is_dummy
+```

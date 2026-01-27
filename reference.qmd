@@ -45,6 +45,8 @@
 [`py4stats.compare_df_cols()`](man/compare_df_cols.qmd)
 [`py4stats.compare_df_stats()`](man/compare_df_cols.qmd)
 
+[`py4stats.review_wrangling()`](man/review_wrangling.qmd)
+
 #### 簡易なグループ別統計量の比較
 
 [`py4stats.compare_group_means()`](man/compare_group_stats.qmd)

@@ -21,6 +21,8 @@ import narwhals
 import narwhals as nw
 import narwhals.selectors as ncs
 
+from typing import (Literal)
+
 from py4stats.eda_tools import _nw as eda_nw
 
 
@@ -91,8 +93,8 @@ def _assert_df_eq(
 
     expected_df = nw.read_csv(path_fixture, backend = output_df.implementation)
     
-    output_df = output_df.to_pandas()
-    expected_df = expected_df.to_pandas()
+    if hasattr(expected_df, 'to_pandas'): expected_df = expected_df.to_pandas()
+    if hasattr(output_df, 'to_pandas'): output_df = output_df.to_pandas()
 
     if reset_index:
         output_df = output_df.reset_index(drop = True)
@@ -127,19 +129,5 @@ mroz_dict = {
 }
 
 # ================================================================
-# 
+# review_wrangling
 # ================================================================
-
-@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
-def test_filtering_out_cols(backend) -> None:
-    path = f'{tests_path}/fixtures/filtering_out_{backend}.csv'
-
-    output_df = eda_nw.filtering_out(
-        penguins_dict.get(backend), 'year', starts_with = 'bill', 
-        contains = 'is', ends_with = '_g', to_native = False
-    ).drop_nulls().head()
-    
-    _assert_df_eq(
-            output_df, path_fixture = path, 
-            update_fixture = False
-        )

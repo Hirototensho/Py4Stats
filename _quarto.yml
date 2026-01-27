@@ -21,6 +21,7 @@ book:
       - man/filtering_out.qmd
       - man/relocate.qmd
       - man/compare_df_cols.qmd
+      - man/review_wrangling.qmd
       - man/compare_group_stats.qmd
       - man/plot_miss_var.qmd
       - man/set_miss.qmd

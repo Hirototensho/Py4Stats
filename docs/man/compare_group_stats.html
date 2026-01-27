@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>compare_group_means, _median, plot_mean_diff, _median_diff – Py4Stats</title>
+<title>compare_group_means, _median  plot_mean_diff, _median_diff – Py4Stats</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -66,7 +66,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
 <link href="../man/plot_miss_var.html" rel="next">
-<link href="../man/compare_df_cols.html" rel="prev">
+<link href="../man/review_wrangling.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
@@ -148,7 +148,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../man/diagnose.html"><strong>EDA</strong></a></li><li class="breadcrumb-item"><a href="../man/compare_group_stats.html"><span class="chapter-title">compare_group_means, _median, plot_mean_diff, _median_diff</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../man/diagnose.html"><strong>EDA</strong></a></li><li class="breadcrumb-item"><a href="../man/compare_group_stats.html"><span class="chapter-title">compare_group_means, _median<br> plot_mean_diff, _median_diff</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -262,7 +262,12 @@ window.Quarto = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/compare_group_stats.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">compare_group_means, _median, plot_mean_diff, _median_diff</span></a>
+  <a href="../man/review_wrangling.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">review_wrangling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/compare_group_stats.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">compare_group_means, _median<br> plot_mean_diff, _median_diff</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -482,9 +487,9 @@ window.Quarto = {
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../man/diagnose.html"><strong>EDA</strong></a></li><li class="breadcrumb-item"><a href="../man/compare_group_stats.html"><span class="chapter-title">compare_group_means, _median, plot_mean_diff, _median_diff</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../man/diagnose.html"><strong>EDA</strong></a></li><li class="breadcrumb-item"><a href="../man/compare_group_stats.html"><span class="chapter-title">compare_group_means, _median<br> plot_mean_diff, _median_diff</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-title">compare_group_means, _median, plot_mean_diff, _median_diff</span></h1>
+<h1 class="title"><span class="chapter-title">compare_group_means, _median<br> plot_mean_diff, _median_diff</span></h1>
 </div>
 
 
@@ -546,7 +551,7 @@ window.Quarto = {
 <li><code>"common"</code>: 両方のグループに存在する変数のみが含まれます。</li>
 <li><code>"all"</code>: いずれかのグループに存在する全ての変数が含まれます。この場合、一方のグループにのみ存在する変数についての差分統計量は、欠損値（例：<code>NaN</code> または <code>None</code>）となります。</li>
 </ul></li>
-<li><code>to_native</code>（<strong>bool</strong>, optional）<br> <code>True</code> の場合、入力と同じ型のデータフレーム（e.g.&nbsp;pandas / polars / pyarrow）を返します。<br> <code>False</code> の場合、<code>narwhals.DataFrame</code> を返します。デフォルトは <code>True</code> で、<code>to_native = False</code> は、主にライブラリ内部での利用や、<code>backend</code> に依存しない後続処理を行う場合を想定したオプションです。</li>
+<li><code>to_native</code>（<strong>bool</strong>, optional）<br> <code>True</code> の場合、入力と同じ型のデータフレーム（e.g.&nbsp;pandas / polars / pyarrow）を返します。<br> <code>False</code> の場合、<code>narwhals.DataFrame</code> を返します。デフォルトは <code>True</code> で、<code>to_native = False</code> は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。</li>
 <li><code>stats_diff</code>: <strong>str</strong> （<code>plot_mean_diff()</code> および <code>plot_median_diff()</code> のみ）<br> 　グラフの描画に使用する差分統計量。<code>'norm_diff'</code>（<code>plot_mean_diff()</code> のみ）、<code>'abs_diff'</code>, <code>'rel_diff'</code> のいずれかから選ぶことができます。</li>
 </ul>
 </section>
@@ -1040,8 +1045,8 @@ window.Quarto = {
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../man/compare_df_cols.html" class="pagination-link" aria-label="compare_df_cols, compare_df_stats">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">compare_df_cols, compare_df_stats</span></span>
+      <a href="../man/review_wrangling.html" class="pagination-link" aria-label="review_wrangling">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">review_wrangling</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">

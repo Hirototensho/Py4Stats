@@ -21,3 +21,6 @@ build/
 dist/
 /.quarto/
 **/*.quarto_ipynb
+
+# ローカル環境開発中のパッケージをインストールするためだけに使っているファイル
+setup.py

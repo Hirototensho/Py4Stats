@@ -43,7 +43,7 @@ min_max(
   `True` の場合、`x` または `w` のいずれかが欠損値（NaN）である観測を計算前に除外します。デフォルトは `False` です。
 - `to_native`（**bool**, optional）`scale(), min_max()` のみ <br>
   `True` の場合、入力と同じ型の Series（e.g. pandas / polars / pyarrow）を返します。<br>
-  `False` の場合、`Series` を返します。デフォルトは `True` で、`to_native = False` は、主にライブラリ内部での利用や、`backend` に依存しない後続処理を行う場合を想定したオプションです。
+  `False` の場合、`nw.Series` を返します。デフォルトは `True` で、`to_native = False` は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。
 
 ---
 

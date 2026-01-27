@@ -27,7 +27,11 @@ is_dummy(
 - `to_pd_series`: **bool** <br>
     data が DataFrame 場合の戻り値の形式を制御します。
     - `True` の場合：列名をインデックスにもつ pandas.Series を返します
-    - `False` の場合：各列の判定結果を要素とする list を返します
+    - `False` の場合：`to_native` の値に応じた値を出力します。
+- `to_native`（**bool**, optional）<br>
+  `data` がデータ DataFrame 互換オブジェクトの場合の出力を制御します。
+  `True` の場合、`data` 同じバックエンドの Series（e.g. pandas / polars / pyarrow）を返します。<br>
+  `False` の場合、`nw.Series` を返します。デフォルトは `True` で、`to_native = False` は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。
 - `**kwargs`: 将来の拡張のために予約されたキーワード引数です。
 
 ## 返り値 Value

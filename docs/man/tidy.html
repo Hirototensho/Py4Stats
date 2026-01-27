@@ -262,7 +262,12 @@ window.Quarto = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/compare_group_stats.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">compare_group_means, _median, plot_mean_diff, _median_diff</span></a>
+  <a href="../man/review_wrangling.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">review_wrangling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/compare_group_stats.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">compare_group_means, _median<br> plot_mean_diff, _median_diff</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -505,7 +510,7 @@ window.Quarto = {
 <p>線形モデルの推定結果を DataFrame に集約</p>
 <section id="概要" class="level2">
 <h2 class="anchored" data-anchor-id="概要">概要</h2>
-<p>　R言語の <a href="https://broom.tidymodels.org/reference/tidy.lm.html"><code>broom::tidy()</code></a> をオマージュした関数で、<a href="https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.OLS.html"><code>sm.ols()</code></a> や <a href="https://www.statsmodels.org/stable/generated/statsmodels.formula.api.logit.html"><code>smf.logit()</code></a> などの推定結果を <code>pands.DataFrame</code> に変換します。<code>py4stats.tidy()</code> は回帰係数と関連する検定結果を表示し、 <code>py4stats.tidy_mfx()</code> は限界効果と関連する検定結果を表示します。</p>
+<p><code>tidy()</code> はR言語の <a href="https://broom.tidymodels.org/reference/tidy.lm.html"><code>broom::tidy()</code></a> をオマージュした関数で、<a href="https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.OLS.html"><code>sm.ols()</code></a> や <a href="https://www.statsmodels.org/stable/generated/statsmodels.formula.api.logit.html"><code>smf.logit()</code></a> などの推定結果を <code>pands.DataFrame</code> に変換します。<code>py4stats.tidy()</code> は回帰係数と関連する検定結果を表示し、 <code>py4stats.tidy_mfx()</code> は限界効果と関連する検定結果を表示します。</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>tidy(</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  x, </span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  name_of_term <span class="op">=</span> <span class="va">None</span>,</span>
@@ -566,7 +571,7 @@ window.Quarto = {
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> palmerpenguins <span class="im">import</span> load_penguins</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> statsmodels.formula.api <span class="im">as</span> smf</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> py4stats <span class="im">import</span> regression_tools <span class="im">as</span> reg <span class="co"># 回帰分析の要約</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> py4stats <span class="im">as</span> py4st</span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>penguins <span class="op">=</span> load_penguins() <span class="co"># サンプルデータの読み込み</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 回帰分析の実行</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>fit1 <span class="op">=</span> smf.ols(<span class="st">'body_mass_g ~ bill_length_mm + species'</span>, data <span class="op">=</span> penguins).fit()</span>
@@ -591,8 +596,9 @@ window.Quarto = {
 </section>
 <section id="注意点" class="level2">
 <h2 class="anchored" data-anchor-id="注意点">注意点</h2>
-<p>　参考にしたR言語の <a href="https://broom.tidymodels.org/reference/tidy.lm.html"><code>broom::tidy()</code></a> は様々な種類のモデルに対応したジェネリック関数として定義されていますが、<code>py4stats.tidy()</code> と <code>py4stats.tidy_mfx()</code> では対応しているモデルが限定的であることにご注意ください。<code>py4st.tidy()</code> のメソッドが定義されているオブジェクトのクラスを確認するには次のコードを実行して下さい。</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="bu">list</span>(py4st.tidy.registry.keys())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>参考にしたR言語の <a href="https://broom.tidymodels.org/reference/tidy.lm.html"><code>broom::tidy()</code></a> は様々な種類のモデルに対応したジェネリック関数として定義されていますが、<code>py4stats.tidy()</code> と <code>py4stats.tidy_mfx()</code> では対応しているモデルが限定的であることにご注意ください。<code>py4st.tidy()</code> のメソッドが定義されているオブジェクトのクラスを確認するには次のコードを実行して下さい。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> py4stats <span class="im">as</span> py4st</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="bu">list</span>(py4st.tidy.registry.keys())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><code>py4stats.tidy()</code> は <code>functools.singledispatch</code> を用いたジェネリック関数として実装しています。 <a href="https://github.com/Py4Etrics/py4etrics"><code>Py4Etrics</code></a> モジュールの <code>py4etrics.heckit.Heckit()</code> で作成された <code>HeckitResults</code> クラスのオブジェクト用のメソッドについては <a href="../man/tidy_heckit.html"><code>heckit_helper.tidy_heckit()</code></a> を参照してください。</p>
 <hr>
 <p><a href="../reference.html">Return to <strong>Function reference</strong>.</a></p>

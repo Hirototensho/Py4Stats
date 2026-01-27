@@ -134,7 +134,7 @@ print(py4st.remove_constant(penguins2, quiet = False).head(3))
 #> 2  Adelie       3250.0
 ```
 
-　[`py4stats.filtering_out()`](man/filtering_out.qmd)：`pandas` の [`DataFrame.filter()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.filter.html) メソッドでは引数 `like` に文字列を指定することで、列名に特定の文字列を含む列を選択できますが、反対に `py4stats.filtering_out()` では列名に特定の文字列を含む列を除外します。実装の一部はR言語の [`dplyr::select()`](https://dplyr.tidyverse.org/reference/select.html) を参考にしました。
+[`py4stats.filtering_out()`](man/filtering_out.qmd)：列名に特定の文字列を含む列や、特定の文字列で始まる/終わる列を除外します。実装の一部はR言語の [`dplyr::select()`](https://dplyr.tidyverse.org/reference/select.html) を参考にしました。
 
 ```python
 # 列名に 'length' を含む列を除外
@@ -158,6 +158,40 @@ print(py4st.filtering_out(penguins, ends_with = '_mm').head(3))
 #> 1  Adelie  Torgersen       3800.0  female  2007       1
 #> 2  Adelie  Torgersen       3250.0  female  2007       1
 ```
+
+[`py4stats.review_wrangling()`](man/review_wrangling.qmd):データ前処理（wrangling）による変更点をレビュー形式で要約して、文字列として出力する関数です。データフレームの形状（行数・列数）の変化に加えて、データ型（dtype）の変化欠測値やカテゴリー変数における水準の増減を報告します。
+
+```python
+gentoo = penguins.query("species == 'Gentoo'")
+print(py4st.review_wrangling(penguins, gentoo))
+#> ========================= Review of wrangling ==========================
+#> The shape of DataFrame:
+#>    Rows: before 344 -> after 124 (-220)
+#>    Cols: before   8 -> after   8 (No change)
+#> 
+#> No columns were added or removed.
+#> 
+#> No existing columns had their type changed.
+#> 
+#> Increase in missing values:
+#>   bill_length_mm     before  2 (0.58%) -> after  1 (0.81%)
+#>   bill_depth_mm      before  2 (0.58%) -> after  1 (0.81%)
+#>   flipper_length_mm  before  2 (0.58%) -> after  1 (0.81%)
+#>   body_mass_g        before  2 (0.58%) -> after  1 (0.81%)
+#>   sex                before 11 (3.20%) -> after  5 (4.03%)
+#> 
+#> None of the existing columns decreases in the number of missing values.
+#> 
+#> The following columns show changes in categories:
+#>   species:
+#>     addition:  None
+#>     removal:  'Adelie' and 'Chinstrap'
+#>   island:
+#>     addition:  None
+#>     removal:  'Torgersen' and 'Dream'
+#> ========================================================================
+```
+
 
 ## `py4stats.regression_tools`
 
