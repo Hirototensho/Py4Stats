@@ -166,6 +166,8 @@ import scipy as sp
 # from varname import argname
 import varname
 import collections
+import textwrap
+from functools import partial
 
 
 # ## 型ヒントの準備
@@ -189,7 +191,7 @@ from typing import (
 )
 
 T = TypeVar("T")
-StrSeq = Sequence[str]
+StrSeq = list[str]
 StrOrStrSeq = Union[str, StrSeq]
 
 # match系の戻り（single / multiple）
@@ -202,7 +204,7 @@ NumberLike = Union[int, float, np.number]
 ArrayLike = Union[NumberLike, Sequence[NumberLike], np.ndarray, pd.Series]
 
 # 文字列配列っぽい入力
-# StrArrayLike = Union[str, Sequence[str], np.ndarray, pd.Series]
+# StrArrayLike = Union[str, list[str], np.ndarray, pd.Series]
 
 # p-value などは 0..1 の数値配列として扱うことが多い
 # ProbArrayLike = ArrayLike
@@ -220,7 +222,50 @@ ArrayLike = Union[NumberLike, Sequence[NumberLike], np.ndarray, pd.Series]
 
 
 
-def oxford_comma(x: Union[str, Sequence[str]], sep_last: str = "and", quotation: bool = True) -> str:
+def oxford_comma(x: Union[str, List[str]], sep_last: str = "and", quotation: bool = True) -> str:
+    """Format a string or list of strings using an Oxford-comma style.
+
+    This utility converts a single string or a list of strings into a
+    human-readable textual representation, such as:
+    `'a', 'b' and 'c'` or `'a', 'b' or 'c'`.
+
+    It is primarily intended for constructing clear error messages or
+    user-facing text that enumerates valid options.
+
+    The function also provides two convenience wrappers:
+    `oxford_comma_and()` and `oxford_comma_or()`, which fix the final
+    separator to ``"and"`` and ``"or"``, respectively.
+
+    Args:
+        x (Union[str, List[str]]):
+            A single string or a list of strings to be formatted.
+        sep_last (str, optional):
+            The conjunction placed before the final element.
+            Typical values are ``"and"`` or ``"or"``. Defaults to ``"and"``.
+        quotation (bool, optional):
+            Whether to wrap each element in single quotes. Defaults to ``True``.
+
+    Returns:
+        str:
+            A formatted string using Oxford-comma conventions.
+
+    Examples:
+        >>> from py4stats import building_block as build
+        >>> build.oxford_comma(["a", "b", "c"])
+        "'a', 'b' and 'c'"
+
+        >>> build.oxford_comma(["a", "b", "c"], sep_last="or")
+        "'a', 'b' or 'c'"
+
+        >>> build.oxford_comma("a")
+        "'a'"
+
+        >>> build.oxford_comma_and(["x", "y"])
+        "'x' and 'y'"
+
+        >>> build.oxford_comma_or(["x", "y"])
+        "'x' or 'y'"
+    """
     if isinstance(x, str):
       if(quotation): return f"'{x}'"
       else: return x
@@ -231,11 +276,104 @@ def oxford_comma(x: Union[str, Sequence[str]], sep_last: str = "and", quotation:
     else:
       return ", ".join(x[:-1]) + f" {sep_last} " + x[-1]
 
-def oxford_comma_and(x: Union[str, Sequence[str]], quotation: bool = True) -> str:
-  return oxford_comma(x, quotation = quotation, sep_last = 'and')
 
-def oxford_comma_or(x: Union[str, Sequence[str]], quotation: bool = True) -> str:
-  return oxford_comma(x, quotation = quotation, sep_last = 'or')
+
+
+oxford_comma_and = partial(oxford_comma, sep_last = 'and')
+oxford_comma_or = partial(oxford_comma, sep_last = 'or')
+oxford_comma_and.__doc__ = oxford_comma.__doc__
+oxford_comma_or.__doc__ = oxford_comma.__doc__
+
+
+
+
+def oxford_comma_shorten(
+      x: List[str], 
+      sep_last: str = 'and', 
+      quotation: bool = True, 
+      suffix: str = 'items', 
+      max_items: Optional[int] = None,
+      abbreviate: bool = True,
+      max_width: int = 80
+      ) -> str:
+    """Format a list of strings using Oxford-comma style with optional abbreviation.
+
+    This function is a wrapper around :func:`oxford_comma` that additionally
+    abbreviate the resulting text if it exceeds a given character width.
+    When shortening occurs, the output indicates how many items were omitted,
+    e.g. ``"and other 10 items"``.
+
+    It is designed for use in contexts such as error messages or warnings,
+    where overly long lists would reduce readability.
+
+    Args:
+        x (List[str]):
+            A list of strings to be formatted.
+        sep_last (str, optional):
+            The conjunction used before the last visible item.
+            Defaults to ``'and'``.
+        quotation (bool, optional):
+            Whether to wrap each item in single quotes.
+            Defaults to ``True``.
+        suffix (str, optional):
+            A label describing the omitted elements.
+            Defaults to ``'items'``.
+        max_width (int, optional):
+            Maximum allowed character width of the output string.
+            Defaults to ``80``.
+        abbreviate (bool, optional):
+            Whether shortening is allowed when the text exceeds ``max_width``.
+            If ``False``, the full text is always returned.
+            Defaults to ``True``.
+
+    Returns:
+        str:
+            A formatted (and possibly shortened) string representation
+            of the input list.
+
+    Examples:
+        >>> from py4stats import building_block as build
+        >>> import string
+        >>> alpha = list(string.ascii_lowercase)
+        
+        >>> build.oxford_comma_shorten(alpha)
+        "'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l' and other 14 items"
+        
+        >>> build.oxford_comma_shorten(alpha, max_width=40)
+        "'a', 'b', 'c', 'd' and other 22 items"
+
+        >>> build.oxford_comma_shorten(alpha[:10])
+        "'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i' and 'j'"
+    """
+    if isinstance(x, str): return x
+    n_items = len(x)
+    
+    item_text = oxford_comma(x, sep_last = sep_last, quotation = quotation)
+
+    if not abbreviate: return item_text
+    
+    # 省略処理 =================================================================
+    if max_items is None:
+        item_text = textwrap.shorten(
+            item_text, 
+            width = max_width - len(f"and other {len(x)} {suffix}"), 
+            placeholder = ''
+            )
+        in_text = [s for s in x if str(s) in item_text]
+        n_remain = n_items - len(in_text)
+        
+    elif max_items < n_items:
+        if(quotation): x = [f"'{s}'" for s in x]
+        item_text = ', '.join(x[:max_items])
+        n_remain = n_items - max_items
+    
+    elif max_items >= n_items: return item_text
+    
+    if n_remain >= 1:
+        return f"{item_text} {sep_last} other {n_remain} {suffix}"\
+            .replace(f', {sep_last} other', f' {sep_last} other')
+    
+    return item_text
 
 
 # ## 引数の要素数に関するアサーション
@@ -332,7 +470,7 @@ def assert_missing(
 
 
 
-def match_arg(arg: str, values: Sequence[str], arg_name: str = "argument") -> str:
+def match_arg(arg: str, values: list[str], arg_name: str = "argument") -> str:
     """
     Simulates the functionality of R's match.arg() function with partial matching in Python.
 
@@ -361,7 +499,7 @@ def match_arg(arg: str, values: Sequence[str], arg_name: str = "argument") -> st
 
 
 
-def arg_match0(arg: str, values: Sequence[str], arg_name: Optional[str] = None) -> str:
+def arg_match0(arg: str, values: list[str], arg_name: Optional[str] = None) -> str:
     """
     Simulates the functionality of R's rlang::arg_match() function with partial matching in Python.
 
@@ -392,8 +530,8 @@ def arg_match0(arg: str, values: Sequence[str], arg_name: Optional[str] = None) 
 
 
 def arg_match(
-    arg: Union[str, Sequence[str], pd.Series, np.ndarray],
-    values: Sequence[str],
+    arg: Union[str, list[str], pd.Series, np.ndarray],
+    values: list[str],
     arg_name: Optional[str] = None,
     multiple: bool = False,
     any_missing: bool = False,
@@ -416,7 +554,7 @@ def arg_match(
     """
     if(arg_name is None):
         arg_name = varname.argname('arg')
-
+    
     if (arg is None) and nullable: return None
 
     assert_missing(
@@ -424,11 +562,11 @@ def arg_match(
       any_missing = any_missing,
       all_missing = all_missing
       )
-
+    
     arg = pd.Series(arg)
     if any_missing: 
       arg = arg[~is_missing(arg)]
-
+    
     if(multiple):
     # 複数選択可の場合
         arg = [arg_match0(val, values = values, arg_name = arg_name) for val in arg]
@@ -464,7 +602,7 @@ def is_float(x: Any) -> bool:
 
 def make_assert_type(
     predicate_fun: Callable[[Any], bool],
-    valid_type: Sequence[str],
+    valid_type: list[str],
 ) -> Callable[..., None]:
   """
   Factory to build assertion functions.
@@ -492,7 +630,7 @@ def make_assert_type(
         `assert_*` is a high-level assertion that combines
         type checking, missing-value handling, length constraints,
         and range validation for numeric arguments.
-
+    
     Args:
         arg:
             The argument to validate. Can be a scalar or an
@@ -545,7 +683,7 @@ def make_assert_type(
             reported in the error message.
         - This function performs validation only and returns None if all checks
             pass.
-
+    
     Example:
         from py4stats import building_block as build
         x = [1, 2, 3]
@@ -580,7 +718,7 @@ def make_assert_type(
     # 欠測値に関するアサーション ============================================
     if (arg is None) and nullable: return None
     if scalar_only: assert_scalar(arg, arg_name = arg_name)
-
+    
     arg = pd.Series(arg)
 
     assert_missing(
@@ -588,7 +726,7 @@ def make_assert_type(
       any_missing = any_missing,
       all_missing = all_missing
       )
-
+    
     # 引数の要素数に関するアサーション ============================================
     assert_length(
       arg, arg_name, 
@@ -596,7 +734,7 @@ def make_assert_type(
       len_min = len_min,
       len_max = len_max
       )
-
+    
     if any_missing: 
       arg = arg[~is_missing(arg)]
 
@@ -646,7 +784,7 @@ def assert_value_range(
     # range_message: str = '-inf <= x <= inf'
     ):
     arg = pd.Series(arg)
-
+    
     range_message = make_range_message(lower, upper, inclusive = inclusive)
     cond = arg.between(lower, upper, inclusive = inclusive)
 
@@ -670,7 +808,7 @@ def assert_numeric_dtype(
         arg:Any, 
         arg_name: str,
         predicate_fun: Callable[[Any], bool],
-        valid_type: Sequence[str],
+        valid_type: list[str],
         lower: float = -float("inf"),
         upper: float = float("inf"),
         inclusive: Literal["both", "neither", "left", "right"] = "both"
@@ -688,7 +826,7 @@ def assert_numeric_dtype(
 
 def make_assert_numeric(
     predicate_fun: Callable[[Any], bool],
-    valid_type: Sequence[str],
+    valid_type: list[str],
     lower: float = -float("inf"),
     upper: float = float("inf"),
 ) -> Callable[..., None]:
@@ -771,7 +909,7 @@ def make_assert_numeric(
             reported in the error message.
         - This function performs validation only and returns None if all checks
             pass.
-
+    
     Example:
         from py4stats import building_block as build
         x = [1, 2, 3]
@@ -801,11 +939,11 @@ def make_assert_numeric(
     """
     if(arg_name is None):
       arg_name = varname.argname('arg')
-
+    
     # 欠測値に関するアサーション ============================================
     if (arg is None) and nullable: return None
     if scalar_only: assert_scalar(arg, arg_name = arg_name)
-
+    
     arg = pd.Series(arg)
 
     assert_missing(
@@ -813,7 +951,7 @@ def make_assert_numeric(
       any_missing = any_missing,
       all_missing = all_missing
       )
-
+    
     # 引数の要素数に関するアサーション ============================================
     assert_length(
       arg, arg_name, 
@@ -821,7 +959,7 @@ def make_assert_numeric(
       len_min = len_min,
       len_max = len_max
       )
-
+    
     # 引数の型に関するアサーション ===============================================
     # 欠損値の除外は型ベースの検証のためだけに行います。
     # （長さおよび形状のチェックは元の入力に対して実行されます）
@@ -912,14 +1050,14 @@ def style_pvalue(
 ) -> pd.Series:
   """
   Format p-values into strings with optional clipping and prefix.
-
+  
   Args:
         p_value: Scalar or array-like of p-values.
         digits: Number of decimals.
         prepend_p: If True, prepend 'p' or 'p='.
         p_min: Lower clipping threshold.
         p_max: Upper clipping threshold.
-
+  
   Returns:
         pandas.Series: Formatted p-values as strings.
   """

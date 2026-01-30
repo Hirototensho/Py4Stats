@@ -40,7 +40,7 @@ Pareto_plot(
 - `palette`：**list of str**</br>
     グラフの描画に使用する色コード。1つ目の要素が棒グラフの色に、2つ目の累積値を表す折線グラフの色に対応します。
 
-## 使用例
+## 使用例 Example
 
 ``` python
 import py4stats as py4st

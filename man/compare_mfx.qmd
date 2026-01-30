@@ -94,7 +94,7 @@ compare_mfx(
 - `dummy`: **bool**</br>
     ダミー変数の限界効果の推定方法を制御するブール値。もし False （初期設定）であれば、ダミー変数を連続な数値変数として扱います。もし、True であればダミー変数が0から1へと変化したときの予測値の変化を推定します。内部で使用している[`statsmodels.discrete.discrete_model.DiscreteResults.get_margeff()`](https://www.statsmodels.org/devel/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html) メソッドに引数 `dummy` として渡されます。
 
-## 使用例
+## 使用例 Example
 
 ``` python
 import py4stats as py4st

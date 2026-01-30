@@ -339,3 +339,19 @@ def test_oxford_comma_three_items():
 def test_oxford_comma_and_or_wrappers():
     assert " and " in build.oxford_comma_and(["a", "b"], quotation=False)
     assert " or " in build.oxford_comma_or(["a", "b"], quotation=False)
+
+def test_oxford_comma_shorten():
+    import string
+
+    alpha = list(string.ascii_lowercase)
+
+    res1 = build.oxford_comma_shorten(alpha, max_width = 80)
+    assert len(res1) <= 80
+
+    res2 = build.oxford_comma_shorten(alpha, max_width = 40)
+    assert len(res2) <= 40
+
+    res3 = build.oxford_comma_shorten(alpha[:10])
+    res3 == "'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i' and 'j'"
+
+    assert build.oxford_comma_shorten(alpha, allow_shortening = False) == build.oxford_comma(alpha)

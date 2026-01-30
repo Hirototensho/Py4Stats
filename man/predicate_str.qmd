@@ -43,7 +43,7 @@ is_ymd_like(
 
 
 
-## 使用例
+## 使用例 Example
 
 ```python
 import py4stats as py4st
