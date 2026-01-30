@@ -3,7 +3,7 @@ The shape of DataFrame:
    Rows: before 344 -> after 333 (-11)
    Cols: before   8 -> after  11 (+3)
 
-Column(s) 'heavy', 'const' and '__index_level_0__' were added.
+Columns added: 'heavy', 'const' and '__index_level_0__'
 No columns were removed.
 
 The following columns have changed their type:
@@ -11,13 +11,13 @@ The following columns have changed their type:
   year    int64 -> double
 
 Increase in missing values:
-  flipper_length_mm  before  2 ( 0.58%) -> after 34 (10.21%)
+  flipper_length_mm  before 2 (0.58%) -> after 34 (10.21%)
 
 Decrease in missing values:
-  bill_length_mm  before  2 (0.58%) -> after  0 (0.00%)
-  bill_depth_mm   before  2 (0.58%) -> after  0 (0.00%)
-  body_mass_g     before  2 (0.58%) -> after  0 (0.00%)
-  sex             before 11 (3.20%) -> after  0 (0.00%)
+  bill_length_mm  before  2 (0.58%) -> after 0 (0.00%)
+  bill_depth_mm   before  2 (0.58%) -> after 0 (0.00%)
+  body_mass_g     before  2 (0.58%) -> after 0 (0.00%)
+  sex             before 11 (3.20%) -> after 0 (0.00%)
 
 The following columns show changes in categories:
   sex:

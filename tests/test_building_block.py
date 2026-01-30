@@ -354,4 +354,4 @@ def test_oxford_comma_shorten():
     res3 = build.oxford_comma_shorten(alpha[:10])
     res3 == "'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i' and 'j'"
 
-    assert build.oxford_comma_shorten(alpha, allow_shortening = False) == build.oxford_comma(alpha)
+    assert build.oxford_comma_shorten(alpha, abbreviate = False) == build.oxford_comma(alpha)

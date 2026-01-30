@@ -4579,32 +4579,49 @@ def review_wrangling(
     of a dataset before and after wrangling, and returns a human-readable
     review report as a formatted string.
 
-    The review includes the following aspects:
+    The review summarizes structural and content-level changes, including:
       - Changes in the shape of the DataFrame (rows and columns).
       - Added and removed columns.
       - Changes in column data types.
       - Increases and decreases in the proportion of missing values.
-      - Increase and decrease in levels of categorical variables.
+      - Additions and removals of levels in categorical variables.
 
-    The output is formatted with a header and footer for readability and is
-    intended for inspection in interactive sessions (e.g. notebooks) or
-    logging during exploratory data analysis.
+    To maintain readability, lists of columns or categories can be abbreviated.
+    Abbreviation behavior can be controlled via `abbreviate`, `max_columns`,
+    `max_categories`, and `max_width`.
 
     Internally, the function uses `narwhals` to support multiple DataFrame
-    backends (e.g. pandas, polars), while type comparison relies on the
+    backends (e.g. pandas, polars), while type comparisons rely on the
     original input objects.
 
     Args:
         before (IntoFrameT):
-            The original DataFrame before wrangling. 
+            The original DataFrame before wrangling.
             Any DataFrame-like object supported by narwhals
             (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
         after (IntoFrameT):
             The DataFrame after wrangling.
         title (str, optional):
-            The title of the output review text. 
-            If a non-empty string is specified, a header and footer will be added 
-            alongside the title.
+            Title shown in the header and footer of the review output.
+            If an empty string is provided, no header or footer is added.
+        abbreviate (bool, optional):
+            Whether to abbreviate long lists of column names or category levels
+            in the output. If False, all items are shown without truncation.
+            Defaults to True.
+        max_columns (int or None, optional):
+            Maximum number of column names to display when reporting added or
+            removed columns. If specified, truncation is based on the number
+            of columns only and is applied only when `abbreviate=True`.
+            If None, truncation is based on text width.
+        max_categories (int or None, optional):
+            Maximum number of category levels to display when reporting changes
+            in categorical variables. If specified, truncation is based on the
+            number of categories only and is applied only when `abbreviate=True`.
+            If None, truncation is based on text width.
+        max_width (int, optional):
+            Maximum width (in characters) used for text-based truncation when
+            `abbreviate=True` and the corresponding `max_*` argument is None.
+            Defaults to 80.
 
     Returns:
         str:
@@ -4612,21 +4629,36 @@ def review_wrangling(
             `before` and `after`.
 
     Raises:
-        ValueError:
-        This function assumes that `before` and `after` use the same DataFrame
-        backend (e.g. both pandas or both polars). Mixing different backends
-        is not supported and will raise an error.
+        TypeError:
+            If `before` and `after` use different DataFrame backends
+            (e.g. pandas vs. polars). Mixing backends is not supported.
 
     Examples:
+        >>> import py4stats as py4st
+        >>> from palmerpenguins import load_penguins
+        >>> before = load_penguins()
+        >>> after = before.copy().dropna()
         >>> print(py4st.review_wrangling(before, after))
-        ============ Review of wrangling ============
-        The shape of DataFrame:
-           Rows: before 344 -> after 333 (-11)
-           Cols: before 8 -> after 9 (+1)
-        ...
-        ==============================================
+            =================== Review of wrangling ====================
+            The shape of DataFrame:
+               Rows: before 344 -> after 333 (-11)
+               Cols: before   8 -> after   8 (No change)
+            ...
+            ============================================================
     """
+    # 引数のアサーション =======================================================
     build.assert_character(title, arg_name = 'title', len_arg = 1)
+    build.assert_logical(abbreviate, arg_name = 'abbreviate')
+    build.assert_count(
+        max_columns, arg_name = 'max_columns', 
+        len_arg = 1, nullable = True)
+    build.assert_count(
+        max_categories, arg_name = 'max_categories', 
+        len_arg = 1, nullable = True)
+    build.assert_count(
+        max_width, arg_name = 'max_width', 
+        len_arg = 1)
+    # =======================================================================
 
     before_nw = nw.from_native(before)
     after_nw = nw.from_native(after)
