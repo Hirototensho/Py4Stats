@@ -1975,7 +1975,7 @@
     "href": "man/oxford_comma.html#概要",
     "title": "building_block.oxford_comma",
     "section": "",
-    "text": "oxford_comma(\n    x: Union[str, List[str]], \n    sep_last: str = \"and\", \n    quotation: bool = True\n    )\n\noxford_comma_and(\n    x: Union[str, List[str]], \n    quotation: bool = True\n    )\n\noxford_comma_or(\n    x: Union[str, List[str]], \n    quotation: bool = True\n    )\n\noxford_comma_shorten(\n    x: List[str], \n    sep_last: str = 'and', \n    quotation: bool = True, \n    suffix: str = 'items', \n    max_items: Optional[int] = None,\n    max_width: int = 80,\n    abbreviate: bool = True\n)",
+    "text": "oxford_comma(\n    x: Union[str, List[str]], \n    sep_last: str = \"and\", \n    quotation: bool = True\n    )\n\noxford_comma_and(\n    x: Union[str, List[str]], \n    quotation: bool = True\n    )\n\noxford_comma_or(\n    x: Union[str, List[str]], \n    quotation: bool = True\n    )\n\noxford_comma_shorten(\n    x: Union[str, List[str]],\n    sep_last: str = 'and', \n    quotation: bool = True, \n    suffix: str = 'items', \n    max_items: Optional[int] = None,\n    max_width: int = 80,\n    abbreviate: bool = True\n)",
     "crumbs": [
       "**building_block**",
       "<span class='chapter-number'>38</span>  <span class='chapter-title'>building_block.oxford_comma</span>"
