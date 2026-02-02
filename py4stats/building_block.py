@@ -167,7 +167,7 @@ import scipy as sp
 import varname
 import collections
 import textwrap
-from functools import partial
+# from functools import partial
 
 
 # ## 型ヒントの準備
@@ -207,7 +207,7 @@ ArrayLike = Union[NumberLike, Sequence[NumberLike], np.ndarray, pd.Series]
 # StrArrayLike = Union[str, list[str], np.ndarray, pd.Series]
 
 # p-value などは 0..1 の数値配列として扱うことが多い
-# ProbArrayLike = ArrayLike
+# Sequence[int, float, np.number] = ArrayLike
 
 
 # ## `oxford_comma()`
@@ -279,8 +279,12 @@ def oxford_comma(x: Union[str, List[str]], sep_last: str = "and", quotation: boo
 
 
 
-oxford_comma_and = partial(oxford_comma, sep_last = 'and')
-oxford_comma_or = partial(oxford_comma, sep_last = 'or')
+def oxford_comma_and(x: Union[str, Sequence[str]], quotation: bool = True) -> str:
+  return oxford_comma(x, quotation = quotation, sep_last = 'and')
+
+def oxford_comma_or(x: Union[str, Sequence[str]], quotation: bool = True) -> str:
+  return oxford_comma(x, quotation = quotation, sep_last = 'or')
+
 oxford_comma_and.__doc__ = oxford_comma.__doc__
 oxford_comma_or.__doc__ = oxford_comma.__doc__
 
@@ -608,6 +612,7 @@ def is_float(x: Any) -> bool:
 
 def make_assert_type(
     predicate_fun: Callable[[Any], bool],
+    func_name: str,
     valid_type: list[str],
 ) -> Callable[..., None]:
   """
@@ -631,7 +636,7 @@ def make_assert_type(
       all_missing: bool = False,
       nullable: bool = False,
       scalar_only: bool = False
-      ):
+      ) -> None:
     """Assert that an argument is specific type and satisfies value and shape constraints.
         `assert_*` is a high-level assertion that combines
         type checking, missing-value handling, length constraints,
@@ -747,14 +752,15 @@ def make_assert_type(
     if not predicate_fun(arg):
       messages = f"Argument `{arg_name}` must be of type {oxford_comma_or(valid_type)}." 
       raise TypeError(messages)
-
+  func.__name__ = func_name
+  func.__qualname__ = func_name
   return func
 
 
 
 
-assert_character = make_assert_type(is_character, valid_type = ['str'])
-assert_logical = make_assert_type(is_logical, valid_type = ['bool'])
+assert_character = make_assert_type(is_character, 'assert_character', valid_type = ['str'])
+assert_logical = make_assert_type(is_logical, 'assert_logical', valid_type = ['bool'])
 
 
 # ### 数値用の `assert_*()` 関数
@@ -797,10 +803,11 @@ def assert_value_range(
     not_sutisfy = arg[~cond].index.astype(str).to_list()
     if(len(arg) > 1):
       if not cond.all():
+        not_sutisfy_text = oxford_comma_and(not_sutisfy)
         message = (
-            f"Argument `{arg_name}` must have value {range_message}\n"  +
-            f"element {oxford_comma_and(not_sutisfy)} of `{arg_name}` not sutisfy the condtion."
-            )
+            f"Argument `{arg_name}` must have value {range_message}.\n"  +
+            f"            element {not_sutisfy_text} of `{arg_name}` not sutisfy the condtion."
+            )# ↑ "ValueError: " の分のインデント
         raise ValueError(message)
     else:
       if not cond.all():
@@ -832,6 +839,7 @@ def assert_numeric_dtype(
 
 def make_assert_numeric(
     predicate_fun: Callable[[Any], bool],
+    func_name: str,
     valid_type: list[str],
     lower: float = -float("inf"),
     upper: float = float("inf"),
@@ -986,15 +994,17 @@ def make_assert_numeric(
       inclusive = inclusive,
       )
 
+  func.__name__ = func_name
+  func.__qualname__ = func_name
   return func
 
 
 
 
-assert_numeric = make_assert_numeric(is_numeric, valid_type = ['int', 'float'])
-assert_integer = make_assert_numeric(is_integer, valid_type = ['int'])
-assert_count = make_assert_numeric(is_integer, valid_type = ['positive integer'], lower = 0)
-assert_float = make_assert_numeric(is_float, valid_type = ['float'])
+assert_numeric = make_assert_numeric(is_numeric, 'assert_numeric', valid_type = ['int', 'float'])
+assert_integer = make_assert_numeric(is_integer, 'assert_integer', valid_type = ['int'])
+assert_count = make_assert_numeric(is_integer, 'assert_count', valid_type = ['positive integer'], lower = 0)
+assert_float = make_assert_numeric(is_float, 'assert_float', valid_type = ['float'])
 
 
 # ## 数値などのフォーマット
@@ -1002,7 +1012,7 @@ assert_float = make_assert_numeric(is_float, valid_type = ['float'])
 
 
 def p_stars(
-    p_value: ProbArrayLike,
+    p_value: Sequence[int, float, np.number],
     stars: Optional[Mapping[str, float]] = None,
 ) -> pd.Series:
     """
@@ -1046,9 +1056,8 @@ def p_stars(
 
 
 
-# def style_pvalue(p_value, digits = 3, prepend_p = False, p_min = 0.001, p_max = 0.9):
 def style_pvalue(
-    p_value: ArrayLike,
+    p_value: Sequence[int, float, np.number],
     digits: int = 3,
     prepend_p: bool = False,
     p_min: float = 0.001,

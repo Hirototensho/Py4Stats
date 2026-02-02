@@ -479,10 +479,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>データ前処理（wrangling）による変更点をレビュー形式で要約して、文字列として出力する関数です。</p>
+<p>データ前処理（wrangling）による変更点を要約して、レビュー形式の文字列として出力する関数です。</p>
 <section id="概要" class="level2">
 <h2 class="anchored" data-anchor-id="概要">概要</h2>
-<p>この関数は、前処理の前後（before / after）の DataFrame（相当）を比較し、変更点をユーザーが読みやすいレポート文字列として返します。</p>
+<p>この関数は、前処理の前後（before / after）の DataFrame（相当）を比較し、変更点をユーザーが読みやすいレビュー形式の文字列として返します。</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>review_wrangling(</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>        before: IntoFrameT, </span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>        after: IntoFrameT, </span>
@@ -523,7 +523,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>before <span class="op">=</span> load_penguins() <span class="co"># サンプルデータの読み込</span></span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>after <span class="op">=</span> before.copy().dropna()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><code>review_wrangling()</code> 関数は前処理前後のデータフレームを比較し、上記の4項目に関する変化をレビューとして出力します。各項目の変化を報告しますが、変化がなかった場合にも変化がなかったことを報告するようにしています。</p>
+<p><code>review_wrangling()</code> 関数は前処理前後のデータフレームを比較し、上記の4項目に関する変化をレビューとして出力します。各項目の変化を報告しますが、変化がなかった場合にも変化がなかったことを報告する仕様となっています。</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(py4st.review_wrangling(before, after))</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; =================== Review of wrangling ====================</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; The shape of DataFrame:</span></span>
@@ -548,6 +548,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     addition:  None</span></span>
 <span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     removal:  'nan'</span></span>
 <span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ============================================================</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>先ほどのデータに、さらに前処理を加え、今度は一部の列や行を除外します。</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>after <span class="op">=</span> py4st.filtering_out(after, <span class="st">'sex'</span>)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>s <span class="op">=</span> after[<span class="st">'body_mass_g'</span>]</span>

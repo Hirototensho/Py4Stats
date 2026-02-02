@@ -1,10 +1,10 @@
 # review_wrangling
 
-データ前処理（wrangling）による変更点をレビュー形式で要約して、文字列として出力する関数です。
+データ前処理（wrangling）による変更点を要約して、レビュー形式の文字列として出力する関数です。
 
 ## 概要
 
-この関数は、前処理の前後（before / after）の DataFrame（相当）を比較し、変更点をユーザーが読みやすいレポート文字列として返します。
+この関数は、前処理の前後（before / after）の DataFrame（相当）を比較し、変更点をユーザーが読みやすいレビュー形式の文字列として返します。
 
 ``` python
 review_wrangling(
@@ -56,7 +56,7 @@ before = load_penguins() # サンプルデータの読み込
 after = before.copy().dropna()
 ```
 
-`review_wrangling()` 関数は前処理前後のデータフレームを比較し、上記の4項目に関する変化をレビューとして出力します。各項目の変化を報告しますが、変化がなかった場合にも変化がなかったことを報告するようにしています。
+`review_wrangling()` 関数は前処理前後のデータフレームを比較し、上記の4項目に関する変化をレビューとして出力します。各項目の変化を報告しますが、変化がなかった場合にも変化がなかったことを報告する仕様となっています。
 
 ``` python
 print(py4st.review_wrangling(before, after))
@@ -84,6 +84,8 @@ print(py4st.review_wrangling(before, after))
 #>     removal:  'nan'
 #> ============================================================
 ```
+
+先ほどのデータに、さらに前処理を加え、今度は一部の列や行を除外します。
 
 ``` python
 after = py4st.filtering_out(after, 'sex')

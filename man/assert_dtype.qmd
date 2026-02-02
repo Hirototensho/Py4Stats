@@ -158,8 +158,9 @@ build.assert_numeric(z, arg_name = 'z', lower = 0, upper = 1)
 
 z.extend([2, 3])
 build.assert_numeric(z, arg_name = 'z', lower = 0, upper = 1)
-#> ValueError: Argument `z` must have value 0 <= x <= 1
-#> element '3' and '4' of 'z' not sutisfy the condtion.
+#> ValueError: Argument `x` must have value 0 <= x <= 2.
+#>             element '3' of `x` not sutisfy the condtion.
+
 
 z = 1
 build.assert_numeric(
