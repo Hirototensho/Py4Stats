@@ -26,7 +26,7 @@ date-format: "YYYY-MM-DD"
 ! pip install git+https://github.com/Hirototensho/py4stats.git
 ```
 
-## 使用例
+## 使用例 Example
 
 ``` python
 import py4stats as py4st

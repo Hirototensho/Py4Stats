@@ -450,7 +450,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#概要" id="toc-概要" class="nav-link active" data-scroll-target="#概要">概要</a></li>
   <li><a href="#引数" id="toc-引数" class="nav-link" data-scroll-target="#引数">引数</a></li>
-  <li><a href="#使用例" id="toc-使用例" class="nav-link" data-scroll-target="#使用例">使用例</a></li>
+  <li><a href="#使用例-example" id="toc-使用例-example" class="nav-link" data-scroll-target="#使用例-example">使用例 Example</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/main/man/oxford_comma.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></nav>
     </div>
@@ -476,27 +476,51 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>文字列のリストから並列文を作成</p>
+<p>文字列のリストから並列文を作成する関数</p>
 <section id="概要" class="level2">
 <h2 class="anchored" data-anchor-id="概要">概要</h2>
 <p>文字列のリストを与えると、リストの要素を英文における並列文の形に変換する関数です。表記法については <a href="https://en.wikipedia.org/wiki/Serial_comma">Wikipedia Serial comma</a> を参照し、コードについては <a href="https://stackoverflow.com/questions/19838976/grammatical-list-join-in-python">stack overflow:Grammatical List Join in Python [duplicate]</a> を参照しました。</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>oxford_comma(x, sep_last <span class="op">=</span> <span class="st">'and'</span>, quotation <span class="op">=</span> <span class="va">True</span>)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>oxford_comma_and(x, quotation <span class="op">=</span> <span class="va">True</span>)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>oxford_comma_or(x, quotation <span class="op">=</span> <span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>oxford_comma(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    x: Union[<span class="bu">str</span>, List[<span class="bu">str</span>]], </span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    sep_last: <span class="bu">str</span> <span class="op">=</span> <span class="st">"and"</span>, </span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    quotation: <span class="bu">bool</span> <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>oxford_comma_and(</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    x: Union[<span class="bu">str</span>, List[<span class="bu">str</span>]], </span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    quotation: <span class="bu">bool</span> <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>oxford_comma_or(</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    x: Union[<span class="bu">str</span>, List[<span class="bu">str</span>]], </span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    quotation: <span class="bu">bool</span> <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>oxford_comma_shorten(</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    x: List[<span class="bu">str</span>], </span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    sep_last: <span class="bu">str</span> <span class="op">=</span> <span class="st">'and'</span>, </span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    quotation: <span class="bu">bool</span> <span class="op">=</span> <span class="va">True</span>, </span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    suffix: <span class="bu">str</span> <span class="op">=</span> <span class="st">'items'</span>, </span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    max_items: Optional[<span class="bu">int</span>] <span class="op">=</span> <span class="va">None</span>,</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    max_width: <span class="bu">int</span> <span class="op">=</span> <span class="dv">80</span>,</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    abbreviate: <span class="bu">bool</span> <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="引数" class="level2">
 <h2 class="anchored" data-anchor-id="引数">引数</h2>
 <ul>
 <li><code>x</code>：<strong>str or list of str</strong><br></li>
-<li><code>quotation</code>: <strong>bool</strong><br> 　リストの各要素にクオーテーションマーク <code>’’</code> を追加するかどうかを表す論理値。True（初期設定）であればクオーテーションマークを追加し、False であれば追加しません。</li>
 <li><code>sep_last</code>: <strong>str</strong> <code>oxford_comma()</code> のみ<br> 　リストの最後の要素の直前に付加する単語を表す文字列。</li>
+<li><code>quotation</code>: <strong>bool</strong><br> 　リストの各要素にクオーテーションマーク <code>’’</code> を追加するかどうかを表す論理値。True（初期設定）であればクオーテーションマークを追加し、False であれば追加しません。</li>
+<li><code>suffix</code>：<strong>str</strong> <code>oxford_comma_shorten()</code> のみ<br> 省略された要素を表すための補足語。<code>"other N items"</code> の <code>items</code> の部分に使用されます。</li>
+<li><code>max_items</code>：<strong>int</strong> <code>oxford_comma_shorten()</code> のみ<br> <code>abbreviate=True</code> の時に表示する要素の最大個数。<code>max_items</code> が指定され、かつ <code>x</code> 数より少ない場合、出力には最初の <code>max_items</code> 個のアイテムが表示され、その後 <code>"and other N {suffix}"</code> の表記が追加されます。None の場合、テキスト幅に基づいて省略処理が行われます。</li>
+<li><code>max_width</code>：<strong>int</strong> <code>oxford_comma_shorten()</code> のみ<br> 出力される文字列の最大幅。返り値の文字列がこの幅を超える場合、省略処理が行われます。デフォルトは80です。</li>
+<li><code>abbreviate</code>: <strong>bool</strong> <code>oxford_comma_shorten()</code> のみ<br> 省略処理を許可するかどうか。<code>False</code> を指定した場合、<code>x</code> の要素数や文字幅に関わらず常に全文を返します。デフォルトは <code>True</code> です。<code>abbreviate = False</code> が指定された場合、<code>oxford_comma_shorten()</code> の動作は <code>oxford_comma()</code> と同等になります。</li>
 </ul>
-<p>なお、<code>oxford_comma_and(x)</code> は <code>oxford_comma(x, 'and')</code> と、<code>oxford_comma_or(x)</code> は <code>oxford_comma(x, 'or')</code> と同等です。</p>
+<p>なお、<code>oxford_comma_and(x)</code> は <code>oxford_comma(x, 'and')</code> と、<code>oxford_comma_or(x)</code> は <code>oxford_comma(x, 'or')</code> と同等です。<code>oxford_comma_shorten()</code> は、生成されたテキストが指定された文字幅を超える場合に、自動的に省略表示を行います。省略が発生した場合は、<code>"and other N items"</code> のように、省略された要素の数が分かる表現を付加します。</p>
 </section>
-<section id="使用例" class="level2">
-<h2 class="anchored" data-anchor-id="使用例">使用例</h2>
+<section id="使用例-example" class="level2">
+<h2 class="anchored" data-anchor-id="使用例-example">使用例 Example</h2>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> py4stats <span class="im">import</span> building_block <span class="im">as</span> build</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> [<span class="st">'A'</span>, <span class="st">'B'</span>, <span class="st">'C'</span>]</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -514,6 +538,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(build.oxford_comma_or(<span class="st">'A'</span>))</span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 'A'</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>リストの要素が1つの場合、あるいは <code>x</code> に文字列が指定された場合はカンマなどを追加せずにそのまま出力します。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> string</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>alpha <span class="op">=</span> <span class="bu">list</span>(string.ascii_lowercase)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(build.oxford_comma_shorten(alpha))</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; "'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l' and other 14 items"</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(build.oxford_comma_shorten(alpha, max_width <span class="op">=</span> <span class="dv">40</span>))</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; "'a', 'b', 'c', 'd' and other 22 items"</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># リストが十分に短い場合は、省略されません</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(build.oxford_comma_shorten(alpha[:<span class="dv">10</span>]))</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; "'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i' and 'j'"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <hr>
 <p><a href="../reference.html">Return to <strong>Function reference</strong>.</a></p>
 

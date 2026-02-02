@@ -8,21 +8,33 @@
 
 ``` python
 review_wrangling(
-    before: IntoFrameT, 
-    after: IntoFrameT, 
-    title: str = 'Review of wrangling'
-    ) -> str:
+        before: IntoFrameT, 
+        after: IntoFrameT, 
+        title: str = 'Review of wrangling',
+        abbreviate: bool = True,
+        max_columns: Optional[int] = None,
+        max_categories: Optional[int] = None,
+        max_width: int = 80
+        ) -> str
 ```
 
 ## 引数 Argument
 
-- `before`：**IntoFrameT**（必須）<br>
+- `before`:**IntoFrameT**（必須）<br>
   前処理（wrangling）を行う前のデータフレーム。narwhals が受け入れ可能な DataFrame 互換オブジェクト<br>
   （例：`pandas.DataFrame`、`polars.DataFrame`、`pyarrow.Table`）を指定できます。
-- `after`：**IntoFrameT**（必須）<br>
+- `after`:**IntoFrameT**（必須）<br>
   前処理（wrangling）を行った後のデータフレーム。
-- `title`：**str**（必須）<br>
+- `title`:**str**<br>
     出力されるレビューテキストのタイトル。空でない文字列を指定した場合、タイトルとともにヘッダーとフッターが追加されます。
+- `abbreviate`：**bool**<br>
+    列名やカテゴリー水準の一覧を省略表示するかどうかを指定します。`False` を指定した場合、省略は行われず、すべての項目が表示されます。デフォルトは `True` です。
+- `max_columns`:**int**<br>
+    列の追加・削除を報告する際に表示する列名の最大数。指定された場合、`abbreviate = True` のときに限り、文字数ではなく列数を基準として省略が行われます。`None` の場合は文字数（`max_width`）に基づいて省略されます。
+- `max_categories`:**int**<br>
+    カテゴリー変数の水準の変化を報告する際に、表示する水準の最大数。指定された場合、`abbreviate=True` のときに限り、文字数ではなく水準数を基準として省略が行われます。`None` の場合は文字数（`max_width`）に基づいて省略されます。
+- `max_width`:**int**<br>
+    `abbreviate=True` かつ対応する `max_*` 引数が None の場合に使用される、省略判定のための最大文字数。デフォルトは 80 です。
 
 ## 返り値 Value
 
@@ -60,11 +72,11 @@ print(py4st.review_wrangling(before, after))
 #> No existing columns increased the number of missing values.
 #> 
 #> Decrease in missing values:
-#>   bill_length_mm     before  2 (0.58%) -> after  0 (0.00%)
-#>   bill_depth_mm      before  2 (0.58%) -> after  0 (0.00%)
-#>   flipper_length_mm  before  2 (0.58%) -> after  0 (0.00%)
-#>   body_mass_g        before  2 (0.58%) -> after  0 (0.00%)
-#>   sex                before 11 (3.20%) -> after  0 (0.00%)
+#>   bill_length_mm     before  2 (0.58%) -> after 0 (0.00%)
+#>   bill_depth_mm      before  2 (0.58%) -> after 0 (0.00%)
+#>   flipper_length_mm  before  2 (0.58%) -> after 0 (0.00%)
+#>   body_mass_g        before  2 (0.58%) -> after 0 (0.00%)
+#>   sex                before 11 (3.20%) -> after 0 (0.00%)
 #> 
 #> The following columns show changes in categories:
 #>   sex:
@@ -94,20 +106,21 @@ after = after.query('species != "Adelie"')
 
 ``` python
 print(py4st.review_wrangling(before, after))
-#> =================== Review of wrangling ====================
+#> ================== Review of wrangling ===================
 #> The shape of DataFrame:
 #>    Rows: before 344 -> after 187 (-157)
 #>    Cols: before   8 -> after   9 (+1)
 #> 
-#> Column(s) 'heavy' and 'const' were added.
-#> Column(s) 'sex' were removed.
+#> Column additions and removals:
+#>   added:   'heavy' and 'const'
+#>   removed: 'sex'
 #> 
 #> The following columns have changed their type:
 #>   species object -> category
 #>   year    int64 -> float64
 #> 
 #> Increase in missing values:
-#>   flipper_length_mm  before  2 ( 0.58%) -> after 19 (10.16%)
+#>   flipper_length_mm  before 2 (0.58%) -> after 22 (11.76%)
 #> 
 #> Decrease in missing values:
 #>   bill_length_mm  before 2 (0.58%) -> after 0 (0.00%)
@@ -121,7 +134,32 @@ print(py4st.review_wrangling(before, after))
 #>   island:
 #>     addition:  None
 #>     removal:  'Torgersen'
-#> ============================================================
+#> ==========================================================
+```
+
+データセットから除外された列が多い場合、レビューテキストの視認性を維持するために列名の一部が省略表記されます。
+
+``` python
+mroz = wooldridge.data('mroz')
+
+print(py4st.review_wrangling(
+    mroz, mroz.loc[:, 'inlf':'wage']
+    ))
+#> ================================ Review of wrangling =================================
+#> The shape of DataFrame:
+#>    Rows: before 753 -> after 753 (No change)
+#>    Cols: before  22 -> after   7 (-15)
+#> 
+#> Column additions and removals:
+#>   No columns were added. 
+#>   removed: 'repwage', 'hushrs', 'husage', 'huseduc', 'huswage' and other 10 column(s)
+#> 
+#> No existing columns had their type changed.
+#> 
+#> No existing columns decreased the number of missing values.
+#> 
+#> No columns had categories added or removed.
+#> ======================================================================================
 ```
 
 ## Notes
@@ -129,7 +167,6 @@ print(py4st.review_wrangling(before, after))
 - 本関数では、`before` と `after` が同一の DataFrame バックエンド（例：どちらも pandas、またはどちらも polars）であることを前提としています。異なるバックエンドを混在させた場合、エラーが発生します。
 
 - `review_wrangling()` 関数は、行（レコード）単位の差分（値の変更・削除など）を追跡していません。これは、レコード単位の差分を追跡するためには index が必要になり、特定のバックエンド（e.g. Pandas）への依存が生じることと、前処理では行の並び替えや index の再設定によって before と after のレコード対応付けが曖昧になりやすいことが理由です。そのため、本関数は個々のレコードの変化ではなく、データセット全体に生じた構造的な変化をレビューする関数として設計しています。
-
 
 ## 参考 See also
 

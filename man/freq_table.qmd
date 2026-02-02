@@ -47,7 +47,7 @@ freq_table(
 - `cumfreq`: 累積度数
 - `cumperc`: 累積相対度数
 
-## 使用例
+## 使用例 Example
 
 ``` python
 import py4stats as py4st
