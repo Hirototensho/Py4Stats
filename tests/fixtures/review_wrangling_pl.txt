@@ -3,8 +3,9 @@ The shape of DataFrame:
    Rows: before 344 -> after 333 (-11)
    Cols: before   8 -> after  10 (+2)
 
-Columns added: 'heavy' and 'const'
-No columns were removed.
+Column additions and removals:
+  added:   'heavy' and 'const'
+  No columns were removed.
 
 The following columns have changed their type:
   species String -> Categorical

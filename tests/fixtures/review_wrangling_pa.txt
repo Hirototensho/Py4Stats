@@ -3,8 +3,9 @@ The shape of DataFrame:
    Rows: before 344 -> after 333 (-11)
    Cols: before   8 -> after  11 (+3)
 
-Columns added: 'heavy', 'const' and '__index_level_0__'
-No columns were removed.
+Column additions and removals:
+  added:   'heavy', 'const' and '__index_level_0__'
+  No columns were removed.
 
 The following columns have changed their type:
   species string -> dictionary<values=string, indices=int8, ordered=0>

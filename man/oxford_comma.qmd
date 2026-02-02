@@ -24,10 +24,11 @@ oxford_comma_or(
     )
 
 oxford_comma_shorten(
-    x: List[str],
-    sep_last: str = 'and',
-    quotation: bool = True,
-    suffix: str = 'items',
+    x: List[str], 
+    sep_last: str = 'and', 
+    quotation: bool = True, 
+    suffix: str = 'items', 
+    max_items: Optional[int] = None,
     max_width: int = 80,
     abbreviate: bool = True
 )
@@ -42,12 +43,14 @@ oxford_comma_shorten(
 　リストの各要素にクオーテーションマーク `’’` を追加するかどうかを表す論理値。True（初期設定）であればクオーテーションマークを追加し、False であれば追加しません。
 - `suffix`：**str** `oxford_comma_shorten()` のみ</br>
     省略された要素を表すための補足語。`"other N items"` の `items` の部分に使用されます。
+- `max_items`：**int** `oxford_comma_shorten()` のみ</br>
+  `abbreviate=True` の時に表示する要素の最大個数。`max_items` が指定され、かつ `x` 数より少ない場合、出力には最初の `max_items` 個のアイテムが表示され、その後 `"and other N {suffix}"` の表記が追加されます。None の場合、テキスト幅に基づいて省略処理が行われます。
 - `max_width`：**int** `oxford_comma_shorten()` のみ</br>
     出力される文字列の最大幅。返り値の文字列がこの幅を超える場合、省略処理が行われます。デフォルトは80です。
 - `abbreviate`: **bool** `oxford_comma_shorten()` のみ</br>
-    省略処理を許可するかどうか。`False` を指定した場合、文字幅に関わらず常に全文を返します。デフォルトは `True` です。
+    省略処理を許可するかどうか。`False` を指定した場合、`x` の要素数や文字幅に関わらず常に全文を返します。デフォルトは `True` です。`abbreviate = False` が指定された場合、`oxford_comma_shorten()` の動作は `oxford_comma()` と同等になります。
 
-なお、`oxford_comma_and(x)` は `oxford_comma(x, 'and')` と、`oxford_comma_or(x)` は `oxford_comma(x, 'or')` と同等です。`oxford_comma_shorten()` は、生成されたテキストが指定された文字幅を超える場合に、自動的に省略表示を行います。省略が発生した場合は、`"and other N items"` のように、省略された要素数が分かる表現を付加します。
+なお、`oxford_comma_and(x)` は `oxford_comma(x, 'and')` と、`oxford_comma_or(x)` は `oxford_comma(x, 'or')` と同等です。`oxford_comma_shorten()` は、生成されたテキストが指定された文字幅を超える場合に、自動的に省略表示を行います。省略が発生した場合は、`"and other N items"` のように、省略された要素の数が分かる表現を付加します。
 
 ## 使用例 Example
 

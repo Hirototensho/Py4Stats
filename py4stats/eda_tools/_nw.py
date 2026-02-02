@@ -4353,6 +4353,18 @@ def list_minus(x, y):
 # In[ ]:
 
 
+def _assert_same_backend(data1, data2, funcname = 'review_wrangling', data_name = ['before', 'after']):
+      if data1.implementation is not data2.implementation:
+        raise TypeError(
+            f"{funcname}() requires `{data_name[0]}` and `{data_name[1]}`` to use the same backend.\n"
+            f"Got {data_name[0]}={data1.implementation!r}, {data_name[1]}={data2.implementation!r}.\n"
+            f"Please make sure that  `{data_name[0]}` and `{data_name[1]}` are the same backend (e.g., both pandas, both polars)."
+        )
+
+
+# In[ ]:
+
+
 def review_casting(before: IntoFrameT, after: IntoFrameT) -> str:
     res_compare = compare_df_cols(
         [before, after], return_match = 'mismatch', 
@@ -4378,35 +4390,45 @@ def review_casting(before: IntoFrameT, after: IntoFrameT) -> str:
 
 
 def review_col_addition(
-        columns_before, 
-        columns_after,
+        before: IntoFrameT, after: IntoFrameT,
         abbreviate: bool = True,
         max_columns: Optional[int] = None,
         max_width: int = 80
         ) -> str:
+    # 引数のアサーション =======================================================
+    build.assert_logical(abbreviate, arg_name = 'abbreviate')
+    build.assert_count(
+        max_columns, arg_name = 'max_columns', 
+        len_arg = 1, nullable = True)
+    build.assert_count(
+        max_width, arg_name = 'max_width', 
+        len_arg = 1)
+    # =======================================================================
+    columns_before = nw.from_native(before).columns
+    columns_after  = nw.from_native(after).columns
 
     added = list_minus(columns_after, columns_before)
     removed = list_minus(columns_before, columns_after)
+
     if added or removed:
-        col_adition = []
+        col_adition = ["Column additions and removals:"]
         if added:
-            col_adition += [f"Columns added: {build.oxford_comma_shorten(
+            col_adition += [f"  added:   {build.oxford_comma_shorten(
                 added, suffix = 'column(s)', 
                 abbreviate = abbreviate, max_items = max_columns, max_width = max_width
                 )}"]
         else:
-            col_adition += ['No columns were added. ']
+            col_adition += ['  No columns were added. ']
         if removed:
-            col_adition += [f"Columns removed: {build.oxford_comma_shorten(
+            col_adition += [f"  removed: {build.oxford_comma_shorten(
                 removed, suffix = 'column(s)',
                 abbreviate = abbreviate, max_items = max_columns, max_width = max_width
                 )}"]
         else:
-            col_adition += ['No columns were removed.']
+            col_adition += ['  No columns were removed.']
 
         return '\n'.join(col_adition)
     else: return 'No columns were added or removed.'
-
 
 
 # In[ ]:
@@ -4444,6 +4466,7 @@ def format_missing_lines(miss_table):
 
 
 def review_missing(before: IntoFrameT, after: IntoFrameT) -> str:
+
     compare_miss = diagnose(before, to_native = False)\
         .select('columns', 'missing_count', 'missing_percent')\
         .join(
@@ -4514,6 +4537,17 @@ def review_category(
         ) -> str:
     before_nw = nw.from_native(before)
     after_nw  = nw.from_native(after)
+    # 引数のアサーション =======================================================
+    _assert_same_backend(before_nw, after_nw, 'review_category')
+
+    build.assert_logical(abbreviate, arg_name = 'abbreviate')
+    build.assert_count(
+        max_categories, arg_name = 'max_columns', 
+        len_arg = 1, nullable = True)
+    build.assert_count(
+        max_width, arg_name = 'max_width', 
+        len_arg = 1)
+    # =======================================================================
 
     cols1 = before_nw.select(ncs.string(), ncs.categorical(), ncs.boolean()).columns
     cols2 = after_nw.select(ncs.string(), ncs.categorical(), ncs.boolean()).columns
@@ -4557,7 +4591,7 @@ def review_category(
 import math
 def make_header(text: str, title: str) -> str:
     max_len = np.max([len(s) for s in text.split('\n')])
-    len_header = math.ceil(max_len / 2.) * 2
+    len_header = math.ceil(max_len / 2.0) * 2
     return title.center(len_header, '=')
 
 
@@ -4646,7 +4680,11 @@ def review_wrangling(
             ...
             ============================================================
     """
+    after_nw = nw.from_native(after)
+    before_nw = nw.from_native(before)
     # 引数のアサーション =======================================================
+    _assert_same_backend(before_nw, after_nw)
+
     build.assert_character(title, arg_name = 'title', len_arg = 1)
     build.assert_logical(abbreviate, arg_name = 'abbreviate')
     build.assert_count(
@@ -4660,20 +4698,18 @@ def review_wrangling(
         len_arg = 1)
     # =======================================================================
 
-    before_nw = nw.from_native(before)
-    after_nw = nw.from_native(after)
 
-    if before_nw.implementation is not after_nw.implementation:
-        raise TypeError(
-             "review_wrangling() requires `before` and `after` to use the same backend.\n"
-            f"Got before={before_nw.implementation!r}, after={after_nw.implementation!r}.\n"
-            "Please make sure that  `before` and `after` are the same backend (e.g., both pandas, both polars)."
-        )
+    # if before_nw.implementation is not after_nw.implementation:
+    #     raise TypeError(
+    #          "review_wrangling() requires `before` and `after` to use the same backend.\n"
+    #         f"Got before={before_nw.implementation!r}, after={after_nw.implementation!r}.\n"
+    #         "Please make sure that  `before` and `after` are the same backend (e.g., both pandas, both polars)."
+    #     )
 
     review = []
     review += [review_shape(before_nw, after_nw)]
     review += [review_col_addition(
-        before_nw.columns, after_nw.columns, abbreviate = abbreviate, 
+        before_nw, after_nw, abbreviate = abbreviate, 
         max_columns = max_columns, max_width = max_width
         )]
     review += [review_casting(before, after)]

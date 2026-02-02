@@ -8,10 +8,14 @@
 
 ``` python
 review_wrangling(
-    before: IntoFrameT, 
-    after: IntoFrameT, 
-    title: str = 'Review of wrangling'
-    ) -> str:
+        before: IntoFrameT, 
+        after: IntoFrameT, 
+        title: str = 'Review of wrangling',
+        abbreviate: bool = True,
+        max_columns: Optional[int] = None,
+        max_categories: Optional[int] = None,
+        max_width: int = 80
+        ) -> str
 ```
 
 ## 引数 Argument
@@ -107,8 +111,9 @@ print(py4st.review_wrangling(before, after))
 #>    Rows: before 344 -> after 187 (-157)
 #>    Cols: before   8 -> after   9 (+1)
 #> 
-#> Columns added: 'heavy' and 'const'
-#> Columns removed: 'sex'
+#> Column additions and removals:
+#>   added:   'heavy' and 'const'
+#>   removed: 'sex'
 #> 
 #> The following columns have changed their type:
 #>   species object -> category
@@ -140,20 +145,21 @@ mroz = wooldridge.data('mroz')
 print(py4st.review_wrangling(
     mroz, mroz.loc[:, 'inlf':'wage']
     ))
-#> =================================== Review of wrangling ====================================
+#> ================================ Review of wrangling =================================
 #> The shape of DataFrame:
 #>    Rows: before 753 -> after 753 (No change)
 #>    Cols: before  22 -> after   7 (-15)
 #> 
-#> No columns were added. 
-#> Columns removed: 'repwage', 'hushrs', 'husage', 'huseduc', 'huswage' and other 10 column(s)
+#> Column additions and removals:
+#>   No columns were added. 
+#>   removed: 'repwage', 'hushrs', 'husage', 'huseduc', 'huswage' and other 10 column(s)
 #> 
 #> No existing columns had their type changed.
 #> 
 #> No existing columns decreased the number of missing values.
 #> 
 #> No columns had categories added or removed.
-#> ============================================================================================
+#> ======================================================================================
 ```
 
 ## Notes
@@ -161,7 +167,6 @@ print(py4st.review_wrangling(
 - 本関数では、`before` と `after` が同一の DataFrame バックエンド（例：どちらも pandas、またはどちらも polars）であることを前提としています。異なるバックエンドを混在させた場合、エラーが発生します。
 
 - `review_wrangling()` 関数は、行（レコード）単位の差分（値の変更・削除など）を追跡していません。これは、レコード単位の差分を追跡するためには index が必要になり、特定のバックエンド（e.g. Pandas）への依存が生じることと、前処理では行の並び替えや index の再設定によって before と after のレコード対応付けが曖昧になりやすいことが理由です。そのため、本関数は個々のレコードの変化ではなく、データセット全体に生じた構造的な変化をレビューする関数として設計しています。
-
 
 ## 参考 See also
 
