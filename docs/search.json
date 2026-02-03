@@ -644,7 +644,7 @@
     "href": "man/review_wrangling.html#概要",
     "title": "review_wrangling",
     "section": "",
-    "text": "review_wrangling(\n        before: IntoFrameT, \n        after: IntoFrameT, \n        items: List[str] = ['shape', 'col_addition', 'casting', 'missing', 'category'],\n        title: str = 'Review of wrangling',\n        abbreviate: bool = True,\n        max_columns: Optional[int] = None,\n        max_categories: Optional[int] = None,\n        max_width: int = 80\n        ) -&gt; str",
+    "text": "review_wrangling(\n    before: IntoFrameT, \n    after: IntoFrameT, \n    items: List[str] = ['shape', 'col_addition', 'casting', 'missing', 'category'],\n    title: str = 'Review of wrangling',\n    abbreviate: bool = True,\n    max_columns: Optional[int] = None,\n    max_categories: Optional[int] = None,\n    max_width: int = 80\n    ) -&gt; str",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>15</span>  <span class='chapter-title'>review_wrangling</span>"
@@ -655,7 +655,7 @@
     "href": "man/review_wrangling.html#引数-argument",
     "title": "review_wrangling",
     "section": "引数 Argument",
-    "text": "引数 Argument\n\nbefore:IntoFrameT（必須） 前処理（wrangling）を行う前のデータフレーム。narwhals が受け入れ可能な DataFrame 互換オブジェクト （例：pandas.DataFrame、polars.DataFrame、pyarrow.Table）を指定できます。\nafter:IntoFrameT（必須） 前処理（wrangling）を行った後のデータフレーム。\nitems:List of str\n\n出力に含めるレビュー項目と、その表示順序を指定するリスト。items の要素は次の文字列から選択できます。:\n\n'shape': データフレームの形状（行数・列数）の変化\n'col_addition': 追加および削除された列。\n'casting': 列のデータ型の変更。\n'missing': 欠損値の増加と減少。\n'category': カテゴリレベルの追加と削除。 レビューセクションはこのリストで指定された順序で生成されます。省略された場合、利用可能なすべてのレビュー項目がデフォルト順序で出力されます。\n\n\ntitle:str 出力されるレビューテキストのタイトル。空でない文字列を指定した場合、タイトルとともにヘッダーとフッターが追加されます。\nabbreviate：bool 列名やカテゴリー水準の一覧を省略表示するかどうかを指定します。False を指定した場合、省略は行われず、すべての項目が表示されます。デフォルトは True です。\nmax_columns:int 列の追加・削除を報告する際に表示する列名の最大数。指定された場合、abbreviate = True のときに限り、文字数ではなく列数を基準として省略が行われます。None の場合は文字数（max_width）に基づいて省略されます。\nmax_categories:int カテゴリー変数の水準の変化を報告する際に、表示する水準の最大数。指定された場合、abbreviate=True のときに限り、文字数ではなく水準数を基準として省略が行われます。None の場合は文字数（max_width）に基づいて省略されます。\nmax_width:int abbreviate=True かつ対応する max_* 引数が None の場合に使用される、省略判定のための最大文字数。デフォルトは 80 です。",
+    "text": "引数 Argument\n\nbefore:IntoFrameT（必須） 前処理（wrangling）を行う前のデータフレーム。narwhals が受け入れ可能な DataFrame 互換オブジェクト （例：pandas.DataFrame、polars.DataFrame、pyarrow.Table）を指定できます。\nafter:IntoFrameT（必須） 前処理（wrangling）を行った後のデータフレーム。\nitems:List of str\n\n出力に含めるレビュー項目と、その表示順序を指定するリスト。items の要素は次の文字列から選択できます。:\n\n'shape': データフレームの形状（行数・列数）の変化\n'col_addition': 列の追加および削除\n'casting': 列のデータ型（dtype）の変更\n'missing': 欠損値の増加と減少\n'category': カテゴリ変数における水準（レベル）の追加および削除  レビューセクションはこのリストで指定された順序で生成されます。省略された場合、利用可能なすべてのレビュー項目がデフォルト順序で出力されます。\n\n\ntitle:str 出力されるレビューテキストのタイトル。空でない文字列を指定した場合、タイトルとともにヘッダーとフッターが追加されます。\nabbreviate：bool 列名やカテゴリー水準の一覧を省略表示するかどうかを指定します。False を指定した場合、省略は行われず、すべての項目が表示されます。デフォルトは True です。\nmax_columns:int 列の追加・削除を報告する際に表示する列名の最大数。指定された場合、abbreviate = True のときに限り、文字数ではなく列数を基準として省略が行われます。None の場合は文字数（max_width）に基づいて省略されます。\nmax_categories:int カテゴリー変数の水準の変化を報告する際に、表示する水準の最大数。指定された場合、abbreviate=True のときに限り、文字数ではなく水準数を基準として省略が行われます。None の場合は文字数（max_width）に基づいて省略されます。\nmax_width:int abbreviate=True かつ対応する max_* 引数が None の場合に使用される、省略判定のための最大文字数。デフォルトは 80 です。",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>15</span>  <span class='chapter-title'>review_wrangling</span>"
@@ -699,7 +699,7 @@
     "href": "man/review_wrangling.html#参考-see-also",
     "title": "review_wrangling",
     "section": "参考 See also",
-    "text": "参考 See also\nreview_wrangling() 関数で出力される各項目を単独で提供する関数については、Individual review functions 関数を参照してください。また、列のデータ型に基づいた比較については compare_df_cols() を、数値変数の統計値に基づいた比較については compare_df_stats() もご参照ください。\n\nReturn to Function reference.",
+    "text": "参考 See also\nreview_wrangling() 関数で出力される各項目を単独で提供する関数については、Individual review functions 関数を参照してください。また、列のデータ型に基づいた比較については compare_df_cols() を、数値変数の統計値に基づいた比較については compare_df_stats() もご参照ください。\nそのほか、review_wrangling() 関数の実践的な使い方については、vignette を参照してください。\n\nReturn to Function reference.",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>15</span>  <span class='chapter-title'>review_wrangling</span>"
@@ -743,7 +743,7 @@
     "href": "man/review_individuals.html#返り値-value",
     "title": "Individual review functions",
     "section": "返り値 Value",
-    "text": "返り値 Value\nbefore と after の差分を要約した、整形済みの文字列。レビューに含まれる主な項目は次のとおりです。\n\nreview_shape(): データフレームの形状（行数・列数）の変化\nreview_col_addition(): 列の追加・削除\nreview_casting(): 既存列のデータ型（dtype）の変化\nreview_missing(): 欠測値の増加・減少\nreview_category(): カテゴリー変数における水準の増加・減少",
+    "text": "返り値 Value\nbefore と after の差分を要約した、整形済みの文字列。レビューに含まれる主な項目は次のとおりです。\n\nreview_shape(): データフレームの形状（行数・列数）の変化\nreview_col_addition(): 列の追加および削除\nreview_casting(): 列のデータ型（dtype）の変更\nreview_missing(): 欠損値の増加と減少\nreview_category(): カテゴリ変数における水準（レベル）の追加および削除",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>16</span>  <span class='chapter-title'>Individual review functions</span>"
@@ -2191,6 +2191,50 @@
     ]
   },
   {
+    "objectID": "articles/review_data_wrangling.html",
+    "href": "articles/review_data_wrangling.html",
+    "title": "Auditing data transformations with review_wrangling",
+    "section": "",
+    "text": "モチベーション（Why review data wrangling?）\nデータ分析の実務においては、しばしば同僚・上司・顧客といったステークホルダーに対して、「前処理で何を行い、その結果データがどのように変化したのか」を説明することが求められます。\n前処理を実装したプログラムは、その処理内容や変化を正確かつ詳細に表現しています。しかし実務の現場では、報告のフォーマットや時間的制約、あるいはオーディエンスが Python に慣れていないといった理由から、コードそのものを直接共有することが必ずしも適切とは限りません。\nまた、前処理によって生じた変更点を一つひとつ確認し、それをオーディエンスが理解しやすい形に整理し直す作業は、多忙なデータ分析者にとって見過ごせない負担となりがちです。\nこうした背景を踏まえ、review_wrangling()関数は、前処理の前後でデータがどのように変化したかを比較・要約し、説明やレビューを助けることを目的として設計されています。",
+    "crumbs": [
+      "**Articles**",
+      "<span class='chapter-number'>42</span>  <span class='chapter-title'>Auditing data transformations with review_wrangling</span>"
+    ]
+  },
+  {
+    "objectID": "articles/review_data_wrangling.html#何を要約するのか-what-does-review_wrangling-do",
+    "href": "articles/review_data_wrangling.html#何を要約するのか-what-does-review_wrangling-do",
+    "title": "Auditing data transformations with review_wrangling",
+    "section": "何を要約するのか (What does review_wrangling do?)",
+    "text": "何を要約するのか (What does review_wrangling do?)\nreview_wrangling() 関数は前処理前後のデータを比較し、関数は、前処理の前後におけるデータを比較し、前処理によって生じた主な変更点を次の5つの観点から要約します。\n\nデータフレームの形状（行数・列数）の変化\n列の追加および削除\n列のデータ型の変更\n欠損値の増加と減少\nカテゴリ変数における水準（レベル）の追加および削除\n\n一方で、review_wrangling() 関数は レコード単位の値の変化や行の並び替えによる変化を追跡しません。これは、行数が変化するような前処理（フィルタリング等）にも対応できるようにするためです。 また、検出された変更が妥当・適切であるかといった 解釈や価値判断は行わず、あくまで「何が変わったか」を事実として要約することに専念します。",
+    "crumbs": [
+      "**Articles**",
+      "<span class='chapter-number'>42</span>  <span class='chapter-title'>Auditing data transformations with review_wrangling</span>"
+    ]
+  },
+  {
+    "objectID": "articles/review_data_wrangling.html#いつ使うのか-when-should-it-be-used",
+    "href": "articles/review_data_wrangling.html#いつ使うのか-when-should-it-be-used",
+    "title": "Auditing data transformations with review_wrangling",
+    "section": "いつ使うのか (When should it be used?)",
+    "text": "いつ使うのか (When should it be used?)\nreview_wrangling() は、一連の前処理工程を終えた 区切りのタイミングで、報告資料やレビュー用の要約を作成する目的で使用できます。また、前処理の途中段階において、データが想定どおりに加工されているか、想定外の変化が生じていないかを短時間で確認するためのチェックとして用いることもできます。",
+    "crumbs": [
+      "**Articles**",
+      "<span class='chapter-number'>42</span>  <span class='chapter-title'>Auditing data transformations with review_wrangling</span>"
+    ]
+  },
+  {
+    "objectID": "articles/review_data_wrangling.html#example",
+    "href": "articles/review_data_wrangling.html#example",
+    "title": "Auditing data transformations with review_wrangling",
+    "section": "Example",
+    "text": "Example\n厚生労働省の食中毒発生事例データを例に、前処理のワークフローの中で review_wrangling() をどのように活用できるかを見てみましょう。\nimport py4stats as py4st\nimport pandas as pd\n\n# 出典：厚生労働省 食中毒統計資料\nurl = 'https://www.mhlw.go.jp/content/001648292.xlsx'\njp_poison1 = pd.read_excel(url, skiprows = 1)\n\nprint(py4st.diagnose(jp_poison1)\n      .loc[:, 'columns':'missing_percent'])\n#&gt; columns           dtype  missing_count  missing_percent\n#&gt; 0  Unnamed: 0         float64           1175            100.0\n#&gt; 1      都道府県名等          object              0              0.0\n#&gt; 2        発生月日  datetime64[ns]              0              0.0\n#&gt; 3        発生場所          object              0              0.0\n#&gt; 4        原因食品          object              0              0.0\n#&gt; 5        病因物質          object              0              0.0\n#&gt; 6        原因施設          object              0              0.0\n#&gt; 7        摂食者数          object              0              0.0\n#&gt; 8         患者数           int64              0              0.0\n#&gt; 9         死者数           int64              0              0.0\n日本国内で発生した細菌性の食中毒事例に関心があるものとして、ここでは次の方針で前処理を行います。\n\n空白列 Unnamed: 0 を除外する\n摂食者数を数値列として扱えるようにする\n日本国内で発生した事例を抽出する\n細菌性の食中毒事例を抽出する\n\nなお、摂食者数が object 型として扱われているのは’不明’というレコードがあるためなので、これを欠測値に置換してから数値型に変換します。\njp_poison2 = jp_poison1.copy()\n\njp_poison2 = py4st.remove_empty(jp_poison2)\n\njp_poison2 = jp_poison2.assign(\n    摂食者数 = jp_poison2['摂食者数']\n    .replace({'不明': None}).astype(float)\n)\n\njp_poison2 = jp_poison2\\\n    .query(\"発生場所 != '国内外不明' and 発生場所 != '国外'\").copy()\n\n# '細菌-ぶどう球菌' のように表記されているので、大分類と小分類に分けます。\nsplited = jp_poison2['病因物質'].str.split('-', expand = True)\n\njp_poison2 = jp_poison2.assign(\n    大分類 = splited.loc[:, 0],\n    小分類 = splited.loc[:, 1]\n)\n\njp_poison3 = jp_poison2.query(\"大分類 == '細菌'\")\n\njp_poison3.loc[:, '小分類'] = jp_poison3['小分類']\\\n    .replace({'腸管出血性大腸菌（ＶＴ産生）':'O157'})\nここまでの前処理によってデータセットにどんな変化が起きたかを review_wrangling() 関数を使って確認してみましょう。\nprint(\n    py4st.review_wrangling(\n    jp_poison1, jp_poison3, \n    max_width = 50\n    )\n)\n#&gt; ================================ Review of wrangling =================================\n#&gt; The shape of DataFrame:\n#&gt;    Rows: before 1,175 -&gt; after 315 (-860)\n#&gt;    Cols: before    10 -&gt; after  11 (+1)\n#&gt; \n#&gt; Column additions and removals:\n#&gt;   added:   '大分類' and '小分類'\n#&gt;   removed: 'Unnamed: 0'\n#&gt; \n#&gt; The following columns have changed their type:\n#&gt;   摂食者数 object -&gt; float64\n#&gt; \n#&gt; Increase in missing values:\n#&gt;   摂食者数  before 0 (0.00%) -&gt; after 38 (12.06%)\n#&gt; \n#&gt; None of the existing columns decreases in the number of missing values.\n#&gt; \n#&gt; The following columns show changes in categories:\n#&gt;   都道府県名等:\n#&gt;     addition:  None\n#&gt;     removal:  '小樽市', '函館市', '八戸市', '盛岡市' and other 28 categories\n#&gt;   発生場所:\n#&gt;     addition:  None\n#&gt;     removal:  '国外', '山形県' and '国内外不明'\n#&gt;   原因食品:\n#&gt;     addition:  None\n#&gt;     removal:  '当該飲食店が12月26日（金）に調理・提供した食事' and other 685 categories\n#&gt;   病因物質:\n#&gt;     addition:  None\n#&gt;     removal:  '寄生虫-アニサキス', 'ウイルス-ノロウイルス' and other 7 categories\n#&gt;   原因施設:\n#&gt;     addition:  None\n#&gt;     removal:  '販売店', '学校-給食施設-単独調理場-小学校' and other 3 categories\n#&gt; ======================================================================================\nreview_wrangling() の出力を見ると、前処理によって 1,175 件あったデータが 315 件に絞り込まれたこと、新しい変数として「大分類」と「小分類」が追加され、Unnamed: 0 列が削除されたことが分かります。\nまた、「摂食者数」は object 型から float 型に変換され、‘不明’ を欠測値（NaN）に置き換えたことで 38 件の欠測が新たに発生しています。これは想定通りの変化と言えるでしょう。\n病因物質のカテゴリーからは ‘寄生虫-アニサキス’ や ‘ウイルス-ノロウイルス’ など 7 カテゴリーが除外されており、ここでも「細菌性」に限定した前処理の影響が確認できます。\n一方で、報告自治体を表す「都道府県名等」から ‘小樽市’ や ‘函館市’ など 28 自治体が除外されているほか、「原因施設」からも ‘販売店’ や小学校の ‘給食施設’ など 3 カテゴリーが除外されています。これらは意図した変更ではありませんが、今回のデータセットには該当する細菌性の事例が含まれていなかったと解釈できるため、問題はないと判断できます。\nこのように review_wrangling() を用いることで、前処理によって生じた想定内・想定外の変化を一度に把握し、その妥当性を短時間で確認することができます。",
+    "crumbs": [
+      "**Articles**",
+      "<span class='chapter-number'>42</span>  <span class='chapter-title'>Auditing data transformations with review_wrangling</span>"
+    ]
+  },
+  {
     "objectID": "articles/narwhals_in_py4stats.html",
     "href": "articles/narwhals_in_py4stats.html",
     "title": "Technical Notes: py4stats.eda_tools における narwhals ベースの実装",
@@ -2198,7 +2242,7 @@
     "text": "概要\npy4stats.eda_tools モジュールは、複数の DataFrame バックエンドに対して共通の API を提供することを目的として、narwhals ライブラリを用いて実装されています。\n本ドキュメントでは、本モジュールの内部実装に関する前提条件や、バックエンドの違いに起因する挙動上の注意点について説明します。\n通常の利用にあたって本ドキュメントを読む必要はありませんが、実装の詳細や挙動の違いが気になる場合には参考にしてください。",
     "crumbs": [
       "**Articles**",
-      "<span class='chapter-number'>42</span>  <span class='chapter-title'>Technical Notes: py4stats.eda_tools における narwhals ベースの実装</span>"
+      "<span class='chapter-number'>43</span>  <span class='chapter-title'>Technical Notes: py4stats.eda_tools における narwhals ベースの実装</span>"
     ]
   },
   {
@@ -2209,7 +2253,7 @@
     "text": "対応している DataFrame バックエンドについて\n　py4stats.eda_tools モジュールの関数は、第一引数として narwhals.from_native() によって nw.DataFrame 型へ変換可能な DataFrame オブジェクトを受け取ります。\n具体的には、以下のようなバックエンドを想定しています。\n\npandas.DataFrame（主に動作検証を行っているバックエンド）\npolars.DataFrame（簡易的な動作確認のみ）\npyarrow.Table（簡易的な動作確認のみ）\n\n本ライブラリの動作確認は、基本的に pandas.DataFrame を用いて実施しています。そのため、polars や pyarrow を使用した場合には、バックエンド固有の仕様差や未検証の挙動により、一部の関数でエラーが発生する可能性があります。そのような挙動が確認された場合は、Issue 等での報告を歓迎します。\n　また、バックエンド別の実装状況については eda_tools開発状況 も参照して下さい。",
     "crumbs": [
       "**Articles**",
-      "<span class='chapter-number'>42</span>  <span class='chapter-title'>Technical Notes: py4stats.eda_tools における narwhals ベースの実装</span>"
+      "<span class='chapter-number'>43</span>  <span class='chapter-title'>Technical Notes: py4stats.eda_tools における narwhals ベースの実装</span>"
     ]
   },
   {
@@ -2220,7 +2264,7 @@
     "text": "narwhals を用いた関数の返り値の型について\npy4stats.eda_tools モジュールの関数のうち、py4stats.diagnose() など、第一引数にデータフレームを取る関数の返り値の型は、to_native 引数の値によって変化します。 　初期設定である to_nativ = True の場合には、第一引数に入力されたデータフレームと同じ型のデータフレームが出力され、to_nativ = False の場合には narwhals.DataFrame 型のデータフレームが出力されます。to_nativ = False のオプションは、主にライブラリ内部での利用や、データフレームのバックエンドに依存しない後続処理を行いたい場合を想定したオプションです。\nimport py4stats as py4st\nimport pandas as pd\nimport polars as pl\nimport pyarrow as pa\nimport wooldridge\nmroz_pd = wooldridge.data('mroz')       # pd.DataFrame\nmroz_pl = pl.from_pandas(mroz_pd)       # pl.DataFrame\nmroz_pa = pa.Table.from_pandas(mroz_pd) # pyarrow.lib.Table\n# to_nativ = True の場合(初期設定): 入力されたデータフレームと同じ型\n\nprint(type(py4st.diagnose(mroz_pd, to_native = True)))\n#&gt; &lt;class 'pandas.core.frame.DataFrame'&gt;\n\nprint(type(py4st.diagnose(mroz_pl, to_native = True)))\n#&gt; &lt;class 'polars.dataframe.frame.DataFrame'&gt;\n\nprint(type(py4st.diagnose(mroz_pa, to_native = True)))\n#&gt; &lt;class 'pyarrow.lib.Table'&gt;\n# to_nativ = False の場合: narwhals.DataFrame 型\n\nprint(type(py4st.diagnose(mroz_pd, to_native = False)))\n#&gt; &lt;class 'narwhals.dataframe.DataFrame'&gt;\n\nprint(type(py4st.diagnose(mroz_pl, to_native = False)))\n#&gt; &lt;class 'narwhals.dataframe.DataFrame'&gt;\n\nprint(type(py4st.diagnose(mroz_pa, to_native = False)))\n#&gt; &lt;class 'narwhals.dataframe.DataFrame'&gt;",
     "crumbs": [
       "**Articles**",
-      "<span class='chapter-number'>42</span>  <span class='chapter-title'>Technical Notes: py4stats.eda_tools における narwhals ベースの実装</span>"
+      "<span class='chapter-number'>43</span>  <span class='chapter-title'>Technical Notes: py4stats.eda_tools における narwhals ベースの実装</span>"
     ]
   },
   {
@@ -2231,7 +2275,7 @@
     "text": "narwhals を用いた実装方針について\n　内部実装では、関数の冒頭で\nnw.from_native(data)\nを用いて入力データを nw.DataFrame に変換し、以降の処理を narwhals の抽象 API 上で行っています。\nこの設計により、DataFrame バックエンドごとの差異を最小限に抑えつつ、将来的な拡張性を確保することを目的としています。\n一方で、narwhals は各バックエンドの完全な互換性を保証するものではないため、特定の操作や型変換についてはバックエンドごとに挙動が異なる場合があります。",
     "crumbs": [
       "**Articles**",
-      "<span class='chapter-number'>42</span>  <span class='chapter-title'>Technical Notes: py4stats.eda_tools における narwhals ベースの実装</span>"
+      "<span class='chapter-number'>43</span>  <span class='chapter-title'>Technical Notes: py4stats.eda_tools における narwhals ベースの実装</span>"
     ]
   },
   {
@@ -2242,7 +2286,7 @@
     "text": "pandas_flavor を用いた DataFrame メソッドの登録について\npy4stats.eda_tools の関数のうち、単一の DataFrame オブジェクトを引数として受け取る関数については、pandas_flavor.register_dataframe_method を用いて DataFrame メソッドとして登録されています。その結果、以下のような使い方が可能です。\ndf.diagnose()\nただし、pandas_flavor は pandas の拡張を前提とした仕組みであるため、このメソッド形式の呼び出しは、pandas.DataFrame を対象としています。 　polars.DataFrame や pyarrow ベースのオブジェクトを使用する場合には、関数として直接呼び出す形での利用を推奨します。\nimport py4stats as py4st\n\npy4st.diagnose(df)",
     "crumbs": [
       "**Articles**",
-      "<span class='chapter-number'>42</span>  <span class='chapter-title'>Technical Notes: py4stats.eda_tools における narwhals ベースの実装</span>"
+      "<span class='chapter-number'>43</span>  <span class='chapter-title'>Technical Notes: py4stats.eda_tools における narwhals ベースの実装</span>"
     ]
   },
   {
@@ -2253,7 +2297,7 @@
     "text": "今後について\n　py4stats.eda_tools モジュールは、今後も narwhals ベースの実装を主軸として改良・拡張を行っていく予定です。一方で、従来の pandas ベースの実装については、互換性のために当面は保持される予定ですが、機能追加は行わない予定です。バックエンドごとの挙動差や制限事項については、必要に応じて本ドキュメントを更新していきます。",
     "crumbs": [
       "**Articles**",
-      "<span class='chapter-number'>42</span>  <span class='chapter-title'>Technical Notes: py4stats.eda_tools における narwhals ベースの実装</span>"
+      "<span class='chapter-number'>43</span>  <span class='chapter-title'>Technical Notes: py4stats.eda_tools における narwhals ベースの実装</span>"
     ]
   },
   {
@@ -2264,7 +2308,7 @@
     "text": "Py4Stats ライブラリのモジュール構成",
     "crumbs": [
       "**Contributing Notes**",
-      "<span class='chapter-number'>43</span>  <span class='chapter-title'>Project Guide</span>"
+      "<span class='chapter-number'>44</span>  <span class='chapter-title'>Project Guide</span>"
     ]
   },
   {
@@ -2275,7 +2319,7 @@
     "text": "py4stats\n├ メインモジュール               # Import py4stats で直接読み込み\n│ ├ eda_tools                   # 探索的データ解析と前処理\n│ │ ├ _.nw                         # narwhals ベースの現行実装\n│ │ └ _.pandas                     # Pandas ベースの旧実装（廃止予定）\n│ └ regression_tools            # 回帰分析の可視化と表作成\n└ サブモジュール                 # Import py4stats では読み込まれない\n　 ├ heckit_helper               #regression_tools の追加メソッド\n　 └ building_block              # 内部実装用のアサーション関数とユーティリティ関数を提供",
     "crumbs": [
       "**Contributing Notes**",
-      "<span class='chapter-number'>43</span>  <span class='chapter-title'>Project Guide</span>"
+      "<span class='chapter-number'>44</span>  <span class='chapter-title'>Project Guide</span>"
     ]
   },
   {
@@ -2286,7 +2330,7 @@
     "text": "Py4Stats ライブラリのインポート\n# ライブラリの読み込み（推奨）\nimport py4stats as py4st\n\n# サブモジュールの読み込み\nfrom py4stats import heckit_helper\nfrom py4stats import building_block as build \n\n# eda_tools のバックエンド別実装の明示的な読み込み\nfrom py4stats.eda_tools import _nw as eda_nw\nfrom py4stats.eda_tools import _pandas as eda_pd",
     "crumbs": [
       "**Contributing Notes**",
-      "<span class='chapter-number'>43</span>  <span class='chapter-title'>Project Guide</span>"
+      "<span class='chapter-number'>44</span>  <span class='chapter-title'>Project Guide</span>"
     ]
   },
   {
@@ -2297,7 +2341,7 @@
     "text": "リポジトリのディレクトリ構成\n2026年1月24日 現在\nPy4Stats \n├── README.md                           # GitHub リポジトリのトップページ用ファイル\n├── index.qmd                           # APIドキュメント(Quarto Book)のトップページ\n├── _quarto.yml                         # Quarto Book の設定ファイル\n├── introduction.qmd\n├── articles                            # APIドキュメント以外の公開記事\n├── man                                 # APIドキュメントのうち、関数のドキュメント\n│   ├── diagnose.qmd\n│   ├── compare_ols.qmd\n│   ...\n│   └── image                           # ドキュメントに使用する画像\n├── py4stats\n│   ├── __init__.py                     # Py4Stats の Import 時に読み込まれる関数を定義\n│   ├── building_block.py               # 引数のアサーションなどユーティリティモジュール\n│   ├── eda_tools                       # 探索的データ解析\n│   │   ├── __init__.py\n│   │   ├── _nw.py                      # バックエンドに narwhals を使用した実装\n│   │   └── _pandas.py                  # バックエンドに pandas を使用した旧仕様\n│   ├── heckit_helper.py\n│   └── regression_tools.py             # 回帰分析の可視化と作表\n├── pyproject.toml\n├── reference.md                        # man/ の関数ドキュメントへのリンク集\n├── setup.ipynb\n├── setup.py\n└── tests                              # APIのテストコード\n    ├── fixtures                       # 自動テストで参照するデータ\n    ├── test_building_block.py\n    ├── test_eda_tools_nw.py\n    ├── test_eda_tools_pandas.py\n    ├── test_heckit_helper.py\n    └── test_regression_tools.py\n注意：eda_tools._pandas.py は 非推奨扱いで将来的に廃止する予定です。詳細は以下を参照してください。\n\nTechnical Notes\neda_tools開発状況",
     "crumbs": [
       "**Contributing Notes**",
-      "<span class='chapter-number'>43</span>  <span class='chapter-title'>Project Guide</span>"
+      "<span class='chapter-number'>44</span>  <span class='chapter-title'>Project Guide</span>"
     ]
   },
   {
@@ -2308,7 +2352,7 @@
     "text": "リポジトリの運用方針\n\n\n\nPy4Statsリポジトリの運用方針",
     "crumbs": [
       "**Contributing Notes**",
-      "<span class='chapter-number'>43</span>  <span class='chapter-title'>Project Guide</span>"
+      "<span class='chapter-number'>44</span>  <span class='chapter-title'>Project Guide</span>"
     ]
   },
   {
@@ -2319,7 +2363,7 @@
     "text": "セマンティック バージョニングについてのメモ\nPy4Stats ライブラリのバージョンは次の方式のセマンティック バージョニングで管理します(e.g. v 0.1.0)。\nv MAJOR.MINOR.PATCH\nv MAJOR.MINOR.PATCH の各要素は、次の規則で更新します。\n\nMAJOR APIの変更に互換性のない場合はメジャーバージョンを上げる\nMINOR 後方互換性があり機能性を追加した場合はマイナーバージョンを上げる\nPATCH 後方互換性を伴うバグ修正をした場合はパッチバージョンを上げる",
     "crumbs": [
       "**Contributing Notes**",
-      "<span class='chapter-number'>43</span>  <span class='chapter-title'>Project Guide</span>"
+      "<span class='chapter-number'>44</span>  <span class='chapter-title'>Project Guide</span>"
     ]
   },
   {
@@ -2330,7 +2374,7 @@
     "text": "デザインパターン\n\n引数のアサーション\nfrom py4stats import building_block as build \n# 文字列引数のアサーション（選択肢を制限）\narg = build.arg_match(\n    arg, values = ['option_1', 'option_2'], \n    arg_name = 'arg', \n    )\nbuild.assert_logical(arg, arg_name = 'arg')   # ブール値\nbuild.assert_character(arg, arg_name = 'arg') # 文字列\nbuild.assert_numeric(arg, arg_name = 'arg')   # 数値(int or float)\nbuild.assert_integer(arg, arg_name = 'arg')   # 整数値(int)\nbuild.assert_count(arg, arg_name = 'arg')     # 非負整数値(int)\nbuild.assert_float(arg, arg_name = 'arg')     # フロート値(float)\n\n\nnarwhals が受け入れ可能な互換オブジェクトに singledispatch する方法\n\n結論\n\nDataFrame の場合 @foo.register(nw.typing.IntoDataFrame) を使う\nSeries の場合 @foo.register(nw.typing.IntoSeries) を使う\n\n\n\n詳細\nfunctools.singledispatch を使って総称関数を定義する場合、@singledispatch デコレータで総称関数を定義したあと、@foo.register(Class) デコレータでクラス毎のメソッド関数を定義します。\nnarwhals が受け入れ可能な DataFrame 互換オブジェクトに対するメソッドを定義する場合には、nw.typing.IntoDataFrame を使い、Series 互換オブジェクトに対するメソッドを定義する場合には nw.typing.IntoSeries を使います。\n# 実装例\nimport narwhals as nw\nfrom functools import singledispatch\n\n@singledispatch\ndef foo(x):\n    return 'I am some object'\n\n@foo.register(nw.typing.IntoDataFrame)\ndef foo_df(x):\n    return  'I am a DataFrame'\n\n@foo.register(nw.typing.IntoSeries)\ndef foo_s(x):\n    return 'I am a Series'\n# 動作例\nimport pandas as pd\nimport polars as pl\nimport pyarrow as pa\n\ndata_pd = pd.DataFrame({'x':[1, 2, 3], 'y':['a', 'b', 'c']})\ndata_pl = pl.from_pandas(data_pd)\ndata_pa = pa.Table.from_pandas(data_pd)\ndata_nw = nw.from_native(data_pd)\n\ndata_dict = {\n    'df_pd' :data_pd, 'df_pl' :data_pl, 'df_pa' :data_pa, 'df_nw' :data_nw,\n    's_pd' :data_pd['x'], 's_pl' :data_pl['x'], 's_pa' :data_pa['x'], 's_nw':data_nw['x'],\n    'int': 1 \n}\n\n[f\"{k}: {foo(x)}\" for k, x in zip(data_dict.keys(), data_dict.values())]\n#&gt; [\"df_pd: 'I am a DataFrame'\",\n#&gt;  \"df_pl: 'I am a DataFrame'\",\n#&gt;  \"df_pa: 'I am a DataFrame'\",\n#&gt;  \"df_nw: 'I am a DataFrame'\",\n#&gt;  \"s_pd: 'I am a Series'\",\n#&gt;  \"s_pl: 'I am a Series'\",\n#&gt;  \"s_pa: 'I am a Series'\",\n#&gt;  \"s_nw: 'I am a Series'\",\n#&gt;  \"int: 'I am some object'\"]",
     "crumbs": [
       "**Contributing Notes**",
-      "<span class='chapter-number'>43</span>  <span class='chapter-title'>Project Guide</span>"
+      "<span class='chapter-number'>44</span>  <span class='chapter-title'>Project Guide</span>"
     ]
   },
   {
@@ -2341,7 +2385,7 @@
     "text": "総称関数の実装に関する覚書\n\n総称関数に登録されたメソッドの確認\n\n結論\n\nある関数に登録されたメソッド全体を確認するには foo.registry を使い\nある関数に登録された特定のクラスのメソッドを確認するには foo.dispatch(Class) を使います\n\n\n\n詳細\nある総称関数に、どのようなメソッドが登録されているかは、.registry 属性で確認することができます。.registry は {型: 実装関数} の辞書であり、object クラスはデフォルト実装に対応しています。\nimport py4stats as py4st\nimport pandas as pd\n\nregistry = py4st.is_dummy.registry\nprint(pd.Series(registry).apply(lambda x: x.__name__))\n#&gt; &lt;class 'object'&gt;                                         is_dummy\n#&gt; &lt;class 'narwhals._native.NativeSeries'&gt;           is_dummy_series\n#&gt; &lt;class 'narwhals.series.Series'&gt;                  is_dummy_series\n#&gt; &lt;class 'narwhals._native.NativeDataFrame'&gt;    is_dummy_data_frame\n#&gt; &lt;class 'narwhals.dataframe.DataFrame'&gt;        is_dummy_data_frame\n#&gt; &lt;class 'tuple'&gt;                                     is_dummy_list\n#&gt; &lt;class 'list'&gt;                                      is_dummy_list\n#&gt; dtype: object\nまた、.dispatch(Class) メソッドで特定のオブジェクトクラスに対して実装されたメソッド関数を確認することができます。\nprint(py4st.is_dummy.dispatch(pd.DataFrame).__name__)\n#&gt; is_dummy_data_frame\n\nprint(py4st.is_dummy.dispatch(pd.Series).__name__)\n#&gt; is_dummy_series\n\nprint(py4st.is_dummy.dispatch(list).__name__)\n#&gt; is_dummy_list\n\nprint(py4st.is_dummy.dispatch(int).__name__) # デフォルト実装\n#&gt; is_dummy",
     "crumbs": [
       "**Contributing Notes**",
-      "<span class='chapter-number'>43</span>  <span class='chapter-title'>Project Guide</span>"
+      "<span class='chapter-number'>44</span>  <span class='chapter-title'>Project Guide</span>"
     ]
   },
   {
@@ -2352,7 +2396,7 @@
     "text": "関数の実装状況一覧\n2026年1月24日",
     "crumbs": [
       "**Contributing Notes**",
-      "<span class='chapter-number'>44</span>  <span class='chapter-title'>eda_toolsの開発状況</span>"
+      "<span class='chapter-number'>45</span>  <span class='chapter-title'>eda_toolsの開発状況</span>"
     ]
   },
   {
@@ -2363,7 +2407,7 @@
     "text": "関数の実装状況一覧\n\n\n\n\n\n\n\n\n\n\nfunctions\nInput\nPandas\nPolars\nPyarrow\n補足\n\n\n\n\nMean\npd.Series\n✅\n❌\n❌\npd.DataFrame.eval() での使用を想定した関数\n\n\nMedian\npd.Series\n✅\n❌\n❌\npd.DataFrame.eval() での使用を想定した関数\n\n\nMax\npd.Series\n✅\n❌\n❌\npd.DataFrame.eval() での使用を想定した関数\n\n\nMin\npd.Series\n✅\n❌\n❌\npd.DataFrame.eval() での使用を想定した関数\n\n\nPareto_plot\nDataFrame\n✅\n✅\n✅\n\n\n\nSum\npd.Series\n✅\n❌\n❌\npd.DataFrame.eval() での使用を想定した関数\n\n\ncheck_that\nDataFrame\n✅\n⭕️\n⭕️\n実装に pd.DataFrame.eval() を使用\n\n\ncheck_viorate\nDataFrame\n✅\n⭕️\n⭕️\n実装に pd.DataFrame.eval() を使用\n\n\ncompare_df_cols\nDataFrame\n✅\n✅\n✅\n\n\n\ncompare_df_record\nDataFrame\n✅\n✅\n✅\n\n\n\ncompare_df_stats\nDataFrame\n✅\n✅\n✅\n\n\n\ncompare_group_means\nDataFrame\n✅\n✅\n✅\n\n\n\ncompare_group_median\nDataFrame\n✅\n✅\n✅\n\n\n\ncrosstab\nDataFrame\n✅\n✅\n⭕️\nPyarrow は Polars 依存の実装\n\n\ndiagnose\nDataFrame\n✅\n✅\n✅\n\n\n\ndiagnose_category\nDataFrame\n✅\n✅\n✅\n\n\n\nfiltering_out\nDataFrame\n✅\n✅\n✅\n\n\n\nfreq_table\nDataFrame\n✅\n✅\n✅\n\n\n\nimplies_exper\npd.Series\n✅\n❌\n❌\npd.DataFrame.eval() での使用を想定した関数\n\n\nis_dummy\nDataFrame/Series\n✅\n✅\n✅\n\n\n\nis_number\nSeries\n✅\n✅\n✅\n\n\n\nis_ymd_like\nSeries\n✅\n✅\n✅\n\n\n\nis_ymd\nSeries\n✅\n✅\n✅\n\n\n\nmean_ci\nDataFrame/Series\n✅\n✅\n✅\n\n\n\nmean_qi\nDataFrame/Series\n✅\n✅\n✅\n\n\n\nmedian_qi\nDataFrame/Series\n✅\n✅\n✅\n\n\n\nmin_max\nSeries\n✅\n✅\n✅\n\n\n\nplot_mean_diff\nDataFrame\n✅\n✅\n✅\n\n\n\nplot_median_diff\nDataFrame\n✅\n✅\n✅\n\n\n\nplot_miss_var\nDataFrame\n✅\n✅\n✅\n\n\n\nscale\nSeries\n✅\n✅\n✅\n\n\n\nset_miss\nSeries\n✅\n✅\n✅\n\n\n\nrelocate\nDataFrame\n✅\n✅\n✅\n\n\n\nremove_constant\nDataFrame\n✅\n✅\n✅\n\n\n\nremove_empty\nDataFrame\n✅\n✅\n✅\n\n\n\ntabyl\nDataFrame\n✅\n⭕️\n⭕️\n一部の処理が Pandas 依存\n\n\nweighted_mean\nSeries\n✅\n✅\n✅",
     "crumbs": [
       "**Contributing Notes**",
-      "<span class='chapter-number'>44</span>  <span class='chapter-title'>eda_toolsの開発状況</span>"
+      "<span class='chapter-number'>45</span>  <span class='chapter-title'>eda_toolsの開発状況</span>"
     ]
   },
   {
@@ -2374,7 +2418,7 @@
     "text": "凡例\n\n✅ 実装済/テスト済\n⭕️ 実装済/テスト済（異なるバックエンドに依存）\n🔼 実装済/テスト未\n❌ 未実装",
     "crumbs": [
       "**Contributing Notes**",
-      "<span class='chapter-number'>44</span>  <span class='chapter-title'>eda_toolsの開発状況</span>"
+      "<span class='chapter-number'>45</span>  <span class='chapter-title'>eda_toolsの開発状況</span>"
     ]
   },
   {
@@ -2385,7 +2429,7 @@
     "text": "narwhals での再現が難しい Pandas の機能",
     "crumbs": [
       "**Contributing Notes**",
-      "<span class='chapter-number'>45</span>  <span class='chapter-title'>narwhals についての考察</span>"
+      "<span class='chapter-number'>46</span>  <span class='chapter-title'>narwhals についての考察</span>"
     ]
   },
   {
@@ -2396,7 +2440,7 @@
     "text": "異なるデータフレーム間の二項演算\nPandas の場合、2つのデータフレーム df1 と df2 が共通の columns と index をもつ限り、df3 = df1 + df2 によって二項演算を行うことができ、このとき、columns と index をもつ要素同士が加算されます。しかし、narwhals には Pandas のような index が存在しないため、この計算は再現が困難です。\n\n\nデータフレームへの値の代入\nPandas の場合、df.loc[i, j] = x という形でデータフレーム df の i, j 要素に値 x を代入することができますが、narwhals ではこれに相当する演算 df[i, j] = x は禁止されています。\n異なるデータフレーム間の二項演算に制約があること、そしてデータフレームへの値の代入が難しいことから、tabyl() 関数では、集計後の作表処理の一部を Pandas に依存しています。\n\n\n任意の関数でグループ別集計を行う\n自作関数を使ってグループ別集計を行いたい場合、Pandas であれば df.groupby(group)[x].agg(my_func) で行うことができます。同じく narwhals でも\ndata_nw.group_by(nw.col(group)).agg(nw.col('x').mean())\nという形でグループ別の集計がサポートされているものの、ここで使用できる集計関数は narwhals で実装されているものに限定されるようで、次のような方法で自作関数を使用することはできません。\ndata_nw.group_by(nw.col(group)).agg(nw.col('x').my_func())\ndata_nw.group_by(nw.col(group)).agg(my_func(nw.col('x')))\n例えば Py4Stats では、Pareto_plot() 関数の内部実装に使用している make_rank_table() 関数において、任意の関数をグループ別集計に使うために、サブセッティングを使って group_by() メソッドの使用を回避するという変則的（かつ、おそらく非効率 ）な実装を行なっています。\nstat_values = [\n            aggfunc(\n                data_nw.filter(nw.col(group) == g)[values]\n                .drop_nulls().to_native()\n                ) \n            for g in group_value\n            ]\nまた、上記の回避策のもう1つの問題として、data_nw.filter(nw.col(group) == g) では、複数の変数に基づくグループ化に対応できないことも挙げられます。make_rank_table() 関数については、Pareto_plot() 関数でパレート図を作図するときに横軸になる group が多変数だと対応できないので、group が1変数（= 引数として1つの文字列だけを受け付ける）とすることで妥協しています。\nただ、現時点で narwhals.GroupBy クラスに実装されているメソッドは .agg() しかなく、開発が進めばより柔軟な関数適用が可能になるのではないかと期待しています。",
     "crumbs": [
       "**Contributing Notes**",
-      "<span class='chapter-number'>45</span>  <span class='chapter-title'>narwhals についての考察</span>"
+      "<span class='chapter-number'>46</span>  <span class='chapter-title'>narwhals についての考察</span>"
     ]
   },
   {
@@ -2407,7 +2451,7 @@
     "text": "narwhals におけるバックエンドとその書き換え\n\nバックエンドの基本的な理解\nnarwhals におけるバックエンドによる型変換の基本的な理解として（不正確かもしれませんが）、nw.from_native(data) の実行時に data の型に応じて backend が記録され、.to_native() メソッドを呼び出すと、記録された backend に応じて元の型に変換されます。\nbackend の情報は .select() .filter() などのメソッドを使って data_nw を加工しても保持され、これによって入力された input_pd と同じ型のデータフレームを返すことが可能になっています。\ndata_nw = nw.from_native(input_pd) # ここで backend が記録される\ndata_nw.implementation       # -&gt; Pandas\nresult = data_nw.to_native() # -&gt; pd.DataFrame が出力される\n一方で、処理の途中で pd.DataFrame や pl.DataFrame などの native オブジェクトを経由した場合、改めて nw.from_native() を使って nw.DataFrame に変換し直したとしても、その時点で backend が上書きされるので、.to_native() メソッドを使用しても引数として入力された input_pd と同じ型に復元される保証はありません。\ndata_nw = nw.from_native(input_pd)              # ここで backend が記録される\ndata_nw2 = nw.from_native(data_nw.to_polars())  # ここで backend が上書きされる\ndata_nw2.implementation                         # -&gt; polars\nresult = data_nw2.to_native()                   # -&gt; pl.DataFrame が出力される\n従って、result が input_pd と同じ型をもつことを保証するには、data_nw を nw.DataFrame クラスのまま維持する（≒ narwhals ベースのメソッドだけで処理を書く）必要があり、これが narwhals ベースの実装としてのあるべき姿だと思われます。\n一方で、一部の処理が特定のバックエンド（e.g. Pandas）に依存している場合にはどうするべきでしょうか。これには次のような2つの選択肢があると考えています。\n\n処理が依存しているバックエンドのオブジェクト（e.g. pd.DataFrame）として出力する〔推奨〕\nnarwhals の仕様を迂回してバックエンドを書き換える〔非推奨ですが次節で考察〕\n\nこれら2つの可能性の間での選択は、技術的な問題であると同時にユーザーとのコミュニケーションの問題です。入力と同型のデータフレームを返す関数の中に pd.DataFrame を返す関数が混ざっていることをユーザーにどう説明するのか。あるいは、narwhals の仕様を迂回をしたことで非効率性やカラムレベルでデータ型（dtype）の一貫性が失われる問題が生じたとして、それをユーザーにどう説明するのか、という問いです。\n\n\nバックエンドの書き換え (非推奨)\nいま、some_computation() として実装された処理の一部が Pandas に依存しており、結果が result_pd という pd.DataFrame 型のオブジェクトとして得られているとします。このとき、result_pd をもとのデータフレーム data_pl と同型にする方法の1つとして、result_pd を pd.Series.to_dict() などを使って辞書のリスト（list of dict）に変換したのち、nw.from_dicts() を使って data_pl と同じバックエンドをもつ nw.DataFrame に変換するという方法があります。\n以上の変換の実例を見てみましょう。まずは、data_pl\ndata_pl = pl.from_pandas(load_penguins())[:10, :2]\n\ndata_pl = data_pl.with_columns(\n        pl.all().cast(pl.Categorical)\n    )\nprint(type(data_pl))\n#&gt; &lt;class 'polars.dataframe.frame.DataFrame'&gt;\nprint(data_pl.schema)\n#&gt; Schema({'species': Categorical, 'island': Categorical})\n\ndata_nw_pl = nw.from_native(data_pl) # ここでバックエンドを記録、後ほど復元に使います。\n\n# 何かしらの処理の結果 pd.DataFrame に変換されたとする\nresult_pd = data_nw_pl.to_pandas()\nprint(type(result_pd))\n#&gt; &lt;class 'pandas.core.frame.DataFrame'&gt;\n次に、pl.DataFrame 型をもつ result_pd を pl.DataFrame に変換します。\nここでポイントとなるのが、nw.from_dicts() 関数の引数の (1)schema 引数と、(2)backend引数に、それぞれ data_nw_pl から取得した値を入力することで、result_pl の列が data_pl と同じく Categorical 型になるようにしています(指定しないと String 型として解釈されてしまいます)。\n# Pandas -&gt; polars の変換\ndict_list = [result_pd.loc[i, :].to_dict() for i in result_pd.index]\n\nresult_nw_pl = nw.from_dicts(\n    dict_list, \n    schema = data_nw_pl.schema,         # (1)\n    backend = data_nw_pl.implementation # (2)\n    )\nresult_pl = result_nw_pl.to_native()\n\nprint(type(result_pl))\n#&gt; &lt;class 'polars.dataframe.frame.DataFrame'&gt;\n\nprint(result_pl.schema)\n#&gt; Schema({'species': Categorical, 'island': Categorical})\nまた、Series については、nw.Series.from_iterable() 関数を使うことで、次のようにバックエンドを書き換えることができます。\nx_pl = data_pl['island']\nprint(type(x_pl))\n#&gt; &lt;class 'polars.series.series.Series'&gt;\nprint(x_pl.dtype)\n#&gt; Categorical\n\nx_nw = nw.from_native(x_pl, allow_series = True)\nx_pd = x_nw.to_pandas()\nprint(type(x_pd))\n#&gt; &lt;class 'pandas.core.series.Series'&gt;\nx_pl2 = nw.Series.from_iterable(\n    name = x_pd.name,\n    values = x_pd.to_list(),\n    backend = x_nw.implementation,\n    dtype = x_nw.dtype\n).to_native()\n\nprint(type(x_pl2))\n#&gt; &lt;class 'polars.series.series.Series'&gt;\nprint(x_pl2.dtype)\n#&gt; Categorical\nnarwhals の仕様を迂回してバックエンドを書き換えることは可能ですが、この方法には次のような問題があります。 ただし、以上のような方法でバックエンドの書き換えは可能ですが、\n\n小さいデータフレームでない限り時間がかかる\n\n恐らく、dict_list を作成するための for ループによるもの\n\n上記の (1) に代入する正しい schema が用意できないと、カラムレベルでデータ型の一貫性保証できない。\n\n特に2番目の問題点については、集計処理によって列名が変わった場合には正しい schema(≒ {列名:dtype} の辞書オブジェクト)を用意することが難しくなります。そして、schema を指定できないと、pd.Categorical、pl.Categorical あるいは pl.Enum といったカテゴリー変数は文字列型に変換されてしまい、データ型の一貫性が失われます。\nカラムレベルで型の一貫性が失われると、返り値が入力値とは異なる型になるよりも把握しづらく、また挙動の予測が難しいため、上記のような処理は採用するとしても、他に方法がないときの最終手段として扱うべきでしょう。",
     "crumbs": [
       "**Contributing Notes**",
-      "<span class='chapter-number'>45</span>  <span class='chapter-title'>narwhals についての考察</span>"
+      "<span class='chapter-number'>46</span>  <span class='chapter-title'>narwhals についての考察</span>"
     ]
   }
 ]

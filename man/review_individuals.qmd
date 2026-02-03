@@ -61,10 +61,10 @@ review_category(
 `before` と `after` の差分を要約した、整形済みの文字列。レビューに含まれる主な項目は次のとおりです。
 
 - `review_shape()`: データフレームの形状（行数・列数）の変化
-- `review_col_addition()`: 列の追加・削除
-- `review_casting()`: 既存列のデータ型（dtype）の変化
-- `review_missing()`: 欠測値の増加・減少
-- `review_category()`: カテゴリー変数における水準の増加・減少
+- `review_col_addition()`: 列の追加および削除
+- `review_casting()`: 列のデータ型（dtype）の変更
+- `review_missing()`: 欠損値の増加と減少
+- `review_category()`: カテゴリ変数における水準（レベル）の追加および削除
 
 ## 使用例 Examples
 

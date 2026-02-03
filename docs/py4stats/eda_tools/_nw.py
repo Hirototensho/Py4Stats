@@ -4749,8 +4749,14 @@ def review_category(
 
 
 import math
+from wcwidth import wcswidth
+# def make_header(text: str, title: str) -> str:
+#     max_len = np.max([len(s) for s in text.split('\n')])
+#     len_header = math.ceil(max_len / 2.0) * 2
+#     return title.center(len_header, '=')
+
 def make_header(text: str, title: str) -> str:
-    max_len = np.max([len(s) for s in text.split('\n')])
+    max_len = np.max([wcswidth(s) for s in text.split('\n')])
     len_header = math.ceil(max_len / 2.0) * 2
     return title.center(len_header, '=')
 
@@ -4883,17 +4889,6 @@ def review_wrangling(
 
     # レビューの作成と整形=========================================================
     review = []
-    # review += [review_shape(before_nw, after_nw)]
-    # review += [review_col_addition(
-    #     before_nw, after_nw, abbreviate = abbreviate, 
-    #     max_columns = max_columns, max_width = max_width
-    #     )]
-    # review += [review_casting(before, after)]
-    # review += [review_missing(before_nw, after_nw)]
-    # review += [review_category(
-    #     before_nw, after_nw, abbreviate = abbreviate, 
-    #     max_categories = max_categories, max_width = max_width
-    #     )]
 
     for item in items:
         match item:

@@ -8,15 +8,15 @@
 
 ``` python
 review_wrangling(
-        before: IntoFrameT, 
-        after: IntoFrameT, 
-        items: List[str] = ['shape', 'col_addition', 'casting', 'missing', 'category'],
-        title: str = 'Review of wrangling',
-        abbreviate: bool = True,
-        max_columns: Optional[int] = None,
-        max_categories: Optional[int] = None,
-        max_width: int = 80
-        ) -> str
+    before: IntoFrameT, 
+    after: IntoFrameT, 
+    items: List[str] = ['shape', 'col_addition', 'casting', 'missing', 'category'],
+    title: str = 'Review of wrangling',
+    abbreviate: bool = True,
+    max_columns: Optional[int] = None,
+    max_categories: Optional[int] = None,
+    max_width: int = 80
+    ) -> str
 ```
 
 ## 引数 Argument
@@ -29,10 +29,10 @@ review_wrangling(
 - `items`:**List of str**<br>
   - 出力に含めるレビュー項目と、その表示順序を指定するリスト。`items` の要素は次の文字列から選択できます。:
     - `'shape'`: データフレームの形状（行数・列数）の変化
-    - `'col_addition'`: 追加および削除された列。
-    - `'casting'`: 列のデータ型の変更。
-    - `'missing'`: 欠損値の増加と減少。
-    - `'category'`: カテゴリレベルの追加と削除。
+    - `'col_addition'`: 列の追加および削除
+    - `'casting'`: 列のデータ型（dtype）の変更
+    - `'missing'`: 欠損値の増加と減少
+    - `'category'`: カテゴリ変数における水準（レベル）の追加および削除 <br>
   レビューセクションはこのリストで指定された順序で生成されます。省略された場合、利用可能なすべてのレビュー項目がデフォルト順序で出力されます。
 - `title`:**str**<br>
     出力されるレビューテキストのタイトル。空でない文字列を指定した場合、タイトルとともにヘッダーとフッターが追加されます。
@@ -176,6 +176,8 @@ print(py4st.review_wrangling(
 ## 参考 See also
 
 `review_wrangling()` 関数で出力される各項目を単独で提供する関数については、[Individual review functions](./review_individuals.qmd) 関数を参照してください。また、列のデータ型に基づいた比較については [`compare_df_cols()`](./compare_df_cols.qmd) を、数値変数の統計値に基づいた比較については [`compare_df_stats()`](./compare_df_cols.qmd) もご参照ください。
+
+そのほか、`review_wrangling()` 関数の実践的な使い方については、[vignette](../articles/review_data_wrangling.qmd) を参照してください。
 
 ***
 [Return to **Function reference**.](../reference.qmd)

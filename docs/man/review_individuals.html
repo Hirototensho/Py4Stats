@@ -412,6 +412,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../articles/review_data_wrangling.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Auditing data transformations with review_wrangling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../articles/narwhals_in_py4stats.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Technical Notes: py4stats.eda_tools における narwhals ベースの実装</span></a>
   </div>
 </li>
@@ -535,10 +540,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><code>before</code> と <code>after</code> の差分を要約した、整形済みの文字列。レビューに含まれる主な項目は次のとおりです。</p>
 <ul>
 <li><code>review_shape()</code>: データフレームの形状（行数・列数）の変化</li>
-<li><code>review_col_addition()</code>: 列の追加・削除</li>
-<li><code>review_casting()</code>: 既存列のデータ型（dtype）の変化</li>
-<li><code>review_missing()</code>: 欠測値の増加・減少</li>
-<li><code>review_category()</code>: カテゴリー変数における水準の増加・減少</li>
+<li><code>review_col_addition()</code>: 列の追加および削除</li>
+<li><code>review_casting()</code>: 列のデータ型（dtype）の変更</li>
+<li><code>review_missing()</code>: 欠損値の増加と減少</li>
+<li><code>review_category()</code>: カテゴリ変数における水準（レベル）の追加および削除</li>
 </ul>
 </section>
 <section id="使用例-examples" class="level2">
