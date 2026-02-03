@@ -4366,6 +4366,35 @@ def _assert_same_backend(data1, data2, funcname = 'review_wrangling', data_name 
 
 
 def review_casting(before: IntoFrameT, after: IntoFrameT) -> str:
+    """Review changes in column data types between two DataFrames.
+
+    This function compares the data types of columns in two DataFrame-like
+    objects representing the state of a dataset before and after wrangling,
+    and reports columns whose types have changed.
+
+    Only existing columns with mismatched types are reported. Columns that
+    are newly added or removed are not included in this review.
+
+    Args:
+        before (IntoFrameT):
+            The DataFrame before wrangling.
+        after (IntoFrameT):
+            The DataFrame after wrangling.
+
+    Returns:
+        str:
+            A human-readable, multi-line string describing columns whose
+            data types have changed. If no type changes are detected,
+            a message indicating this is returned.
+
+    Examples:
+        >>> import py4stats as py4st
+        >>> print(py4st.review_casting(before, after))
+        The following columns have changed their type:
+          species object -> category
+          year    int64 -> float64
+
+    """
     res_compare = compare_df_cols(
         [before, after], return_match = 'mismatch', 
         to_native = False
@@ -4395,6 +4424,42 @@ def review_col_addition(
         max_columns: Optional[int] = None,
         max_width: int = 80
         ) -> str:
+    """Review added and removed columns between two DataFrames.
+
+    This function compares column names in two DataFrame-like objects and
+    reports which columns were added or removed as a result of wrangling.
+
+    For readability, long lists of column names can be abbreviated based on
+    either the number of columns or the formatted text width.
+
+    Args:
+        before (IntoFrameT):
+            The DataFrame before wrangling.
+        after (IntoFrameT):
+            The DataFrame after wrangling.
+        abbreviate (bool, optional):
+            Whether to abbreviate long lists of column names in the output.
+            Defaults to True.
+        max_columns (int or None, optional):
+            Maximum number of column names to display when reporting added
+            or removed columns. If None, truncation is based on text width.
+        max_width (int, optional):
+            Maximum text width (in characters) used for truncation when
+            `max_columns` is None. Defaults to 80.
+
+    Returns:
+        str:
+            A formatted string summarizing column additions and removals.
+            If no columns were added or removed, an explanatory message
+            is returned.
+
+    Examples:
+        >>> import py4stats as py4st
+        >>> print(py4st.review_col_addition(before, after))
+        Column additions and removals:
+        added:   'heavy' and 'const'
+        removed: 'sex'
+    """
     # 引数のアサーション =======================================================
     build.assert_logical(abbreviate, arg_name = 'abbreviate')
     build.assert_count(
@@ -4466,7 +4531,37 @@ def format_missing_lines(miss_table):
 
 
 def review_missing(before: IntoFrameT, after: IntoFrameT) -> str:
+    """Review changes in missing values between two DataFrames.
 
+    This function compares the number and proportion of missing values
+    for each column in two DataFrame-like objects and reports columns
+    where missingness has increased or decreased.
+
+    Columns with no change in missing values are not listed.
+
+    Args:
+        before (IntoFrameT):
+            The DataFrame before wrangling.
+        after (IntoFrameT):
+            The DataFrame after wrangling.
+
+    Returns:
+        str:
+            A human-readable report describing increases and decreases
+            in missing values. If no changes are detected, a message
+            indicating this is returned.
+
+    Examples:
+        >>> import py4stats as py4st
+        >>> print(py4st.review_missing(before, after))
+        Increase in missing values:
+        flipper_length_mm  before 2 (0.58%) -> after 22 (11.76%)
+
+        Decrease in missing values:
+        bill_length_mm  before 2 (0.58%) -> after 0 (0.00%)
+        bill_depth_mm   before 2 (0.58%) -> after 0 (0.00%)
+        body_mass_g     before 2 (0.58%) -> after 0 (0.00%)    
+    """
     compare_miss = diagnose(before, to_native = False)\
         .select('columns', 'missing_count', 'missing_percent')\
         .join(
@@ -4514,8 +4609,27 @@ def shape_change(before: int, after: int) -> str:
 
 
 def review_shape(before: IntoFrameT, after: IntoFrameT) -> str:
-    row_o, col_o = before.shape
-    row_n, col_n = after.shape
+    """Review changes in the shape of a DataFrame.
+
+    This function compares the number of rows and columns in two
+    DataFrame-like objects representing the state of a dataset before
+    and after wrangling.
+
+    Args:
+        before (IntoFrameT):
+            The DataFrame before wrangling.
+        after (IntoFrameT):
+            The DataFrame after wrangling.
+
+    Returns:
+        str:
+            A formatted string summarizing changes in the number of rows
+            and columns.
+    """
+    before_nw = nw.from_native(before)
+    after_nw  = nw.from_native(after)
+    row_o, col_o = before_nw.shape
+    row_n, col_n = after_nw.shape
     d_o = len(f"{np.max([row_o, col_o]):,}")
     d_n = len(f"{np.max([row_n, col_n]):,}")
 
@@ -4535,6 +4649,52 @@ def review_category(
         max_categories: Optional[int] = None,
         max_width: int = 80
         ) -> str:
+    """Review changes in category levels between two DataFrames.
+
+    This function compares the observed category levels of string,
+    categorical, and boolean columns in two DataFrame-like objects and
+    reports additions and removals of category levels.
+
+    Only columns present in both `before` and `after` are considered.
+    Category comparisons are based on the unique values observed in
+    the data, not on backend-specific category definitions.
+
+    Args:
+        before (IntoFrameT):
+            The DataFrame before wrangling.
+        after (IntoFrameT):
+            The DataFrame after wrangling.
+        abbreviate (bool, optional):
+            Whether to abbreviate long lists of category levels in the
+            output. Defaults to True.
+        max_categories (int or None, optional):
+            Maximum number of category levels to display when reporting
+            additions or removals. If None, truncation is based on text width.
+        max_width (int, optional):
+            Maximum text width (in characters) used for truncation when
+            `max_categories` is None. Defaults to 80.
+
+    Returns:
+        str:
+            A formatted string summarizing category-level additions and
+            removals. If no category changes are detected, a message
+            indicating this is returned.
+
+    Raises:
+        TypeError:
+            If `before` and `after` use different DataFrame backends.
+
+    Examples:
+    >>> import py4stats as py4st
+    >>> print(py4st.review_category(before, after))
+    The following columns show changes in categories:
+    species:
+        addition:  None
+        removal:  'Adelie'
+    island:
+        addition:  None
+        removal:  'Torgersen'
+    """
     before_nw = nw.from_native(before)
     after_nw  = nw.from_native(after)
     # 引数のアサーション =======================================================
@@ -4601,11 +4761,12 @@ def make_header(text: str, title: str) -> str:
 def review_wrangling(
         before: IntoFrameT, 
         after: IntoFrameT, 
+        items: List[str] = ['shape', 'col_addition', 'casting', 'missing', 'category'],
         title: str = 'Review of wrangling',
         abbreviate: bool = True,
         max_columns: Optional[int] = None,
         max_categories: Optional[int] = None,
-        max_width: int = 80
+        max_width: int = 80,
         ) -> str:
     """Review and summarize differences introduced by data wrangling.
 
@@ -4633,6 +4794,21 @@ def review_wrangling(
             The original DataFrame before wrangling.
             Any DataFrame-like object supported by narwhals
             (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
+        items (list[str], optional):
+            A list specifying which review items to include in the output, and
+            in what order they should appear.
+
+            Each element must be one of the following strings:
+
+            - "shape": Changes in the number of rows and columns.
+            - "col_addition": Added and removed columns.
+            - "casting": Changes in column data types.
+            - "missing": Increases and decreases in missing values.
+            - "category": Additions and removals of category levels.
+
+            The review sections are generated in the order given in this list.
+            If omitted, all available review items are included using the
+            default order.
         after (IntoFrameT):
             The DataFrame after wrangling.
         title (str, optional):
@@ -4682,11 +4858,19 @@ def review_wrangling(
     """
     after_nw = nw.from_native(after)
     before_nw = nw.from_native(before)
+    items = list(items)
     # 引数のアサーション =======================================================
     _assert_same_backend(before_nw, after_nw)
 
+    build.arg_match(
+         items, values = ["shape", "col_addition", "casting", "missing", "category"],
+         arg_name = 'items', multiple = True
+    )
+
     build.assert_character(title, arg_name = 'title', len_arg = 1)
+
     build.assert_logical(abbreviate, arg_name = 'abbreviate')
+
     build.assert_count(
         max_columns, arg_name = 'max_columns', 
         len_arg = 1, nullable = True)
@@ -4696,28 +4880,39 @@ def review_wrangling(
     build.assert_count(
         max_width, arg_name = 'max_width', 
         len_arg = 1)
-    # =======================================================================
 
-
-    # if before_nw.implementation is not after_nw.implementation:
-    #     raise TypeError(
-    #          "review_wrangling() requires `before` and `after` to use the same backend.\n"
-    #         f"Got before={before_nw.implementation!r}, after={after_nw.implementation!r}.\n"
-    #         "Please make sure that  `before` and `after` are the same backend (e.g., both pandas, both polars)."
-    #     )
-
+    # レビューの作成と整形=========================================================
     review = []
-    review += [review_shape(before_nw, after_nw)]
-    review += [review_col_addition(
-        before_nw, after_nw, abbreviate = abbreviate, 
-        max_columns = max_columns, max_width = max_width
-        )]
-    review += [review_casting(before, after)]
-    review += [review_missing(before_nw, after_nw)]
-    review += [review_category(
-        before_nw, after_nw, abbreviate = abbreviate, 
-        max_categories = max_categories, max_width = max_width
-        )]
+    # review += [review_shape(before_nw, after_nw)]
+    # review += [review_col_addition(
+    #     before_nw, after_nw, abbreviate = abbreviate, 
+    #     max_columns = max_columns, max_width = max_width
+    #     )]
+    # review += [review_casting(before, after)]
+    # review += [review_missing(before_nw, after_nw)]
+    # review += [review_category(
+    #     before_nw, after_nw, abbreviate = abbreviate, 
+    #     max_categories = max_categories, max_width = max_width
+    #     )]
+
+    for item in items:
+        match item:
+            case 'shape':
+                review += [review_shape(before_nw, after_nw)]
+            case 'col_addition':
+                    review += [review_col_addition(
+                        before_nw, after_nw, abbreviate = abbreviate, 
+                        max_columns = max_columns, max_width = max_width
+                        )]
+            case 'casting':
+                review += [review_casting(before, after)]
+            case 'missing':
+                review += [review_missing(before_nw, after_nw)]
+            case 'category':
+                    review += [review_category(
+                        before_nw, after_nw, abbreviate = abbreviate, 
+                        max_categories = max_categories, max_width = max_width
+                    )]
 
     result = '\n\n'.join(review)
     # ヘッダーとフッターの追加

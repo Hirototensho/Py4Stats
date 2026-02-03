@@ -65,7 +65,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../man/compare_group_stats.html" rel="next">
+<link href="../man/review_individuals.html" rel="next">
 <link href="../man/compare_df_cols.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -234,6 +234,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../man/review_wrangling.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">review_wrangling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/review_individuals.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Individual review functions</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -486,18 +491,30 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>review_wrangling(</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>        before: IntoFrameT, </span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>        after: IntoFrameT, </span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>        title: <span class="bu">str</span> <span class="op">=</span> <span class="st">'Review of wrangling'</span>,</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>        abbreviate: <span class="bu">bool</span> <span class="op">=</span> <span class="va">True</span>,</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        max_columns: Optional[<span class="bu">int</span>] <span class="op">=</span> <span class="va">None</span>,</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>        max_categories: Optional[<span class="bu">int</span>] <span class="op">=</span> <span class="va">None</span>,</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        max_width: <span class="bu">int</span> <span class="op">=</span> <span class="dv">80</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>        ) <span class="op">-&gt;</span> <span class="bu">str</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>        items: List[<span class="bu">str</span>] <span class="op">=</span> [<span class="st">'shape'</span>, <span class="st">'col_addition'</span>, <span class="st">'casting'</span>, <span class="st">'missing'</span>, <span class="st">'category'</span>],</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>        title: <span class="bu">str</span> <span class="op">=</span> <span class="st">'Review of wrangling'</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        abbreviate: <span class="bu">bool</span> <span class="op">=</span> <span class="va">True</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>        max_columns: Optional[<span class="bu">int</span>] <span class="op">=</span> <span class="va">None</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        max_categories: Optional[<span class="bu">int</span>] <span class="op">=</span> <span class="va">None</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>        max_width: <span class="bu">int</span> <span class="op">=</span> <span class="dv">80</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>        ) <span class="op">-&gt;</span> <span class="bu">str</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="引数-argument" class="level2">
 <h2 class="anchored" data-anchor-id="引数-argument">引数 Argument</h2>
 <ul>
 <li><code>before</code>:<strong>IntoFrameT</strong>（必須）<br> 前処理（wrangling）を行う前のデータフレーム。narwhals が受け入れ可能な DataFrame 互換オブジェクト<br> （例：<code>pandas.DataFrame</code>、<code>polars.DataFrame</code>、<code>pyarrow.Table</code>）を指定できます。</li>
 <li><code>after</code>:<strong>IntoFrameT</strong>（必須）<br> 前処理（wrangling）を行った後のデータフレーム。</li>
+<li><code>items</code>:<strong>List of str</strong><br>
+<ul>
+<li>出力に含めるレビュー項目と、その表示順序を指定するリスト。<code>items</code> の要素は次の文字列から選択できます。:
+<ul>
+<li><code>'shape'</code>: データフレームの形状（行数・列数）の変化</li>
+<li><code>'col_addition'</code>: 追加および削除された列。</li>
+<li><code>'casting'</code>: 列のデータ型の変更。</li>
+<li><code>'missing'</code>: 欠損値の増加と減少。</li>
+<li><code>'category'</code>: カテゴリレベルの追加と削除。 レビューセクションはこのリストで指定された順序で生成されます。省略された場合、利用可能なすべてのレビュー項目がデフォルト順序で出力されます。</li>
+</ul></li>
+</ul></li>
 <li><code>title</code>:<strong>str</strong><br> 出力されるレビューテキストのタイトル。空でない文字列を指定した場合、タイトルとともにヘッダーとフッターが追加されます。</li>
 <li><code>abbreviate</code>：<strong>bool</strong><br> 列名やカテゴリー水準の一覧を省略表示するかどうかを指定します。<code>False</code> を指定した場合、省略は行われず、すべての項目が表示されます。デフォルトは <code>True</code> です。</li>
 <li><code>max_columns</code>:<strong>int</strong><br> 列の追加・削除を報告する際に表示する列名の最大数。指定された場合、<code>abbreviate = True</code> のときに限り、文字数ではなく列数を基準として省略が行われます。<code>None</code> の場合は文字数（<code>max_width</code>）に基づいて省略されます。</li>
@@ -507,14 +524,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="返り値-value" class="level2">
 <h2 class="anchored" data-anchor-id="返り値-value">返り値 Value</h2>
-<p><code>before</code> と <code>after</code> の差分を要約した、整形済みの複数行文字列。レビューに含まれる主な項目は次のとおりです。</p>
-<ul>
-<li>データフレームの形状（行数・列数）の変化</li>
-<li>列の追加・削除</li>
-<li>既存列のデータ型（dtype）の変化</li>
-<li>欠測値の増加・減少</li>
-<li>カテゴリー変数における水準の増加・減少</li>
-</ul>
+<p><code>before</code> と <code>after</code> の差分を要約した、整形済みの文字列。レビューには <code>items</code> 引数で指定された項目が含まれます。</p>
 </section>
 <section id="使用例-examples" class="level2">
 <h2 class="anchored" data-anchor-id="使用例-examples">使用例 Examples</h2>
@@ -625,7 +635,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="参考-see-also" class="level2">
 <h2 class="anchored" data-anchor-id="参考-see-also">参考 See also</h2>
-<p>列のデータ型に基づいた比較については <a href="../man/compare_df_cols.html"><code>compare_df_cols()</code></a> を、数値変数の統計値に基づいた比較については <a href="../man/compare_df_cols.html"><code>compare_df_stats()</code></a> もご参照ください。</p>
+<p><code>review_wrangling()</code> 関数で出力される各項目を単独で提供する関数については、<a href="../man/review_individuals.html">Individual review functions</a> 関数を参照してください。また、列のデータ型に基づいた比較については <a href="../man/compare_df_cols.html"><code>compare_df_cols()</code></a> を、数値変数の統計値に基づいた比較については <a href="../man/compare_df_cols.html"><code>compare_df_stats()</code></a> もご参照ください。</p>
 <hr>
 <p><a href="../reference.html">Return to <strong>Function reference</strong>.</a></p>
 
@@ -1040,8 +1050,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../man/compare_group_stats.html" class="pagination-link" aria-label="compare_group_means, _median<br> plot_mean_diff, _median_diff">
-        <span class="nav-page-text"><span class="chapter-title">compare_group_means, _median<br> plot_mean_diff, _median_diff</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../man/review_individuals.html" class="pagination-link" aria-label="Individual review functions">
+        <span class="nav-page-text"><span class="chapter-title">Individual review functions</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

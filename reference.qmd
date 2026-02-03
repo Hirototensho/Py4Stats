@@ -47,6 +47,12 @@
 
 [`py4stats.review_wrangling()`](man/review_wrangling.qmd)
 
+[`py4stats.review_shape()`](man/review_individuals.qmd)
+[`py4stats.review_col_addition()`](man/review_individuals.qmd)
+[`py4stats.review_casting()`](man/review_individuals.qmd)
+[`py4stats.review_missing()`](man/review_individuals.qmd)
+[`py4stats.review_category()`](man/review_individuals.qmd)
+
 #### 簡易なグループ別統計量の比較
 
 [`py4stats.compare_group_means()`](man/compare_group_stats.qmd)
