@@ -1,0 +1,140 @@
+# Individual review functions
+
+データ前処理（wrangling）による変更点を要約して、レビュー形式の文字列として出力する関数です。
+
+## 概要
+
+これらの関数は、前処理の前後（before / after）の DataFrame（相当）を比較し、変更点をユーザーが読みやすいレビュー形式の文字列として返します。
+
+``` python
+review_shape(
+    before: IntoFrameT, 
+    after: IntoFrameT
+    ) -> str
+
+review_col_addition(
+    before: IntoFrameT, after: IntoFrameT,
+    abbreviate: bool = True,
+    max_columns: Optional[int] = None,
+    max_width: int = 80
+    ) -> str
+
+review_casting(
+    before: IntoFrameT, 
+    after: IntoFrameT
+    ) -> str
+
+review_missing(
+    before: IntoFrameT, 
+    after: IntoFrameT
+    ) -> str
+
+review_category(
+    before: IntoFrameT, 
+    after: IntoFrameT,
+    abbreviate: bool = True,
+    max_categories: Optional[int] = None,
+    max_width: int = 80
+    ) -> str
+```
+
+## 引数 Argument
+
+- `before`:**IntoFrameT**（必須）<br>
+  前処理（wrangling）を行う前のデータフレーム。narwhals が受け入れ可能な DataFrame 互換オブジェクト<br>
+  （例：`pandas.DataFrame`、`polars.DataFrame`、`pyarrow.Table`）を指定できます。
+- `after`:**IntoFrameT**（必須）<br>
+  前処理（wrangling）を行った後のデータフレーム。
+- `title`:**str**<br>
+    出力されるレビューテキストのタイトル。空でない文字列を指定した場合、タイトルとともにヘッダーとフッターが追加されます。
+- `abbreviate`：**bool**<br>
+    列名やカテゴリー水準の一覧を省略表示するかどうかを指定します。`False` を指定した場合、省略は行われず、すべての項目が表示されます。デフォルトは `True` です。
+- `max_columns`:**int**<br>
+    列の追加・削除を報告する際に表示する列名の最大数。指定された場合、`abbreviate = True` のときに限り、文字数ではなく列数を基準として省略が行われます。`None` の場合は文字数（`max_width`）に基づいて省略されます。
+- `max_categories`:**int**<br>
+    カテゴリー変数の水準の変化を報告する際に、表示する水準の最大数。指定された場合、`abbreviate=True` のときに限り、文字数ではなく水準数を基準として省略が行われます。`None` の場合は文字数（`max_width`）に基づいて省略されます。
+- `max_width`:**int**<br>
+    `abbreviate=True` かつ対応する `max_*` 引数が None の場合に使用される、省略判定のための最大文字数。デフォルトは 80 です。
+
+## 返り値 Value
+
+`before` と `after` の差分を要約した、整形済みの文字列。レビューに含まれる主な項目は次のとおりです。
+
+- `review_shape()`: データフレームの形状（行数・列数）の変化
+- `review_col_addition()`: 列の追加・削除
+- `review_casting()`: 既存列のデータ型（dtype）の変化
+- `review_missing()`: 欠測値の増加・減少
+- `review_category()`: カテゴリー変数における水準の増加・減少
+
+## 使用例 Examples
+
+``` python
+import py4stats as py4st
+from palmerpenguins import load_penguins
+
+before = load_penguins() # サンプルデータの読み込
+after = before.copy().dropna()
+
+after = py4st.filtering_out(after, 'sex')
+
+s = after['body_mass_g']
+after['heavy'] = np.where(s >= s.quantile(0.75), True, False)
+after['species'] = pd.Categorical(after['species'])
+after['year'] = after['year'].astype(float)
+after['const'] = 1
+
+after['flipper_length_mm'] = py4st.set_miss(
+    after['flipper_length_mm'], prop = 0.1,
+    random_state = 1230
+    )
+
+after = after.query('species != "Adelie"')
+```
+
+``` python
+print(py4st.review_shape(before, after))
+#> The shape of DataFrame:
+#>    Rows: before 344 -> after 187 (-157)
+#>    Cols: before   8 -> after   9 (+1)
+
+print(py4st.review_col_addition(before, after))
+#> Column additions and removals:
+#>   added:   'heavy' and 'const'
+#>   removed: 'sex'
+
+print(py4st.review_casting(before, after))
+#> The following columns have changed their type:
+#>   species object -> category
+#>   year    int64 -> float64
+
+print(py4st.review_missing(before, after))
+#> Increase in missing values:
+#>   flipper_length_mm  before 2 (0.58%) -> after 22 (11.76%)
+#> 
+#> Decrease in missing values:
+#>   bill_length_mm  before 2 (0.58%) -> after 0 (0.00%)
+#>   bill_depth_mm   before 2 (0.58%) -> after 0 (0.00%)
+#>   body_mass_g     before 2 (0.58%) -> after 0 (0.00%)
+
+print(py4st.review_category(before, after))
+#> The following columns show changes in categories:
+#>   species:
+#>     addition:  None
+#>     removal:  'Adelie'
+#>   island:
+#>     addition:  None
+#>     removal:  'Torgersen'
+``` 
+
+## Notes
+
+- `review_category()` 関数では、`before` と `after` が同一の DataFrame バックエンド（例：どちらも pandas、またはどちらも polars）であることを前提としています。異なるバックエンドを混在させた場合、エラーが発生します。
+
+## 参考 See also
+
+[`review_wrangling()`](./review_wrangling.qmd)を使用すると、本節の関数群で提供されるレビューの全項目を一度に取得することができます。
+
+
+***
+[Return to **Function reference**.](../reference.qmd)
+
