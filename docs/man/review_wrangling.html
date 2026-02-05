@@ -517,7 +517,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>'col_addition'</code>: 列の追加および削除</li>
 <li><code>'casting'</code>: 列のデータ型（dtype）の変更</li>
 <li><code>'missing'</code>: 欠損値の増加と減少</li>
-<li><code>'category'</code>: カテゴリ変数における水準（レベル）の追加および削除 <br> レビューセクションはこのリストで指定された順序で生成されます。省略された場合、利用可能なすべてのレビュー項目がデフォルト順序で出力されます。</li>
+<li><code>'category'</code>: カテゴリ変数における水準（レベル）の追加および削除</li>
+<li><code>'numeric'</code>: ASCII 文字列の箱ひげ図で要約された数値変数の分布</li>
+<li><code>'all'</code>: 上記の全てのレビュー項目 <br> レビューセクションは<code>items</code>で指定された順序で生成されます。省略された場合、<code>'numeric'</code>を除いた5項目がデフォルトとして使用されます。</li>
 </ul></li>
 </ul></li>
 <li><code>title</code>:<strong>str</strong><br> 出力されるレビューテキストのタイトル。空でない文字列を指定した場合、タイトルとともにヘッダーとフッターが追加されます。</li>

@@ -1,4 +1,4 @@
-Distribution of Numeric values (for reference):
+Boxplot of Numeric values (for reference):
   bill_length_mm
       before:    32.10|------======:====-----------|   59.60
       after:     32.10|------======:====-----------|   59.60

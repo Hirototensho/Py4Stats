@@ -4686,15 +4686,15 @@ def review_category(
             If `before` and `after` use different DataFrame backends.
 
     Examples:
-    >>> import py4stats as py4st
-    >>> print(py4st.review_category(before, after))
-    The following columns show changes in categories:
-    species:
-        addition:  None
-        removal:  'Adelie'
-    island:
-        addition:  None
-        removal:  'Torgersen'
+        >>> import py4stats as py4st
+        >>> print(py4st.review_category(before, after))
+        The following columns show changes in categories:
+        species:
+            addition:  None
+            removal:  'Adelie'
+        island:
+            addition:  None
+            removal:  'Torgersen'
     """
     before_nw = nw.from_native(before)
     after_nw  = nw.from_native(after)
@@ -4753,10 +4753,9 @@ def review_category(
 
 import numpy as np
 
-def draw_ascii_boxplot(data, range_min = None, range_max = None, width=40):
+def draw_ascii_boxplot(data, range_min = None, range_max = None, width = 30):
     """データセットから文字列の箱ひげ図を作成する"""
-    if len(data) == 0:
-        return "No data"
+    data = nw.from_native(data, series_only = True)
 
     # 五数要約の計算
     min_val = data.min()
@@ -4808,7 +4807,7 @@ def draw_ascii_boxplot(data, range_min = None, range_max = None, width=40):
 # In[ ]:
 
 
-def make_boxplot_with_label(before, after, col, spl = 7, spr = 7, width=40, digits = 2):
+def make_boxplot_with_label(before, after, col, space_left = 7, space_right = 7, width = 30, digits = 2):
     before = nw.from_native(before)
     after = nw.from_native(after)
 
@@ -4824,8 +4823,8 @@ def make_boxplot_with_label(before, after, col, spl = 7, spr = 7, width=40, digi
 
     review = [
         f'  {col}',
-        f"{' '*6}before: {min_be:>{spl},.{digits}f}{boxplot_before}{max_be:>{spr},.{digits}f}",
-        f"{' '*6}after:  {min_af:>{spl},.{digits}f}{boxplot_after }{max_af:>{spr},.{digits}f}"
+        f"{' '*6}before: {min_be:>{space_left},.{digits}f}{boxplot_before}{max_be:>{space_right},.{digits}f}",
+        f"{' '*6}after:  {min_af:>{space_left},.{digits}f}{boxplot_after }{max_af:>{space_right},.{digits}f}"
     ]
     result = '\n'.join(review)
 
@@ -4840,11 +4839,65 @@ def review_numeric(
         before: IntoFrameT, 
         after: IntoFrameT,
         digits: int = 2,
-        plot_width: int = 30
+        width_boxplot: int = 30
         ):
+    """
+    Generate a textual review of numeric variables before and after preprocessing.
+
+    This function compares numeric columns shared by the ``before`` and ``after``
+    datasets and summarizes their distributional changes using ASCII-art
+    boxplots. The output is intended for human-readable reviews (e.g., logs,
+    console output, or reports), providing a compact visual reference of how
+    preprocessing steps affected numeric variables.
+
+    For each numeric column, the function displays:
+    - minimum and maximum values (formatted with thousands separators),
+    - an ASCII boxplot representing the five-number summary,
+    - side-by-side comparison of distributions before and after preprocessing.
+
+    The boxplots for ``before`` and ``after`` are drawn on a common scale per
+    column, enabling visual comparison of shifts in location and spread.
+
+    Args:
+        before (IntoFrameT):
+            The DataFrame before wrangling. Any rows consisting entirely of
+            missing values are removed internally. Only numeric columns are
+            considered.
+        after (IntoFrameT):
+            The DataFrame after wrangling.
+            Only numeric columns present in both datasets are reviewed.
+        digits (int, optional):
+            Number of decimal places used when formatting numeric values.
+            Defaults to 2.
+        width_boxplot (int, optional):
+            Width of the ASCII boxplot (number of characters used to draw the
+            box and whiskers). Defaults to 30.
+
+    Returns:
+        str:
+            A multi-line string containing an ASCII-art boxplot review of all
+            numeric variables common to ``before`` and ``after``. The first line
+            is a header, followed by one block per variable.
+
+    Notes:
+        - This function is designed for qualitative inspection and debugging.
+          The boxplots are provided for reference and are not intended as a
+          precise statistical visualization.
+        - If no common numeric columns exist between ``before`` and ``after``,
+          the returned string will contain only the header.
+
+    Examples:
+        >>> import py4stats as py4st
+        >>> print(py4st.review_numeric(before, after))
+        Boxplot of Numeric values (for reference):
+        bill_length_mm
+            before:    32.10|------======:====-----------|   59.60
+            after:     40.90         |----==:===---------|   59.60
+        ...
+    """
     # 引数のアサーション =======================================================
     build.assert_count(digits, arg_name = 'digits', len_arg = 1)
-    build.assert_count(plot_width, arg_name = 'plot_width', len_arg = 1)
+    build.assert_count(width_boxplot, arg_name = 'width_boxplot', len_arg = 1)
     # =======================================================================
     before_nw = remove_empty(before, to_native = False)\
         .select(ncs.numeric())
@@ -4855,6 +4908,8 @@ def review_numeric(
     cols2 = after_nw.columns
 
     cols = [x for x in cols2 if x in cols1]
+    if not cols:
+        return "No common numeric columns exist between `before` and `after`"
 
     before_nw = before_nw.select(cols)
     after_nw = after_nw.select(cols)
@@ -4869,19 +4924,21 @@ def review_numeric(
         after_nw.select(ncs.all().max()).row(0),
     ]))
 
-    spl = len(f"{max_min:,.{digits}f}")
-    spr = len(f"{max_max:,.{digits}f}")
+    space_left = len(f"{max_min:,.{digits}f}")
+    space_right = len(f"{max_max:,.{digits}f}")
 
     review = [
         make_boxplot_with_label(
             before_nw, after_nw, col, 
-            spl = spl, spr = spr, 
-            width = plot_width, 
+            space_left = space_left, 
+            space_right = space_right, 
+            width = width_boxplot, 
             digits = digits
             )
         for col in cols
     ]
-    review = ['Distribution of Numeric values (for reference):'] + review
+
+    review = ['Boxplot of Numeric values (for reference):'] + review
 
     return '\n'.join(review)
 

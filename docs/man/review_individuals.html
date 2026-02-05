@@ -521,7 +521,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    abbreviate: <span class="bu">bool</span> <span class="op">=</span> <span class="va">True</span>,</span>
 <span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    max_categories: Optional[<span class="bu">int</span>] <span class="op">=</span> <span class="va">None</span>,</span>
 <span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    max_width: <span class="bu">int</span> <span class="op">=</span> <span class="dv">80</span></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    ) <span class="op">-&gt;</span> <span class="bu">str</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    ) <span class="op">-&gt;</span> <span class="bu">str</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>review_numeric(</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    before: IntoFrameT, </span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    after: IntoFrameT,</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    digits: <span class="bu">int</span> <span class="op">=</span> <span class="dv">2</span>,</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    width_boxplot: <span class="bu">int</span> <span class="op">=</span> <span class="dv">30</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    ) <span class="op">-&gt;</span> <span class="bu">str</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="引数-argument" class="level2">
 <h2 class="anchored" data-anchor-id="引数-argument">引数 Argument</h2>
@@ -533,6 +540,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>max_columns</code>:<strong>int</strong><br> 列の追加・削除を報告する際に表示する列名の最大数。指定された場合、<code>abbreviate = True</code> のときに限り、文字数ではなく列数を基準として省略が行われます。<code>None</code> の場合は文字数（<code>max_width</code>）に基づいて省略されます。</li>
 <li><code>max_categories</code>:<strong>int</strong><br> カテゴリー変数の水準の変化を報告する際に、表示する水準の最大数。指定された場合、<code>abbreviate=True</code> のときに限り、文字数ではなく水準数を基準として省略が行われます。<code>None</code> の場合は文字数（<code>max_width</code>）に基づいて省略されます。</li>
 <li><code>max_width</code>:<strong>int</strong><br> <code>abbreviate=True</code> かつ対応する <code>max_*</code> 引数が None の場合に使用される、省略判定のための最大文字数。デフォルトは 80 です。</li>
+<li><code>digits</code>:<strong>int</strong><br> 数値の書式設定時に使用する小数点以下の桁数。デフォルトは2です。</li>
+<li><code>width_boxplot</code>:<strong>int</strong><br> ASCII 文字列の箱ひげ図の幅 (描画に使用される文字数). デフォルトは30です。</li>
 </ul>
 </section>
 <section id="返り値-value" class="level2">
@@ -544,6 +553,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>review_casting()</code>: 列のデータ型（dtype）の変更</li>
 <li><code>review_missing()</code>: 欠損値の増加と減少</li>
 <li><code>review_category()</code>: カテゴリ変数における水準（レベル）の追加および削除</li>
+<li><code>review_numeric()</code>: ASCII 文字列の箱ひげ図で要約された数値変数の分布</li>
 </ul>
 </section>
 <section id="使用例-examples" class="level2">
@@ -599,7 +609,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     removal:  'Adelie'</span></span>
 <span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   island:</span></span>
 <span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     addition:  None</span></span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     removal:  'Torgersen'</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     removal:  'Torgersen'</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(py4st.review_numeric(before, after))</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Boxplot of Numeric values (for reference):</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   bill_length_mm</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       before:    32.10|------======:====-----------|   59.60</span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       after:     40.90         |----==:===---------|   59.60</span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   bill_depth_mm</span></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       before:    13.10|-------======:=====---------|   21.50</span></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       after:     13.10|----====:=======---------|      20.80</span></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   flipper_length_mm</span></span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       before:   172.00|-------====:========--------|  231.00</span></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       after:    178.00  |----------======:====----|   230.00</span></span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   body_mass_g</span></span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       before: 2,700.00|-----====:======------------|6,300.00</span></span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       after:  2,700.00|--------=======:====--------|6,300.00</span></span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   year</span></span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       before: 2,007.00|=============:==============|2,009.00</span></span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       after:  2,007.00|=============:==============|2,009.00</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="notes" class="level2">
 <h2 class="anchored" data-anchor-id="notes">Notes</h2>
