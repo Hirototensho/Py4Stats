@@ -4880,11 +4880,12 @@ def review_numeric(
             is a header, followed by one block per variable.
 
     Notes:
+        - Empty or all-missing columns are removed prior to comparison.
         - This function is designed for qualitative inspection and debugging.
           The boxplots are provided for reference and are not intended as a
           precise statistical visualization.
         - If no common numeric columns exist between ``before`` and ``after``,
-          the returned string will contain only the header.
+        a descriptive message is returned instead of boxplot output.
 
     Examples:
         >>> import py4stats as py4st
@@ -4960,7 +4961,7 @@ def make_header(text: str, title: str) -> str:
 def review_wrangling(
         before: IntoFrameT, 
         after: IntoFrameT, 
-        items: List[str] = ['shape', 'col_addition', 'casting', 'missing', 'category'],
+        items: Union[List[str], str] = ['shape', 'col_addition', 'casting', 'missing', 'category'],
         title: str = 'Review of wrangling',
         abbreviate: bool = True,
         max_columns: Optional[int] = None,
@@ -4993,21 +4994,33 @@ def review_wrangling(
             The original DataFrame before wrangling.
             Any DataFrame-like object supported by narwhals
             (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
-        items (list[str], optional):
+        items (Union[List[str], str], optional):
             A list specifying which review items to include in the output, and
             in what order they should appear.
 
-            Each element must be one of the following strings:
+            This argument may be either a list of strings or a single string.
+            Each review section is generated only if its corresponding keyword
+            is included in ``items``.
+
+            Supported values are:
 
             - "shape": Changes in the number of rows and columns.
             - "col_addition": Added and removed columns.
             - "casting": Changes in column data types.
             - "missing": Increases and decreases in missing values.
             - "category": Additions and removals of category levels.
+            - "numeric": Distributional changes in numeric variables, summarized
+            using ASCII boxplots.
 
-            The review sections are generated in the order given in this list.
-            If omitted, all available review items are included using the
-            default order.
+            Special values:
+            - "all":
+                Include all available review sections, including "numeric".
+                This may be specified either as ``items="all"`` or by including
+                "all" in a list.
+
+            The review sections are generated in the order given in ``items``.
+            If omitted, a default subset of review sections is used, excluding
+            "numeric".
         after (IntoFrameT):
             The DataFrame after wrangling.
         title (str, optional):
