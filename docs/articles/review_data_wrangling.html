@@ -461,7 +461,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#モチベーションwhy-review-data-wrangling" id="toc-モチベーションwhy-review-data-wrangling" class="nav-link active" data-scroll-target="#モチベーションwhy-review-data-wrangling">モチベーション（Why review data wrangling?）</a></li>
   <li><a href="#何を要約するのか-what-does-review_wrangling-do" id="toc-何を要約するのか-what-does-review_wrangling-do" class="nav-link" data-scroll-target="#何を要約するのか-what-does-review_wrangling-do">何を要約するのか (What does review_wrangling do?)</a></li>
   <li><a href="#いつ使うのか-when-should-it-be-used" id="toc-いつ使うのか-when-should-it-be-used" class="nav-link" data-scroll-target="#いつ使うのか-when-should-it-be-used">いつ使うのか (When should it be used?)</a></li>
-  <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example">Example</a></li>
+  <li><a href="#example-review-in-data-wrangling-workflow" id="toc-example-review-in-data-wrangling-workflow" class="nav-link" data-scroll-target="#example-review-in-data-wrangling-workflow">Example: Review in data wrangling workflow</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/main/articles/review_data_wrangling.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></nav>
     </div>
@@ -496,7 +496,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="何を要約するのか-what-does-review_wrangling-do" class="level2">
 <h2 class="anchored" data-anchor-id="何を要約するのか-what-does-review_wrangling-do">何を要約するのか (What does review_wrangling do?)</h2>
-<p><code>review_wrangling()</code> 関数は前処理前後のデータを比較し、関数は、前処理の前後におけるデータを比較し、前処理によって生じた主な変更点を次の5つの観点から要約します。</p>
+<p><code>review_wrangling()</code> 関数は前処理前後のデータを比較し、初期設定では、前処理によって生じた主な変更点を次の5つの観点から要約します。</p>
 <ul>
 <li>データフレームの形状（行数・列数）の変化</li>
 <li>列の追加および削除</li>
@@ -504,14 +504,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>欠損値の増加と減少</li>
 <li>カテゴリ変数における水準（レベル）の追加および削除</li>
 </ul>
-<p>一方で、<code>review_wrangling()</code> 関数は レコード単位の値の変化や行の並び替えによる変化を追跡しません。これは、行数が変化するような前処理（フィルタリング等）にも対応できるようにするためです。 また、検出された変更が妥当・適切であるかといった 解釈や価値判断は行わず、あくまで「何が変わったか」を事実として要約することに専念します。</p>
+<p>一方で、<code>review_wrangling()</code> 関数は レコード単位の値の変化や行の並び替えによる変化を追跡しません。これは、行数が変化するような前処理（フィルタリング等）にも対応できるようにするためです。また、検出された変更が妥当・適切であるかといった 解釈や価値判断は行わず、あくまで「何が変わったか」を事実として要約することに専念します。</p>
 </section>
 <section id="いつ使うのか-when-should-it-be-used" class="level2">
 <h2 class="anchored" data-anchor-id="いつ使うのか-when-should-it-be-used">いつ使うのか (When should it be used?)</h2>
 <p><code>review_wrangling()</code> は、一連の前処理工程を終えた 区切りのタイミングで、報告資料やレビュー用の要約を作成する目的で使用できます。また、前処理の途中段階において、データが想定どおりに加工されているか、想定外の変化が生じていないかを短時間で確認するためのチェックとして用いることもできます。</p>
 </section>
-<section id="example" class="level2">
-<h2 class="anchored" data-anchor-id="example">Example</h2>
+<section id="example-review-in-data-wrangling-workflow" class="level2">
+<h2 class="anchored" data-anchor-id="example-review-in-data-wrangling-workflow">Example: Review in data wrangling workflow</h2>
 <p>厚生労働省の食中毒発生事例データを例に、前処理のワークフローの中で <code>review_wrangling()</code> をどのように活用できるかを見てみましょう。</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> py4stats <span class="im">as</span> py4st</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
@@ -610,7 +610,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>また、「摂食者数」は object 型から float 型に変換され、‘不明’ を欠測値（NaN）に置き換えたことで 38 件の欠測が新たに発生しています。これは想定通りの変化と言えるでしょう。</p>
 <p>病因物質のカテゴリーからは ‘寄生虫-アニサキス’ や ‘ウイルス-ノロウイルス’ など 7 カテゴリーが除外されており、ここでも「細菌性」に限定した前処理の影響が確認できます。</p>
 <p>一方で、報告自治体を表す「都道府県名等」から ‘小樽市’ や ‘函館市’ など 28 自治体が除外されているほか、「原因施設」からも ‘販売店’ や小学校の ‘給食施設’ など 3 カテゴリーが除外されています。これらは意図した変更ではありませんが、今回のデータセットには該当する細菌性の事例が含まれていなかったと解釈できるため、問題はないと判断できます。</p>
-<p>このように <code>review_wrangling()</code> を用いることで、前処理によって生じた想定内・想定外の変化を一度に把握し、その妥当性を短時間で確認することができます。</p>
+<p>このように <code>review_wrangling()</code> 関数を用いることで、前処理によって生じた想定内・想定外の変化を一度に把握し、その妥当性を短時間で確認することができます。</p>
 
 
 </section>

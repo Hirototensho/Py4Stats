@@ -169,6 +169,30 @@ print(py4st.review_wrangling(
 #> ======================================================================================
 ```
 
+デフォトのレビューには含まれませんが、`items` に `'numeric'` を指定することで、数値変数について ASCII 文字列の箱ひげ図による分布の要約を出力できます。
+
+``` python
+print(py4st.review_wrangling(before, after, items = 'numeric'))
+#> =================== Review of wrangling ====================
+#> Boxplot of Numeric values (for reference):
+#>   bill_length_mm
+#>       before:    32.10|------======:====-----------|   59.60
+#>       after:     40.90         |----==:===---------|   59.60
+#>   bill_depth_mm
+#>       before:    13.10|-------======:=====---------|   21.50
+#>       after:     13.10|----====:=======---------|      20.80
+#>   flipper_length_mm
+#>       before:   172.00|-------====:========--------|  231.00
+#>       after:    178.00  |----------======:====----|   230.00
+#>   body_mass_g
+#>       before: 2,700.00|-----====:======------------|6,300.00
+#>       after:  2,700.00|--------=======:====--------|6,300.00
+#>   year
+#>       before: 2,007.00|=============:==============|2,009.00
+#>       after:  2,007.00|=============:==============|2,009.00
+#> ============================================================
+```
+
 ## Notes
 
 - 本関数では、`before` と `after` が同一の DataFrame バックエンド（例：どちらも pandas、またはどちらも polars）であることを前提としています。異なるバックエンドを混在させた場合、エラーが発生します。
@@ -177,7 +201,7 @@ print(py4st.review_wrangling(
 
 ## 参考 See also
 
-`review_wrangling()` 関数で出力される各項目を単独で提供する関数については、[Individual review functions](./review_individuals.qmd) 関数を参照してください。また、列のデータ型に基づいた比較については [`compare_df_cols()`](./compare_df_cols.qmd) を、数値変数の統計値に基づいた比較については [`compare_df_stats()`](./compare_df_cols.qmd) もご参照ください。
+`review_wrangling()` 関数で出力される各項目を単独で提供する関数については、[Individual review functions](./review_individuals.qmd) を参照してください。また、列のデータ型に基づいた比較については [`compare_df_cols()`](./compare_df_cols.qmd) を、数値変数の統計値に基づいた比較については [`compare_df_stats()`](./compare_df_cols.qmd) もご参照ください。
 
 そのほか、`review_wrangling()` 関数の実践的な使い方については、[vignette](../articles/review_data_wrangling.qmd) を参照してください。
 

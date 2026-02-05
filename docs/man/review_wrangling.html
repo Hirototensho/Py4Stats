@@ -632,6 +632,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; No columns had categories added or removed.</span></span>
 <span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ======================================================================================</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>デフォトのレビューには含まれませんが、<code>items</code> に <code>'numeric'</code> を指定することで、数値変数について ASCII 文字列の箱ひげ図による分布の要約を出力できます。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(py4st.review_wrangling(before, after, items <span class="op">=</span> <span class="st">'numeric'</span>))</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; =================== Review of wrangling ====================</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Boxplot of Numeric values (for reference):</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   bill_length_mm</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       before:    32.10|------======:====-----------|   59.60</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       after:     40.90         |----==:===---------|   59.60</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   bill_depth_mm</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       before:    13.10|-------======:=====---------|   21.50</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       after:     13.10|----====:=======---------|      20.80</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   flipper_length_mm</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       before:   172.00|-------====:========--------|  231.00</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       after:    178.00  |----------======:====----|   230.00</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   body_mass_g</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       before: 2,700.00|-----====:======------------|6,300.00</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       after:  2,700.00|--------=======:====--------|6,300.00</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   year</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       before: 2,007.00|=============:==============|2,009.00</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       after:  2,007.00|=============:==============|2,009.00</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ============================================================</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="notes" class="level2">
 <h2 class="anchored" data-anchor-id="notes">Notes</h2>
@@ -642,7 +662,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="参考-see-also" class="level2">
 <h2 class="anchored" data-anchor-id="参考-see-also">参考 See also</h2>
-<p><code>review_wrangling()</code> 関数で出力される各項目を単独で提供する関数については、<a href="../man/review_individuals.html">Individual review functions</a> 関数を参照してください。また、列のデータ型に基づいた比較については <a href="../man/compare_df_cols.html"><code>compare_df_cols()</code></a> を、数値変数の統計値に基づいた比較については <a href="../man/compare_df_cols.html"><code>compare_df_stats()</code></a> もご参照ください。</p>
+<p><code>review_wrangling()</code> 関数で出力される各項目を単独で提供する関数については、<a href="../man/review_individuals.html">Individual review functions</a> を参照してください。また、列のデータ型に基づいた比較については <a href="../man/compare_df_cols.html"><code>compare_df_cols()</code></a> を、数値変数の統計値に基づいた比較については <a href="../man/compare_df_cols.html"><code>compare_df_stats()</code></a> もご参照ください。</p>
 <p>そのほか、<code>review_wrangling()</code> 関数の実践的な使い方については、<a href="../articles/review_data_wrangling.html">vignette</a> を参照してください。</p>
 <hr>
 <p><a href="../reference.html">Return to <strong>Function reference</strong>.</a></p>
