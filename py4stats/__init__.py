@@ -56,6 +56,7 @@ from .eda_tools._nw import (
     review_casting,
     review_missing,
     review_category,
+    review_numeric,
     scale,
     set_miss,
     relocate,
