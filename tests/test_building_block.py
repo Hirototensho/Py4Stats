@@ -355,3 +355,17 @@ def test_oxford_comma_shorten():
     res3 == "'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i' and 'j'"
 
     assert build.oxford_comma_shorten(alpha, abbreviate = False) == build.oxford_comma(alpha)
+
+# =========================================================
+# set operation of list
+# =========================================================
+
+def test_set_operation_of_list():
+    list1 = ['a', 'b', 'c', 'd']
+    list2 = ['c', 'd', 'e', 'f']
+
+    assert build.list_diff(list1, list2) == ['a', 'b']
+    assert build.list_diff(list2, list1) == ['e', 'f']
+    assert build.list_intersect(list1, list2) == ['c', 'd']
+    assert build.list_union(list1, list2) == ['a', 'b', 'c', 'd', 'e', 'f']
+    assert build.list_xor(list1, list2) == ['a', 'b', 'e', 'f']

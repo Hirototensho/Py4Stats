@@ -1162,3 +1162,53 @@ def pad_zero(x: Any, digits: int = 2) -> str:
 def add_big_mark(s: Any) -> str:
     return f'{s:,}'
 
+
+# ## set operation of list
+
+
+
+def list_diff(x: List[Any], y: List[Any]) -> List[Any]:
+    """Set operation of list
+        - `list_diff(x, y)`: The difference set between lists `x` and `y`
+        - `list_intersect(x, y)`: The intersection of lists `x` and `y`
+        - `list_union(x, y)`: The union of lists `x` and `y`
+        - `list_xor(x, y)`: The symmetric difference of lists `x` and `y`
+        - `list_unique(x)`: Creates a list consisting of the non-duplicate elements from list `x`
+        - `list_subset(x, subset)`: A subset of list `x`
+    """
+    return [v for v in x if v not in y]
+
+def list_intersect(x: List[Any], y: List[Any]) -> List[Any]:
+    return [v for v in x if v in y]
+
+def list_union(x: List[Any], y: List[Any]) -> List[Any]:
+    return list_unique(x + y)
+
+def list_xor(x: List[Any], y: List[Any]) -> List[Any]:
+    return list_diff(x, y) + list_diff(y, x)
+
+def list_unique(x: List[Any]) -> List[Any]:
+    result = []
+    for v in x:
+        if v not in result:
+            result.extend(v)
+    return result
+
+def list_subset(x: List[Any], subset: Union[Callable, List[int], List[bool]]) -> List[Any]:
+    if isinstance(subset, Callable):
+        subset = [subset(v) for v in x]
+        return list_subset(x, subset)
+    if is_logical(subset):
+        return [v for i, v in enumerate(x) if subset[i]]
+    if is_integer(subset):
+        result = []
+        for i in subset:
+            result.extend(x[i])
+        return result
+
+list_intersect.__doc__ = list_diff.__doc__
+list_union.__doc__ = list_diff.__doc__
+list_xor.__doc__ = list_diff.__doc__
+list_unique.__doc__ = list_diff.__doc__
+list_subset.__doc__ = list_diff.__doc__
+

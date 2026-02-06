@@ -2439,11 +2439,11 @@ def remove_empty(
             DataFrame after removing empty columns/rows.
     """
     # 引数のアサーション ==============================================
-    build.assert_logical(cols, arg_name = 'cols')
-    build.assert_logical(rows, arg_name = 'rows')
-    build.assert_numeric(cutoff, lower = 0, upper = 1)
-    build.assert_logical(quiet, arg_name = 'quiet')
-    build.assert_logical(to_native, arg_name = 'to_native')
+    build.assert_logical(cols, arg_name = 'cols', len_arg = 1)
+    build.assert_logical(rows, arg_name = 'rows', len_arg = 1)
+    build.assert_numeric(cutoff, lower = 0, upper = 1, len_arg = 1)
+    build.assert_logical(quiet, arg_name = 'quiet', len_arg = 1)
+    build.assert_logical(to_native, arg_name = 'to_native', len_arg = 1)
     # ==============================================================
 
     df_shape = data.shape
@@ -2451,6 +2451,7 @@ def remove_empty(
     # 空白列の除去 ------------------------------
     if cols :
         empty_col = missing_percent(data, axis = 'index', pct = False) >= cutoff
+
         data_nw = data_nw[:, (~empty_col).to_list()]
 
         if not(quiet) :
@@ -2542,7 +2543,7 @@ def remove_constant(
             f"(Removed: {removed}). "
         )
 
-    selected = list_minus(col_name, constant_columns)
+    selected = build.list_diff(col_name, constant_columns)
     result = data_nw.select(selected)
 
     if to_native: return result.to_native()
@@ -4358,8 +4359,8 @@ def plot_category(
 # In[ ]:
 
 
-def list_minus(x, y):
-    return [v for v in x if v not in y]
+# def list_minus(x, y):
+#     return [v for v in x if v not in y]
 
 
 # In[ ]:
@@ -4484,8 +4485,8 @@ def review_col_addition(
     columns_before = nw.from_native(before).columns
     columns_after  = nw.from_native(after).columns
 
-    added = list_minus(columns_after, columns_before)
-    removed = list_minus(columns_before, columns_after)
+    added = build.list_diff(columns_after, columns_before)
+    removed = build.list_diff(columns_before, columns_after)
 
     if added or removed:
         col_adition = ["Column additions and removals:"]
@@ -4736,8 +4737,8 @@ def review_category(
         unique_before = before_nw[col].cast(nw.String).unique().to_list()
         unique_after = after_nw[col].cast(nw.String).unique().to_list()
 
-        added = list_minus(unique_after, unique_before)
-        removed = list_minus(unique_before, unique_after)
+        added = build.list_diff(unique_after, unique_before)
+        removed = build.list_diff(unique_before, unique_after)
 
         if added or removed:
             change_category += [f"  {col}:"]
