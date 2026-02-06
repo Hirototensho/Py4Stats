@@ -2373,7 +2373,7 @@ def missing_percent(
         data: IntoFrameT,
         axis: str = 'index',
         pct: bool = True
-        ):
+        ) -> pd.Series:
     data_nw = nw.from_native(data)
     n = data_nw.shape[0]
 
@@ -2467,6 +2467,7 @@ def remove_empty(
 
         if not(quiet) :
             nrow_removed = empty_rows.sum()
+            # ↓ missing_percent() -> pd.Series なので成立します。
             row_removed = empty_rows[empty_rows].index.to_series().astype('str').to_list()
             print(
                     f"Removing {nrow_removed} empty row(s) out of {df_shape[0]} rows" +
@@ -2475,6 +2476,17 @@ def remove_empty(
 
     if to_native: return data_nw.to_native()
     return data_nw
+
+
+# In[ ]:
+
+
+def is_constant(data: IntoSeriesT, dropna: bool = True) -> bool:
+    data = nw.from_native(data, series_only = True)
+    if dropna: 
+        return data.drop_nulls().n_unique() == 1
+    else:
+        return data.n_unique() == 1
 
 
 # In[ ]:
@@ -2504,38 +2516,37 @@ def remove_constant(
             Defaults to True.
 
     Returns:
-        pandas.DataFrame:
+        IntoFrameT:
             DataFrame after removing constant columns.
     """
     # 引数のアサーション ==============================================
-    build.assert_logical(quiet, arg_name = 'quiet')
-    build.assert_logical(to_native, arg_name = 'to_native')
+    build.assert_logical(quiet, arg_name = 'quiet', len_arg = 1)
+    build.assert_logical(dropna, arg_name = 'dropna', len_arg = 1)
+    build.assert_logical(to_native, arg_name = 'to_native', len_arg = 1)
     # ==============================================================
     data_nw = nw.from_native(data)
-    df_shape = data_nw.shape
     col_name = data_nw.columns
 
-    # データフレーム(data_nw) の行が定数かどうかを判定
-    def foo (col, dropna):
-        if dropna: 
-            return data_nw[col].drop_nulls().n_unique() 
-        else:
-            return data_nw[col].n_unique()
+    bool_constant = [is_constant(col, dropna) for col in data_nw.iter_columns()]
 
-    unique_count = pd.Series([foo(col, dropna) for col in col_name])
-    constant_col = unique_count == 1
-    data_nw = data_nw[:, (~constant_col).to_list()]
+    constant_columns = [
+        col for i, col in enumerate(col_name) 
+        if bool_constant[i]
+        ]
 
     if not(quiet) :
-        ncol_removed = constant_col.sum()
-        col_removed = constant_col[constant_col].index.to_series().astype('str').to_list()
-
+        n_removed = len(constant_columns)
+        removed = build.oxford_comma_and(constant_columns, quotation = False)
         print(
-            f"Removing {ncol_removed} constant column(s) out of {df_shape[1]} columns" +
-            f"(Removed: {','.join(col_removed)}). "
+            f"Removing {n_removed} constant column(s) out of {len(col_name)} columns" +
+            f"(Removed: {removed}). "
         )
-    if to_native: return data_nw.to_native()
-    return data_nw
+
+    selected = list_minus(col_name, constant_columns)
+    result = data_nw.select(selected)
+
+    if to_native: return result.to_native()
+    return result
 
 
 # ## 列名や行名に特定の文字列を含む列や行を除外する関数
