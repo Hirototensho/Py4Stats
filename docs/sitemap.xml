@@ -2,15 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/index.html</loc>
-    <lastmod>2026-01-30T12:42:41.160Z</lastmod>
+    <lastmod>2026-02-06T09:14:01.490Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/introduction.html</loc>
-    <lastmod>2026-01-27T12:35:39.446Z</lastmod>
+    <lastmod>2026-02-05T10:55:06.765Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/reference.html</loc>
-    <lastmod>2026-01-27T12:35:39.459Z</lastmod>
+    <lastmod>2026-02-05T10:34:38.467Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/diagnose.html</loc>
@@ -26,7 +26,7 @@
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/Pareto_plot.html</loc>
-    <lastmod>2026-01-30T12:42:41.160Z</lastmod>
+    <lastmod>2026-02-06T10:05:01.373Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/plot_category.html</loc>
@@ -58,7 +58,11 @@
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/review_wrangling.html</loc>
-    <lastmod>2026-02-02T04:06:38.513Z</lastmod>
+    <lastmod>2026-02-06T10:15:35.567Z</lastmod>
+  </url>
+  <url>
+    <loc>https://github.com/Hirototensho/Py4Stats/man/review_individuals.html</loc>
+    <lastmod>2026-02-05T03:42:14.964Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/compare_group_stats.html</loc>
@@ -134,7 +138,7 @@
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/assert_dtype.html</loc>
-    <lastmod>2026-01-27T12:35:39.446Z</lastmod>
+    <lastmod>2026-02-02T13:58:14.156Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/is_dtype.html</loc>
@@ -150,7 +154,7 @@
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/oxford_comma.html</loc>
-    <lastmod>2026-02-02T03:28:04.956Z</lastmod>
+    <lastmod>2026-02-02T04:19:48.922Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/articles/release_notes.html</loc>
@@ -159,6 +163,10 @@
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/articles/scaling_up_regression.html</loc>
     <lastmod>2026-01-27T12:35:39.405Z</lastmod>
+  </url>
+  <url>
+    <loc>https://github.com/Hirototensho/Py4Stats/articles/review_data_wrangling.html</loc>
+    <lastmod>2026-02-05T10:34:38.465Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/articles/narwhals_in_py4stats.html</loc>

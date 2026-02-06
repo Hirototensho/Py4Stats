@@ -22,6 +22,7 @@ book:
       - man/relocate.qmd
       - man/compare_df_cols.qmd
       - man/review_wrangling.qmd
+      - man/review_individuals.qmd
       - man/compare_group_stats.qmd
       - man/plot_miss_var.qmd
       - man/set_miss.qmd
@@ -55,6 +56,7 @@ book:
       chapters:
       - articles/release_notes.qmd
       - articles/scaling_up_regression.qmd
+      - articles/review_data_wrangling.qmd
       - articles/narwhals_in_py4stats.qmd
     - part: "**Contributing Notes**" # ライブラリの開発に関する記事、記録
       chapters:
@@ -63,7 +65,7 @@ book:
       - articles/narwhalsについての考察.qmd
   site-url: https://github.com/Hirototensho/Py4Stats
   repo-url: https://github.com/Hirototensho/Py4Stats
-  repo-branch: main                  # main に変更したら、こちらを使います。
+  repo-branch: main 
   repo-actions: [source]
 format:
   html:

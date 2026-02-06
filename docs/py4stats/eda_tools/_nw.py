@@ -253,6 +253,7 @@ import pandas_flavor as pf
 import warnings
 
 import math
+from wcwidth import wcswidth
 
 
 # In[ ]:
@@ -2520,7 +2521,7 @@ def remove_constant(
             return data_nw[col].drop_nulls().n_unique() 
         else:
             return data_nw[col].n_unique()
-    # unique_count = pd.Series(data_nw.select(nw.all().n_unique()).row(0), index = data_nw.columns)
+
     unique_count = pd.Series([foo(col, dropna) for col in col_name])
     constant_col = unique_count == 1
     data_nw = data_nw[:, (~constant_col).to_list()]
@@ -4366,6 +4367,35 @@ def _assert_same_backend(data1, data2, funcname = 'review_wrangling', data_name 
 
 
 def review_casting(before: IntoFrameT, after: IntoFrameT) -> str:
+    """Review changes in column data types between two DataFrames.
+
+    This function compares the data types of columns in two DataFrame-like
+    objects representing the state of a dataset before and after wrangling,
+    and reports columns whose types have changed.
+
+    Only existing columns with mismatched types are reported. Columns that
+    are newly added or removed are not included in this review.
+
+    Args:
+        before (IntoFrameT):
+            The DataFrame before wrangling.
+        after (IntoFrameT):
+            The DataFrame after wrangling.
+
+    Returns:
+        str:
+            A human-readable, multi-line string describing columns whose
+            data types have changed. If no type changes are detected,
+            a message indicating this is returned.
+
+    Examples:
+        >>> import py4stats as py4st
+        >>> print(py4st.review_casting(before, after))
+        The following columns have changed their type:
+          species object -> category
+          year    int64 -> float64
+
+    """
     res_compare = compare_df_cols(
         [before, after], return_match = 'mismatch', 
         to_native = False
@@ -4395,6 +4425,42 @@ def review_col_addition(
         max_columns: Optional[int] = None,
         max_width: int = 80
         ) -> str:
+    """Review added and removed columns between two DataFrames.
+
+    This function compares column names in two DataFrame-like objects and
+    reports which columns were added or removed as a result of wrangling.
+
+    For readability, long lists of column names can be abbreviated based on
+    either the number of columns or the formatted text width.
+
+    Args:
+        before (IntoFrameT):
+            The DataFrame before wrangling.
+        after (IntoFrameT):
+            The DataFrame after wrangling.
+        abbreviate (bool, optional):
+            Whether to abbreviate long lists of column names in the output.
+            Defaults to True.
+        max_columns (int or None, optional):
+            Maximum number of column names to display when reporting added
+            or removed columns. If None, truncation is based on text width.
+        max_width (int, optional):
+            Maximum text width (in characters) used for truncation when
+            `max_columns` is None. Defaults to 80.
+
+    Returns:
+        str:
+            A formatted string summarizing column additions and removals.
+            If no columns were added or removed, an explanatory message
+            is returned.
+
+    Examples:
+        >>> import py4stats as py4st
+        >>> print(py4st.review_col_addition(before, after))
+        Column additions and removals:
+        added:   'heavy' and 'const'
+        removed: 'sex'
+    """
     # 引数のアサーション =======================================================
     build.assert_logical(abbreviate, arg_name = 'abbreviate')
     build.assert_count(
@@ -4441,7 +4507,7 @@ def format_missing_lines(miss_table):
         ]
 
     names = [f"  {row.get('columns')} " for row in rows_list]
-    name_w = max(len(n) for n in names)  # 列名の表示幅
+    name_w = max(wcswidth(n) for n in names)  # 列名の表示幅
     # 欠測数の表示幅
     w_count_be = len(f"{miss_table['missing_count'].max():,}")
     w_count_af = len(f"{miss_table['missing_count_after'].max():,}")
@@ -4466,7 +4532,37 @@ def format_missing_lines(miss_table):
 
 
 def review_missing(before: IntoFrameT, after: IntoFrameT) -> str:
+    """Review changes in missing values between two DataFrames.
 
+    This function compares the number and proportion of missing values
+    for each column in two DataFrame-like objects and reports columns
+    where missingness has increased or decreased.
+
+    Columns with no change in missing values are not listed.
+
+    Args:
+        before (IntoFrameT):
+            The DataFrame before wrangling.
+        after (IntoFrameT):
+            The DataFrame after wrangling.
+
+    Returns:
+        str:
+            A human-readable report describing increases and decreases
+            in missing values. If no changes are detected, a message
+            indicating this is returned.
+
+    Examples:
+        >>> import py4stats as py4st
+        >>> print(py4st.review_missing(before, after))
+        Increase in missing values:
+        flipper_length_mm  before 2 (0.58%) -> after 22 (11.76%)
+
+        Decrease in missing values:
+        bill_length_mm  before 2 (0.58%) -> after 0 (0.00%)
+        bill_depth_mm   before 2 (0.58%) -> after 0 (0.00%)
+        body_mass_g     before 2 (0.58%) -> after 0 (0.00%)    
+    """
     compare_miss = diagnose(before, to_native = False)\
         .select('columns', 'missing_count', 'missing_percent')\
         .join(
@@ -4514,8 +4610,27 @@ def shape_change(before: int, after: int) -> str:
 
 
 def review_shape(before: IntoFrameT, after: IntoFrameT) -> str:
-    row_o, col_o = before.shape
-    row_n, col_n = after.shape
+    """Review changes in the shape of a DataFrame.
+
+    This function compares the number of rows and columns in two
+    DataFrame-like objects representing the state of a dataset before
+    and after wrangling.
+
+    Args:
+        before (IntoFrameT):
+            The DataFrame before wrangling.
+        after (IntoFrameT):
+            The DataFrame after wrangling.
+
+    Returns:
+        str:
+            A formatted string summarizing changes in the number of rows
+            and columns.
+    """
+    before_nw = nw.from_native(before)
+    after_nw  = nw.from_native(after)
+    row_o, col_o = before_nw.shape
+    row_n, col_n = after_nw.shape
     d_o = len(f"{np.max([row_o, col_o]):,}")
     d_n = len(f"{np.max([row_n, col_n]):,}")
 
@@ -4535,6 +4650,52 @@ def review_category(
         max_categories: Optional[int] = None,
         max_width: int = 80
         ) -> str:
+    """Review changes in category levels between two DataFrames.
+
+    This function compares the observed category levels of string,
+    categorical, and boolean columns in two DataFrame-like objects and
+    reports additions and removals of category levels.
+
+    Only columns present in both `before` and `after` are considered.
+    Category comparisons are based on the unique values observed in
+    the data, not on backend-specific category definitions.
+
+    Args:
+        before (IntoFrameT):
+            The DataFrame before wrangling.
+        after (IntoFrameT):
+            The DataFrame after wrangling.
+        abbreviate (bool, optional):
+            Whether to abbreviate long lists of category levels in the
+            output. Defaults to True.
+        max_categories (int or None, optional):
+            Maximum number of category levels to display when reporting
+            additions or removals. If None, truncation is based on text width.
+        max_width (int, optional):
+            Maximum text width (in characters) used for truncation when
+            `max_categories` is None. Defaults to 80.
+
+    Returns:
+        str:
+            A formatted string summarizing category-level additions and
+            removals. If no category changes are detected, a message
+            indicating this is returned.
+
+    Raises:
+        TypeError:
+            If `before` and `after` use different DataFrame backends.
+
+    Examples:
+        >>> import py4stats as py4st
+        >>> print(py4st.review_category(before, after))
+        The following columns show changes in categories:
+        species:
+            addition:  None
+            removal:  'Adelie'
+        island:
+            addition:  None
+            removal:  'Torgersen'
+    """
     before_nw = nw.from_native(before)
     after_nw  = nw.from_native(after)
     # 引数のアサーション =======================================================
@@ -4585,15 +4746,214 @@ def review_category(
     else: return 'No columns had categories added or removed.'
 
 
+# ### review_numeric の実験的実装
+
 # In[ ]:
 
 
-import math
+import numpy as np
+
+def draw_ascii_boxplot(data, range_min = None, range_max = None, width = 30):
+    """データセットから文字列の箱ひげ図を作成する"""
+    data = nw.from_native(data, series_only = True)
+
+    # 五数要約の計算
+    min_val = data.min()
+    q1 = data.quantile(0.25, 'midpoint')
+    median = data.quantile(0.5, 'midpoint')
+    q3 = data.quantile(0.75, 'midpoint')
+    max_val = data.max()
+
+    # 描画のための計算
+
+    if range_min is not None and range_max is not None:
+        data_range = range_max - range_min
+    else:
+        data_range = max_val - min_val
+        range_min = min_val 
+
+    if data_range == 0:
+        return "Data is constant".center(width, ' ')
+
+    def scale(val):
+        return int((val - range_min) / data_range * (width - 1))
+
+    # 文字列の箱を組み立て
+    plot = [' '] * width
+
+    # ひげ (Whiskers)
+    start = scale(min_val)
+    end = scale(max_val)
+    q1_idx = scale(q1)
+    q3_idx = scale(q3)
+    med_idx = scale(median)
+
+    for i in range(start, q1_idx): plot[i] = '-'
+    for i in range(q3_idx, end + 1): plot[i] = '-'
+
+    # 箱 (Box)
+    for i in range(q1_idx, q3_idx + 1): plot[i] = '='
+
+    # 中央値 (Median)
+    plot[med_idx] = ':'
+
+    # キャップ (Caps)
+    plot[start] = '|'
+    plot[end] = '|'
+
+    return "".join(plot)
+
+
+# In[ ]:
+
+
+def make_boxplot_with_label(before, after, col, space_left = 7, space_right = 7, width = 30, digits = 2):
+    before = nw.from_native(before)
+    after = nw.from_native(after)
+
+    min_be = before[col].min()
+    max_be = before[col].max()
+    min_af = after[col].min()
+    max_af = after[col].max()
+    min_all = min(min_be, min_af)
+    max_all = max(max_be, max_af)
+
+    boxplot_before = draw_ascii_boxplot(before[col], min_all, max_all, width = width)
+    boxplot_after = draw_ascii_boxplot(after[col], min_all, max_all, width = width)
+
+    review = [
+        f'  {col}',
+        f"{' '*6}before: {min_be:>{space_left},.{digits}f}{boxplot_before}{max_be:>{space_right},.{digits}f}",
+        f"{' '*6}after:  {min_af:>{space_left},.{digits}f}{boxplot_after }{max_af:>{space_right},.{digits}f}"
+    ]
+    result = '\n'.join(review)
+
+    result = '\n'.join(review)
+    return result
+
+
+# In[ ]:
+
+
+def review_numeric(
+        before: IntoFrameT, 
+        after: IntoFrameT,
+        digits: int = 2,
+        width_boxplot: int = 30
+        ):
+    """
+    Generate a textual review of numeric variables before and after preprocessing.
+
+    This function compares numeric columns shared by the ``before`` and ``after``
+    datasets and summarizes their distributional changes using ASCII-art
+    boxplots. The output is intended for human-readable reviews (e.g., logs,
+    console output, or reports), providing a compact visual reference of how
+    preprocessing steps affected numeric variables.
+
+    For each numeric column, the function displays:
+    - minimum and maximum values (formatted with thousands separators),
+    - an ASCII boxplot representing the five-number summary,
+    - side-by-side comparison of distributions before and after preprocessing.
+
+    The boxplots for ``before`` and ``after`` are drawn on a common scale per
+    column, enabling visual comparison of shifts in location and spread.
+
+    Args:
+        before (IntoFrameT):
+            The DataFrame before wrangling. Any rows consisting entirely of
+            missing values are removed internally. Only numeric columns are
+            considered.
+        after (IntoFrameT):
+            The DataFrame after wrangling.
+            Only numeric columns present in both datasets are reviewed.
+        digits (int, optional):
+            Number of decimal places used when formatting numeric values.
+            Defaults to 2.
+        width_boxplot (int, optional):
+            Width of the ASCII boxplot (number of characters used to draw the
+            box and whiskers). Defaults to 30.
+
+    Returns:
+        str:
+            A multi-line string containing an ASCII-art boxplot review of all
+            numeric variables common to ``before`` and ``after``. The first line
+            is a header, followed by one block per variable.
+
+    Notes:
+        - Empty or all-missing columns are removed prior to comparison.
+        - This function is designed for qualitative inspection and debugging.
+          The boxplots are provided for reference and are not intended as a
+          precise statistical visualization.
+        - If no common numeric columns exist between ``before`` and ``after``,
+        a descriptive message is returned instead of boxplot output.
+
+    Examples:
+        >>> import py4stats as py4st
+        >>> print(py4st.review_numeric(before, after))
+        Boxplot of Numeric values (for reference):
+        bill_length_mm
+            before:    32.10|------======:====-----------|   59.60
+            after:     40.90         |----==:===---------|   59.60
+        ...
+    """
+    # 引数のアサーション =======================================================
+    build.assert_count(digits, arg_name = 'digits', len_arg = 1)
+    build.assert_count(width_boxplot, arg_name = 'width_boxplot', len_arg = 1)
+    # =======================================================================
+    before_nw = remove_empty(before, to_native = False)\
+        .select(ncs.numeric())
+    after_nw = remove_empty(after, to_native = False)\
+        .select(ncs.numeric())
+
+    cols1 = before_nw.columns
+    cols2 = after_nw.columns
+
+    cols = [x for x in cols2 if x in cols1]
+    if not cols:
+        return "No common numeric columns exist between `before` and `after`"
+
+    before_nw = before_nw.select(cols)
+    after_nw = after_nw.select(cols)
+
+    max_min = max(max([
+        before_nw.select(ncs.all().min()).row(0),
+        after_nw.select(ncs.all().min()).row(0),
+    ]))
+
+    max_max = max(max([
+        before_nw.select(ncs.all().max()).row(0),
+        after_nw.select(ncs.all().max()).row(0),
+    ]))
+
+    space_left = len(f"{max_min:,.{digits}f}")
+    space_right = len(f"{max_max:,.{digits}f}")
+
+    review = [
+        make_boxplot_with_label(
+            before_nw, after_nw, col, 
+            space_left = space_left, 
+            space_right = space_right, 
+            width = width_boxplot, 
+            digits = digits
+            )
+        for col in cols
+    ]
+
+    review = ['Boxplot of Numeric values (for reference):'] + review
+
+    return '\n'.join(review)
+
+
+# In[ ]:
+
+
 def make_header(text: str, title: str) -> str:
-    max_len = np.max([len(s) for s in text.split('\n')])
+    max_len = max([wcswidth(s) for s in text.split('\n')])
     len_header = math.ceil(max_len / 2.0) * 2
     return title.center(len_header, '=')
 
+
+# ### review_wrangling の本体
 
 # In[ ]:
 
@@ -4601,11 +4961,12 @@ def make_header(text: str, title: str) -> str:
 def review_wrangling(
         before: IntoFrameT, 
         after: IntoFrameT, 
+        items: Union[List[str], str] = ['shape', 'col_addition', 'casting', 'missing', 'category'],
         title: str = 'Review of wrangling',
         abbreviate: bool = True,
         max_columns: Optional[int] = None,
         max_categories: Optional[int] = None,
-        max_width: int = 80
+        max_width: int = 80,
         ) -> str:
     """Review and summarize differences introduced by data wrangling.
 
@@ -4633,6 +4994,33 @@ def review_wrangling(
             The original DataFrame before wrangling.
             Any DataFrame-like object supported by narwhals
             (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
+        items (Union[List[str], str], optional):
+            A list specifying which review items to include in the output, and
+            in what order they should appear.
+
+            This argument may be either a list of strings or a single string.
+            Each review section is generated only if its corresponding keyword
+            is included in ``items``.
+
+            Supported values are:
+
+            - "shape": Changes in the number of rows and columns.
+            - "col_addition": Added and removed columns.
+            - "casting": Changes in column data types.
+            - "missing": Increases and decreases in missing values.
+            - "category": Additions and removals of category levels.
+            - "numeric": Distributional changes in numeric variables, summarized
+            using ASCII boxplots.
+
+            Special values:
+            - "all":
+                Include all available review sections, including "numeric".
+                This may be specified either as ``items="all"`` or by including
+                "all" in a list.
+
+            The review sections are generated in the order given in ``items``.
+            If omitted, a default subset of review sections is used, excluding
+            "numeric".
         after (IntoFrameT):
             The DataFrame after wrangling.
         title (str, optional):
@@ -4680,13 +5068,27 @@ def review_wrangling(
             ...
             ============================================================
     """
+
     after_nw = nw.from_native(after)
     before_nw = nw.from_native(before)
+    if isinstance(items, str): items = [items]
     # 引数のアサーション =======================================================
     _assert_same_backend(before_nw, after_nw)
 
+    value_items = [
+         "shape", "col_addition", "casting", 
+         "missing", "category", "numeric", "all"
+         ]
+
+    build.arg_match(
+         items, values = value_items,
+         arg_name = 'items', multiple = True
+    )
+
     build.assert_character(title, arg_name = 'title', len_arg = 1)
+
     build.assert_logical(abbreviate, arg_name = 'abbreviate')
+
     build.assert_count(
         max_columns, arg_name = 'max_columns', 
         len_arg = 1, nullable = True)
@@ -4696,28 +5098,32 @@ def review_wrangling(
     build.assert_count(
         max_width, arg_name = 'max_width', 
         len_arg = 1)
-    # =======================================================================
 
-
-    # if before_nw.implementation is not after_nw.implementation:
-    #     raise TypeError(
-    #          "review_wrangling() requires `before` and `after` to use the same backend.\n"
-    #         f"Got before={before_nw.implementation!r}, after={after_nw.implementation!r}.\n"
-    #         "Please make sure that  `before` and `after` are the same backend (e.g., both pandas, both polars)."
-    #     )
+    # レビューの作成と整形=========================================================
+    if 'all' in items: items = value_items
 
     review = []
-    review += [review_shape(before_nw, after_nw)]
-    review += [review_col_addition(
-        before_nw, after_nw, abbreviate = abbreviate, 
-        max_columns = max_columns, max_width = max_width
-        )]
-    review += [review_casting(before, after)]
-    review += [review_missing(before_nw, after_nw)]
-    review += [review_category(
-        before_nw, after_nw, abbreviate = abbreviate, 
-        max_categories = max_categories, max_width = max_width
-        )]
+
+    for item in items:
+        match item:
+            case 'shape':
+                review += [review_shape(before_nw, after_nw)]
+            case 'col_addition':
+                    review += [review_col_addition(
+                        before_nw, after_nw, abbreviate = abbreviate, 
+                        max_columns = max_columns, max_width = max_width
+                        )]
+            case 'casting':
+                review += [review_casting(before, after)]
+            case 'missing':
+                review += [review_missing(before_nw, after_nw)]
+            case 'category':
+                    review += [review_category(
+                        before_nw, after_nw, abbreviate = abbreviate, 
+                        max_categories = max_categories, max_width = max_width
+                    )]
+            case 'numeric':
+                  review += [review_numeric(before, after)]
 
     result = '\n\n'.join(review)
     # ヘッダーとフッターの追加

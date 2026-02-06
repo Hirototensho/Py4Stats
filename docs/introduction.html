@@ -238,6 +238,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./man/review_individuals.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Individual review functions</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./man/compare_group_stats.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">compare_group_means, _median<br> plot_mean_diff, _median_diff</span></a>
   </div>
 </li>
@@ -403,6 +408,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./articles/scaling_up_regression.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">scaling up regression</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./articles/review_data_wrangling.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Auditing data transformations with review_wrangling</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -632,20 +642,40 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     addition:  None</span></span>
 <span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     removal:  'Torgersen' and 'Dream'</span></span>
 <span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ========================================================================</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>デフォルト設定ではレビュー項目に含まれませんが、<code>items = 'numeric'</code> を指定すると、ASCII 文字列の箱ひげ図を使って数値変数の分布の変化を確認することができます。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(py4st.review_wrangling(penguins, gentoo, items <span class="op">=</span> <span class="st">'numeric'</span>))</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; =================== Review of wrangling ====================</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Boxplot of Numeric values (for reference):</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   bill_length_mm</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       before:    32.10|------======:====-----------|   59.60</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       after:     40.90         |---===:==----------|   59.60</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   bill_depth_mm</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       before:    13.10|-------======:=====---------|   21.50</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       after:     13.10|--===:==-----|                  17.30</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   flipper_length_mm</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       before:   172.00|-------====:========--------|  231.00</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       after:    203.00               |---==:===----|  231.00</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   body_mass_g</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       before: 2,700.00|-----====:======------------|6,300.00</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       after:  3,950.00          |-----==:====------|6,300.00</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   year</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       before: 2,007.00|=============:==============|2,009.00</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       after:  2,007.00|=============:==============|2,009.00</span></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ============================================================</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="py4stats.regression_tools" class="level2">
 <h2 class="anchored" data-anchor-id="py4stats.regression_tools"><code>py4stats.regression_tools</code></h2>
 <p>　<code>py4stats.regression_tools</code> は <a href="https://www.statsmodels.org/stable/index.html"><code>statsmodels</code></a>ライブラリで作成された回帰分析の結果についての表作成と可視化を補助する機能を提供するモジュールです。</p>
 <p>　<a href="./man/compare_ols.html"><code>py4stats.compare_ols()</code></a> ：計量経済学の実証論文でよく用いられる、回帰分析の結果を列方向に並べて比較する表を作成します。表のフォーマットについてはR言語の<a href="https://cran.r-project.org/web/packages/texreg/index.html"><code>texreg::screenreg()</code></a>や<a href="https://modelsummary.com/man/modelsummary.html"><code>modelsummary::modelsummary()</code></a>を参考にしています。同種の機能を提供する Python ライブラリーとしては、R言語の <a href="https://cran.r-project.org/web/packages/stargazer/index.html"><code>stargazer</code></a> パッケージをもとにした <a href="https://pypi.org/project/stargazer/"><code>stargazer</code></a> ライブラリがあります。</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> statsmodels.formula.api <span class="im">as</span> smf</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 回帰分析の実行</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>fit1 <span class="op">=</span> smf.ols(<span class="st">'body_mass_g ~ bill_length_mm + species'</span>, data <span class="op">=</span> penguins).fit()</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>fit2 <span class="op">=</span> smf.ols(<span class="st">'body_mass_g ~ bill_length_mm + bill_depth_mm + species'</span>, data <span class="op">=</span> penguins).fit()</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>fit3 <span class="op">=</span> smf.ols(<span class="st">'body_mass_g ~ bill_length_mm + bill_depth_mm + species + sex'</span>, data <span class="op">=</span> penguins).fit()</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>compare_tab1 <span class="op">=</span> py4st.compare_ols(list_models <span class="op">=</span> [fit1, fit2, fit3]) <span class="co"># 表の作成</span></span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>compare_tab1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> statsmodels.formula.api <span class="im">as</span> smf</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 回帰分析の実行</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>fit1 <span class="op">=</span> smf.ols(<span class="st">'body_mass_g ~ bill_length_mm + species'</span>, data <span class="op">=</span> penguins).fit()</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>fit2 <span class="op">=</span> smf.ols(<span class="st">'body_mass_g ~ bill_length_mm + bill_depth_mm + species'</span>, data <span class="op">=</span> penguins).fit()</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>fit3 <span class="op">=</span> smf.ols(<span class="st">'body_mass_g ~ bill_length_mm + bill_depth_mm + species + sex'</span>, data <span class="op">=</span> penguins).fit()</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>compare_tab1 <span class="op">=</span> py4st.compare_ols(list_models <span class="op">=</span> [fit1, fit2, fit3]) <span class="co"># 表の作成</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>compare_tab1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 30%">
@@ -755,15 +785,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tbody>
 </table>
 <p><code>py4stats.compare_ols()</code> の実行結果は <code>Pandas</code> の <code>DataFrame</code> として出力されるため、<code>.xlsx</code>. ファイルなどに変換することができます。また、用途に応じて表の体裁を調整できるようにしています。詳細については <a href="./man/compare_ols.html">「回帰分析の比較」</a> を参照してください。</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>compare_tab2 <span class="op">=</span> py4st.compare_ols(</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    list_models <span class="op">=</span> [fit1, fit2, fit3],</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    model_name <span class="op">=</span> [<span class="st">'基本モデル'</span>, <span class="st">'嘴の高さ追加'</span>, <span class="st">'性別追加'</span>], <span class="co"># モデル名を変更</span></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    stats <span class="op">=</span> <span class="st">'p_value'</span>,        <span class="co"># () 内の値をP-値に変更する</span></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    add_stars <span class="op">=</span> <span class="va">False</span>,        <span class="co"># 有意性のアスタリスクなし</span></span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    table_style <span class="op">=</span> <span class="st">'one_line'</span>, <span class="co"># 表スタイルを1行表示に設定 'one' でも可能</span></span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    digits <span class="op">=</span> <span class="dv">3</span>                <span class="co"># 小数点以下の桁数を3に設定</span></span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>compare_tab2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>compare_tab2 <span class="op">=</span> py4st.compare_ols(</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    list_models <span class="op">=</span> [fit1, fit2, fit3],</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    model_name <span class="op">=</span> [<span class="st">'基本モデル'</span>, <span class="st">'嘴の高さ追加'</span>, <span class="st">'性別追加'</span>], <span class="co"># モデル名を変更</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    stats <span class="op">=</span> <span class="st">'p_value'</span>,        <span class="co"># () 内の値をP-値に変更する</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    add_stars <span class="op">=</span> <span class="va">False</span>,        <span class="co"># 有意性のアスタリスクなし</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    table_style <span class="op">=</span> <span class="st">'one_line'</span>, <span class="co"># 表スタイルを1行表示に設定 'one' でも可能</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    digits <span class="op">=</span> <span class="dv">3</span>                <span class="co"># 小数点以下の桁数を3に設定</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>compare_tab2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 28%">
@@ -837,23 +867,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tbody>
 </table>
 <p><a href="./man/coefplot.html"><code>py4stats.coefplot()</code></a>：回帰係数の可視化。R言語の <a href="https://cran.r-project.org/web/packages/coefplot/index.html"><code>coefplot::coefplot()</code></a> を参考にしました。</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>py4st.coefplot(fit3)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>py4st.coefplot(fit3)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="man/image/coefplot1.png" class="img-fluid figure-img"></p>
 <figcaption>coefplot1</figcaption>
 </figure>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>plt.rcParams[<span class="st">"figure.autolayout"</span>] <span class="op">=</span> <span class="va">True</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize <span class="op">=</span> (<span class="fl">2.2</span> <span class="op">*</span> <span class="dv">5</span>, <span class="dv">5</span>), dpi <span class="op">=</span> <span class="dv">100</span>)</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>py4st.coefplot(fit2, ax <span class="op">=</span> ax[<span class="dv">0</span>])</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_xlim(<span class="op">-</span><span class="dv">900</span>, <span class="dv">1800</span>)</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>py4st.coefplot(fit3, ax <span class="op">=</span> ax[<span class="dv">1</span>], palette <span class="op">=</span> [<span class="st">'#FF6F91'</span>, <span class="st">'#F2E5EB'</span>])</span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_xlim(<span class="op">-</span><span class="dv">900</span>, <span class="dv">1800</span>)<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>plt.rcParams[<span class="st">"figure.autolayout"</span>] <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize <span class="op">=</span> (<span class="fl">2.2</span> <span class="op">*</span> <span class="dv">5</span>, <span class="dv">5</span>), dpi <span class="op">=</span> <span class="dv">100</span>)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>py4st.coefplot(fit2, ax <span class="op">=</span> ax[<span class="dv">0</span>])</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_xlim(<span class="op">-</span><span class="dv">900</span>, <span class="dv">1800</span>)</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>py4st.coefplot(fit3, ax <span class="op">=</span> ax[<span class="dv">1</span>], palette <span class="op">=</span> [<span class="st">'#FF6F91'</span>, <span class="st">'#F2E5EB'</span>])</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_xlim(<span class="op">-</span><span class="dv">900</span>, <span class="dv">1800</span>)<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="man/image/coefplot2.png" class="img-fluid figure-img"></p>
@@ -861,13 +891,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </figure>
 </div>
 <p>　<a href="./man/compare_mfx.html"><code>py4stats.compare_mfx()</code></a> と <a href="./man/compare_mfx.html"><code>py4stats.mfxplot()</code></a> は、それぞれ <code>py4stats.compare_ols()</code> と <code>py4stats.coefplot()</code> の一般化線型モデルバージョンです。<code>statsmodels</code> ライブラリの<a href="https://www.statsmodels.org/dev/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html"><code>.get_margeff()</code></a> メソッドから得られた限界効果の推定値を表示します。</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>penguins[<span class="st">'female'</span>] <span class="op">=</span> np.where(penguins[<span class="st">'sex'</span>] <span class="op">==</span> <span class="st">'female'</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co"># ロジスティック回帰の実行</span></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>fit_logit1 <span class="op">=</span> smf.logit(<span class="st">'female ~ body_mass_g + bill_length_mm + bill_depth_mm'</span>, data <span class="op">=</span> penguins).fit()</span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>fit_logit2 <span class="op">=</span> smf.logit(<span class="st">'female ~ body_mass_g + bill_length_mm + bill_depth_mm + species'</span>, data <span class="op">=</span> penguins).fit()</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>py4st.compare_mfx([fit_logit1, fit_logit2])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>penguins[<span class="st">'female'</span>] <span class="op">=</span> np.where(penguins[<span class="st">'sex'</span>] <span class="op">==</span> <span class="st">'female'</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co"># ロジスティック回帰の実行</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>fit_logit1 <span class="op">=</span> smf.logit(<span class="st">'female ~ body_mass_g + bill_length_mm + bill_depth_mm'</span>, data <span class="op">=</span> penguins).fit()</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>fit_logit2 <span class="op">=</span> smf.logit(<span class="st">'female ~ body_mass_g + bill_length_mm + bill_depth_mm + species'</span>, data <span class="op">=</span> penguins).fit()</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>py4st.compare_mfx([fit_logit1, fit_logit2])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -944,15 +974,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>plt.rcParams[<span class="st">"figure.autolayout"</span>] <span class="op">=</span> <span class="va">True</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize <span class="op">=</span> (<span class="fl">2.2</span> <span class="op">*</span> <span class="dv">5</span>, <span class="dv">5</span>), dpi <span class="op">=</span> <span class="dv">100</span>)</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>py4st.mfxplot(fit_logit1, ax <span class="op">=</span> ax[<span class="dv">0</span>])</span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_xlim(<span class="op">-</span><span class="fl">0.2</span>, <span class="fl">0.85</span>)</span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>py4st.mfxplot(fit_logit2, ax <span class="op">=</span> ax[<span class="dv">1</span>], palette <span class="op">=</span> [<span class="st">'#FF6F91'</span>, <span class="st">'#F2E5EB'</span>])</span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_xlim(<span class="op">-</span><span class="fl">0.2</span>, <span class="fl">0.85</span>)<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>plt.rcParams[<span class="st">"figure.autolayout"</span>] <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize <span class="op">=</span> (<span class="fl">2.2</span> <span class="op">*</span> <span class="dv">5</span>, <span class="dv">5</span>), dpi <span class="op">=</span> <span class="dv">100</span>)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>py4st.mfxplot(fit_logit1, ax <span class="op">=</span> ax[<span class="dv">0</span>])</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_xlim(<span class="op">-</span><span class="fl">0.2</span>, <span class="fl">0.85</span>)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>py4st.mfxplot(fit_logit2, ax <span class="op">=</span> ax[<span class="dv">1</span>], palette <span class="op">=</span> [<span class="st">'#FF6F91'</span>, <span class="st">'#F2E5EB'</span>])</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_xlim(<span class="op">-</span><span class="fl">0.2</span>, <span class="fl">0.85</span>)<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="man/image/coefplot3.png" class="img-fluid figure-img"></p>

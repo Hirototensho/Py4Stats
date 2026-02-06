@@ -1196,3 +1196,17 @@ def test_review_wrangling(backend):
             expected = f.read()
     
     assert output == expected
+
+
+@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
+def test_review_numeric(backend):
+    output = eda_nw.review_numeric(*df_modify.get(backend))
+
+    if update_fixture:
+        with open(f'{tests_path}/fixtures/review_numeric_{backend}.txt', 'w', encoding='utf-8') as f:
+            f.write(output)
+    
+    with open(f'{tests_path}/fixtures/review_numeric_{backend}.txt', 'r', encoding='utf-8') as f:
+            expected = f.read()
+    
+    assert output == expected

@@ -1,0 +1,144 @@
+# Auditing data transformations with review_wrangling
+
+## モチベーション（Why review data wrangling?）
+
+データ分析の実務においては、しばしば同僚・上司・顧客といったステークホルダーに対して、**「前処理で何を行い、その結果データがどのように変化したのか」**を説明することが求められます。
+
+前処理を実装したプログラムは、その処理内容や変化を正確かつ詳細に表現しています。しかし実務の現場では、報告のフォーマットや時間的制約、あるいはオーディエンスが Python に慣れていないといった理由から、コードそのものを直接共有することが必ずしも適切とは限りません。
+
+また、前処理によって生じた変更点を一つひとつ確認し、それをオーディエンスが理解しやすい形に整理し直す作業は、多忙なデータ分析者にとって見過ごせない負担となりがちです。
+
+こうした背景を踏まえ、[`review_wrangling()`](../man/review_wrangling.qmd)関数は、前処理の前後でデータがどのように変化したかを比較・要約し、説明やレビューを助けることを目的として設計されています。
+
+## 何を要約するのか (What does review_wrangling do?)
+
+`review_wrangling()` 関数は前処理前後のデータを比較し、初期設定では、前処理によって生じた主な変更点を次の5つの観点から要約します。
+
+- データフレームの形状（行数・列数）の変化
+- 列の追加および削除
+- 列のデータ型の変更
+- 欠損値の増加と減少
+- カテゴリ変数における水準（レベル）の追加および削除
+
+一方で、`review_wrangling()` 関数は レコード単位の値の変化や行の並び替えによる変化を追跡しません。これは、行数が変化するような前処理（フィルタリング等）にも対応できるようにするためです。また、検出された変更が妥当・適切であるかといった 解釈や価値判断は行わず、あくまで「何が変わったか」を事実として要約することに専念します。
+
+## いつ使うのか (When should it be used?)
+
+`review_wrangling()` は、一連の前処理工程を終えた 区切りのタイミングで、報告資料やレビュー用の要約を作成する目的で使用できます。また、前処理の途中段階において、データが想定どおりに加工されているか、想定外の変化が生じていないかを短時間で確認するためのチェックとして用いることもできます。
+
+## Example: Review in data wrangling workflow
+
+厚生労働省の食中毒発生事例データを例に、前処理のワークフローの中で `review_wrangling()` をどのように活用できるかを見てみましょう。
+
+``` python
+import py4stats as py4st
+import pandas as pd
+
+# 出典：厚生労働省 食中毒統計資料
+url = 'https://www.mhlw.go.jp/content/001648292.xlsx'
+jp_poison1 = pd.read_excel(url, skiprows = 1)
+
+print(py4st.diagnose(jp_poison1)
+      .loc[:, 'columns':'missing_percent'])
+#> columns           dtype  missing_count  missing_percent
+#> 0  Unnamed: 0         float64           1175            100.0
+#> 1      都道府県名等          object              0              0.0
+#> 2        発生月日  datetime64[ns]              0              0.0
+#> 3        発生場所          object              0              0.0
+#> 4        原因食品          object              0              0.0
+#> 5        病因物質          object              0              0.0
+#> 6        原因施設          object              0              0.0
+#> 7        摂食者数          object              0              0.0
+#> 8         患者数           int64              0              0.0
+#> 9         死者数           int64              0              0.0
+```
+
+日本国内で発生した細菌性の食中毒事例に関心があるものとして、ここでは次の方針で前処理を行います。
+
+- 空白列 `Unnamed: 0` を除外する
+- 摂食者数を数値列として扱えるようにする
+- 日本国内で発生した事例を抽出する
+- 細菌性の食中毒事例を抽出する
+
+なお、摂食者数が object 型として扱われているのは'不明'というレコードがあるためなので、これを欠測値に置換してから数値型に変換します。
+
+```python
+jp_poison2 = jp_poison1.copy()
+
+jp_poison2 = py4st.remove_empty(jp_poison2)
+
+jp_poison2 = jp_poison2.assign(
+    摂食者数 = jp_poison2['摂食者数']
+    .replace({'不明': None}).astype(float)
+)
+
+jp_poison2 = jp_poison2\
+    .query("発生場所 != '国内外不明' and 発生場所 != '国外'").copy()
+
+# '細菌-ぶどう球菌' のように表記されているので、大分類と小分類に分けます。
+splited = jp_poison2['病因物質'].str.split('-', expand = True)
+
+jp_poison2 = jp_poison2.assign(
+    大分類 = splited.loc[:, 0],
+    小分類 = splited.loc[:, 1]
+)
+
+jp_poison3 = jp_poison2.query("大分類 == '細菌'")
+
+jp_poison3.loc[:, '小分類'] = jp_poison3['小分類']\
+    .replace({'腸管出血性大腸菌（ＶＴ産生）':'O157'})
+```
+
+ここまでの前処理によってデータセットにどんな変化が起きたかを `review_wrangling()` 関数を使って確認してみましょう。
+
+``` python
+print(
+    py4st.review_wrangling(
+    jp_poison1, jp_poison3, 
+    max_width = 50
+    )
+)
+#> ================================ Review of wrangling =================================
+#> The shape of DataFrame:
+#>    Rows: before 1,175 -> after 315 (-860)
+#>    Cols: before    10 -> after  11 (+1)
+#> 
+#> Column additions and removals:
+#>   added:   '大分類' and '小分類'
+#>   removed: 'Unnamed: 0'
+#> 
+#> The following columns have changed their type:
+#>   摂食者数 object -> float64
+#> 
+#> Increase in missing values:
+#>   摂食者数  before 0 (0.00%) -> after 38 (12.06%)
+#> 
+#> None of the existing columns decreases in the number of missing values.
+#> 
+#> The following columns show changes in categories:
+#>   都道府県名等:
+#>     addition:  None
+#>     removal:  '小樽市', '函館市', '八戸市', '盛岡市' and other 28 categories
+#>   発生場所:
+#>     addition:  None
+#>     removal:  '国外', '山形県' and '国内外不明'
+#>   原因食品:
+#>     addition:  None
+#>     removal:  '当該飲食店が12月26日（金）に調理・提供した食事' and other 685 categories
+#>   病因物質:
+#>     addition:  None
+#>     removal:  '寄生虫-アニサキス', 'ウイルス-ノロウイルス' and other 7 categories
+#>   原因施設:
+#>     addition:  None
+#>     removal:  '販売店', '学校-給食施設-単独調理場-小学校' and other 3 categories
+#> ======================================================================================
+```
+`review_wrangling()` の出力を見ると、前処理によって 1,175 件あったデータが 315 件に絞り込まれたこと、新しい変数として「大分類」と「小分類」が追加され、`Unnamed: 0` 列が削除されたことが分かります。
+
+また、「摂食者数」は object 型から float 型に変換され、'不明' を欠測値（NaN）に置き換えたことで 38 件の欠測が新たに発生しています。これは想定通りの変化と言えるでしょう。
+
+病因物質のカテゴリーからは '寄生虫-アニサキス' や 'ウイルス-ノロウイルス' など 7 カテゴリーが除外されており、ここでも「細菌性」に限定した前処理の影響が確認できます。
+
+一方で、報告自治体を表す「都道府県名等」から '小樽市' や '函館市' など 28 自治体が除外されているほか、「原因施設」からも '販売店' や小学校の '給食施設' など 3 カテゴリーが除外されています。これらは意図した変更ではありませんが、今回のデータセットには該当する細菌性の事例が含まれていなかったと解釈できるため、問題はないと判断できます。
+
+このように `review_wrangling()` 関数を用いることで、前処理によって生じた想定内・想定外の変化を一度に把握し、その妥当性を短時間で確認することができます。

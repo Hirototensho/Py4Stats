@@ -24,7 +24,7 @@ oxford_comma_or(
     )
 
 oxford_comma_shorten(
-    x: List[str], 
+    x: Union[str, List[str]],
     sep_last: str = 'and', 
     quotation: bool = True, 
     suffix: str = 'items', 

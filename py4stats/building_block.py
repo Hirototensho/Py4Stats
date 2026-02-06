@@ -167,7 +167,7 @@ import scipy as sp
 import varname
 import collections
 import textwrap
-from functools import partial
+# from functools import partial
 
 
 # ## 型ヒントの準備
@@ -207,7 +207,7 @@ ArrayLike = Union[NumberLike, Sequence[NumberLike], np.ndarray, pd.Series]
 # StrArrayLike = Union[str, list[str], np.ndarray, pd.Series]
 
 # p-value などは 0..1 の数値配列として扱うことが多い
-# ProbArrayLike = ArrayLike
+# Sequence[int, float, np.number] = ArrayLike
 
 
 # ## `oxford_comma()`
@@ -279,8 +279,12 @@ def oxford_comma(x: Union[str, List[str]], sep_last: str = "and", quotation: boo
 
 
 
-oxford_comma_and = partial(oxford_comma, sep_last = 'and')
-oxford_comma_or = partial(oxford_comma, sep_last = 'or')
+def oxford_comma_and(x: Union[str, Sequence[str]], quotation: bool = True) -> str:
+  return oxford_comma(x, quotation = quotation, sep_last = 'and')
+
+def oxford_comma_or(x: Union[str, Sequence[str]], quotation: bool = True) -> str:
+  return oxford_comma(x, quotation = quotation, sep_last = 'or')
+
 oxford_comma_and.__doc__ = oxford_comma.__doc__
 oxford_comma_or.__doc__ = oxford_comma.__doc__
 
@@ -288,13 +292,13 @@ oxford_comma_or.__doc__ = oxford_comma.__doc__
 
 
 def oxford_comma_shorten(
-      x: List[str], 
+      x: Union[str, List[str]],
       sep_last: str = 'and', 
       quotation: bool = True, 
       suffix: str = 'items', 
       max_items: Optional[int] = None,
-      abbreviate: bool = True,
-      max_width: int = 80
+      max_width: int = 80,
+      abbreviate: bool = True
       ) -> str:
     """Format a list of strings using Oxford-comma style with optional abbreviation.
 
@@ -318,6 +322,12 @@ def oxford_comma_shorten(
         suffix (str, optional):
             A label describing the omitted elements.
             Defaults to ``'items'``.
+        max_items (int, optional):
+            Maximum number of items to display when `abbreviate=True`.
+            If specified and smaller than the number of items, the output will
+            show the first `max_items` items and then append 
+            "and other N {suffix}".
+            If None, truncation is based on text width.
         max_width (int, optional):
             Maximum allowed character width of the output string.
             Defaults to ``80``.
@@ -335,10 +345,10 @@ def oxford_comma_shorten(
         >>> from py4stats import building_block as build
         >>> import string
         >>> alpha = list(string.ascii_lowercase)
-        
+
         >>> build.oxford_comma_shorten(alpha)
         "'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l' and other 14 items"
-        
+
         >>> build.oxford_comma_shorten(alpha, max_width=40)
         "'a', 'b', 'c', 'd' and other 22 items"
 
@@ -347,11 +357,11 @@ def oxford_comma_shorten(
     """
     if isinstance(x, str): return x
     n_items = len(x)
-    
+
     item_text = oxford_comma(x, sep_last = sep_last, quotation = quotation)
 
     if not abbreviate: return item_text
-    
+
     # 省略処理 =================================================================
     if max_items is None:
         item_text = textwrap.shorten(
@@ -361,18 +371,18 @@ def oxford_comma_shorten(
             )
         in_text = [s for s in x if str(s) in item_text]
         n_remain = n_items - len(in_text)
-        
+
     elif max_items < n_items:
         if(quotation): x = [f"'{s}'" for s in x]
         item_text = ', '.join(x[:max_items])
         n_remain = n_items - max_items
-    
+
     elif max_items >= n_items: return item_text
-    
+
     if n_remain >= 1:
         return f"{item_text} {sep_last} other {n_remain} {suffix}"\
             .replace(f', {sep_last} other', f' {sep_last} other')
-    
+
     return item_text
 
 
@@ -554,7 +564,7 @@ def arg_match(
     """
     if(arg_name is None):
         arg_name = varname.argname('arg')
-    
+
     if (arg is None) and nullable: return None
 
     assert_missing(
@@ -562,11 +572,11 @@ def arg_match(
       any_missing = any_missing,
       all_missing = all_missing
       )
-    
+
     arg = pd.Series(arg)
     if any_missing: 
       arg = arg[~is_missing(arg)]
-    
+
     if(multiple):
     # 複数選択可の場合
         arg = [arg_match0(val, values = values, arg_name = arg_name) for val in arg]
@@ -602,6 +612,7 @@ def is_float(x: Any) -> bool:
 
 def make_assert_type(
     predicate_fun: Callable[[Any], bool],
+    func_name: str,
     valid_type: list[str],
 ) -> Callable[..., None]:
   """
@@ -625,12 +636,12 @@ def make_assert_type(
       all_missing: bool = False,
       nullable: bool = False,
       scalar_only: bool = False
-      ):
+      ) -> None:
     """Assert that an argument is specific type and satisfies value and shape constraints.
         `assert_*` is a high-level assertion that combines
         type checking, missing-value handling, length constraints,
         and range validation for numeric arguments.
-    
+
     Args:
         arg:
             The argument to validate. Can be a scalar or an
@@ -683,7 +694,7 @@ def make_assert_type(
             reported in the error message.
         - This function performs validation only and returns None if all checks
             pass.
-    
+
     Example:
         from py4stats import building_block as build
         x = [1, 2, 3]
@@ -718,7 +729,7 @@ def make_assert_type(
     # 欠測値に関するアサーション ============================================
     if (arg is None) and nullable: return None
     if scalar_only: assert_scalar(arg, arg_name = arg_name)
-    
+
     arg = pd.Series(arg)
 
     assert_missing(
@@ -726,7 +737,7 @@ def make_assert_type(
       any_missing = any_missing,
       all_missing = all_missing
       )
-    
+
     # 引数の要素数に関するアサーション ============================================
     assert_length(
       arg, arg_name, 
@@ -734,21 +745,22 @@ def make_assert_type(
       len_min = len_min,
       len_max = len_max
       )
-    
+
     if any_missing: 
       arg = arg[~is_missing(arg)]
 
     if not predicate_fun(arg):
       messages = f"Argument `{arg_name}` must be of type {oxford_comma_or(valid_type)}." 
       raise TypeError(messages)
-
+  func.__name__ = func_name
+  func.__qualname__ = func_name
   return func
 
 
 
 
-assert_character = make_assert_type(is_character, valid_type = ['str'])
-assert_logical = make_assert_type(is_logical, valid_type = ['bool'])
+assert_character = make_assert_type(is_character, 'assert_character', valid_type = ['str'])
+assert_logical = make_assert_type(is_logical, 'assert_logical', valid_type = ['bool'])
 
 
 # ### 数値用の `assert_*()` 関数
@@ -784,17 +796,18 @@ def assert_value_range(
     # range_message: str = '-inf <= x <= inf'
     ):
     arg = pd.Series(arg)
-    
+
     range_message = make_range_message(lower, upper, inclusive = inclusive)
     cond = arg.between(lower, upper, inclusive = inclusive)
 
     not_sutisfy = arg[~cond].index.astype(str).to_list()
     if(len(arg) > 1):
       if not cond.all():
+        not_sutisfy_text = oxford_comma_and(not_sutisfy)
         message = (
-            f"Argument `{arg_name}` must have value {range_message}\n"  +
-            f"element {oxford_comma_and(not_sutisfy)} of `{arg_name}` not sutisfy the condtion."
-            )
+            f"Argument `{arg_name}` must have value {range_message}.\n"  +
+            f"            element {not_sutisfy_text} of `{arg_name}` not sutisfy the condtion."
+            )# ↑ "ValueError: " の分のインデント
         raise ValueError(message)
     else:
       if not cond.all():
@@ -826,6 +839,7 @@ def assert_numeric_dtype(
 
 def make_assert_numeric(
     predicate_fun: Callable[[Any], bool],
+    func_name: str,
     valid_type: list[str],
     lower: float = -float("inf"),
     upper: float = float("inf"),
@@ -909,7 +923,7 @@ def make_assert_numeric(
             reported in the error message.
         - This function performs validation only and returns None if all checks
             pass.
-    
+
     Example:
         from py4stats import building_block as build
         x = [1, 2, 3]
@@ -939,11 +953,11 @@ def make_assert_numeric(
     """
     if(arg_name is None):
       arg_name = varname.argname('arg')
-    
+
     # 欠測値に関するアサーション ============================================
     if (arg is None) and nullable: return None
     if scalar_only: assert_scalar(arg, arg_name = arg_name)
-    
+
     arg = pd.Series(arg)
 
     assert_missing(
@@ -951,7 +965,7 @@ def make_assert_numeric(
       any_missing = any_missing,
       all_missing = all_missing
       )
-    
+
     # 引数の要素数に関するアサーション ============================================
     assert_length(
       arg, arg_name, 
@@ -959,7 +973,7 @@ def make_assert_numeric(
       len_min = len_min,
       len_max = len_max
       )
-    
+
     # 引数の型に関するアサーション ===============================================
     # 欠損値の除外は型ベースの検証のためだけに行います。
     # （長さおよび形状のチェックは元の入力に対して実行されます）
@@ -980,15 +994,17 @@ def make_assert_numeric(
       inclusive = inclusive,
       )
 
+  func.__name__ = func_name
+  func.__qualname__ = func_name
   return func
 
 
 
 
-assert_numeric = make_assert_numeric(is_numeric, valid_type = ['int', 'float'])
-assert_integer = make_assert_numeric(is_integer, valid_type = ['int'])
-assert_count = make_assert_numeric(is_integer, valid_type = ['positive integer'], lower = 0)
-assert_float = make_assert_numeric(is_float, valid_type = ['float'])
+assert_numeric = make_assert_numeric(is_numeric, 'assert_numeric', valid_type = ['int', 'float'])
+assert_integer = make_assert_numeric(is_integer, 'assert_integer', valid_type = ['int'])
+assert_count = make_assert_numeric(is_integer, 'assert_count', valid_type = ['positive integer'], lower = 0)
+assert_float = make_assert_numeric(is_float, 'assert_float', valid_type = ['float'])
 
 
 # ## 数値などのフォーマット
@@ -996,7 +1012,7 @@ assert_float = make_assert_numeric(is_float, valid_type = ['float'])
 
 
 def p_stars(
-    p_value: ProbArrayLike,
+    p_value: Sequence[int, float, np.number],
     stars: Optional[Mapping[str, float]] = None,
 ) -> pd.Series:
     """
@@ -1040,9 +1056,8 @@ def p_stars(
 
 
 
-# def style_pvalue(p_value, digits = 3, prepend_p = False, p_min = 0.001, p_max = 0.9):
 def style_pvalue(
-    p_value: ArrayLike,
+    p_value: Sequence[int, float, np.number],
     digits: int = 3,
     prepend_p: bool = False,
     p_min: float = 0.001,
@@ -1050,14 +1065,14 @@ def style_pvalue(
 ) -> pd.Series:
   """
   Format p-values into strings with optional clipping and prefix.
-  
+
   Args:
         p_value: Scalar or array-like of p-values.
         digits: Number of decimals.
         prepend_p: If True, prepend 'p' or 'p='.
         p_min: Lower clipping threshold.
         p_max: Upper clipping threshold.
-  
+
   Returns:
         pandas.Series: Formatted p-values as strings.
   """

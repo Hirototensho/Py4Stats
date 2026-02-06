@@ -65,7 +65,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../man/compare_group_stats.html" rel="next">
+<link href="../man/review_individuals.html" rel="next">
 <link href="../man/compare_df_cols.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -234,6 +234,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../man/review_wrangling.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">review_wrangling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/review_individuals.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Individual review functions</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -407,6 +412,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../articles/review_data_wrangling.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Auditing data transformations with review_wrangling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../articles/narwhals_in_py4stats.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Technical Notes: py4stats.eda_tools における narwhals ベースの実装</span></a>
   </div>
 </li>
@@ -479,25 +489,45 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>データ前処理（wrangling）による変更点をレビュー形式で要約して、文字列として出力する関数です。</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="image/review_wrangling.png" class="img-fluid figure-img" style="width:60.0%"></p>
+<figcaption>review_wrangling</figcaption>
+</figure>
+</div>
+<p>データ前処理（wrangling）による変更点を要約して、レビュー形式の文字列として出力する関数です。</p>
 <section id="概要" class="level2">
 <h2 class="anchored" data-anchor-id="概要">概要</h2>
-<p>この関数は、前処理の前後（before / after）の DataFrame（相当）を比較し、変更点をユーザーが読みやすいレポート文字列として返します。</p>
+<p>この関数は、前処理の前後（before / after）の DataFrame（相当）を比較し、変更点をユーザーが読みやすいレビュー形式の文字列として返します。</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>review_wrangling(</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>        before: IntoFrameT, </span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>        after: IntoFrameT, </span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>        title: <span class="bu">str</span> <span class="op">=</span> <span class="st">'Review of wrangling'</span>,</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>        abbreviate: <span class="bu">bool</span> <span class="op">=</span> <span class="va">True</span>,</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        max_columns: Optional[<span class="bu">int</span>] <span class="op">=</span> <span class="va">None</span>,</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>        max_categories: Optional[<span class="bu">int</span>] <span class="op">=</span> <span class="va">None</span>,</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        max_width: <span class="bu">int</span> <span class="op">=</span> <span class="dv">80</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>        ) <span class="op">-&gt;</span> <span class="bu">str</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    before: IntoFrameT, </span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    after: IntoFrameT, </span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    items: List[<span class="bu">str</span>] <span class="op">=</span> [<span class="st">'shape'</span>, <span class="st">'col_addition'</span>, <span class="st">'casting'</span>, <span class="st">'missing'</span>, <span class="st">'category'</span>],</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    title: <span class="bu">str</span> <span class="op">=</span> <span class="st">'Review of wrangling'</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    abbreviate: <span class="bu">bool</span> <span class="op">=</span> <span class="va">True</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    max_columns: Optional[<span class="bu">int</span>] <span class="op">=</span> <span class="va">None</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    max_categories: Optional[<span class="bu">int</span>] <span class="op">=</span> <span class="va">None</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    max_width: <span class="bu">int</span> <span class="op">=</span> <span class="dv">80</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    ) <span class="op">-&gt;</span> <span class="bu">str</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="引数-argument" class="level2">
 <h2 class="anchored" data-anchor-id="引数-argument">引数 Argument</h2>
 <ul>
 <li><code>before</code>:<strong>IntoFrameT</strong>（必須）<br> 前処理（wrangling）を行う前のデータフレーム。narwhals が受け入れ可能な DataFrame 互換オブジェクト<br> （例：<code>pandas.DataFrame</code>、<code>polars.DataFrame</code>、<code>pyarrow.Table</code>）を指定できます。</li>
 <li><code>after</code>:<strong>IntoFrameT</strong>（必須）<br> 前処理（wrangling）を行った後のデータフレーム。</li>
+<li><code>items</code>:<strong>List of str</strong><br>
+<ul>
+<li>出力に含めるレビュー項目と、その表示順序を指定するリスト。<code>items</code> の要素は次の文字列から選択できます。:
+<ul>
+<li><code>'shape'</code>: データフレームの形状（行数・列数）の変化</li>
+<li><code>'col_addition'</code>: 列の追加および削除</li>
+<li><code>'casting'</code>: 列のデータ型（dtype）の変更</li>
+<li><code>'missing'</code>: 欠損値の増加と減少</li>
+<li><code>'category'</code>: カテゴリ変数における水準（レベル）の追加および削除</li>
+<li><code>'numeric'</code>: ASCII 文字列の箱ひげ図で要約された数値変数の分布</li>
+<li><code>'all'</code>: 上記の全てのレビュー項目 <br> レビューセクションは<code>items</code>で指定された順序で生成されます。省略された場合、<code>'numeric'</code>を除いた5項目がデフォルトとして使用されます。</li>
+</ul></li>
+</ul></li>
 <li><code>title</code>:<strong>str</strong><br> 出力されるレビューテキストのタイトル。空でない文字列を指定した場合、タイトルとともにヘッダーとフッターが追加されます。</li>
 <li><code>abbreviate</code>：<strong>bool</strong><br> 列名やカテゴリー水準の一覧を省略表示するかどうかを指定します。<code>False</code> を指定した場合、省略は行われず、すべての項目が表示されます。デフォルトは <code>True</code> です。</li>
 <li><code>max_columns</code>:<strong>int</strong><br> 列の追加・削除を報告する際に表示する列名の最大数。指定された場合、<code>abbreviate = True</code> のときに限り、文字数ではなく列数を基準として省略が行われます。<code>None</code> の場合は文字数（<code>max_width</code>）に基づいて省略されます。</li>
@@ -507,14 +537,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="返り値-value" class="level2">
 <h2 class="anchored" data-anchor-id="返り値-value">返り値 Value</h2>
-<p><code>before</code> と <code>after</code> の差分を要約した、整形済みの複数行文字列。レビューに含まれる主な項目は次のとおりです。</p>
-<ul>
-<li>データフレームの形状（行数・列数）の変化</li>
-<li>列の追加・削除</li>
-<li>既存列のデータ型（dtype）の変化</li>
-<li>欠測値の増加・減少</li>
-<li>カテゴリー変数における水準の増加・減少</li>
-</ul>
+<p><code>before</code> と <code>after</code> の差分を要約した、整形済みの文字列。レビューには <code>items</code> 引数で指定された項目が含まれます。</p>
 </section>
 <section id="使用例-examples" class="level2">
 <h2 class="anchored" data-anchor-id="使用例-examples">使用例 Examples</h2>
@@ -523,7 +546,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>before <span class="op">=</span> load_penguins() <span class="co"># サンプルデータの読み込</span></span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>after <span class="op">=</span> before.copy().dropna()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><code>review_wrangling()</code> 関数は前処理前後のデータフレームを比較し、上記の4項目に関する変化をレビューとして出力します。各項目の変化を報告しますが、変化がなかった場合にも変化がなかったことを報告するようにしています。</p>
+<p><code>review_wrangling()</code> 関数は前処理前後のデータフレームを比較し、上記の4項目に関する変化をレビューとして出力します。各項目の変化を報告しますが、変化がなかった場合にも変化がなかったことを報告する仕様となっています。</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(py4st.review_wrangling(before, after))</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; =================== Review of wrangling ====================</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; The shape of DataFrame:</span></span>
@@ -548,6 +571,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     addition:  None</span></span>
 <span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     removal:  'nan'</span></span>
 <span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ============================================================</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>先ほどのデータに、さらに前処理を加え、今度は一部の列や行を除外します。</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>after <span class="op">=</span> py4st.filtering_out(after, <span class="st">'sex'</span>)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>s <span class="op">=</span> after[<span class="st">'body_mass_g'</span>]</span>
@@ -614,6 +638,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; No columns had categories added or removed.</span></span>
 <span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ======================================================================================</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>デフォトのレビューには含まれませんが、<code>items</code> に <code>'numeric'</code> を指定することで、数値変数について ASCII 文字列の箱ひげ図による分布の要約を出力できます。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(py4st.review_wrangling(before, after, items <span class="op">=</span> <span class="st">'numeric'</span>))</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; =================== Review of wrangling ====================</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Boxplot of Numeric values (for reference):</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   bill_length_mm</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       before:    32.10|------======:====-----------|   59.60</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       after:     40.90         |----==:===---------|   59.60</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   bill_depth_mm</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       before:    13.10|-------======:=====---------|   21.50</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       after:     13.10|----====:=======---------|      20.80</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   flipper_length_mm</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       before:   172.00|-------====:========--------|  231.00</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       after:    178.00  |----------======:====----|   230.00</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   body_mass_g</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       before: 2,700.00|-----====:======------------|6,300.00</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       after:  2,700.00|--------=======:====--------|6,300.00</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   year</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       before: 2,007.00|=============:==============|2,009.00</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       after:  2,007.00|=============:==============|2,009.00</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ============================================================</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="notes" class="level2">
 <h2 class="anchored" data-anchor-id="notes">Notes</h2>
@@ -624,7 +668,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="参考-see-also" class="level2">
 <h2 class="anchored" data-anchor-id="参考-see-also">参考 See also</h2>
-<p>列のデータ型に基づいた比較については <a href="../man/compare_df_cols.html"><code>compare_df_cols()</code></a> を、数値変数の統計値に基づいた比較については <a href="../man/compare_df_cols.html"><code>compare_df_stats()</code></a> もご参照ください。</p>
+<p><code>review_wrangling()</code> 関数で出力される各項目を単独で提供する関数については、<a href="../man/review_individuals.html">Individual review functions</a> を参照してください。また、列のデータ型に基づいた比較については <a href="../man/compare_df_cols.html"><code>compare_df_cols()</code></a> を、数値変数の統計値に基づいた比較については <a href="../man/compare_df_cols.html"><code>compare_df_stats()</code></a> もご参照ください。</p>
+<p>そのほか、<code>review_wrangling()</code> 関数の実践的な使い方については、<a href="../articles/review_data_wrangling.html">vignette</a> を参照してください。</p>
 <hr>
 <p><a href="../reference.html">Return to <strong>Function reference</strong>.</a></p>
 
@@ -1039,8 +1084,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../man/compare_group_stats.html" class="pagination-link" aria-label="compare_group_means, _median<br> plot_mean_diff, _median_diff">
-        <span class="nav-page-text"><span class="chapter-title">compare_group_means, _median<br> plot_mean_diff, _median_diff</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../man/review_individuals.html" class="pagination-link" aria-label="Individual review functions">
+        <span class="nav-page-text"><span class="chapter-title">Individual review functions</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
