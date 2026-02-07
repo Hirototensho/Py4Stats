@@ -2667,18 +2667,18 @@ def filtering_out(
             drop_list = data_nw.select(args).columns
         else: drop_list = []
 
-        s_columns = pd.Series(data_nw.columns)
+        list_columns = data_nw.columns
+        drop_list = []
         if contains is not None:
-            drop_table['contains'] = s_columns.str.contains(contains)
+            drop_list += build.list_subset(list_columns, lambda x: contains in x)
 
         if starts_with is not None:
-            drop_table['starts_with'] = s_columns.str.startswith(starts_with)
+            drop_list += build.list_subset(list_columns, lambda x: x.startswith(starts_with))
 
         if ends_with is not None:
-            drop_table['ends_with'] = s_columns.str.endswith(ends_with)
-
+            drop_list += build.list_subset(list_columns, lambda x: x.endswith(ends_with))
         if contains is not None or starts_with is not None or ends_with is not None:
-            drop_list = drop_list + s_columns[drop_table.any(axis = 'columns')].to_list()
+            drop_list = build.list_unique(drop_list)
         
         data_nw = data_nw.drop(drop_list)
         if to_native: return data_nw.to_native()
@@ -2696,13 +2696,11 @@ def filtering_out(
             drop_table['contains'] = data.index.to_series().str.contains(contains)
 
         if starts_with is not None: 
-            # return data.index.to_series().str.startswith(starts_with)
             drop_table.loc[:, 'starts_with'] = data.index.to_series().str.startswith(starts_with)
 
         if ends_with is not None:
             drop_table['ends_with'] = data.index.to_series().str.endswith(ends_with)
         
-        # return drop_table
         if args or contains is not None or starts_with is not None or ends_with is not None:
             keep_list = (~drop_table.any(axis = 'columns')).to_list()
             data_nw = data_nw.filter(keep_list)

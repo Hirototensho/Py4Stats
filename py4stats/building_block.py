@@ -1193,7 +1193,7 @@ def list_unique(x: List[Any]) -> List[Any]:
     result = []
     for v in x:
         if v not in result:
-            result.extend(v)
+            result.append(v)
     return result
 
 def list_dupricated(x: List[Any]) -> List[Any]:
