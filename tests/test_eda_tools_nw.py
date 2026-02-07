@@ -467,6 +467,7 @@ def test_filtering_out_index_pd() -> None:
         )
     assert res.index.to_list() == ['age', 'educ']
 
+
 def test_filtering_out_columns_pl() -> None:
     df = pd.DataFrame({"foo_x": [1], "foo_y": [2], "bar": [3]})
     df = pl.from_pandas(df)
