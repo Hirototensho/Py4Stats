@@ -2667,18 +2667,18 @@ def filtering_out(
             drop_list = data_nw.select(args).columns
         else: drop_list = []
 
-        list_columns = data_nw.columns
-        drop_list = []
+        s_columns = pd.Series(data_nw.columns)
         if contains is not None:
-            drop_list += build.list_subset(list_columns, lambda x: contains in x)
+            drop_table['contains'] = s_columns.str.contains(contains)
 
         if starts_with is not None:
-            drop_list += build.list_subset(list_columns, lambda x: x.startswith(starts_with))
+            drop_table['starts_with'] = s_columns.str.startswith(starts_with)
 
         if ends_with is not None:
-            drop_list += build.list_subset(list_columns, lambda x: x.endswith(ends_with))
+            drop_table['ends_with'] = s_columns.str.endswith(ends_with)
+
         if contains is not None or starts_with is not None or ends_with is not None:
-            drop_list = build.list_unique(drop_list)
+            drop_list = drop_list + s_columns[drop_table.any(axis = 'columns')].to_list()
         
         data_nw = data_nw.drop(drop_list)
         if to_native: return data_nw.to_native()
@@ -2696,17 +2696,150 @@ def filtering_out(
             drop_table['contains'] = data.index.to_series().str.contains(contains)
 
         if starts_with is not None: 
+            # return data.index.to_series().str.startswith(starts_with)
             drop_table.loc[:, 'starts_with'] = data.index.to_series().str.startswith(starts_with)
 
         if ends_with is not None:
             drop_table['ends_with'] = data.index.to_series().str.endswith(ends_with)
         
+        # return drop_table
         if args or contains is not None or starts_with is not None or ends_with is not None:
             keep_list = (~drop_table.any(axis = 'columns')).to_list()
             data_nw = data_nw.filter(keep_list)
 
         if to_native: return data_nw.to_native()
         return data_nw
+
+
+# In[ ]:
+
+
+# # 列名や行名に特定の文字列を含む列や行を除外する関数
+# # @pf.register_dataframe_method
+# def filtering_out(
+#     data: IntoFrameT,
+#     *args: Union[str, List[str], narwhals.Expr, narwhals.selectors.Selector], 
+#     contains: Optional[str] = None,
+#     starts_with: Optional[str] = None,
+#     ends_with: Optional[str] = None,
+#     axis: Union[int, str] = 'columns',
+#     to_native: bool = True,
+# ) -> IntoFrameT:
+#     """Filter out rows/columns whose labels match given string patterns.
+
+#     Args:
+#         data (IntoFrameT):
+#             Input DataFrame. Any DataFrame-like object supported by narwhals
+#             (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table) can be used.
+#         *args (Union[str, List[str], narwhals.Expr, narwhals.Selector]):
+#             Columns or index to exclude. Each element may be:
+#             - a column name (`str`)
+#             - a list of column names or index
+#             - a narwhals expression (for `axis = 'columns'`)
+#             - a narwhals selector   (for `axis = 'columns'`)
+#             The order of columns specified here is preserved in the output.
+#         contains (str or None):
+#             Exclude labels that contain this substring.
+#         starts_with (str or None):
+#             Exclude labels that start with this substring.
+#         ends_with (str or None):
+#             Exclude labels that end with this substring.
+#         axis (int or str):
+#             Axis to filter.
+#             - 1 or 'columns': filter columns by column labels.
+#             Supported for all DataFrame backends handled by narwhals.
+#             - 0 or 'index': filter rows by index (row labels).
+#             This option is only supported when the input DataFrame has
+#             an explicit index attribute (e.g. pandas.DataFrame).
+#         to_native (bool, optional):
+#             If True, convert the result to the native DataFrame type of the
+#             selected backend. If False, return a narwhals DataFrame.
+#             Defaults to True.
+
+#     Returns:
+#         IntoFrameT:
+#             Filtered DataFrame.
+
+#     Raises:
+#         AssertionError:
+#             If `contains`/`starts_with`/`ends_with` is provided but not a string.
+#         TypeError:
+#             If axis is set to 'index' (or 0) but the input DataFrame
+#             does not support row labels (i.e. has no 'index' attribute).
+
+#     Notes:
+#         Row-wise filtering via axis='index' relies on the presence of an explicit index. 
+#         Therefore, this option is not available for DataFrame backends that do not expose 
+#         row labels (e.g. some Arrow-based tables).
+    
+#     """
+#     # 引数のアサーション ==============================================
+#     axis = str(axis)
+#     axis = build.arg_match(axis, arg_name = 'axis', values = ['1', 'columns', '0', 'index'])
+#     build.assert_logical(to_native, arg_name = 'to_native')
+#     build.assert_character(contains, arg_name = 'contains', nullable = True)
+#     build.assert_character(starts_with, arg_name = 'starts_with', nullable = True)
+#     build.assert_character(ends_with, arg_name = 'ends_with', nullable = True)
+#     _assert_selectors(*args, arg_name = 'args', nullable = True)
+#     # ==============================================================
+#     data_nw = nw.from_native(data)
+
+#     # columns に基づく除外処理 =================================================================
+#     if axis in ("0", "index"):
+#         drop_table = pd.DataFrame()
+#         if not hasattr(data, "index"):
+#             raise TypeError(
+#                 f"filtering_out(..., axis='{axis}') requires an input that has"
+#                 "an 'index' (row labels), e.g. pandas.DataFrame.\n"
+#                 f"Got: {type(data)}."
+#             )
+#     if((axis == '1') | (axis == 'columns')):
+#         drop_table = pd.DataFrame()
+        
+#         if args:
+#             drop_list = data_nw.select(args).columns
+#         else: drop_list = []
+
+#         list_columns = data_nw.columns
+#         drop_list = []
+#         if contains is not None:
+#             drop_list += build.list_subset(list_columns, lambda x: contains in x)
+
+#         if starts_with is not None:
+#             drop_list += build.list_subset(list_columns, lambda x: x.startswith(starts_with))
+
+#         if ends_with is not None:
+#             drop_list += build.list_subset(list_columns, lambda x: x.endswith(ends_with))
+#         if contains is not None or starts_with is not None or ends_with is not None:
+#             drop_list = build.list_unique(drop_list)
+        
+#         data_nw = data_nw.drop(drop_list)
+#         if to_native: return data_nw.to_native()
+#         return data_nw
+    
+#     # index に基づく除外処理 =================================================================
+#     elif isinstance(data, pd.DataFrame):
+#         drop_table = pd.DataFrame(index = data.index)
+#         if args: 
+#             if len(args) == 1 and isinstance(args[0], (list, tuple)):
+#                 args = args[0]
+#             drop_table['selected'] = data.index.isin(list(args))
+        
+#         if contains is not None: 
+#             drop_table['contains'] = data.index.to_series().str.contains(contains)
+
+#         if starts_with is not None: 
+#             drop_table.loc[:, 'starts_with'] = data.index.to_series().str.startswith(starts_with)
+
+#         if ends_with is not None:
+#             drop_table['ends_with'] = data.index.to_series().str.endswith(ends_with)
+        
+#         if args or contains is not None or starts_with is not None or ends_with is not None:
+#             keep_list = (~drop_table.any(axis = 'columns')).to_list()
+#             data_nw = data_nw.filter(keep_list)
+
+#         if to_native: return data_nw.to_native()
+#         return data_nw
 
 
 # ## パレート図を作図する関数
