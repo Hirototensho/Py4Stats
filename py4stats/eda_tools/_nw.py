@@ -432,19 +432,23 @@ def plot_miss_var(
         The underlying missing-value statistics are computed by
         ``diagnose``, and the resulting plot reflects its output.
     """
+    # 引数のアサーション ====================================================================
     values = build.arg_match(
         values, arg_name = 'values',
         values = ['missing_percent', 'missing_count']
     )
-    build.assert_logical(sort, arg_name = 'sort')
-    build.assert_logical(miss_only, arg_name = 'miss_only')
+    build.assert_logical(sort, arg_name = 'sort', len_arg = 1)
+    build.assert_logical(miss_only, arg_name = 'miss_only', len_arg = 1)
+    build.assert_count(top_n, lower = 1, arg_name = 'top_n', len_arg = 1, nullable = True)
+    # ====================================================================================
 
     diagnose_tab = diagnose(data, to_native = False)
 
     if miss_only: diagnose_tab = diagnose_tab.filter(nw.col('missing_percent') > 0)
+
     if top_n is not None:
-        build.assert_count(top_n, lower = 1, arg_name = 'top_n')
         diagnose_tab = diagnose_tab.top_k(top_n, by = values)
+
     if sort: diagnose_tab = diagnose_tab.sort(values)
 
     # グラフの描画
@@ -724,7 +728,7 @@ def compare_df_stats(
             df_list = list(df_list.values())
         else:
             df_name = [f'df{i + 1}' for i in range(len(df_list))]
-    # 引数のアサーション ----------------------
+    # 引数のアサーション ==========================================
     assert isinstance(df_list, list) & \
             all([is_FrameT(v) for v in df_list]), \
             "argument 'df_list' is must be a list of DataFrame."
@@ -738,7 +742,7 @@ def compare_df_stats(
         nullable = True, len_arg = build.length(df_list)
     )
     build.assert_logical(to_native, arg_name = 'to_native')
-    # --------------------------------------
+    # ==========================================================
 
     df_list_nw = [nw.from_native(v) for v in df_list]
 
@@ -872,7 +876,7 @@ def compare_df_record(
         df1 = df1.drop_nulls(all1)
         df2 = df2.drop_nulls(all2)
 
-    # 引数のアサーション ----------------------------------------------------------------------------------
+    # 引数のアサーション ==================================================================================
     build.assert_logical(to_native, arg_name = 'to_native')
 
     columns = build.arg_match(
@@ -904,7 +908,7 @@ def compare_df_record(
                 "Use columns='common' to compare only shared columns."
             )
             raise ValueError("\n".join(messages))
-    # --------------------------------------------------------------------------------------------------
+    # ==================================================================================================
 
     numeric1 = df1.select(ncs.numeric()).columns
     nonnum1 = df1.select(~ncs.numeric()).columns
@@ -3002,8 +3006,8 @@ def mean_qi_data_frame(
     to_native: bool = True
     ) -> pd.DataFrame:
     # 引数のアサーション =======================================================
-    build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
-    build.assert_logical(to_native, arg_name = 'to_native')
+    build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither', len_arg = 1)
+    build.assert_logical(to_native, arg_name = 'to_native', len_arg = 1)
     interpolation = build.arg_match(
         interpolation, arg_name = 'interpolation',
         values = interpolation_values
@@ -3038,8 +3042,8 @@ def mean_qi_series(
     to_native: bool = True
     ):
     # 引数のアサーション =======================================================
-    build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
-    build.assert_logical(to_native, arg_name = 'to_native')
+    build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither', len_arg = 1)
+    build.assert_logical(to_native, arg_name = 'to_native', len_arg = 1)
     interpolation = build.arg_match(
         interpolation, arg_name = 'interpolation',
         values = interpolation_values
@@ -3114,8 +3118,8 @@ def median_qi_data_frame(
     to_native: bool = True
 ) -> IntoFrameT:
     # 引数のアサーション =======================================================
-    build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
-    build.assert_logical(to_native, arg_name = 'to_native')
+    build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither', len_arg = 1)
+    build.assert_logical(to_native, arg_name = 'to_native', len_arg = 1)
     interpolation = build.arg_match(
         interpolation, arg_name = 'interpolation',
         values = interpolation_values
@@ -3148,8 +3152,8 @@ def median_qi_series(
     to_native: bool = True
 ) -> IntoFrameT:
     # 引数のアサーション =======================================================
-    build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
-    build.assert_logical(to_native, arg_name = 'to_native')
+    build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither', len_arg = 1)
+    build.assert_logical(to_native, arg_name = 'to_native', len_arg = 1)
     interpolation = build.arg_match(
         interpolation, arg_name = 'interpolation',
         values = interpolation_values
@@ -3227,8 +3231,8 @@ def mean_ci_data_frame(
     to_native: bool = True
 ) -> IntoFrameT:
     # 引数のアサーション =======================================================
-    build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
-    build.assert_logical(to_native, arg_name = 'to_native')
+    build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither', len_arg = 1)
+    build.assert_logical(to_native, arg_name = 'to_native', len_arg = 1)
     # =======================================================================
     df_numeric = nw.from_native(data).select(ncs.numeric())
     n = len(df_numeric)
@@ -3256,8 +3260,8 @@ def mean_ci_series(
     to_native: bool = True
 ) -> IntoFrameT:
     # 引数のアサーション =======================================================
-    build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
-    build.assert_logical(to_native, arg_name = 'to_native')
+    build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither', len_arg = 1)
+    build.assert_logical(to_native, arg_name = 'to_native', len_arg = 1)
     # =======================================================================
     data_nw = nw.from_native(data, allow_series=True)
     if data_nw.name: variable = data_nw.name
