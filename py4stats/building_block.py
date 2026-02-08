@@ -1231,3 +1231,12 @@ def list_flatten(x: List[Any]) -> Iterable:
         else:
             yield el
 
+
+
+
+def list_replace(x: List[Any], mapping: Union[Dict, Callable]) -> List[Any]:
+    if isinstance(mapping, dict):
+        return [mapping.get(v, v) for v in x]
+    if isinstance(mapping, Callable):
+        return [mapping(v) for v in x]
+
