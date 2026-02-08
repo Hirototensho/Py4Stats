@@ -23,7 +23,7 @@ filtering_out(
   入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト<br>
   （例：`pandas.DataFrame`、`polars.DataFrame`、`pyarrow.Table`）を指定できます。
 - `*args`（**str / list[str] / narwhals.Expr / narwhals.Selector**）<br>
-  移動したい列を指定します。指定方法は次のとおりです。
+  データフレームから除外したい列を指定します。指定方法は次のとおりです。
   - 列名（例：`"x"`）
   - 列名のリスト（例：`["x", "y"]`）
   - narwhals の式（`Expr`）（例：`nw.col("x")`）   *`axis = 'columns'` の場合のみ
