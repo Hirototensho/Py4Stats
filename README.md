@@ -30,7 +30,7 @@ Explore the full documentation (Quarto Book) at:
 import py4stats as py4st
 ```
 
-[`py4stats.diagnose()`](docs/docs/man/diagnose.html) 関数はデータの全般的な状態についての要約を提供します。
+[`py4stats.diagnose()`](https://hirototensho.github.io/Py4Stats/man/diagnose.html) 関数はデータの全般的な状態についての要約を提供します。
 
 ``` python
 import pandas as pd
@@ -49,7 +49,7 @@ print(py4st.diagnose(penguins).round(4))
 #> 7               year    int64              0           0.0000             3       0.8721
 ```
 
-[`py4stats.compare_ols()`](docs/docs/man/compare_ols.html) 関数は、計量経済学の実証論文でよく用いられる、回帰分析の結果を列方向に並べて比較する表を作成します。
+[`py4stats.compare_ols()`](https://hirototensho.github.io/Py4Stats/man/compare_ols.html) 関数は、計量経済学の実証論文でよく用いられる、回帰分析の結果を列方向に並べて比較する表を作成します。
 
 
 ``` python
@@ -83,7 +83,7 @@ compare_tab1
 | df                   | 3              | 4                | 5               |
 
 
-詳細は、[`py4stats.compare_ols()`](docs/docs/man/compare_ols.html) を参照してください。　
+詳細は、[`py4stats.compare_ols()`](https://hirototensho.github.io/Py4Stats/man/compare_ols.html) を参照してください。　
 
 ***
 [Jump to **Full Docs**.](https://hirototensho.github.io/Py4Stats/)  

@@ -454,6 +454,20 @@ def test_filtering_out_index_pd() -> None:
     out = eda_nw.filtering_out(df, starts_with="drop", axis="index")
     assert list(out.index) == ["keep"]
 
+    df = pd.DataFrame({
+        'x':range(8)
+        },index = mroz.columns[:8]
+    )
+
+    res = eda_nw.filtering_out(
+        df, ['inlf'], 'hours',
+        starts_with = 'kid',
+        ends_with = 'wage',
+        axis = 'index'
+        )
+    assert res.index.to_list() == ['age', 'educ']
+
+
 def test_filtering_out_columns_pl() -> None:
     df = pd.DataFrame({"foo_x": [1], "foo_y": [2], "bar": [3]})
     df = pl.from_pandas(df)

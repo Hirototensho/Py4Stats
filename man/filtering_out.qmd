@@ -23,7 +23,7 @@ filtering_out(
   入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト<br>
   （例：`pandas.DataFrame`、`polars.DataFrame`、`pyarrow.Table`）を指定できます。
 - `*args`（**str / list[str] / narwhals.Expr / narwhals.Selector**）<br>
-  移動したい列を指定します。指定方法は次のとおりです。
+  データフレームから除外したい列を指定します。指定方法は次のとおりです。
   - 列名（例：`"x"`）
   - 列名のリスト（例：`["x", "y"]`）
   - narwhals の式（`Expr`）（例：`nw.col("x")`）   *`axis = 'columns'` の場合のみ
@@ -67,7 +67,6 @@ print(py4st.filtering_out(penguins, 'year', 'island', 'sex'))
 #> 1  Adelie            39.5           17.4              186.0       3800.0
 #> 2  Adelie            40.3           18.0              195.0       3250.0
 
-
 # narwhals.selector の使用例 文字列型の変数を除外
 print(py4st.filtering_out(penguins, ncs.string()))
 #>    bill_length_mm  bill_depth_mm  flipper_length_mm  body_mass_g  year
@@ -95,6 +94,22 @@ print(py4st.filtering_out(penguins, ends_with = '_mm'))
 #> 0  Adelie  Torgersen       3750.0    male  2007       0
 #> 1  Adelie  Torgersen       3800.0  female  2007       1
 #> 2  Adelie  Torgersen       3250.0  female  2007       1
+```
+
+pd.DataFrame を使用する場合、`axis = 'index'` を指定することで、index に基づく行の除外を行うことができます。
+
+```python
+df = pd.DataFrame(
+    {'x': [1, 2, 3, 4]}, 
+    index=['keep', 'drop_me', 'drop_you', 'save']
+    )
+
+print(py4st.filtering_out(
+  df, starts_with = 'drop', axis = 'index'
+  ))
+#>       x
+#> keep  1
+#> save  4
 ```
 
 ## Notes

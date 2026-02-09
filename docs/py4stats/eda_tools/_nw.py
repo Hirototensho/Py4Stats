@@ -2373,7 +2373,7 @@ def missing_percent(
         data: IntoFrameT,
         axis: str = 'index',
         pct: bool = True
-        ):
+        ) -> pd.Series:
     data_nw = nw.from_native(data)
     n = data_nw.shape[0]
 
@@ -2439,11 +2439,11 @@ def remove_empty(
             DataFrame after removing empty columns/rows.
     """
     # 引数のアサーション ==============================================
-    build.assert_logical(cols, arg_name = 'cols')
-    build.assert_logical(rows, arg_name = 'rows')
-    build.assert_numeric(cutoff, lower = 0, upper = 1)
-    build.assert_logical(quiet, arg_name = 'quiet')
-    build.assert_logical(to_native, arg_name = 'to_native')
+    build.assert_logical(cols, arg_name = 'cols', len_arg = 1)
+    build.assert_logical(rows, arg_name = 'rows', len_arg = 1)
+    build.assert_numeric(cutoff, lower = 0, upper = 1, len_arg = 1)
+    build.assert_logical(quiet, arg_name = 'quiet', len_arg = 1)
+    build.assert_logical(to_native, arg_name = 'to_native', len_arg = 1)
     # ==============================================================
 
     df_shape = data.shape
@@ -2451,6 +2451,7 @@ def remove_empty(
     # 空白列の除去 ------------------------------
     if cols :
         empty_col = missing_percent(data, axis = 'index', pct = False) >= cutoff
+
         data_nw = data_nw[:, (~empty_col).to_list()]
 
         if not(quiet) :
@@ -2467,6 +2468,7 @@ def remove_empty(
 
         if not(quiet) :
             nrow_removed = empty_rows.sum()
+            # ↓ missing_percent() -> pd.Series なので成立します。
             row_removed = empty_rows[empty_rows].index.to_series().astype('str').to_list()
             print(
                     f"Removing {nrow_removed} empty row(s) out of {df_shape[0]} rows" +
@@ -2475,6 +2477,17 @@ def remove_empty(
 
     if to_native: return data_nw.to_native()
     return data_nw
+
+
+# In[ ]:
+
+
+def is_constant(data: IntoSeriesT, dropna: bool = True) -> bool:
+    data = nw.from_native(data, series_only = True)
+    if dropna: 
+        return data.drop_nulls().n_unique() == 1
+    else:
+        return data.n_unique() == 1
 
 
 # In[ ]:
@@ -2504,38 +2517,37 @@ def remove_constant(
             Defaults to True.
 
     Returns:
-        pandas.DataFrame:
+        IntoFrameT:
             DataFrame after removing constant columns.
     """
     # 引数のアサーション ==============================================
-    build.assert_logical(quiet, arg_name = 'quiet')
-    build.assert_logical(to_native, arg_name = 'to_native')
+    build.assert_logical(quiet, arg_name = 'quiet', len_arg = 1)
+    build.assert_logical(dropna, arg_name = 'dropna', len_arg = 1)
+    build.assert_logical(to_native, arg_name = 'to_native', len_arg = 1)
     # ==============================================================
     data_nw = nw.from_native(data)
-    df_shape = data_nw.shape
     col_name = data_nw.columns
 
-    # データフレーム(data_nw) の行が定数かどうかを判定
-    def foo (col, dropna):
-        if dropna: 
-            return data_nw[col].drop_nulls().n_unique() 
-        else:
-            return data_nw[col].n_unique()
+    bool_constant = [is_constant(col, dropna) for col in data_nw.iter_columns()]
 
-    unique_count = pd.Series([foo(col, dropna) for col in col_name])
-    constant_col = unique_count == 1
-    data_nw = data_nw[:, (~constant_col).to_list()]
+    constant_columns = [
+        col for i, col in enumerate(col_name) 
+        if bool_constant[i]
+        ]
 
     if not(quiet) :
-        ncol_removed = constant_col.sum()
-        col_removed = constant_col[constant_col].index.to_series().astype('str').to_list()
-
+        n_removed = len(constant_columns)
+        removed = build.oxford_comma_and(constant_columns, quotation = False)
         print(
-            f"Removing {ncol_removed} constant column(s) out of {df_shape[1]} columns" +
-            f"(Removed: {','.join(col_removed)}). "
+            f"Removing {n_removed} constant column(s) out of {len(col_name)} columns" +
+            f"(Removed: {removed}). "
         )
-    if to_native: return data_nw.to_native()
-    return data_nw
+
+    selected = build.list_diff(col_name, constant_columns)
+    result = data_nw.select(selected)
+
+    if to_native: return result.to_native()
+    return result
 
 
 # ## 列名や行名に特定の文字列を含む列や行を除外する関数
@@ -2570,7 +2582,7 @@ def _assert_selectors(*args, arg_name = '*args', nullable = False):
 
 
 # 列名や行名に特定の文字列を含む列や行を除外する関数
-@pf.register_dataframe_method
+# @pf.register_dataframe_method
 def filtering_out(
     data: IntoFrameT,
     *args: Union[str, List[str], narwhals.Expr, narwhals.selectors.Selector], 
@@ -2655,18 +2667,19 @@ def filtering_out(
             drop_list = data_nw.select(args).columns
         else: drop_list = []
 
-        s_columns = pd.Series(data_nw.columns)
+        list_columns = data_nw.columns
+
         if contains is not None:
-            drop_table['contains'] = s_columns.str.contains(contains)
+            drop_list += build.list_subset(list_columns, lambda x: contains in x)
 
         if starts_with is not None:
-            drop_table['starts_with'] = s_columns.str.startswith(starts_with)
+            drop_list += build.list_subset(list_columns, lambda x: x.startswith(starts_with))
 
         if ends_with is not None:
-            drop_table['ends_with'] = s_columns.str.endswith(ends_with)
+            drop_list += build.list_subset(list_columns, lambda x: x.endswith(ends_with))
 
         if contains is not None or starts_with is not None or ends_with is not None:
-            drop_list = drop_list + s_columns[drop_table.any(axis = 'columns')].to_list()
+            drop_list = build.list_unique(drop_list)
 
         data_nw = data_nw.drop(drop_list)
         if to_native: return data_nw.to_native()
@@ -2674,25 +2687,23 @@ def filtering_out(
 
     # index に基づく除外処理 =================================================================
     elif isinstance(data, pd.DataFrame):
-        drop_table = pd.DataFrame(index = data.index)
+        list_index = data.index.to_list()
+        drop_list = []
         if args: 
-            if len(args) == 1 and isinstance(args[0], (list, tuple)):
-                args = args[0]
-            drop_table['selected'] = data.index.isin(list(args))
+            args = list(build.list_flatten(args))
+            drop_list += [i for i in args if i in list_index]
 
         if contains is not None: 
-            drop_table['contains'] = data.index.to_series().str.contains(contains)
+            drop_list += build.list_subset(list_index, lambda x: contains in x)
 
         if starts_with is not None: 
-            # return data.index.to_series().str.startswith(starts_with)
-            drop_table.loc[:, 'starts_with'] = data.index.to_series().str.startswith(starts_with)
+            drop_list += build.list_subset(list_index, lambda x: x.startswith(starts_with))
 
         if ends_with is not None:
-            drop_table['ends_with'] = data.index.to_series().str.endswith(ends_with)
+            drop_list += build.list_subset(list_index, lambda x: x.endswith(ends_with))
 
-        # return drop_table
         if args or contains is not None or starts_with is not None or ends_with is not None:
-            keep_list = (~drop_table.any(axis = 'columns')).to_list()
+            keep_list = [i not in drop_list for i in list_index]
             data_nw = data_nw.filter(keep_list)
 
         if to_native: return data_nw.to_native()
@@ -4347,8 +4358,8 @@ def plot_category(
 # In[ ]:
 
 
-def list_minus(x, y):
-    return [v for v in x if v not in y]
+# def list_minus(x, y):
+#     return [v for v in x if v not in y]
 
 
 # In[ ]:
@@ -4473,8 +4484,8 @@ def review_col_addition(
     columns_before = nw.from_native(before).columns
     columns_after  = nw.from_native(after).columns
 
-    added = list_minus(columns_after, columns_before)
-    removed = list_minus(columns_before, columns_after)
+    added = build.list_diff(columns_after, columns_before)
+    removed = build.list_diff(columns_before, columns_after)
 
     if added or removed:
         col_adition = ["Column additions and removals:"]
@@ -4725,8 +4736,8 @@ def review_category(
         unique_before = before_nw[col].cast(nw.String).unique().to_list()
         unique_after = after_nw[col].cast(nw.String).unique().to_list()
 
-        added = list_minus(unique_after, unique_before)
-        removed = list_minus(unique_before, unique_after)
+        added = build.list_diff(unique_after, unique_before)
+        removed = build.list_diff(unique_before, unique_after)
 
         if added or removed:
             change_category += [f"  {col}:"]

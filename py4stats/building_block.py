@@ -607,6 +607,10 @@ def is_integer(x: Any) -> bool:
 def is_float(x: Any) -> bool:
   return pandas.api.types.is_float_dtype(pd.Series(x))
 
+def is_function(x):
+    res = all([isinstance(v, Callable) for v in pd.Series(x)])
+    return res
+
 
 
 
@@ -761,6 +765,8 @@ def make_assert_type(
 
 assert_character = make_assert_type(is_character, 'assert_character', valid_type = ['str'])
 assert_logical = make_assert_type(is_logical, 'assert_logical', valid_type = ['bool'])
+
+assert_function = make_assert_type(is_function, 'assert_function', valid_type = ['Callable'])
 
 
 # ### 数値用の `assert_*()` 関数
@@ -1161,4 +1167,82 @@ def pad_zero(x: Any, digits: int = 2) -> str:
 @np.vectorize
 def add_big_mark(s: Any) -> str:
     return f'{s:,}'
+
+
+# ## set operation of list
+
+
+
+def list_diff(x: List[Any], y: List[Any]) -> List[Any]:
+    """Set operation of list
+        - `list_diff(x, y)`: The difference set between lists `x` and `y`
+        - `list_intersect(x, y)`: The intersection of lists `x` and `y`
+        - `list_union(x, y)`: The union of lists `x` and `y`
+        - `list_xor(x, y)`: The symmetric difference of lists `x` and `y`
+        - `list_unique(x)`: Creates a list consisting of the non-duplicate elements from list `x`
+        - `list_dupricated(x)`: Dupricated elements of list `x`
+        - `list_dropnulls(x)`: Drop missing values from list `x`
+        - `list_subset(x, subset)`: A subset of list `x`
+    """
+    return [v for v in x if v not in y]
+
+def list_intersect(x: List[Any], y: List[Any]) -> List[Any]:
+    return [v for v in x if v in y]
+
+def list_union(x: List[Any], y: List[Any]) -> List[Any]:
+    return list_unique(x + y)
+
+def list_xor(x: List[Any], y: List[Any]) -> List[Any]:
+    return list_diff(x, y) + list_diff(y, x)
+
+def list_unique(x: List[Any]) -> List[Any]:
+    result = []
+    for v in x:
+        if v not in result:
+            result.append(v)
+    return result
+
+def list_dupricated(x: List[Any]) -> List[Any]:
+    return list_subset(x, lambda v: x.count(v) >= 2)
+
+def list_dropnulls(x: List[Any]) -> List[Any]:
+    return list_subset(x, ~is_missing(x))
+
+def list_subset(x: List[Any], subset: Union[Callable, List[int], List[bool]]) -> List[Any]:
+    if isinstance(subset, Callable):
+        return list(filter(subset, x))
+    if is_logical(subset):
+        return [v for i, v in enumerate(x) if subset[i]]
+    if is_integer(subset):
+        result = []
+        for i in subset:
+            result.extend(x[i])
+        return result
+
+list_intersect.__doc__ = list_diff.__doc__
+list_union.__doc__ = list_diff.__doc__
+list_xor.__doc__ = list_diff.__doc__
+list_unique.__doc__ = list_diff.__doc__
+list_dupricated.__doc__ = list_diff.__doc__
+list_dropnulls.__doc__ = list_diff.__doc__
+list_subset.__doc__ = list_diff.__doc__
+
+
+
+
+def list_flatten(x: List[Any]) -> Iterable:
+    for el in x:
+        if isinstance(el, (list, tuple)):
+            yield from list_flatten(el)
+        else:
+            yield el
+
+
+
+
+def list_replace(x: List[Any], mapping: Union[Dict, Callable]) -> List[Any]:
+    if isinstance(mapping, dict):
+        return [mapping.get(v, v) for v in x]
+    if isinstance(mapping, Callable):
+        return [mapping(v) for v in x]
 
