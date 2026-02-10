@@ -1224,3 +1224,38 @@ def test_review_numeric(backend):
             expected = f.read()
     
     assert output == expected
+
+# ================================================================
+# group_split, group_map, group_modify
+# ================================================================
+@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
+def test_group_split(backend):
+    res = eda_nw.group_split(penguins_dict.get(backend), "species", "island")
+    assert all([eda_nw.is_FrameT(df) for df in res.data])
+    assert sum([df.shape[0] for df in res.data]) == 344
+
+@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
+def test_group_map(backend):
+    res = eda_nw.group_map(
+        penguins_dict.get(backend), 
+        "species", "island", 
+        func=lambda df: df.shape[0]
+        )
+    assert res.mapped == [44, 56, 52, 68, 124]
+
+@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
+def test_group_modify(backend) -> None:
+    path = f'{tests_path}/fixtures/group_modify_{backend}.csv'
+
+    output_df = eda_nw.group_modify(
+        penguins_dict.get(backend), 
+        'species', 'sex',
+        func = eda_nw.median_qi,
+        to_native = False
+    )
+    
+    _assert_df_eq(
+        output_df, 
+        path_fixture = path, 
+        update_fixture = False
+        )

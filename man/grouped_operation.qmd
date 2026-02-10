@@ -1,0 +1,119 @@
+# group_split, group_map, group_modify
+
+データフレームの列を削除することなく並び替える関数
+
+## 概要
+
+``` python
+group_split(
+      data: IntoFrameT,
+      *group_cols: Union[str, List[str], narwhals.Expr, narwhals.selectors.Selector], 
+      keep: bool = True,
+      drop_na_groups: bool = True,
+      sort_groups: bool = True,
+      to_native: bool = True, 
+      ) -> Tuple[List[IntoFrameT], IntoFrameT]
+
+group_map(
+      data: IntoFrameT,
+      *group_cols: Union[str, List[str], narwhals.Expr, narwhals.selectors.Selector], 
+      func: Callable[[IntoFrameT], Any], 
+      drop_na_groups: bool = True,
+      sort_groups: bool = True
+      ) -> Tuple[List[IntoFrameT], IntoFrameT]
+
+group_modify(
+      data: IntoFrameT,
+      *group_cols: Union[str, List[str], narwhals.Expr, narwhals.selectors.Selector], 
+      func: Callable[[IntoFrameT], Any], 
+      drop_na_groups: bool = True,
+      sort_groups: bool = True,
+      to_native: bool = True
+      ) -> IntoFrameT
+```
+
+## 引数 Argument
+
+### 返り値 Value
+
+
+
+## 使用例 Example
+
+``` python
+import py4stats as py4st
+import pandas as pd
+from palmerpenguins import load_penguins
+penguins = load_penguins()
+```
+
+``` python
+res = py4st.group_split(penguins, 'species')
+
+for df in res.data:
+    print(df.shape[0], df['species'].unique())
+#> 152 ['Adelie']
+#> 68 ['Chinstrap']
+#> 124 ['Gentoo']
+```
+
+``` python
+col = 'bill_length_mm'
+
+res = eda_nw.group_map(
+    penguins, 'species', 'sex', 
+    func = lambda df: df[col].median()
+    )
+res.mapped
+#> [np.float64(37.0),
+#>  np.float64(40.6),
+#>  np.float64(46.3),
+#>  np.float64(50.95),
+#>  np.float64(45.5),
+#>  np.float64(49.5)]
+```
+
+``` python
+cols = ['bill_length_mm', 'body_mass_g']
+res = py4st.group_modify(
+    penguins, 'species',
+    func = lambda df: df[cols].median()
+)
+print(res)
+#>      species            name    value
+#> 0     Adelie  bill_length_mm    38.80
+#> 1     Adelie     body_mass_g  3700.00
+#> 2  Chinstrap  bill_length_mm    49.55
+#> 3  Chinstrap     body_mass_g  3700.00
+#> 4     Gentoo  bill_length_mm    47.30
+#> 5     Gentoo     body_mass_g  5000.00
+```
+
+
+
+``` python
+penguins_pl = pl.from_pandas(penguins)
+
+result = py4st.group_modify(
+    penguins_pl, 'species', 'sex',
+    func = py4st.median_qi
+)
+
+print(result.filter(pl.col('variable').str.contains('bill_len')))
+#> shape: (6, 6)
+#> ┌───────────┬────────┬────────────────┬────────┬───────┬───────┐
+#> │ species   ┆ sex    ┆ variable       ┆ median ┆ lower ┆ upper │
+#> │ ---       ┆ ---    ┆ ---            ┆ ---    ┆ ---   ┆ ---   │
+#> │ str       ┆ str    ┆ str            ┆ f64    ┆ f64   ┆ f64   │
+#> ╞═══════════╪════════╪════════════════╪════════╪═══════╪═══════╡
+#> │ Adelie    ┆ female ┆ bill_length_mm ┆ 37.0   ┆ 33.3  ┆ 41.0  │
+#> │ Adelie    ┆ male   ┆ bill_length_mm ┆ 40.6   ┆ 35.7  ┆ 45.7  │
+#> │ Chinstrap ┆ female ┆ bill_length_mm ┆ 46.3   ┆ 41.65 ┆ 54.45 │
+#> │ Chinstrap ┆ male   ┆ bill_length_mm ┆ 50.95  ┆ 48.75 ┆ 55.0  │
+#> │ Gentoo    ┆ female ┆ bill_length_mm ┆ 45.5   ┆ 41.85 ┆ 49.1  │
+#> │ Gentoo    ┆ male   ┆ bill_length_mm ┆ 49.5   ┆ 45.1  ┆ 55.5  │
+#> └───────────┴────────┴────────────────┴────────┴───────┴───────┘
+```
+
+***
+[Return to **Function reference**.](../reference.qmd)
