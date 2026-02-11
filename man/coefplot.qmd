@@ -115,6 +115,7 @@ ax[1].set_xlim(-0.2, 0.85);
 ```
 
 ![coefplot3](image/coefplot3.png)
+
 ***
 [Return to **Function reference**.](../reference.qmd)
 
