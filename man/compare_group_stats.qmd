@@ -1,5 +1,7 @@
 # compare_group_means, _median<br> plot_mean_diff, _median_diff
 
+[![](https://img.shields.io/badge/Tested-Pandas_/_Polars_/_Pyarrow-blue){fig-align="left" fig-alt="badge of tested backend"} ](../articles/eda_tools_development_status.qmd)
+
 統計量に基づく2グループの比較と差分の可視化
 
 ## 概要

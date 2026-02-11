@@ -1,5 +1,8 @@
 # weighted_mean, scale, min_max
 
+[![](https://img.shields.io/badge/Tested-Pandas_/_Polars_/_Pyarrow-blue){fig-align="left" fig-alt="badge of tested backend"}](../articles/eda_tools_development_status.qmd)
+
+
 加重平均と標準化・正規化ユーティリティ
 
 ## 概要

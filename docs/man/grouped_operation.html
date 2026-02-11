@@ -469,6 +469,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#返り値-value" id="toc-返り値-value" class="nav-link" data-scroll-target="#返り値-value">返り値 Value</a></li>
   </ul></li>
   <li><a href="#使用例-example" id="toc-使用例-example" class="nav-link" data-scroll-target="#使用例-example">使用例 Example</a></li>
+  <li><a href="#note" id="toc-note" class="nav-link" data-scroll-target="#note">Note</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/main/man/grouped_operation.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></nav>
     </div>
@@ -494,9 +495,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
+<p><img src="https://img.shields.io/badge/lifecycle-experimental-orange.png" class="img-fluid quarto-figure quarto-figure-left" alt="badge of lifecycle experimental"> <a href="../articles/eda_tools_development_status.html"><img src="https://img.shields.io/badge/Tested-Pandas_/_Polars_/_Pyarrow-blue.png" class="img-fluid quarto-figure quarto-figure-left" alt="badge of tested backend"></a></p>
 <p>データフレームのグループ化された処理</p>
 <section id="概要" class="level2">
 <h2 class="anchored" data-anchor-id="概要">概要</h2>
+<p>データフレームに対して、変数を基準としたグループへの分割・関数適用・結果の統合を行います。それぞれの関数の機能は次のとおりです。</p>
 <ul>
 <li><code>group_split()</code>: データフレームをグループごとのデータフレームのリストに分割します</li>
 <li><code>group_map()</code>: 各グループに関数を適用し、結果をリストとして返します</li>
@@ -654,6 +657,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <figcaption>compare_ols() で作成した回帰分析の表</figcaption>
 </figure>
 </div>
+</section>
+<section id="note" class="level2">
+<h2 class="anchored" data-anchor-id="note">Note</h2>
+<p>本節の関数を実装するにあたり、関数名や機能について <a href="https://dplyr.tidyverse.org/index.html"><code>dplyr</code></a> パッケージの <a href="https://dplyr.tidyverse.org/reference/group_split.html"><code>group_split()</code></a>、<a href="https://dplyr.tidyverse.org/reference/group_map.html"><code>group_map()</code></a> および <a href="https://dplyr.tidyverse.org/reference/group_map.html"><code>group_modify()</code></a> を参考にしました。</p>
 <hr>
 <p><a href="../reference.html">Return to <strong>Function reference</strong>.</a></p>
 

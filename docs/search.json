@@ -589,7 +589,7 @@
     "href": "man/grouped_operation.html",
     "title": "group_split, group_map, group_modify",
     "section": "",
-    "text": "概要\nデータフレームのグループ化された処理",
+    "text": "概要\nデータフレームのグループ化された処理\nデータフレームに対して、変数を基準としたグループへの分割・関数適用・結果の統合を行います。それぞれの関数の機能は次のとおりです。",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>14</span>  <span class='chapter-title'>group_split, group_map, group_modify</span>"
@@ -622,7 +622,18 @@
     "href": "man/grouped_operation.html#使用例-example",
     "title": "group_split, group_map, group_modify",
     "section": "使用例 Example",
-    "text": "使用例 Example\nimport py4stats as py4st\nimport pandas as pd\nfrom palmerpenguins import load_penguins\npenguins = load_penguins()\ngroup_split() はデータフレームを指定した変数で分割し、データフレームのリストに変換します。\nres = py4st.group_split(penguins, 'species')\n\nfor df in res.data:\n    print(df.shape[0], df['species'].unique())\n#&gt; 152 ['Adelie']\n#&gt; 68 ['Chinstrap']\n#&gt; 124 ['Gentoo']\ngroup_map() は、分割したデータフレームに func で指定した関数を適用した結果を要素にもつリストを返します。\ncol = 'bill_length_mm'\n\nres = py4st.group_map(\n    penguins, 'species', 'sex', \n    func = lambda df: df[col].median()\n    )\nres.mapped\n#&gt; [np.float64(37.0),\n#&gt;  np.float64(40.6),\n#&gt;  np.float64(46.3),\n#&gt;  np.float64(50.95),\n#&gt;  np.float64(45.5),\n#&gt;  np.float64(49.5)]\ngroup_modify() は、分割したデータフレームに func で指定した関数を適用した結果を1つのデータフレームに統合した結果を返します。\ncols = ['bill_length_mm', 'body_mass_g']\nres = py4st.group_modify(\n    penguins, 'species',\n    func = lambda df: df[cols].median()\n)\nprint(res)\n#&gt;      species            name    value\n#&gt; 0     Adelie  bill_length_mm    38.80\n#&gt; 1     Adelie     body_mass_g  3700.00\n#&gt; 2  Chinstrap  bill_length_mm    49.55\n#&gt; 3  Chinstrap     body_mass_g  3700.00\n#&gt; 4     Gentoo  bill_length_mm    47.30\n#&gt; 5     Gentoo     body_mass_g  5000.00\ngroup_modify() と py4st.median_qi() を次のように組み合わせることで、グループ別に適用することができます。\npenguins_pl = pl.from_pandas(penguins)\n\nresult = py4st.group_modify(\n    penguins_pl, 'species', 'sex',\n    func = py4st.median_qi\n)\n\nprint(result.filter(pl.col('variable').str.contains('bill_len')))\n#&gt; shape: (6, 6)\n#&gt; ┌───────────┬────────┬────────────────┬────────┬───────┬───────┐\n#&gt; │ species   ┆ sex    ┆ variable       ┆ median ┆ lower ┆ upper │\n#&gt; │ ---       ┆ ---    ┆ ---            ┆ ---    ┆ ---   ┆ ---   │\n#&gt; │ str       ┆ str    ┆ str            ┆ f64    ┆ f64   ┆ f64   │\n#&gt; ╞═══════════╪════════╪════════════════╪════════╪═══════╪═══════╡\n#&gt; │ Adelie    ┆ female ┆ bill_length_mm ┆ 37.0   ┆ 33.3  ┆ 41.0  │\n#&gt; │ Adelie    ┆ male   ┆ bill_length_mm ┆ 40.6   ┆ 35.7  ┆ 45.7  │\n#&gt; │ Chinstrap ┆ female ┆ bill_length_mm ┆ 46.3   ┆ 41.65 ┆ 54.45 │\n#&gt; │ Chinstrap ┆ male   ┆ bill_length_mm ┆ 50.95  ┆ 48.75 ┆ 55.0  │\n#&gt; │ Gentoo    ┆ female ┆ bill_length_mm ┆ 45.5   ┆ 41.85 ┆ 49.1  │\n#&gt; │ Gentoo    ┆ male   ┆ bill_length_mm ┆ 49.5   ┆ 45.1  ┆ 55.5  │\n#&gt; └───────────┴────────┴────────────────┴────────┴───────┴───────┘\ngroup_map() と py4st.compare_ols() を組み合わせることで、次のように層別解析を実行することができます。\nfrom great_tables import GT\n\nfml = 'body_mass_g ~ bill_length_mm + bill_depth_mm + flipper_length_mm'\n\nresult = py4st.group_map(\n    penguins_pl, 'species', 'sex',\n    func = lambda df: smf.ols(fml, data = df).fit()\n    )\n\ngroups = result.groups.with_columns(\n    label = pl.concat_str(\n        [pl.col(\"species\"), pl.col(\"sex\")], \n        separator = \" \")\n)\n\ncompare_tab = py4st.compare_ols(\n    result.mapped, groups['label'], \n    digits = 2, line_break = '&lt;br&gt;'\n    )\n\nGT(compare_tab.reset_index())\n\n\n\ncompare_ols() で作成した回帰分析の表\n\n\n\nReturn to Function reference.",
+    "text": "使用例 Example\nimport py4stats as py4st\nimport pandas as pd\nfrom palmerpenguins import load_penguins\npenguins = load_penguins()\ngroup_split() はデータフレームを指定した変数で分割し、データフレームのリストに変換します。\nres = py4st.group_split(penguins, 'species')\n\nfor df in res.data:\n    print(df.shape[0], df['species'].unique())\n#&gt; 152 ['Adelie']\n#&gt; 68 ['Chinstrap']\n#&gt; 124 ['Gentoo']\ngroup_map() は、分割したデータフレームに func で指定した関数を適用した結果を要素にもつリストを返します。\ncol = 'bill_length_mm'\n\nres = py4st.group_map(\n    penguins, 'species', 'sex', \n    func = lambda df: df[col].median()\n    )\nres.mapped\n#&gt; [np.float64(37.0),\n#&gt;  np.float64(40.6),\n#&gt;  np.float64(46.3),\n#&gt;  np.float64(50.95),\n#&gt;  np.float64(45.5),\n#&gt;  np.float64(49.5)]\ngroup_modify() は、分割したデータフレームに func で指定した関数を適用した結果を1つのデータフレームに統合した結果を返します。\ncols = ['bill_length_mm', 'body_mass_g']\nres = py4st.group_modify(\n    penguins, 'species',\n    func = lambda df: df[cols].median()\n)\nprint(res)\n#&gt;      species            name    value\n#&gt; 0     Adelie  bill_length_mm    38.80\n#&gt; 1     Adelie     body_mass_g  3700.00\n#&gt; 2  Chinstrap  bill_length_mm    49.55\n#&gt; 3  Chinstrap     body_mass_g  3700.00\n#&gt; 4     Gentoo  bill_length_mm    47.30\n#&gt; 5     Gentoo     body_mass_g  5000.00\ngroup_modify() と py4st.median_qi() を次のように組み合わせることで、グループ別に適用することができます。\npenguins_pl = pl.from_pandas(penguins)\n\nresult = py4st.group_modify(\n    penguins_pl, 'species', 'sex',\n    func = py4st.median_qi\n)\n\nprint(result.filter(pl.col('variable').str.contains('bill_len')))\n#&gt; shape: (6, 6)\n#&gt; ┌───────────┬────────┬────────────────┬────────┬───────┬───────┐\n#&gt; │ species   ┆ sex    ┆ variable       ┆ median ┆ lower ┆ upper │\n#&gt; │ ---       ┆ ---    ┆ ---            ┆ ---    ┆ ---   ┆ ---   │\n#&gt; │ str       ┆ str    ┆ str            ┆ f64    ┆ f64   ┆ f64   │\n#&gt; ╞═══════════╪════════╪════════════════╪════════╪═══════╪═══════╡\n#&gt; │ Adelie    ┆ female ┆ bill_length_mm ┆ 37.0   ┆ 33.3  ┆ 41.0  │\n#&gt; │ Adelie    ┆ male   ┆ bill_length_mm ┆ 40.6   ┆ 35.7  ┆ 45.7  │\n#&gt; │ Chinstrap ┆ female ┆ bill_length_mm ┆ 46.3   ┆ 41.65 ┆ 54.45 │\n#&gt; │ Chinstrap ┆ male   ┆ bill_length_mm ┆ 50.95  ┆ 48.75 ┆ 55.0  │\n#&gt; │ Gentoo    ┆ female ┆ bill_length_mm ┆ 45.5   ┆ 41.85 ┆ 49.1  │\n#&gt; │ Gentoo    ┆ male   ┆ bill_length_mm ┆ 49.5   ┆ 45.1  ┆ 55.5  │\n#&gt; └───────────┴────────┴────────────────┴────────┴───────┴───────┘\ngroup_map() と py4st.compare_ols() を組み合わせることで、次のように層別解析を実行することができます。\nfrom great_tables import GT\n\nfml = 'body_mass_g ~ bill_length_mm + bill_depth_mm + flipper_length_mm'\n\nresult = py4st.group_map(\n    penguins_pl, 'species', 'sex',\n    func = lambda df: smf.ols(fml, data = df).fit()\n    )\n\ngroups = result.groups.with_columns(\n    label = pl.concat_str(\n        [pl.col(\"species\"), pl.col(\"sex\")], \n        separator = \" \")\n)\n\ncompare_tab = py4st.compare_ols(\n    result.mapped, groups['label'], \n    digits = 2, line_break = '&lt;br&gt;'\n    )\n\nGT(compare_tab.reset_index())\n\n\n\ncompare_ols() で作成した回帰分析の表",
+    "crumbs": [
+      "**EDA**",
+      "<span class='chapter-number'>14</span>  <span class='chapter-title'>group_split, group_map, group_modify</span>"
+    ]
+  },
+  {
+    "objectID": "man/grouped_operation.html#note",
+    "href": "man/grouped_operation.html#note",
+    "title": "group_split, group_map, group_modify",
+    "section": "Note",
+    "text": "Note\n本節の関数を実装するにあたり、関数名や機能について dplyr パッケージの group_split()、group_map() および group_modify() を参考にしました。\n\nReturn to Function reference.",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>14</span>  <span class='chapter-title'>group_split, group_map, group_modify</span>"
@@ -2433,11 +2444,33 @@
     ]
   },
   {
+    "objectID": "articles/project_guide.html#関数ドキュメントでのバックエンド対応状況の表示",
+    "href": "articles/project_guide.html#関数ドキュメントでのバックエンド対応状況の表示",
+    "title": "Project Guide",
+    "section": "関数ドキュメントでのバックエンド対応状況の表示",
+    "text": "関数ドキュメントでのバックエンド対応状況の表示\nそれぞれの関数に対するテストの実施状況は、shields.io で作成し Static Badge を使って表示します。\nPandas, Polars, Pyarrow の全てについてテストを実施して動作が確認できている場合、ドキュメントの冒頭に次のバッジを追加します。\n\n\n\n\n\n[![](https://img.shields.io/badge/Tested-Pandas_/_Polars_/_Pyarrow-blue){fig-align=\"left\" fig-alt=\"badge of tested backend\"}](../articles/eda_tools_development_status.qmd)\n一方で、動作が確認できているバックエンドが Pandas のみで、Polars, Pyarrow ではテストできていない場合には、次のバッジを使用します。\n \n[![](https://img.shields.io/badge/Tested-Pandas-blue){fig-align=\"left\" fig-alt=\"badge of tested backend\"}](../articles/eda_tools_development_status.qmd)\n[![](https://img.shields.io/badge/Not_tested-Polars_%2F_Pyarrow-lightgray){fig-align=\"left\" fig-alt=\"badge of not tested backend\"}](../articles/eda_tools_development_status.qmd)\nこのように、Pandas, Polars, Pyarrow の全てで動作が確認できていない場合には、バッジの色を変えることで位置付けを明示します。\n\n注意点\n上記のバッジの意味・用途については、あくまでテストで動くことを確認済みであることを示すものとします。テストを実施した上でも、特定のバックエンドでは機能の制限や既知のエラーがある場合には、ドキュメントや docstring の Notes セクションに明記することとします。",
+    "crumbs": [
+      "**Contributing Notes**",
+      "<span class='chapter-number'>45</span>  <span class='chapter-title'>Project Guide</span>"
+    ]
+  },
+  {
+    "objectID": "articles/project_guide.html#関数ライフサイクルの表示",
+    "href": "articles/project_guide.html#関数ライフサイクルの表示",
+    "title": "Project Guide",
+    "section": "関数ライフサイクルの表示",
+    "text": "関数ライフサイクルの表示\n本ライブラリにおける関数のライフサイクルは、R の lifecycle パッケージを参考に、次のようなバッジで表示します。\n   \nライフサイクルにおける各ステージの意味は次の通りです。\n\n\n\n\n\n\n\n\n\nステージ\n意味\nエラー/警告\n維持方針\n\n\n\n\nexperimental\n仕様が変わる可能性あり\nなし\n破壊的変更あり得る\n\n\nstable\n安定した仕様\nなし\n維持・非破壊的\n\n\nsuperseded\n代替あり・削除予定なし\nなし\n互換維持\n\n\ndeprecated\n代替あり・削除予定\n警告あり\n移行を促進\n\n\n\n特別な事情がなければ stable をデフォルトとして、その場合にはバッジを省略する形にしたいと思います。\nなお、それぞれのバッジを表示する markdown のコードは次の通りです。\n\n\n\n\n\n![](https://img.shields.io/badge/lifecycle-experimental-orange){fig-align=\"left\" fig-alt=\"badge of lifecycle experimental\"}\n\n\n\n\n\n![](https://img.shields.io/badge/lifecycle-stable-brightgreen){fig-align=\"left\" fig-alt=\"badge of lifecycle stable\"}\n\n\n\n\n\n![](https://img.shields.io/badge/lifecycle-supreseded-blue){fig-align=\"left\" fig-alt=\"badge of lifecycle supreseded\"}\n\n\n\n\n\n![](https://img.shields.io/badge/lifecycle-deprecated-orange){fig-align=\"left\" fig-alt=\"badge of lifecycle deprecated\"}",
+    "crumbs": [
+      "**Contributing Notes**",
+      "<span class='chapter-number'>45</span>  <span class='chapter-title'>Project Guide</span>"
+    ]
+  },
+  {
     "objectID": "articles/eda_tools_development_status.html",
     "href": "articles/eda_tools_development_status.html",
     "title": "eda_toolsの開発状況",
     "section": "",
-    "text": "関数の実装状況一覧\n2026年1月24日",
+    "text": "関数の実装状況一覧\n2026年2月11日",
     "crumbs": [
       "**Contributing Notes**",
       "<span class='chapter-number'>46</span>  <span class='chapter-title'>eda_toolsの開発状況</span>"

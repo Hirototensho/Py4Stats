@@ -477,6 +477,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#総称関数に登録されたメソッドの確認" id="toc-総称関数に登録されたメソッドの確認" class="nav-link" data-scroll-target="#総称関数に登録されたメソッドの確認">総称関数に登録されたメソッドの確認</a></li>
   </ul></li>
+  <li><a href="#関数ドキュメントでのバックエンド対応状況の表示" id="toc-関数ドキュメントでのバックエンド対応状況の表示" class="nav-link" data-scroll-target="#関数ドキュメントでのバックエンド対応状況の表示">関数ドキュメントでのバックエンド対応状況の表示</a>
+  <ul class="collapse">
+  <li><a href="#注意点" id="toc-注意点" class="nav-link" data-scroll-target="#注意点">注意点</a></li>
+  </ul></li>
+  <li><a href="#関数ライフサイクルの表示" id="toc-関数ライフサイクルの表示" class="nav-link" data-scroll-target="#関数ライフサイクルの表示">関数ライフサイクルの表示</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/main/articles/project_guide.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></nav>
     </div>
@@ -700,10 +705,104 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(py4st.is_dummy.dispatch(<span class="bu">int</span>).<span class="va">__name__</span>) <span class="co"># デフォルト実装</span></span>
 <span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; is_dummy</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-
-
 </section>
 </section>
+</section>
+<section id="関数ドキュメントでのバックエンド対応状況の表示" class="level2">
+<h2 class="anchored" data-anchor-id="関数ドキュメントでのバックエンド対応状況の表示">関数ドキュメントでのバックエンド対応状況の表示</h2>
+<p>それぞれの関数に対するテストの実施状況は、<a href="https://shields.io/badges">shields.io</a> で作成し Static Badge を使って表示します。</p>
+<p>Pandas, Polars, Pyarrow の全てについてテストを実施して動作が確認できている場合、ドキュメントの冒頭に次のバッジを追加します。</p>
+<div class="quarto-figure quarto-figure-left">
+<figure class="figure">
+<p><a href="../articles/eda_tools_development_status.html"><img src="https://img.shields.io/badge/Tested-Pandas_/_Polars_/_Pyarrow-blue.png" class="img-fluid quarto-figure quarto-figure-left figure-img" alt="badge of tested backend"></a></p>
+</figure>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="al">![](https://img.shields.io/badge/Tested-Pandas_/_Polars_/_Pyarrow-blue)</span><span class="ot">{fig-align="left" fig-alt="badge of tested backend"}</span><span class="co">](../articles/eda_tools_development_status.qmd)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>一方で、動作が確認できているバックエンドが Pandas のみで、Polars, Pyarrow ではテストできていない場合には、次のバッジを使用します。</p>
+<p><a href="../articles/eda_tools_development_status.html"><img src="https://img.shields.io/badge/Tested-Pandas-blue.png" class="img-fluid quarto-figure quarto-figure-left" alt="badge of tested backend"></a> <a href="../articles/eda_tools_development_status.html"><img src="https://img.shields.io/badge/Not_tested-Polars_%2F_Pyarrow-lightgray.png" class="img-fluid quarto-figure quarto-figure-left" alt="badge of not tested backend"></a></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="al">![](https://img.shields.io/badge/Tested-Pandas-blue)</span><span class="ot">{fig-align="left" fig-alt="badge of tested backend"}</span><span class="co">](../articles/eda_tools_development_status.qmd)</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="al">![](https://img.shields.io/badge/Not_tested-Polars_%2F_Pyarrow-lightgray)</span><span class="ot">{fig-align="left" fig-alt="badge of not tested backend"}</span><span class="co">](../articles/eda_tools_development_status.qmd)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>このように、Pandas, Polars, Pyarrow の全てで動作が確認できていない場合には、バッジの色を変えることで位置付けを明示します。</p>
+<section id="注意点" class="level3">
+<h3 class="anchored" data-anchor-id="注意点">注意点</h3>
+<p>上記のバッジの意味・用途については、あくまでテストで動くことを確認済みであることを示すものとします。テストを実施した上でも、特定のバックエンドでは機能の制限や既知のエラーがある場合には、ドキュメントや docstring の Notes セクションに明記することとします。</p>
+</section>
+</section>
+<section id="関数ライフサイクルの表示" class="level2">
+<h2 class="anchored" data-anchor-id="関数ライフサイクルの表示">関数ライフサイクルの表示</h2>
+<p>本ライブラリにおける関数のライフサイクルは、R の <a href="https://lifecycle.r-lib.org/index.html">lifecycle</a> パッケージを参考に、次のようなバッジで表示します。</p>
+<p><img src="https://img.shields.io/badge/lifecycle-experimental-orange.png" class="img-fluid quarto-figure quarto-figure-left" alt="badge of lifecycle experimental"> <img src="https://img.shields.io/badge/lifecycle-stable-brightgreen.png" class="img-fluid quarto-figure quarto-figure-left" alt="badge of lifecycle stable"> <img src="https://img.shields.io/badge/lifecycle-supreseded-blue.png" class="img-fluid quarto-figure quarto-figure-left" alt="badge of lifecycle supreseded"> <img src="https://img.shields.io/badge/lifecycle-deprecated-orange.png" class="img-fluid quarto-figure quarto-figure-left" alt="badge of lifecycle deprecated"></p>
+<p>ライフサイクルにおける各ステージの意味は次の通りです。</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 22%">
+<col style="width: 30%">
+<col style="width: 18%">
+<col style="width: 28%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>ステージ</th>
+<th>意味</th>
+<th>エラー/警告</th>
+<th>維持方針</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>experimental</td>
+<td>仕様が変わる可能性あり</td>
+<td>なし</td>
+<td>破壊的変更あり得る</td>
+</tr>
+<tr class="even">
+<td>stable</td>
+<td>安定した仕様</td>
+<td>なし</td>
+<td>維持・非破壊的</td>
+</tr>
+<tr class="odd">
+<td>superseded</td>
+<td>代替あり・削除予定なし</td>
+<td>なし</td>
+<td>互換維持</td>
+</tr>
+<tr class="even">
+<td>deprecated</td>
+<td>代替あり・削除予定</td>
+<td>警告あり</td>
+<td>移行を促進</td>
+</tr>
+</tbody>
+</table>
+<p>特別な事情がなければ stable をデフォルトとして、その場合にはバッジを省略する形にしたいと思います。</p>
+<p>なお、それぞれのバッジを表示する markdown のコードは次の通りです。</p>
+<div class="quarto-figure quarto-figure-left">
+<figure class="figure">
+<p><img src="https://img.shields.io/badge/lifecycle-experimental-orange.png" class="img-fluid quarto-figure quarto-figure-left figure-img" alt="badge of lifecycle experimental"></p>
+</figure>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="al">![](https://img.shields.io/badge/lifecycle-experimental-orange)</span>{fig-align="left" fig-alt="badge of lifecycle experimental"}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="quarto-figure quarto-figure-left">
+<figure class="figure">
+<p><img src="https://img.shields.io/badge/lifecycle-stable-brightgreen.png" class="img-fluid quarto-figure quarto-figure-left figure-img" alt="badge of lifecycle stable"></p>
+</figure>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="al">![](https://img.shields.io/badge/lifecycle-stable-brightgreen)</span>{fig-align="left" fig-alt="badge of lifecycle stable"}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="quarto-figure quarto-figure-left">
+<figure class="figure">
+<p><img src="https://img.shields.io/badge/lifecycle-supreseded-blue.png" class="img-fluid quarto-figure quarto-figure-left figure-img" alt="badge of lifecycle supreseded"></p>
+</figure>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="al">![](https://img.shields.io/badge/lifecycle-supreseded-blue)</span>{fig-align="left" fig-alt="badge of lifecycle supreseded"}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="quarto-figure quarto-figure-left">
+<figure class="figure">
+<p><img src="https://img.shields.io/badge/lifecycle-deprecated-orange.png" class="img-fluid quarto-figure quarto-figure-left figure-img" alt="badge of lifecycle deprecated"></p>
+</figure>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="al">![](https://img.shields.io/badge/lifecycle-deprecated-orange)</span>{fig-align="left" fig-alt="badge of lifecycle deprecated"}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+
+
 </section>
 
 </main> <!-- /main -->

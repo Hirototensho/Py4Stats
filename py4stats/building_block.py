@@ -1246,3 +1246,10 @@ def list_replace(x: List[Any], mapping: Union[Dict, Callable]) -> List[Any]:
     if isinstance(mapping, Callable):
         return [mapping(v) for v in x]
 
+
+
+
+def which(x: Iterable[bool]):
+    indices = [i for i, val in enumerate(x) if val]
+    return indices
+

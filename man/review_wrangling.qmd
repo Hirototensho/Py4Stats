@@ -1,6 +1,9 @@
 # review_wrangling
 
-![review_wrangling](image/review_wrangling.png){width=60%}
+![](https://img.shields.io/badge/lifecycle-experimental-orange){fig-align="left" fig-alt="badge of lifecycle experimental"}
+[![](https://img.shields.io/badge/Tested-Pandas_/_Polars_/_Pyarrow-blue){fig-align="left" fig-alt="badge of tested backend"}](../articles/eda_tools_development_status.qmd)
+
+![](image/review_wrangling.png){width=60% fig-align="center"}
 
 データ前処理（wrangling）による変更点を要約して、レビュー形式の文字列として出力する関数です。
 

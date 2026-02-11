@@ -1,5 +1,7 @@
 # filtering_out
 
+[![](https://img.shields.io/badge/Tested-Pandas_/_Polars_/_Pyarrow-blue){fig-align="left" fig-alt="badge of tested backend"}](../articles/eda_tools_development_status.qmd)
+
 データフレームの行と列の除外
 
 ## 概要

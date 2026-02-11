@@ -1,8 +1,13 @@
 # group_split, group_map, group_modify
 
+![](https://img.shields.io/badge/lifecycle-experimental-orange){fig-align="left" fig-alt="badge of lifecycle experimental"}
+[![](https://img.shields.io/badge/Tested-Pandas_/_Polars_/_Pyarrow-blue){fig-align="left" fig-alt="badge of tested backend"}](../articles/eda_tools_development_status.qmd)
+
 データフレームのグループ化された処理
 
 ## 概要
+
+データフレームに対して、変数を基準としたグループへの分割・関数適用・結果の統合を行います。それぞれの関数の機能は次のとおりです。
 
 - `group_split()`: データフレームをグループごとのデータフレームのリストに分割します
 - `group_map()`: 各グループに関数を適用し、結果をリストとして返します
@@ -188,6 +193,10 @@ GT(compare_tab.reset_index())
 ```
 
 ![compare_ols() で作成した回帰分析の表](image/group_map_compare_ols.png)
+
+## Note 
+
+本節の関数を実装するにあたり、関数名や機能について [`dplyr`](https://dplyr.tidyverse.org/index.html) パッケージの [`group_split()`](https://dplyr.tidyverse.org/reference/group_split.html)、[`group_map()`](https://dplyr.tidyverse.org/reference/group_map.html) および [`group_modify()`](https://dplyr.tidyverse.org/reference/group_map.html) を参考にしました。
 
 ***
 [Return to **Function reference**.](../reference.qmd)

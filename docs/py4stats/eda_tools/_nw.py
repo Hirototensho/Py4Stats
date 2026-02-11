@@ -285,13 +285,80 @@ except Exception:  # notebook等で未importでも落ちないように
 DataLike = Union[pd.Series, pd.DataFrame]
 
 
+# In[ ]:
+
+
+def is_intoframe(obj: object) -> bool:
+    try:
+        _ = nw.from_native(obj)
+        return True
+    except Exception:
+        return False
+
+
+# In[ ]:
+
+
+@singledispatch
+def as_nw_datarame(arg: Any, arg_name: str = 'data'):
+    try:
+        return nw.from_native(arg)
+    except TypeError:
+        raise TypeError(
+            f"Argument `{arg_name}` must be a DataFrame supported by narwhals "
+            "(e.g. pandas.DataFrame, polars.DataFrame, pyarrow.Table), "
+            f"but got '{type(arg).__name__}'."
+        ) from None
+
+
+# In[ ]:
+
+
+@as_nw_datarame.register(list)
+def as_nw_datarame_list(arg: List[Any], arg_name: str = 'df_list', max_items: int = 5):
+    try:
+        return [nw.from_native(df) for df in arg]
+    except TypeError:
+        not_sutisfy = [
+            f"{i} ({type(v).__name__})" 
+            for i, v in enumerate(arg) 
+            if not is_intoframe(v)
+            ]
+
+        not_sutisfy_text = build.oxford_comma_shorten(
+            not_sutisfy, quotation = False,
+            max_items = max_items, suffix = 'elements'
+            )
+
+        raise TypeError(
+            f"Argument `{arg_name}` must be a DataFrame supported by narwhals "
+            "(e.g. pandas.DataFrame, polars.DataFrame, pyarrow.Table).\n"
+            f"{11 * ' '}Elements at indices {not_sutisfy_text} are not supported."
+        ) from None
+
+
+# In[ ]:
+
+
+def as_nw_series(arg: Any, arg_name: str = 'data', **keywargs):
+    try:
+        return nw.from_native(arg, series_only = True)
+    except TypeError:
+
+        raise TypeError(
+            f"Argument `{arg_name}` must be a Series supported by narwhals "
+            "(e.g. pandas.Series, polars.Series, pyarrow.ChunkedArray), "
+            f"but got '{type(arg).__name__}'."
+        ) from None
+
+
 # # `diagnose()`
 
 # In[ ]:
 
 
 def get_dtypes(data: IntoFrameT) -> pd.Series:
-    data_nw = nw.from_native(data)
+    data_nw = as_nw_datarame(data)
     implement = data_nw.implementation
 
     if isinstance(data, nw.DataFrame):
@@ -347,7 +414,7 @@ def diagnose(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
             - unique_rate: percentage of unique values (100 * unique_count / nrow).
     """
     build.assert_logical(to_native, arg_name = 'to_native')
-    data_nw = nw.from_native(data)
+    data_nw = as_nw_datarame(data)
 
     n = data_nw.shape[0]
     list_dtypes = get_dtypes(data).to_list()
@@ -574,9 +641,10 @@ def compare_df_cols(
             df_name = [f'df{i + 1}' for i in range(len(df_list))]
 
     # 引数のアサーション ----------------------
-    assert isinstance(df_list, list) & \
-        all([is_FrameT(v) for v in df_list]), \
-        "argument 'df_list' is must be a list of DataFrame."
+    _ = as_nw_datarame(df_list)
+    # assert isinstance(df_list, list) & \
+    #     all([is_FrameT(v) for v in df_list]), \
+    #     "argument 'df_list' is must be a list of DataFrame."
 
     return_match = build.arg_match(
         return_match, values = ['all', 'match', 'mismatch'],
@@ -730,9 +798,9 @@ def compare_df_stats(
         else:
             df_name = [f'df{i + 1}' for i in range(len(df_list))]
     # 引数のアサーション ==========================================
-    assert isinstance(df_list, list) & \
-            all([is_FrameT(v) for v in df_list]), \
-            "argument 'df_list' is must be a list of DataFrame."
+    # assert isinstance(df_list, list) & \
+    #         all([is_FrameT(v) for v in df_list]), \
+    #         "argument 'df_list' is must be a list of DataFrame."
 
     return_match = build.arg_match(
         return_match, arg_name = 'return_match',
@@ -745,7 +813,7 @@ def compare_df_stats(
     build.assert_logical(to_native, arg_name = 'to_native')
     # ==========================================================
 
-    df_list_nw = [nw.from_native(v) for v in df_list]
+    df_list_nw = as_nw_datarame(df_list)
 
     # 統計値の計算 =============================================
     stats_list = [
@@ -867,8 +935,8 @@ def compare_df_record(
         >>> compare_df_record(df1, df2, columns="all")
         >>> compare_df_record(df1, df2, rtol=1e-4, columns="common")
     """
-    df1 = nw.from_native(df1)
-    df2 = nw.from_native(df2)
+    df1 = as_nw_datarame(df1, arg_name = 'df1')
+    df2 = as_nw_datarame(df2, arg_name = 'df2')
     all1 = df1.columns
     all2 = df2.columns
 
@@ -1071,7 +1139,7 @@ def enframe_table(
     # build.assert_character(names, arg_name = 'names', nullable = True)
     build.assert_logical(to_native, arg_name = 'to_native')
     # =======================================================================
-    data = nw.from_native(data, allow_series = True)
+    data = as_nw_datarame(data)
 
     if backend is None:
         backend = data.implementation
@@ -1165,7 +1233,7 @@ def enframe_series(
     # build.assert_character(names, arg_name = 'names', nullable = True)
     build.assert_logical(to_native, arg_name = 'to_native')
     # =======================================================================
-    data = nw.from_native(data, allow_series = True)
+    data = as_nw_series(data)
 
     if backend is None:
         if hasattr(data, 'implementation'):
@@ -1287,8 +1355,8 @@ def compare_group_means(
     else: how_join = 'inner'
 
     # ==============================================================
-    group1 = nw.from_native(group1)
-    group2 = nw.from_native(group2)
+    group1 = as_nw_datarame(group1, arg_name = 'group1')
+    group2 = as_nw_datarame(group2, arg_name = 'group2')
     group1 = remove_constant(group1, to_native = False)
     group2 = remove_constant(group2, to_native = False)
 
@@ -1432,8 +1500,8 @@ def compare_group_median(
     else: how_join = 'inner'
 
     # ==============================================================
-    group1 = nw.from_native(group1)
-    group2 = nw.from_native(group2)
+    group1 = as_nw_datarame(group1, arg_name = 'group1')
+    group2 = as_nw_datarame(group2, arg_name = 'group1')
     group1 = remove_constant(group1, to_native = False)
     group2 = remove_constant(group2, to_native = False)
 
@@ -1598,7 +1666,7 @@ def crosstab(
             arg_name = 'normalize'
         )
     # -----------------------------------------------------
-    data_nw = nw.from_native(data)
+    data_nw = as_nw_datarame(data)
     impl = data_nw.implementation
 
     if impl.is_pyarrow():
@@ -1743,7 +1811,7 @@ def freq_table(
         )
     # =========================================================
 
-    data_nw = nw.from_native(data)
+    data_nw = as_nw_datarame(data)
 
     if dropna:
         data_nw = data_nw.drop_nulls(subset)
@@ -1838,10 +1906,10 @@ def tabyl(
     build.assert_character(margins_name, arg_name = 'margins_name')
     build.assert_logical(dropna, arg_name = 'dropna')
     build.assert_count(digits, arg_name = 'digits')
-    # build.assert_logical(to_native, arg_name = 'to_native')
+    build.assert_logical(to_native, arg_name = 'to_native')
     # ==============================================================
 
-    data_nw = nw.from_native(data)
+    data_nw = as_nw_datarame(data)
 
     if(not isinstance(normalize, bool)):
       normalize = build.arg_match(
@@ -1984,7 +2052,7 @@ def is_dummy_series(
 ) -> bool:
     build.assert_logical(dropna, arg_name = 'dropna')
 
-    data_nw = nw.from_native(data, series_only = True)
+    data_nw = as_nw_series(data)
     if dropna: data_nw = data_nw.drop_nulls()
 
     return set(data_nw) == set(cording)
@@ -2003,7 +2071,7 @@ def is_dummy_data_frame(
     build.assert_logical(to_pd_series, arg_name = 'to_pd_series')
     build.assert_logical(to_native, arg_name = 'to_native')
 
-    data_nw = nw.from_native(data)
+    data_nw = as_nw_datarame(data)
 
     result_df = data_nw.select(
         nw.all().map_batches(
@@ -2049,7 +2117,7 @@ def entropy(x: IntoSeriesT, base: float = 2.0, dropna: bool = True) -> float:
     build.assert_numeric(base, arg_name = 'base', lower = 0, inclusive = 'right')
     build.assert_logical(dropna, arg_name = 'dropna')
 
-    x_nw = nw.from_native(x, series_only = True)
+    x_nw = as_nw_series(x)
 
     if dropna: x_nw = x_nw.drop_nulls()
 
@@ -2060,7 +2128,7 @@ def entropy(x: IntoSeriesT, base: float = 2.0, dropna: bool = True) -> float:
 def normalized_entropy(x: IntoSeriesT, dropna: bool = True) -> float:
     build.assert_logical(dropna, arg_name = 'dropna')
 
-    x_nw = nw.from_native(x, series_only = True)
+    x_nw = as_nw_series(x)
     if dropna: x_nw = x_nw.drop_nulls()
 
     K = x_nw.n_unique()
@@ -2151,7 +2219,7 @@ def diagnose_category(data: IntoFrameT, dropna: bool = True, to_native: bool = T
     build.assert_logical(to_native, arg_name = 'to_native')
     build.assert_logical(dropna, arg_name = 'dropna')
 
-    data_nw = nw.from_native(data)
+    data_nw = as_nw_datarame(data)
     res_is_dummy = is_dummy(data_nw, to_pd_series = True)
     dummy_col = res_is_dummy[res_is_dummy].index.to_list()
 
@@ -2249,8 +2317,8 @@ def weighted_mean(x: IntoSeriesT, w: IntoSeriesT, dropna:bool = False) -> float:
       ValueError:
           If `x` or `w` is not numeric.
   """
-  x = nw.from_native(x, series_only = True)
-  w = nw.from_native(w, series_only = True)
+  x = as_nw_series(x)
+  w = as_nw_series(w)
 
   if dropna:
     non_nan = ~x.is_nan() & ~w.is_nan()
@@ -2316,7 +2384,7 @@ def scale_series(x: IntoSeriesT, ddof: int = 1, to_native: bool = True) -> IntoS
     build.assert_count(ddof, arg_name = 'ddof')
     build.assert_logical(to_native, arg_name = 'to_native')
 
-    x = nw.from_native(x, series_only = True)
+    x = as_nw_series(x)
 
     build.assert_numeric(x, arg_name = 'x', any_missing = True)
 
@@ -2378,7 +2446,7 @@ def min_max(x: Union[IntoSeriesT, pd.DataFrame], to_native: bool = True) -> Into
 def min_max_series(x: Union[IntoSeriesT, pd.DataFrame], to_native: bool = True) -> IntoSeriesT:
     build.assert_logical(to_native, arg_name = 'to_native')
 
-    x = nw.from_native(x, series_only = True)
+    x = as_nw_series(x)
 
     build.assert_numeric(x, arg_name = 'x', any_missing = True)
 
@@ -2407,7 +2475,7 @@ def missing_percent(
         axis: str = 'index',
         pct: bool = True
         ) -> pd.Series:
-    data_nw = nw.from_native(data)
+    data_nw = as_nw_datarame(data)
     n = data_nw.shape[0]
 
     if axis == 'index':
@@ -2423,7 +2491,7 @@ def missing_percent(
                 nw.sum_horizontal(nw.all()).alias('miss_count')
             )['miss_count']
 
-        if data_nw.implementation.is_pandas_like():
+        if data_nw.implementation.is_pandas_like() and hasattr(data, 'index'):
             miss_count = pd.Series(miss_count, index = data.index)
         else:
             miss_count = pd.Series(miss_count)
@@ -2479,8 +2547,8 @@ def remove_empty(
     build.assert_logical(to_native, arg_name = 'to_native', len_arg = 1)
     # ==============================================================
 
+    data_nw = as_nw_datarame(data)
     df_shape = data.shape
-    data_nw = nw.from_native(data)
     # 空白列の除去 ------------------------------
     if cols :
         empty_col = missing_percent(data, axis = 'index', pct = False) >= cutoff
@@ -2516,7 +2584,7 @@ def remove_empty(
 
 
 def is_constant(data: IntoSeriesT, dropna: bool = True) -> bool:
-    data = nw.from_native(data, series_only = True)
+    data = as_nw_series(data)
     if dropna: 
         return data.drop_nulls().n_unique() == 1
     else:
@@ -2558,7 +2626,7 @@ def remove_constant(
     build.assert_logical(dropna, arg_name = 'dropna', len_arg = 1)
     build.assert_logical(to_native, arg_name = 'to_native', len_arg = 1)
     # ==============================================================
-    data_nw = nw.from_native(data)
+    data_nw = as_nw_datarame(data)
     col_name = data_nw.columns
 
     bool_constant = [is_constant(col, dropna) for col in data_nw.iter_columns()]
@@ -2682,7 +2750,7 @@ def filtering_out(
     build.assert_character(ends_with, arg_name = 'ends_with', nullable = True)
     _assert_selectors(*args, arg_name = 'args', nullable = True)
     # ==============================================================
-    data_nw = nw.from_native(data)
+    data_nw = as_nw_datarame(data)
 
     # columns に基づく除外処理 =================================================================
     if axis in ("0", "index"):
@@ -2807,7 +2875,7 @@ def Pareto_plot(
     build.assert_numeric(xlab_rotation, arg_name = 'xlab_rotation')
     build.assert_character(palette, arg_name = 'palette')
     # ===================================================================================
-    data_nw = nw.from_native(data)
+    data_nw = as_nw_datarame(data)
     # 指定された変数でのランクを表すデータフレームを作成
     if values is None:
         shere_rank = freq_table(
@@ -2850,7 +2918,7 @@ def make_rank_table(
     aggfunc: Callable[..., Any] = np.mean,
     to_native: bool = True,
 ) -> pd.DataFrame:
-    data_nw = nw.from_native(data)
+    data_nw = as_nw_datarame(data)
 
     # 引数のアサーション ===================================================================
     col_names = data_nw.columns
@@ -3042,7 +3110,7 @@ def mean_qi_data_frame(
         values = interpolation_values
         )
     # =======================================================================
-    df_numeric = nw.from_native(data).select(ncs.numeric())
+    df_numeric = as_nw_datarame(data).select(ncs.numeric())
 
     result = nw.from_dict({
         'variable': df_numeric.columns,
@@ -3078,7 +3146,7 @@ def mean_qi_series(
         values = interpolation_values
         )
     # =======================================================================
-    data_nw = nw.from_native(data, series_only = True)
+    data_nw = as_nw_series(data)
     if data_nw.name: variable = data_nw.name
     else: variable = 'x'
 
@@ -3155,7 +3223,7 @@ def median_qi_data_frame(
         )
     # =======================================================================
 
-    df_numeric = nw.from_native(data).select(ncs.numeric())
+    df_numeric = as_nw_datarame(data).select(ncs.numeric())
 
     result = nw.from_dict({
         'variable': df_numeric.columns,
@@ -3189,7 +3257,7 @@ def median_qi_series(
         )
     # =======================================================================
 
-    data_nw = nw.from_native(data, allow_series=True)
+    data_nw = as_nw_series(data)
     if data_nw.name: variable = data_nw.name
     else: variable = 'x'
 
@@ -3263,7 +3331,7 @@ def mean_ci_data_frame(
     build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither', len_arg = 1)
     build.assert_logical(to_native, arg_name = 'to_native', len_arg = 1)
     # =======================================================================
-    df_numeric = nw.from_native(data).select(ncs.numeric())
+    df_numeric = as_nw_datarame(data).select(ncs.numeric())
     n = len(df_numeric)
     t_alpha = t.isf((1 - width) / 2, df = n - 1)
     x_mean = df_numeric.select(ncs.numeric().mean())\
@@ -3292,7 +3360,7 @@ def mean_ci_series(
     build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither', len_arg = 1)
     build.assert_logical(to_native, arg_name = 'to_native', len_arg = 1)
     # =======================================================================
-    data_nw = nw.from_native(data, allow_series=True)
+    data_nw = as_nw_series(data)
     if data_nw.name: variable = data_nw.name
     else: variable = 'x'
 
@@ -3438,7 +3506,7 @@ def is_ymd_like(data:IntoSeriesT, na_default:bool = True, to_native: bool = True
 
     rex_ymd_like = '[Script=Han]{0,2}[0-9]{1,4}(?:年|-)[0-9]{1,2}(?:月|-)[0-9]{1,2}(?:日)?'
 
-    data_nw = nw.from_native(data, allow_series = True)
+    data_nw = as_nw_series(data)
 
     result = data_nw.str.contains(rex_ymd_like)
 
@@ -3577,7 +3645,7 @@ def check_that(
     build.assert_character(rule_dict.values(), arg_name = 'rule_dict')
     build.assert_logical(to_native, arg_name = 'to_native')
     # ===============================================================================
-    data_nw = nw.from_native(data)
+    data_nw = as_nw_datarame(data)
     data_pd = data_nw.to_pandas()
     col_names = data_nw.columns
     N = data_nw.shape[0]
@@ -3666,7 +3734,7 @@ def check_viorate(
     build.assert_character(rule_dict.values(), arg_name = 'rule_dict')
     build.assert_logical(to_native, arg_name = 'to_native')
     # ===============================================================================
-    data_nw = nw.from_native(data)
+    data_nw = as_nw_datarame(data)
     data_pd = data_nw.to_pandas()
     value_impl = data_nw.implementation
     N = data_nw.shape[0]
@@ -3837,7 +3905,7 @@ def set_miss(
     4    5.0
     dtype: float64
     """
-    x_nw = nw.from_native(x, series_only = True)
+    x_nw = as_nw_series(x)
 
     # 引数のアサーション ==================================================================
     if not((n is not None) ^ (prop is not None)):
@@ -4093,7 +4161,7 @@ def relocate(
         raise ValueError("Please specify either `place` or `before`/`after`, not both.")
     # ======================================================
 
-    data_nw = nw.from_native(data)
+    data_nw = as_nw_datarame(data)
     colnames = data_nw.columns
     selected = data_nw.select(args).columns
 
@@ -4133,7 +4201,7 @@ def make_table_to_plot(
         sort_by: Literal['values', 'frequency'] = 'values',
         to_native: bool = True
         ) -> None:
-    data_nw = nw.from_native(data)
+    data_nw = as_nw_datarame(data)
 
     variables = data_nw.columns
     def foo(v):
@@ -4331,7 +4399,7 @@ def plot_category(
         ... })
         >>> py4st.plot_category(df, sort_by="values", legend_type="horizontal")
     """
-    data_nw = nw.from_native(data)
+    data_nw = as_nw_datarame(data)
     variables = data_nw.columns
     # 引数のアサーション ==============================================
     legend_type = build.arg_match(
@@ -4507,8 +4575,8 @@ def review_col_addition(
         max_width, arg_name = 'max_width', 
         len_arg = 1)
     # =======================================================================
-    columns_before = nw.from_native(before).columns
-    columns_after  = nw.from_native(after).columns
+    columns_before = as_nw_datarame(before, arg_name = 'before').columns
+    columns_after  = as_nw_datarame(after, arg_name = 'after').columns
 
     added = build.list_diff(columns_after, columns_before)
     removed = build.list_diff(columns_before, columns_after)
@@ -4664,8 +4732,8 @@ def review_shape(before: IntoFrameT, after: IntoFrameT) -> str:
             A formatted string summarizing changes in the number of rows
             and columns.
     """
-    before_nw = nw.from_native(before)
-    after_nw  = nw.from_native(after)
+    before_nw = as_nw_datarame(before, arg_name = 'before')
+    after_nw  = as_nw_datarame(after, arg_name = 'after')
     row_o, col_o = before_nw.shape
     row_n, col_n = after_nw.shape
     d_o = len(f"{np.max([row_o, col_o]):,}")
@@ -4733,8 +4801,8 @@ def review_category(
             addition:  None
             removal:  'Torgersen'
     """
-    before_nw = nw.from_native(before)
-    after_nw  = nw.from_native(after)
+    before_nw = as_nw_datarame(before, arg_name = 'before')
+    after_nw  = as_nw_datarame(after, arg_name = 'after')
     # 引数のアサーション =======================================================
     _assert_same_backend(before_nw, after_nw, 'review_category')
 
@@ -4792,7 +4860,7 @@ import numpy as np
 
 def draw_ascii_boxplot(data, range_min = None, range_max = None, width = 30):
     """データセットから文字列の箱ひげ図を作成する"""
-    data = nw.from_native(data, series_only = True)
+    data = as_nw_series(data)
 
     # 五数要約の計算
     min_val = data.min()
@@ -4845,8 +4913,8 @@ def draw_ascii_boxplot(data, range_min = None, range_max = None, width = 30):
 
 
 def make_boxplot_with_label(before, after, col, space_left = 7, space_right = 7, width = 30, digits = 2):
-    before = nw.from_native(before)
-    after = nw.from_native(after)
+    before = as_nw_datarame(before, arg_name = 'before')
+    after = as_nw_datarame(after, arg_name = 'after')
 
     min_be = before[col].min()
     max_be = before[col].max()
@@ -4936,11 +5004,21 @@ def review_numeric(
     # 引数のアサーション =======================================================
     build.assert_count(digits, arg_name = 'digits', len_arg = 1)
     build.assert_count(width_boxplot, arg_name = 'width_boxplot', len_arg = 1)
+    # _ = as_nw_datarame(before, arg_name = 'before')
+    # _ = as_nw_datarame(after, arg_name = 'after')
     # =======================================================================
-    before_nw = remove_empty(before, to_native = False)\
-        .select(ncs.numeric())
-    after_nw = remove_empty(after, to_native = False)\
-        .select(ncs.numeric())
+
+    # before_nw = remove_empty(before, to_native = False)\
+    #     .select(ncs.numeric())
+    # after_nw = remove_empty(after, to_native = False)\
+    #     .select(ncs.numeric())
+
+    before_nw = as_nw_datarame(before, arg_name = 'before')\
+        .select(ncs.numeric())\
+        .pipe(remove_empty, to_native = False)
+    after_nw = as_nw_datarame(after, arg_name = 'after')\
+        .select(ncs.numeric())\
+        .pipe(remove_empty, to_native = False)
 
     cols1 = before_nw.columns
     cols2 = after_nw.columns
@@ -5106,8 +5184,8 @@ def review_wrangling(
             ============================================================
     """
 
-    after_nw = nw.from_native(after)
-    before_nw = nw.from_native(before)
+    after_nw = as_nw_datarame(after, arg_name = 'after')
+    before_nw = as_nw_datarame(before, arg_name = 'before')
     if isinstance(items, str): items = [items]
     # 引数のアサーション =======================================================
     _assert_same_backend(before_nw, after_nw)
@@ -5227,11 +5305,10 @@ def group_split(
             Defaults to True.
 
     Returns:
-        A tuple `(data, groups)` where:
+        A NamedTuple with two fields:
 
-        - `data` is a list of data frames, one per group.
-        - `groups` is a data frame containing the grouping columns and
-          metadata describing each group.
+        - `data`:list of data frames, one per group.
+        - `groups`: a data frame describing the grouping keys.
 
         The i-th element of `data` corresponds to the i-th row of `groups`.
 
@@ -5253,7 +5330,7 @@ def group_split(
     build.assert_logical(to_native, arg_name = 'to_native')
     # ========================================================================
 
-    data_nw = nw.from_native(data)
+    data_nw = as_nw_datarame(data)
     # group_cols で区別されるデータに対するグループ番号を生成・付与
     group_tab = data_nw.select(*group_cols).unique()
 
@@ -5340,6 +5417,12 @@ def group_map(
 
         The i-th element of `mapped` corresponds to the i-th row of `groups`.
 
+    Note:
+        `func` can return any Python object. The results are not combined
+        or coerced into a tabular structure. This makes `group_map()`
+        suitable for use cases such as returning model objects,
+        plots, or other non-tabular results.
+
     Examples:
         >>> import py4stats as py4st
         >>> from palmerpenguins import load_penguins
@@ -5375,7 +5458,7 @@ def group_map(
 def group_modify(
         data: IntoFrameT,
         *group_cols: Union[str, List[str], narwhals.Expr, narwhals.selectors.Selector], 
-        func: Callable[[IntoFrameT], Any], 
+        func: Callable[[IntoFrameT], Union[IntoFrameT, IntoSeriesT, int, float, bool, str, None]],
         drop_na_groups: bool = True,
         sort_groups: bool = True,
         to_native: bool = True
@@ -5422,6 +5505,19 @@ def group_modify(
         A data frame where the results of `func` are combined and
         augmented with the grouping columns.
 
+    Note:
+        The function supplied to `func` must return a value that can be
+        coerced into a data frame. Supported return types include:
+
+        - data frame-like objects
+        - Series-like objects
+        - scalar values (int, float, bool, str)
+        - None
+
+        Objects that cannot be converted into a tabular structure
+        (e.g., fitted model objects or plot objects) are not supported.
+        For such use cases, consider using `group_map()` instead.
+
     Examples:
         >>> import py4stats as py4st
         >>> from palmerpenguins import load_penguins
@@ -5445,7 +5541,7 @@ def group_modify(
     # DataFrame と同じメソッドが使えることを両立するために、<1> で `to_native = False`
     # を指定し、<2> で `df.to_native()` を使っています。
     # ========================================================================
-    impl = nw.from_native(data).implementation
+    impl = as_nw_datarame(data).implementation
 
     list_dfs, group_tab = group_split(
         data, *group_cols, 
@@ -5458,7 +5554,7 @@ def group_modify(
 
     list_result2 = [
         nw.from_native(v).with_columns(nw.lit(id).alias('_group_id')) 
-        if is_FrameT(v) 
+        if is_intoframe(v) 
         else enframe(v, backend = impl, to_native = False)
             .with_columns(nw.lit(id).alias('_group_id')) 
         for v, id in zip(list_result1, group_tab['_group_id'])
