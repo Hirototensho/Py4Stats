@@ -23,6 +23,9 @@
 | diagnose_category    | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | filtering_out        | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | freq_table           | DataFrame        | ✅       | ✅       | ✅        |                                            |
+| group_split          | DataFrame        | ✅       | ✅       | ✅        |                                            |
+| group_map            | DataFrame        | ✅       | ✅       | ✅        |                                            |
+| group_modify         | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | implies_exper        | pd.Series        | ✅       | ❌       | ❌        | pd.DataFrame.eval() での使用を想定した関数     |
 | is_dummy             | DataFrame/Series | ✅       | ✅       | ✅        |                                            |
 | is_number            | Series           | ✅       | ✅       | ✅        |                                            |
@@ -40,6 +43,11 @@
 | relocate             | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | remove_constant      | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | remove_empty         | DataFrame        | ✅       | ✅       | ✅        |                                            |
+| review_wrangling     | DataFrame        | ✅       | ✅       | ✅        |                                            |
+| review_shape         | DataFrame        | ✅       | ✅       | ✅        |                                            |
+| review_col_addition  | DataFrame        | ✅       | ✅       | ✅        |                                            |
+| review_casting       | DataFrame        | ✅       | ✅       | ✅        |                                            |
+| review_missing       | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | tabyl                | DataFrame        | ✅       | ⭕️       | ⭕️        | 一部の処理が Pandas 依存                      |
 | weighted_mean        | Series           | ✅       | ✅       | ✅        |                                            |
 

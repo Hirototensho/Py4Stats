@@ -193,6 +193,11 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../man/grouped_operation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">group_split, group_map, group_modify</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../man/compare_df_cols.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">compare_df_cols, compare_df_stats</span></a>
   </div>
 </li>
@@ -619,6 +624,30 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;"></td>
 </tr>
 <tr class="odd">
+<td style="text-align: left;">group_split</td>
+<td style="text-align: left;">DataFrame</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">group_map</td>
+<td style="text-align: left;">DataFrame</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">group_modify</td>
+<td style="text-align: left;">DataFrame</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
 <td style="text-align: left;">implies_exper</td>
 <td style="text-align: left;">pd.Series</td>
 <td style="text-align: left;">✅</td>
@@ -626,7 +655,7 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">❌</td>
 <td style="text-align: left;">pd.DataFrame.eval() での使用を想定した関数</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">is_dummy</td>
 <td style="text-align: left;">DataFrame/Series</td>
 <td style="text-align: left;">✅</td>
@@ -634,7 +663,7 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">✅</td>
 <td style="text-align: left;"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">is_number</td>
 <td style="text-align: left;">Series</td>
 <td style="text-align: left;">✅</td>
@@ -642,7 +671,7 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">✅</td>
 <td style="text-align: left;"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">is_ymd_like</td>
 <td style="text-align: left;">Series</td>
 <td style="text-align: left;">✅</td>
@@ -650,7 +679,7 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">✅</td>
 <td style="text-align: left;"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">is_ymd</td>
 <td style="text-align: left;">Series</td>
 <td style="text-align: left;">✅</td>
@@ -658,7 +687,7 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">✅</td>
 <td style="text-align: left;"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">mean_ci</td>
 <td style="text-align: left;">DataFrame/Series</td>
 <td style="text-align: left;">✅</td>
@@ -666,7 +695,7 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">✅</td>
 <td style="text-align: left;"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">mean_qi</td>
 <td style="text-align: left;">DataFrame/Series</td>
 <td style="text-align: left;">✅</td>
@@ -674,7 +703,7 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">✅</td>
 <td style="text-align: left;"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">median_qi</td>
 <td style="text-align: left;">DataFrame/Series</td>
 <td style="text-align: left;">✅</td>
@@ -682,7 +711,7 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">✅</td>
 <td style="text-align: left;"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">min_max</td>
 <td style="text-align: left;">Series</td>
 <td style="text-align: left;">✅</td>
@@ -690,7 +719,7 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">✅</td>
 <td style="text-align: left;"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">plot_mean_diff</td>
 <td style="text-align: left;">DataFrame</td>
 <td style="text-align: left;">✅</td>
@@ -698,7 +727,7 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">✅</td>
 <td style="text-align: left;"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">plot_median_diff</td>
 <td style="text-align: left;">DataFrame</td>
 <td style="text-align: left;">✅</td>
@@ -706,7 +735,7 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">✅</td>
 <td style="text-align: left;"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">plot_miss_var</td>
 <td style="text-align: left;">DataFrame</td>
 <td style="text-align: left;">✅</td>
@@ -714,7 +743,7 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">✅</td>
 <td style="text-align: left;"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">scale</td>
 <td style="text-align: left;">Series</td>
 <td style="text-align: left;">✅</td>
@@ -722,7 +751,7 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">✅</td>
 <td style="text-align: left;"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">set_miss</td>
 <td style="text-align: left;">Series</td>
 <td style="text-align: left;">✅</td>
@@ -730,7 +759,7 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">✅</td>
 <td style="text-align: left;"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">relocate</td>
 <td style="text-align: left;">DataFrame</td>
 <td style="text-align: left;">✅</td>
@@ -738,7 +767,7 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">✅</td>
 <td style="text-align: left;"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">remove_constant</td>
 <td style="text-align: left;">DataFrame</td>
 <td style="text-align: left;">✅</td>
@@ -746,8 +775,48 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">✅</td>
 <td style="text-align: left;"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">remove_empty</td>
+<td style="text-align: left;">DataFrame</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">review_wrangling</td>
+<td style="text-align: left;">DataFrame</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">review_shape</td>
+<td style="text-align: left;">DataFrame</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">review_col_addition</td>
+<td style="text-align: left;">DataFrame</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">review_casting</td>
+<td style="text-align: left;">DataFrame</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">review_missing</td>
 <td style="text-align: left;">DataFrame</td>
 <td style="text-align: left;">✅</td>
 <td style="text-align: left;">✅</td>

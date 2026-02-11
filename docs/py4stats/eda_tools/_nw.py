@@ -272,6 +272,7 @@ from typing import (
     Union,
     Literal,
     overload,
+    NamedTuple
 )
 from numpy.typing import ArrayLike
 
@@ -432,19 +433,23 @@ def plot_miss_var(
         The underlying missing-value statistics are computed by
         ``diagnose``, and the resulting plot reflects its output.
     """
+    # 引数のアサーション ====================================================================
     values = build.arg_match(
         values, arg_name = 'values',
         values = ['missing_percent', 'missing_count']
     )
-    build.assert_logical(sort, arg_name = 'sort')
-    build.assert_logical(miss_only, arg_name = 'miss_only')
+    build.assert_logical(sort, arg_name = 'sort', len_arg = 1)
+    build.assert_logical(miss_only, arg_name = 'miss_only', len_arg = 1)
+    build.assert_count(top_n, lower = 1, arg_name = 'top_n', len_arg = 1, nullable = True)
+    # ====================================================================================
 
     diagnose_tab = diagnose(data, to_native = False)
 
     if miss_only: diagnose_tab = diagnose_tab.filter(nw.col('missing_percent') > 0)
+
     if top_n is not None:
-        build.assert_count(top_n, lower = 1, arg_name = 'top_n')
         diagnose_tab = diagnose_tab.top_k(top_n, by = values)
+
     if sort: diagnose_tab = diagnose_tab.sort(values)
 
     # グラフの描画
@@ -724,7 +729,7 @@ def compare_df_stats(
             df_list = list(df_list.values())
         else:
             df_name = [f'df{i + 1}' for i in range(len(df_list))]
-    # 引数のアサーション ----------------------
+    # 引数のアサーション ==========================================
     assert isinstance(df_list, list) & \
             all([is_FrameT(v) for v in df_list]), \
             "argument 'df_list' is must be a list of DataFrame."
@@ -738,7 +743,7 @@ def compare_df_stats(
         nullable = True, len_arg = build.length(df_list)
     )
     build.assert_logical(to_native, arg_name = 'to_native')
-    # --------------------------------------
+    # ==========================================================
 
     df_list_nw = [nw.from_native(v) for v in df_list]
 
@@ -872,7 +877,7 @@ def compare_df_record(
         df1 = df1.drop_nulls(all1)
         df2 = df2.drop_nulls(all2)
 
-    # 引数のアサーション ----------------------------------------------------------------------------------
+    # 引数のアサーション ==================================================================================
     build.assert_logical(to_native, arg_name = 'to_native')
 
     columns = build.arg_match(
@@ -904,7 +909,7 @@ def compare_df_record(
                 "Use columns='common' to compare only shared columns."
             )
             raise ValueError("\n".join(messages))
-    # --------------------------------------------------------------------------------------------------
+    # ==================================================================================================
 
     numeric1 = df1.select(ncs.numeric()).columns
     nonnum1 = df1.select(~ncs.numeric()).columns
@@ -1085,8 +1090,7 @@ def enframe_table(
 # In[ ]:
 
 
-@enframe.register(list)
-@enframe.register(tuple)
+@enframe.register(Union[list, tuple])
 def enframe_iterable(
     data: Union[nw.Series, list, tuple],
     name: str = 'name',
@@ -1107,6 +1111,35 @@ def enframe_iterable(
     result = nw.from_dict({
         name: names,
         value: list(data)
+    }, backend = backend)
+
+    if to_native: return result.to_native()
+    return result
+
+
+# In[ ]:
+
+
+@enframe.register(Union[int, float, bool, None, str, pd._libs.missing.NAType])
+def enframe_atomic(
+    data: Union[int, float, bool, None, str, pd._libs.missing.NAType],
+    name: str = 'name',
+    value: str = 'value',
+    names: Optional[Union[list[str], list[int]]] = None,
+    backend: Optional[Union[str, nw.Implementation]] = None,
+    to_native: bool = True,
+    **keywarg: Any
+) -> IntoFrameT:
+    # 引数のアサーション =======================================================
+    build.assert_character(name, arg_name = 'name', len_arg = 1)
+    build.assert_character(value, arg_name = 'value', len_arg = 1)
+    build.assert_logical(to_native, arg_name = 'to_native')
+    # =======================================================================
+    if backend is None: backend = 'pandas'
+
+    result = nw.from_dict({
+        name: 0,
+        value: [data]
     }, backend = backend)
 
     if to_native: return result.to_native()
@@ -3002,8 +3035,8 @@ def mean_qi_data_frame(
     to_native: bool = True
     ) -> pd.DataFrame:
     # 引数のアサーション =======================================================
-    build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
-    build.assert_logical(to_native, arg_name = 'to_native')
+    build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither', len_arg = 1)
+    build.assert_logical(to_native, arg_name = 'to_native', len_arg = 1)
     interpolation = build.arg_match(
         interpolation, arg_name = 'interpolation',
         values = interpolation_values
@@ -3038,8 +3071,8 @@ def mean_qi_series(
     to_native: bool = True
     ):
     # 引数のアサーション =======================================================
-    build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
-    build.assert_logical(to_native, arg_name = 'to_native')
+    build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither', len_arg = 1)
+    build.assert_logical(to_native, arg_name = 'to_native', len_arg = 1)
     interpolation = build.arg_match(
         interpolation, arg_name = 'interpolation',
         values = interpolation_values
@@ -3114,8 +3147,8 @@ def median_qi_data_frame(
     to_native: bool = True
 ) -> IntoFrameT:
     # 引数のアサーション =======================================================
-    build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
-    build.assert_logical(to_native, arg_name = 'to_native')
+    build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither', len_arg = 1)
+    build.assert_logical(to_native, arg_name = 'to_native', len_arg = 1)
     interpolation = build.arg_match(
         interpolation, arg_name = 'interpolation',
         values = interpolation_values
@@ -3148,8 +3181,8 @@ def median_qi_series(
     to_native: bool = True
 ) -> IntoFrameT:
     # 引数のアサーション =======================================================
-    build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
-    build.assert_logical(to_native, arg_name = 'to_native')
+    build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither', len_arg = 1)
+    build.assert_logical(to_native, arg_name = 'to_native', len_arg = 1)
     interpolation = build.arg_match(
         interpolation, arg_name = 'interpolation',
         values = interpolation_values
@@ -3227,8 +3260,8 @@ def mean_ci_data_frame(
     to_native: bool = True
 ) -> IntoFrameT:
     # 引数のアサーション =======================================================
-    build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
-    build.assert_logical(to_native, arg_name = 'to_native')
+    build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither', len_arg = 1)
+    build.assert_logical(to_native, arg_name = 'to_native', len_arg = 1)
     # =======================================================================
     df_numeric = nw.from_native(data).select(ncs.numeric())
     n = len(df_numeric)
@@ -3256,8 +3289,8 @@ def mean_ci_series(
     to_native: bool = True
 ) -> IntoFrameT:
     # 引数のアサーション =======================================================
-    build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
-    build.assert_logical(to_native, arg_name = 'to_native')
+    build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither', len_arg = 1)
+    build.assert_logical(to_native, arg_name = 'to_native', len_arg = 1)
     # =======================================================================
     data_nw = nw.from_native(data, allow_series=True)
     if data_nw.name: variable = data_nw.name
@@ -4358,13 +4391,6 @@ def plot_category(
 # In[ ]:
 
 
-# def list_minus(x, y):
-#     return [v for v in x if v not in y]
-
-
-# In[ ]:
-
-
 def _assert_same_backend(data1, data2, funcname = 'review_wrangling', data_name = ['before', 'after']):
       if data1.implementation is not data2.implementation:
         raise TypeError(
@@ -5142,5 +5168,308 @@ def review_wrangling(
         result = f"{make_header(result, f' {title} ')}\n{result}"
         result = f"{result}\n{make_header(result, '=')}"
 
+    return result
+
+
+# # grouped operation
+
+# In[ ]:
+
+
+from collections import namedtuple
+GroupSplitResult = namedtuple('GroupSplitResult', ['data', 'groups'])
+
+def group_split(
+        data: IntoFrameT,
+        *group_cols: Union[str, List[str], narwhals.Expr, narwhals.selectors.Selector], 
+        keep: bool = True,
+        drop_na_groups: bool = True,
+        sort_groups: bool = True,
+        to_native: bool = True, 
+        ) -> Tuple[List[IntoFrameT], IntoFrameT]:
+    """
+    Split a data frame into a list of group-wise data frames.
+
+    This function partitions the input data frame according to the values
+    of one or more grouping columns, and returns:
+
+    - a list of data frames, one for each group, and
+    - a data frame describing the group keys corresponding to each element
+      of the list.
+
+    The behavior is conceptually similar to `dplyr::group_split()`, but is
+    implemented in a backend-agnostic way using narwhals.
+
+    Args:
+        data (IntoFrameT):
+            Input DataFrame. Any DataFrame type supported by narwhals
+            (e.g. pandas, polars, pyarrow) can be used.
+        *group_cols (Union[str, List[str], narwhals.Expr, narwhals.Selector]):
+            Columns used to define groups. Each element may be:
+            - a column name (`str`)
+            - a list of column names
+            - a narwhals expression
+            - a narwhals selector
+        keep (bool, optional):
+            Whether to keep the grouping columns in each split data frame.
+            If False, grouping columns are removed from the returned data frames.
+            Defaults to True.
+        drop_na_groups (bool, optional):
+            Whether to drop groups with missing values in the grouping columns.
+            Defaults to True.
+        sort_groups (bool, optional):
+            Whether to sort groups by the grouping columns before splitting.
+            This ensures a stable and reproducible group order.
+            Defaults to True.
+        to_native (bool, optional):
+            Whether to return native backend data frames.
+            If False, narwhals DataFrame objects are returned.
+            Defaults to True.
+
+    Returns:
+        A tuple `(data, groups)` where:
+
+        - `data` is a list of data frames, one per group.
+        - `groups` is a data frame containing the grouping columns and
+          metadata describing each group.
+
+        The i-th element of `data` corresponds to the i-th row of `groups`.
+
+    Examples:
+        >>> import py4stats as py4st
+        >>> from palmerpenguins import load_penguins
+        >>> penguins = load_penguins()
+
+        >>> splited = py4st.group_split(penguins, 'species', 'island')
+        >>> print(len(splited.data))
+        5
+        >>> print([df.shape[0] for df in splited.data])
+        [44, 56, 52, 68, 124]
+    """
+    # 引数のアサーション =======================================================
+    _assert_selectors(*group_cols, arg_name = 'args')
+    build.assert_logical(sort_groups, arg_name = 'sort_groups')
+    build.assert_logical(drop_na_groups, arg_name = 'drop_na_groups')
+    build.assert_logical(to_native, arg_name = 'to_native')
+    # ========================================================================
+
+    data_nw = nw.from_native(data)
+    # group_cols で区別されるデータに対するグループ番号を生成・付与
+    group_tab = data_nw.select(*group_cols).unique()
+
+    cols_selected = group_tab.columns
+
+    if drop_na_groups:
+        group_tab = group_tab.drop_nulls()
+
+    if sort_groups:
+        group_tab = group_tab.sort(*group_cols)
+
+    group_tab = group_tab.with_row_index('_group_id')
+
+    with_group_id = data_nw.join(group_tab, on = cols_selected, how = 'left')
+
+    if not keep:
+        with_group_id = with_group_id.drop(cols_selected)
+
+    # データセットをグループ番号別に分割
+    list_dfs = [
+        with_group_id.filter(nw.col('_group_id') == g).drop('_group_id')
+        for g in group_tab['_group_id']
+        ]
+    if to_native:
+        list_dfs = [df.to_native() for df in list_dfs]
+        group_tab = group_tab.to_native()
+
+    result = GroupSplitResult(data = list_dfs, groups = group_tab)
+
+    return result
+
+
+# In[ ]:
+
+
+GroupMapResult = namedtuple('GroupSplitResult', ['mapped', 'groups'])
+
+def group_map(
+        data: IntoFrameT,
+        *group_cols: Union[str, List[str], narwhals.Expr, narwhals.selectors.Selector], 
+        func: Callable[[IntoFrameT], Any], 
+        drop_na_groups: bool = True,
+        sort_groups: bool = True
+        ) -> Tuple[List[IntoFrameT], IntoFrameT]:
+    """
+    Apply a function to each group and return the results without combining them.
+
+    This function splits the input data frame into groups (using
+    `group_split()`), applies a function to each group, and returns the
+    mapped results along with the corresponding group information.
+
+    Unlike `group_modify()`, this function does not attempt to combine
+    the results into a single data frame. It is intended for cases where
+    maximum flexibility is desired.
+
+    This function is conceptually similar to `dplyr::group_map()`.
+
+    Args:
+        data (IntoFrameT):
+            Input DataFrame. Any DataFrame type supported by narwhals
+            (e.g. pandas, polars, pyarrow) can be used.
+        *group_cols (Union[str, List[str], narwhals.Expr, narwhals.Selector]):
+            Columns used to define groups. Each element may be:
+            - a column name (`str`)
+            - a list of column names
+            - a narwhals expression
+            - a narwhals selector
+        func (callable):
+            A function that takes a data frame as its argument.
+            The function is applied separately to each group.
+        drop_na_groups (bool, optional):
+            Whether to drop groups with missing values in the grouping columns.
+            Defaults to True.
+        sort_groups (bool, optional):
+            Whether to sort groups by the grouping columns before splitting.
+            Defaults to True.
+
+    Returns:
+        A NamedTuple with two fields:
+
+        - `mapped`: a list containing the result of applying `func`
+          to each group.
+        - `groups`: a data frame describing the grouping keys.
+
+        The i-th element of `mapped` corresponds to the i-th row of `groups`.
+
+    Examples:
+        >>> import py4stats as py4st
+        >>> from palmerpenguins import load_penguins
+        >>> penguins = load_penguins()
+
+        >>> res = py4st.group_map(penguins, "species", func=lambda df: df.shape[0])
+        >>> res.mapped
+        [152, 68, 124]
+        >>> res.groups
+    """
+    # 引数のアサーション =======================================================
+    _assert_selectors(*group_cols, arg_name = 'args')
+    build.assert_function(func, arg_name = 'func', len_arg = 1)
+    build.assert_logical(drop_na_groups, arg_name = 'drop_na_groups')
+    build.assert_logical(sort_groups, arg_name = 'sort_groups')
+    # ========================================================================
+    list_dfs, group_tab = group_split(
+        data, *group_cols, 
+        sort_groups = sort_groups,
+        drop_na_groups = drop_na_groups,
+        to_native = True,
+        )
+
+    mapped = [func(df) for df in list_dfs]
+
+    result = GroupMapResult(mapped = mapped, groups = group_tab)
+    return result
+
+
+# In[ ]:
+
+
+def group_modify(
+        data: IntoFrameT,
+        *group_cols: Union[str, List[str], narwhals.Expr, narwhals.selectors.Selector], 
+        func: Callable[[IntoFrameT], Any], 
+        drop_na_groups: bool = True,
+        sort_groups: bool = True,
+        to_native: bool = True
+        ) -> IntoFrameT:
+    """
+    Apply a function to each group and combine the results into a data frame.
+
+    This function splits the input data frame into groups, applies a function
+    to each group, and combines the results into a single data frame by
+    attaching the grouping variables.
+
+    The function supplied to `func` is always called with a *native*
+    data frame (e.g. pandas or polars), so existing analysis functions
+    can be reused without modification.
+
+    This function is conceptually similar to `dplyr::group_modify()`.
+
+    Args:
+        data:
+            A data-frame-like object supported by narwhals.
+        *group_cols:
+            Columns used to define groups.
+        *group_cols (Union[str, List[str], narwhals.Expr, narwhals.Selector]):
+            Columns used to define groups. Each element may be:
+            - a column name (`str`)
+            - a list of column names
+            - a narwhals expression
+            - a narwhals selector
+        func (callable):
+            A function that takes a data frame as its argument.
+            The function is applied separately to each group.
+        drop_na_groups (bool, optional):
+            Whether to drop groups with missing values in the grouping columns.
+            Defaults to True.
+        sort_groups (bool, optional):
+            Whether to sort groups by the grouping columns before splitting.
+            Defaults to True.
+        to_native (bool, optional):
+            If True, convert the result to the native DataFrame type of the
+            selected backend. If False, return a narwhals DataFrame.
+            Defaults to True.
+
+    Returns:
+        A data frame where the results of `func` are combined and
+        augmented with the grouping columns.
+
+    Examples:
+        >>> import py4stats as py4st
+        >>> from palmerpenguins import load_penguins
+        >>> penguins = load_penguins()
+
+        >>> result = group_modify(
+        ...     penguins, 'species', 'island',
+        ...     func = lambda df: df[['bill_length_mm']].mean()
+        ... )
+        >>> result.head()
+    """
+    # 引数のアサーション =======================================================
+    _assert_selectors(*group_cols, arg_name = 'args')
+    build.assert_function(func, arg_name = 'func', len_arg = 1)
+    build.assert_logical(drop_na_groups, arg_name = 'drop_na_groups')
+    build.assert_logical(sort_groups, arg_name = 'sort_groups')
+    build.assert_logical(to_native, arg_name = 'to_native')
+
+    # 実装メモ ================================================================
+    # <3> における結合処理の一貫性と、<2> で pd.DataFrame など native class の 
+    # DataFrame と同じメソッドが使えることを両立するために、<1> で `to_native = False`
+    # を指定し、<2> で `df.to_native()` を使っています。
+    # ========================================================================
+    impl = nw.from_native(data).implementation
+
+    list_dfs, group_tab = group_split(
+        data, *group_cols, 
+        sort_groups = sort_groups,
+        drop_na_groups = drop_na_groups,
+        to_native = False,                                   # <1>
+        ) # -> Tuple[List[nw.DataFrame], nw.DataFrame]
+
+    list_result1 = [func(df.to_native()) for df in list_dfs] # <2>
+
+    list_result2 = [
+        nw.from_native(v).with_columns(nw.lit(id).alias('_group_id')) 
+        if is_FrameT(v) 
+        else enframe(v, backend = impl, to_native = False)
+            .with_columns(nw.lit(id).alias('_group_id')) 
+        for v, id in zip(list_result1, group_tab['_group_id'])
+        ] # -> List[nw.DataFrame]
+
+    result = group_tab.join(                                  # <3>
+            nw.concat(list_result2),
+            on = '_group_id',
+            how = 'left'
+        ).drop('_group_id')
+
+    if to_native: return result.to_native()
     return result
 

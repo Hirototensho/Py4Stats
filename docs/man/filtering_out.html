@@ -228,6 +228,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../man/grouped_operation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">group_split, group_map, group_modify</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../man/compare_df_cols.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">compare_df_cols, compare_df_stats</span></a>
   </div>
 </li>
@@ -504,7 +509,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="引数-argument">引数 Argument</h2>
 <ul>
 <li><code>data</code>：<strong>IntoFrameT</strong>（必須）<br> 入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト<br> （例：<code>pandas.DataFrame</code>、<code>polars.DataFrame</code>、<code>pyarrow.Table</code>）を指定できます。</li>
-<li><code>*args</code>（<strong>str / list[str] / narwhals.Expr / narwhals.Selector</strong>）<br> 移動したい列を指定します。指定方法は次のとおりです。
+<li><code>*args</code>（<strong>str / list[str] / narwhals.Expr / narwhals.Selector</strong>）<br> データフレームから除外したい列を指定します。指定方法は次のとおりです。
 <ul>
 <li>列名（例：<code>"x"</code>）</li>
 <li>列名のリスト（例：<code>["x", "y"]</code>）</li>

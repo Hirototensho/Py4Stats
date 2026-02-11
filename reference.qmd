@@ -39,6 +39,11 @@
 
 [`py4stats.relocate()`](man/relocate.qmd)  
 
+#### データフレームのグループ化された処理
+
+[`py4stats.group_split()`](man/grouped_operation.qmd)
+[`py4stats.group_map()`](man/grouped_operation.qmd)
+[`py4stats.group_modify()`](man/grouped_operation.qmd)
 
 #### 複数のデータフレームの比較
 

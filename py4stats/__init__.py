@@ -53,6 +53,11 @@ from .eda_tools._nw import (
     plot_mean_diff,
     plot_median_diff,
     plot_miss_var,
+    scale,
+    set_miss,
+    relocate,
+    remove_constant,
+    remove_empty,
     review_wrangling,
     review_shape,
     review_col_addition,
@@ -60,11 +65,6 @@ from .eda_tools._nw import (
     review_missing,
     review_category,
     review_numeric,
-    scale,
-    set_miss,
-    relocate,
-    remove_constant,
-    remove_empty,
     tabyl,
     weighted_mean
 )
