@@ -503,7 +503,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>データ前処理（wrangling）による変更点を要約して、レビュー形式の文字列として出力する関数です。</p>
 <section id="概要" class="level2">
 <h2 class="anchored" data-anchor-id="概要">概要</h2>
-<p>この関数は、前処理の前後（before / after）の DataFrame（相当）を比較し、変更点をユーザーが読みやすいレビュー形式の文字列として返します。</p>
+<p>この関数は、前処理の前後（before / after）の DataFrame を比較し、変更点をユーザーが読みやすいレビュー形式の文字列として返します。</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>review_wrangling(</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    before: IntoFrameT, </span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    after: IntoFrameT, </span>
@@ -576,21 +576,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     addition:  None</span></span>
 <span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     removal:  'nan'</span></span>
 <span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ============================================================</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>先ほどのデータに、さらに前処理を加え、今度は一部の列や行を除外します。</p>
+<p>次に、先ほどのデータに、列の追加や削除、型変換、レコードの抽出といった前処理を加えてみましょう。</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>after <span class="op">=</span> py4st.filtering_out(after, <span class="st">'sex'</span>)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>s <span class="op">=</span> after[<span class="st">'body_mass_g'</span>]</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>after[<span class="st">'heavy'</span>] <span class="op">=</span> np.where(s <span class="op">&gt;=</span> s.quantile(<span class="fl">0.75</span>), <span class="va">True</span>, <span class="va">False</span>)</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>after[<span class="st">'species'</span>] <span class="op">=</span> pd.Categorical(after[<span class="st">'species'</span>])</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>after[<span class="st">'year'</span>] <span class="op">=</span> after[<span class="st">'year'</span>].astype(<span class="bu">float</span>)</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>after[<span class="st">'const'</span>] <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>after[<span class="st">'heavy'</span>] <span class="op">=</span> np.where(s <span class="op">&gt;=</span> s.quantile(<span class="fl">0.75</span>), <span class="va">True</span>, <span class="va">False</span>) <span class="co"># 列の追加 1</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>after[<span class="st">'const'</span>] <span class="op">=</span> <span class="dv">1</span>                                            <span class="co"># 列の追加 2</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>after[<span class="st">'species'</span>] <span class="op">=</span> pd.Categorical(after[<span class="st">'species'</span>])           <span class="co"># 列の型変換 1</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>after[<span class="st">'year'</span>] <span class="op">=</span> after[<span class="st">'year'</span>].astype(<span class="bu">float</span>)                   <span class="co"># 列の型変換 2</span></span>
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>after[<span class="st">'flipper_length_mm'</span>] <span class="op">=</span> py4st.set_miss(</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>after[<span class="st">'flipper_length_mm'</span>] <span class="op">=</span> py4st.set_miss(                  <span class="co"># 欠測値の挿入</span></span>
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    after[<span class="st">'flipper_length_mm'</span>], prop <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    random_state <span class="op">=</span> <span class="dv">1230</span></span>
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>after <span class="op">=</span> after.query(<span class="st">'species != "Adelie"'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>after <span class="op">=</span> after.query(<span class="st">'species != "Adelie"'</span>)                    <span class="co"># レコードの抽出</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><code>review_wrangling()</code> では、カテゴリー変数についてユニーク値の変化を追っているため、データの抽出による暗黙的なカテゴリーの除外（e.g.&nbsp;<code>species = 'Adelie'</code> を除外したことで <code>island = 'Torgersen'</code> が除外された）も報告することができます。</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(py4st.review_wrangling(before, after))</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ================== Review of wrangling ===================</span></span>
@@ -622,7 +622,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     addition:  None</span></span>
 <span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     removal:  'Torgersen'</span></span>
 <span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ==========================================================</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>データセットから除外された列が多い場合、レビューテキストの視認性を維持するために列名の一部が省略表記されます。</p>
+<p>なお、初期設定では、データセットから除外された列が多い場合、テキストの視認性を維持するために列名の一部が省略されます。</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>mroz <span class="op">=</span> wooldridge.data(<span class="st">'mroz'</span>)</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(py4st.review_wrangling(</span>
@@ -643,7 +643,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; No columns had categories added or removed.</span></span>
 <span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ======================================================================================</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>デフォトのレビューには含まれませんが、<code>items</code> に <code>'numeric'</code> を指定することで、数値変数について ASCII 文字列の箱ひげ図による分布の要約を出力できます。</p>
+<p>デフォトのレビューには含まれませんが、<code>items</code> に <code>'numeric'</code> を指定・追加することで、数値変数について ASCII 文字列の箱ひげ図による分布の要約を出力できます。</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(py4st.review_wrangling(before, after, items <span class="op">=</span> <span class="st">'numeric'</span>))</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; =================== Review of wrangling ====================</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Boxplot of Numeric values (for reference):</span></span>

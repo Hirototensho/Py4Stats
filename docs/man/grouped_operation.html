@@ -499,12 +499,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>データフレームのグループ化された処理</p>
 <section id="概要" class="level2">
 <h2 class="anchored" data-anchor-id="概要">概要</h2>
-<p>データフレームに対して、変数を基準としたグループへの分割・関数適用・結果の統合を行います。それぞれの関数の機能は次のとおりです。</p>
-<ul>
-<li><code>group_split()</code>: データフレームをグループごとのデータフレームのリストに分割します</li>
-<li><code>group_map()</code>: 各グループに関数を適用し、結果をリストとして返します</li>
-<li><code>group_modify()</code>: 各グループに関数を適用し、結果を1つのデータフレームに結合します</li>
-</ul>
+<p>データフレームに対して、変数を基準としたグループへの分割・関数適用・結果の統合を行います。</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>group_split(</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>      data: IntoFrameT,</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>      <span class="op">*</span>group_cols: Union[<span class="bu">str</span>, List[<span class="bu">str</span>], narwhals.Expr, narwhals.selectors.Selector], </span>
@@ -530,6 +525,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>      sort_groups: <span class="bu">bool</span> <span class="op">=</span> <span class="va">True</span>,</span>
 <span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>      to_native: <span class="bu">bool</span> <span class="op">=</span> <span class="va">True</span></span>
 <span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>      ) <span class="op">-&gt;</span> IntoFrameT</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>それぞれの関数の機能は次のとおりです。</p>
+<ul>
+<li><code>group_split()</code>: データフレームをグループごとのデータフレームのリストに分割します</li>
+<li><code>group_map()</code>: 各グループに関数を適用し、結果をリストとして返します</li>
+<li><code>group_modify()</code>: 各グループに関数を適用し、結果を1つのデータフレームに結合します</li>
+</ul>
 </section>
 <section id="引数-argument" class="level2">
 <h2 class="anchored" data-anchor-id="引数-argument">引数 Argument</h2>
@@ -542,7 +543,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>narwhals の式（<code>Expr</code>）（例：<code>nw.col("x")</code>）</li>
 <li>narwhals の <code>Selector</code> （例：<code>ncs.numeric()</code>）</li>
 </ul></li>
-<li><code>func</code>：<strong>callable</strong><br> データフレームを1つの引数として受け取る関数。各グループに対して個別に適用されます。<br> - <code>group_map()</code>: <code>func</code> には任意の Python オブジェクトを返す関数を指定できます。回帰モデルの結果オブジェクトやグラフなど、表形式に変換できないオブジェクトを返す用途にも適しています。 - <code>group_modify()</code>: <code>func</code> の戻り値はデータフレームに変換可能なオブジェクトである必要があります。 使用可能な戻り値の例は以下の通りです。 - データフレーム互換オブジェクト (<code>IntoFrameT</code>) - Series 互換オブジェクト (<code>IntoSeriesT</code>) - スカラー値（<code>int, float, bool, str</code>） - <code>None</code></li>
+<li><code>func</code>：<strong>callable</strong><br> データフレームを1つの引数として受け取る関数。各グループに対して個別に適用されます。<br>
+<ul>
+<li><code>group_map()</code>: <code>func</code> には任意の Python オブジェクトを返す関数を指定できます。回帰モデルの結果オブジェクトやグラフなど、表形式に変換できないオブジェクトを返す用途にも適しています。<br></li>
+<li><code>group_modify()</code>: <code>func</code> の戻り値はデータフレームに変換可能なオブジェクトである必要があります。使用可能な戻り値の例は以下の通りです。<br>
+<ul>
+<li>データフレーム互換オブジェクト (<code>IntoFrameT</code>)<br></li>
+<li>Series 互換オブジェクト (<code>IntoSeriesT</code>)<br></li>
+<li>スカラー値（<code>int, float, bool, str</code>）<br></li>
+<li><code>None</code><br></li>
+</ul></li>
+</ul></li>
 <li><code>keep</code>（<strong>bool</strong>, optional）<br> 分割後の各データフレームにグループ化変数を保持するかどうか。False を指定すると、グループ化変数は削除されます。デフォルトは True です。</li>
 <li><code>drop_na_groups</code>（<strong>bool</strong>, optional）<br> グループ化変数に欠損値を含むグループを除外するかどうか。デフォルトは True です。</li>
 <li><code>sort_group</code>（<strong>bool</strong>, optional）<br> グループをグループ化変数でソートしてから分割するかどうか。デフォルトは True です。</li>
@@ -553,7 +564,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <ul>
 <li><code>group_split()</code>: 次の2つのフィールドを持つ NamedTuple を返します。
 <ul>
-<li><code>data</code>: 各グループに対応するデータフレームのリストです</li>
+<li><code>data</code>: 各グループに対応するデータフレームのリスト。</li>
 <li><code>groups</code>: グループキー情報を保持するデータフレーム。</li>
 </ul></li>
 <li><code>group_map()</code>: 次の2つのフィールドを持つ NamedTuple を返します。
@@ -607,7 +618,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3  Chinstrap     body_mass_g  3700.00</span></span>
 <span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4     Gentoo  bill_length_mm    47.30</span></span>
 <span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5     Gentoo     body_mass_g  5000.00</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><code>group_modify()</code> と <a href="../man/point_range.html"><code>py4st.median_qi()</code></a> を次のように組み合わせることで、グループ別に適用することができます。</p>
+<p><code>group_modify()</code> と <a href="../man/point_range.html"><code>py4st.median_qi()</code></a> を組み合わせることで、グループ別に適用することができます。</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>penguins_pl <span class="op">=</span> pl.from_pandas(penguins)</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> py4st.group_modify(</span>
@@ -629,7 +640,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ Gentoo    ┆ female ┆ bill_length_mm ┆ 45.5   ┆ 41.85 ┆ 49.1  │</span></span>
 <span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ Gentoo    ┆ male   ┆ bill_length_mm ┆ 49.5   ┆ 45.1  ┆ 55.5  │</span></span>
 <span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; └───────────┴────────┴────────────────┴────────┴───────┴───────┘</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><code>group_map()</code> と <a href="../man/compare_ols.html"><code>py4st.compare_ols()</code></a> を組み合わせることで、次のように層別解析を実行することができます。</p>
+<p><code>group_map()</code> と <code>smf.ols()</code>、そして <a href="../man/compare_ols.html"><code>py4st.compare_ols()</code></a> を組み合わせることで、次のように回帰分析の層別解析を実行することができます。</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>fml <span class="op">=</span> <span class="st">'body_mass_g ~ bill_length_mm + bill_depth_mm + flipper_length_mm'</span></span>
