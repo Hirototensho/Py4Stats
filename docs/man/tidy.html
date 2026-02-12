@@ -559,9 +559,9 @@ window.Quarto = {
 <ul>
 <li><code>'coef'</code>：回帰係数の推定値を表示</li>
 <li><code>'dydx'</code>：限界効果の値を変換なしでそのまま表。（初期設定）</li>
-<li><code>'eyex'</code>：弾力性 d(lny)/d(lnx) の推定値を表示</li>
-<li><code>'dyex'</code>：準弾力性 dy /d(lnx) の推定値を表示</li>
-<li><code>'eydx'</code>：準弾力性 d(lny)/dx の推定値を表示</li>
+<li><code>'eyex'</code>：弾力性 d(ln y)/d(ln x) の推定値を表示</li>
+<li><code>'dyex'</code>：準弾力性 dy /d(ln x) の推定値を表示</li>
+<li><code>'eydx'</code>：準弾力性 d(ln y)/dx の推定値を表示</li>
 </ul></li>
 <li><p><code>dummy</code>：ダミー変数の限界効果の推定方法（<code>tidy_mfx()</code> のみ）。もし False （初期設定）であれば、ダミー変数を連続な数値変数として扱います。もし、True であればダミー変数が0から1へと変化したときの予測値の変化を推定します。内部で使用している<a href="https://www.statsmodels.org/devel/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html"><code>statsmodels.discrete.discrete_model.DiscreteResults.get_margeff()</code></a> メソッドに引数 <code>dummy</code> として渡されます。</p></li>
 </ul>

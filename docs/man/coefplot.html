@@ -541,9 +541,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <ul>
 <li><code>'coef'</code>：回帰係数の推定値を表示</li>
 <li><code>'dydx'</code>：限界効果の値を変換なしでそのまま表。（初期設定）</li>
-<li><code>'eyex'</code>：弾力性 d(lny)/d(lnx) の推定値を表示</li>
-<li><code>'dyex'</code>：準弾力性 dy /d(lnx) の推定値を表示</li>
-<li><code>'eydx'</code>：準弾力性 d(lny)/dx の推定値を表示</li>
+<li><code>'eyex'</code>：弾力性 d(ln y)/d(ln x) の推定値を表示</li>
+<li><code>'dyex'</code>：準弾力性 dy /d(ln x) の推定値を表示</li>
+<li><code>'eydx'</code>：準弾力性 d(ln y)/dx の推定値を表示</li>
 </ul></li>
 <li><p><code>dummy</code>：ダミー変数の限界効果の推定方法（<code>mfxplot()</code> のみ）。もし False （初期設定）であれば、ダミー変数を連続な数値変数として扱います。もし、True であればダミー変数が0から1へと変化したときの予測値の変化を推定します。内部で使用している<a href="https://www.statsmodels.org/devel/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html"><code>statsmodels.discrete.discrete_model.DiscreteResults.get_margeff()</code></a> メソッドに引数 <code>dummy</code> として渡されます。</p></li>
 </ul>
@@ -600,7 +600,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>py4st.mfxplot(fit_logit2, ax <span class="op">=</span> ax[<span class="dv">1</span>], palette <span class="op">=</span> [<span class="st">'#FF6F91'</span>, <span class="st">'#F2E5EB'</span>])</span>
 <span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_xlim(<span class="op">-</span><span class="fl">0.2</span>, <span class="fl">0.85</span>)<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><img src="image/coefplot3.png" class="img-fluid" alt="coefplot3"> *** <a href="../reference.html">Return to <strong>Function reference</strong>.</a></p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="image/coefplot3.png" class="img-fluid figure-img"></p>
+<figcaption>coefplot3</figcaption>
+</figure>
+</div>
+<hr>
+<p><a href="../reference.html">Return to <strong>Function reference</strong>.</a></p>
 
 
 </section>

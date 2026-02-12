@@ -553,7 +553,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="バックエンドの書き換え-非推奨" class="level3">
 <h3 class="anchored" data-anchor-id="バックエンドの書き換え-非推奨">バックエンドの書き換え (非推奨)</h3>
 <p>いま、<code>some_computation()</code> として実装された処理の一部が Pandas に依存しており、結果が <code>result_pd</code> という pd.DataFrame 型のオブジェクトとして得られているとします。このとき、<code>result_pd</code> をもとのデータフレーム <code>data_pl</code> と同型にする方法の1つとして、<code>result_pd</code> を <code>pd.Series.to_dict()</code> などを使って辞書のリスト（list of dict）に変換したのち、<code>nw.from_dicts()</code> を使って <code>data_pl</code> と同じバックエンドをもつ <code>nw.DataFrame</code> に変換するという方法があります。</p>
-<p>以上の変換の実例を見てみましょう。まずは、<code>data_pl</code></p>
+<p>以上の変換の実例を見てみましょう。</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>data_pl <span class="op">=</span> pl.from_pandas(load_penguins())[:<span class="dv">10</span>, :<span class="dv">2</span>]</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>data_pl <span class="op">=</span> data_pl.with_columns(</span>
@@ -619,8 +619,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </ol>
 <p>特に2番目の問題点については、集計処理によって列名が変わった場合には正しい schema(≒ {列名:dtype} の辞書オブジェクト)を用意することが難しくなります。そして、schema を指定できないと、<code>pd.Categorical</code>、<code>pl.Categorical</code> あるいは <code>pl.Enum</code> といったカテゴリー変数は文字列型に変換されてしまい、データ型の一貫性が失われます。</p>
 <p>カラムレベルで型の一貫性が失われると、返り値が入力値とは異なる型になるよりも把握しづらく、また挙動の予測が難しいため、上記のような処理は採用するとしても、<strong>他に方法がないときの最終手段</strong>として扱うべきでしょう。</p>
+<section id="追記2026年2月12日" class="level4">
+<h4 class="anchored" data-anchor-id="追記2026年2月12日">追記(2026年2月12日)</h4>
+<p><code>nw.DataFrame.to_dict()</code> メソッドと <code>nw.from_dict()</code> 関数を使った次の方法でも、データの型を維持しながらバックエンドを書き換えられることが分かりました。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>result_pd_nw <span class="op">=</span> nw.from_native(result_pd)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(result_pd_nw.implementation)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; pandas</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> nw.from_dict(result_pd_nw.to_dict(), backend <span class="op">=</span> <span class="st">'polars'</span>)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(result.implementation)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; polars</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>result.schema</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Schema([('species', Categorical), ('island', Categorical)])</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 
 
+</section>
 </section>
 </section>
 
