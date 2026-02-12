@@ -193,7 +193,7 @@
     "href": "man/freq_table.html",
     "title": "freq_table",
     "section": "",
-    "text": "概要\n1変数の度数分布表\nR言語のDescTools::Freq()をオマージュした、1変数の度数分布表を計算する関数。度数 freq と相対度数 perc に加えて、それぞれの累積値を計算します。",
+    "text": "概要\n1変数または多変数の度数分布表\nR言語のDescTools::Freq()をオマージュした、度数分布表を計算する関数です。度数 freq と相対度数 perc に加えて、それぞれの累積値を計算します。",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>6</span>  <span class='chapter-title'>freq_table</span>"
@@ -215,7 +215,7 @@
     "href": "man/freq_table.html#引数-argument",
     "title": "freq_table",
     "section": "引数 Argument",
-    "text": "引数 Argument\n\ndata：IntoFrameT（必須） 入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト （例：pandas.DataFrame、polars.DataFrame、pyarrow.Table）を指定できます。\nsubset：str or list of str 　集計に使用するデータフレームの列名（必須）。\nsort_by：str 　sort_by = 'frequency' なら度数分布表を頻度に応じてソートし、sort_by = 'values' なら subset で指定した列の値に応じてソートします。\ndescending：bool 　ソートの方式。True なら降順でソートし、False（初期設定）なら昇順でソートします。\ndropna：bool 　欠測値（NaN, None など）を集計から除外するかどうかを表すブール値。初期設定は False です。\nsort：Deprecated.. 　sort_by の使用を推奨しています。この引数は後方互換性のために保持されおり、指定された場合は FutureWarningが発生します。デフォルトは None です。\nto_native（bool, optional） True の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。 False の場合、narwhals.DataFrame を返します。デフォルトは True で、to_native = False は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。",
+    "text": "引数 Argument\n\ndata：IntoFrameT（必須） 入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト （例：pandas.DataFrame、polars.DataFrame、pyarrow.Table）を指定できます。\nsubset：str or list of str 　集計に使用するデータフレームの列名（必須）。\nsort_by：str 　sort_by = 'frequency' なら度数分布表を頻度に応じてソートし、sort_by = 'values' なら subset で指定した列の値に応じてソートします。\ndescending：bool 　ソートの方式。True なら降順でソートし、False（初期設定）なら昇順でソートします。\ndropna：bool 　欠測値（NaN, None など）を集計から除外するかどうかを表すブール値。初期設定は False です。\nto_native（bool, optional） True の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。 False の場合、narwhals.DataFrame を返します。デフォルトは True で、to_native = False は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。\n\n - sort：Deprecated.. 　現在は sort_by の使用を推奨しています。この引数は後方互換性のために保持されおり、指定された場合は FutureWarningが発生します。デフォルトは None です。",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>6</span>  <span class='chapter-title'>freq_table</span>"
@@ -226,7 +226,7 @@
     "href": "man/freq_table.html#返り値-value",
     "title": "freq_table",
     "section": "返り値 Value",
-    "text": "返り値 Value\n　freq_table()関数は、次の値をもつ DataFrame を出力します。\n\nfreq: 度数\nperc: 相対度数\ncumfreq: 累積度数\ncumperc: 累積相対度数",
+    "text": "返り値 Value\nfreq_table()関数は、次の値をもつ DataFrame を出力します。\n\nfreq: 度数\nperc: 相対度数\ncumfreq: 累積度数\ncumperc: 累積相対度数",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>6</span>  <span class='chapter-title'>freq_table</span>"
@@ -259,7 +259,7 @@
     "href": "man/Pareto_plot.html#概要",
     "title": "Pareto_plot",
     "section": "",
-    "text": "Pareto_plot(\n    data: IntoFrameT,\n    group: str,\n    values: Optional[str] = None,\n    top_n: Optional[int] = None,\n    aggfunc: Callable[..., Any] = np.mean,\n    ax: Optional[Axes] = None,\n    fontsize: int = 12,\n    xlab_rotation: Union[int, float] = 0,\n    palette: Sequence[str] = (\"#478FCE\", \"#252525\"),\n    )\n\ndata：IntoFrameT（必須） 入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト （例：pandas.DataFrame、polars.DataFrame、pyarrow.Table）を指定できます。\ngroup：str 　集計に使用するデータフレームの列名（必須）。\nvalues：str 　集計に使用するデータフレームの列名。values = None（初期設定）の場合、group 別の度数が表示され、values が指定された場合、group 別に values を aggfuncで集計した値がグラフに表示されます。\ntop_n：int 　棒グラフを表示するカテゴリーの件数。top_n = None（初期設定）の場合、すべてのカテゴリーを表示し、整数値が指定された場合、上位 top_n 件が表示されます。\naggfunc：callable values が指定された際に、集計に使用する集計関数。np.mean など values 列を1次元配列として受け取って単一の数値を返す任意の関数が使用できるほか、nw.mean など narwhals.functions モジュールで実装された関数を使用できます。\nax 描画先となる matplotlib の Axes。複数のグラフを並べる場合などに使用します。デフォルトの None の場合は、新しい Figure と Axes が作成されます。\nfontsize：int 　軸ラベルなどのフォントサイズ。\nxlab_rotation：int or float 横軸ラベルの角度。matplotlib の ax.xaxis.set_tick_params() に引数 rotation として渡されます。\npalette：list of str グラフの描画に使用する色コード。1つ目の要素が棒グラフの色に、2つ目の累積値を表す折線グラフの色に対応します。",
+    "text": "Pareto_plot(\n    data: IntoFrameT,\n    group: str,\n    values: Optional[str] = None,\n    top_n: Optional[int] = None,\n    aggfunc: Callable[[IntoSeriesT], Union[int, float]] = np.mean,\n    ax: Optional[Axes] = None,\n    fontsize: int = 12,\n    xlab_rotation: Union[int, float] = 0,\n    palette: Sequence[str] = (\"#478FCE\", \"#252525\"),\n    )\n\ndata：IntoFrameT（必須） 入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト （例：pandas.DataFrame、polars.DataFrame、pyarrow.Table）を指定できます。\ngroup：str 　集計に使用するデータフレームの列名（必須）。\nvalues：str 　集計に使用するデータフレームの列名。values = None（初期設定）の場合、group 別の度数が表示され、values が指定された場合、group 別に values を aggfuncで集計した値がグラフに表示されます。\ntop_n：int 　棒グラフを表示するカテゴリーの件数。top_n = None（初期設定）の場合、すべてのカテゴリーを表示し、整数値が指定された場合、上位 top_n 件が表示されます。\naggfunc：callable values が指定された際に、集計に使用する集計関数。np.mean など values 列を1次元配列として受け取って単一の数値を返す任意の関数が使用できるほか、nw.mean など narwhals.functions モジュールで実装された関数を使用できます。\nax 描画先となる matplotlib の Axes。複数のグラフを並べる場合などに使用します。デフォルトの None の場合は、新しい Figure と Axes が作成されます。\nfontsize：int 　軸ラベルなどのフォントサイズ。\nxlab_rotation：int or float 横軸ラベルの角度。matplotlib の ax.xaxis.set_tick_params() に引数 rotation として渡されます。\npalette：list of str グラフの描画に使用する色コード。1つ目の要素が棒グラフの色に、2つ目の累積値を表す折線グラフの色に対応します。",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>7</span>  <span class='chapter-title'>Pareto_plot</span>"

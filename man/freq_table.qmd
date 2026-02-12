@@ -2,11 +2,11 @@
 
 [![](https://img.shields.io/badge/Tested-Pandas_/_Polars_/_Pyarrow-blue){fig-align="left" fig-alt="badge of tested backend"}](../articles/eda_tools_development_status.qmd)
 
-1変数の度数分布表
+1変数または多変数の度数分布表
 
 ## 概要
 
-R言語の[`DescTools::Freq()`](https://cran.r-project.org/web/packages/DescTools/DescTools.pdf)をオマージュした、1変数の度数分布表を計算する関数。度数 `freq` と相対度数 `perc` に加えて、それぞれの累積値を計算します。
+R言語の[`DescTools::Freq()`](https://cran.r-project.org/web/packages/DescTools/DescTools.pdf)をオマージュした、度数分布表を計算する関数です。度数 `freq` と相対度数 `perc` に加えて、それぞれの累積値を計算します。
 
 ``` python
 freq_table(
@@ -34,15 +34,19 @@ freq_table(
 　ソートの方式。True なら降順でソートし、False（初期設定）なら昇順でソートします。
 - `dropna`：**bool**</br>
 　欠測値（NaN, None など）を集計から除外するかどうかを表すブール値。初期設定は False です。
-- `sort`：**Deprecated.**.</br>
-　`sort_by` の使用を推奨しています。この引数は後方互換性のために保持されおり、指定された場合は `FutureWarning`が発生します。デフォルトは `None` です。
 - `to_native`（**bool**, optional）<br>
   `True` の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。<br>
   `False` の場合、`narwhals.DataFrame` を返します。デフォルトは `True` で、`to_native = False` は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。
 
+![](https://img.shields.io/badge/lifecycle-deprecated-orange){fig-align="left" fig-alt="badge of lifecycle deprecated"}</br>
+- `sort`：**Deprecated.**.</br>
+　現在は `sort_by` の使用を推奨しています。この引数は後方互換性のために保持されおり、指定された場合は `FutureWarning`が発生します。デフォルトは `None` です。
+
+
+
 ## 返り値 Value
 
-　`freq_table()`関数は、次の値をもつ `DataFrame` を出力します。
+`freq_table()`関数は、次の値をもつ `DataFrame` を出力します。
 
 - `freq`: 度数
 - `perc`: 相対度数

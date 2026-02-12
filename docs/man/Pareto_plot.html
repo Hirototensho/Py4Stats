@@ -504,7 +504,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    group: <span class="bu">str</span>,</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    values: Optional[<span class="bu">str</span>] <span class="op">=</span> <span class="va">None</span>,</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    top_n: Optional[<span class="bu">int</span>] <span class="op">=</span> <span class="va">None</span>,</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    aggfunc: Callable[..., Any] <span class="op">=</span> np.mean,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    aggfunc: Callable[[IntoSeriesT], Union[<span class="bu">int</span>, <span class="bu">float</span>]] <span class="op">=</span> np.mean,</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    ax: Optional[Axes] <span class="op">=</span> <span class="va">None</span>,</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    fontsize: <span class="bu">int</span> <span class="op">=</span> <span class="dv">12</span>,</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    xlab_rotation: Union[<span class="bu">int</span>, <span class="bu">float</span>] <span class="op">=</span> <span class="dv">0</span>,</span>
