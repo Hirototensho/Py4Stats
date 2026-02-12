@@ -255,6 +255,8 @@ import warnings
 import math
 from wcwidth import wcswidth
 
+from collections import namedtuple
+
 
 # In[ ]:
 
@@ -540,17 +542,6 @@ def plot_miss_var(
 # In[ ]:
 
 
-def is_FrameT(obj: object) -> bool:
-    try:
-        _ = nw.from_native(obj)
-        return True
-    except Exception:
-        return False
-
-
-# In[ ]:
-
-
 def _join_comparsion(result_list, on):
     redundant_col = f"{on}_right"
     result = reduce(
@@ -562,7 +553,7 @@ def _join_comparsion(result_list, on):
                 )), result_list
                 )
     result = filtering_out(
-            result, starts_with = redundant_col, 
+            result, redundant_col, 
             to_native = False
         )
     return result
@@ -642,9 +633,6 @@ def compare_df_cols(
 
     # 引数のアサーション ----------------------
     _ = as_nw_datarame(df_list)
-    # assert isinstance(df_list, list) & \
-    #     all([is_FrameT(v) for v in df_list]), \
-    #     "argument 'df_list' is must be a list of DataFrame."
 
     return_match = build.arg_match(
         return_match, values = ['all', 'match', 'mismatch'],
@@ -798,10 +786,6 @@ def compare_df_stats(
         else:
             df_name = [f'df{i + 1}' for i in range(len(df_list))]
     # 引数のアサーション ==========================================
-    # assert isinstance(df_list, list) & \
-    #         all([is_FrameT(v) for v in df_list]), \
-    #         "argument 'df_list' is must be a list of DataFrame."
-
     return_match = build.arg_match(
         return_match, arg_name = 'return_match',
         values = ['all', 'match', 'mismatch']
@@ -2282,12 +2266,200 @@ def diagnose_category(data: IntoFrameT, dropna: bool = True, to_native: bool = T
     return result
 
 
+# ### info_gain: 情報理論の指標に基づいたカテゴリー変数間の相関分析（実験的実装）
+
+# In[ ]:
+
+
+def binning_for_ig(data, col, max_unique:int = 20, n_bins: Optional[int] = None):
+    data_nw = as_nw_datarame(data)
+    n = data_nw.shape[0]
+
+    x = data_nw[col]
+    if x.n_unique() >= max_unique:
+        # n_bins が未指定なら、スタージェスの公式で計算
+        if n_bins is None: n_bins = min(int(np.log2(1 + n)), max_unique)
+
+        bined = pd.qcut(x, q = n_bins, labels = False)
+
+        bined = nw.Series.from_iterable(
+            col, values = bined, 
+            backend = data_nw.implementation
+            )
+
+        data_nw = data_nw.with_columns(bined.alias(col))
+    return data_nw
+
+
+# In[ ]:
+
+
+from collections import namedtuple
+IGResult = namedtuple('IGResult', ['H_before', 'H_after', 'info_gain', 'ig_ratio'])
+
+def ig_compute(
+        data, target: str, 
+        feature: str, 
+        use_bining: bool = True,
+        max_unique: int = 20,
+        n_bins: Optional[int] = None
+        ):
+    data_nw = as_nw_datarame(data)
+
+    H_before = entropy(data[target])
+
+    if build.is_numeric(data_nw[feature]) and use_bining:
+        data_nw = binning_for_ig(
+            data_nw, feature, 
+            max_unique = max_unique, n_bins = n_bins
+            )
+
+    splited = group_split(
+        data_nw, feature,
+        drop_na_groups = True
+        )
+    count = [df.shape[0] for df in splited.data]
+    ent = [
+        entropy(df[target], dropna = True) 
+        for df in splited.data
+        ]
+
+    ent = nw.Series.from_iterable(
+        'ent', ent, backend = data_nw.implementation
+        )
+
+    count = nw.Series.from_iterable(
+        'count', count, backend = data_nw.implementation
+        )
+
+    H_after = weighted_mean(ent, count)
+    info_gain = np.max([H_before - H_after, 0])
+    ig_ratio = info_gain / H_before if H_before > 0 else np.nan
+
+    return IGResult(H_before, H_after, info_gain, ig_ratio)
+
+
+# In[ ]:
+
+
+def info_gain(
+        data: IntoFrameT, 
+        target: Union[List[str], str],
+        features: Optional[Union[List[str]]] = None,
+        use_bining: bool = True,
+        n_bins: Optional[int] = None,
+        max_unique: int = 20,
+        to_native: bool = True,
+        ):
+    """
+    Compute information gain for multiple target-feature pairs.
+
+    This function evaluates the information gain (mutual information)
+    and its normalized form (uncertainty coefficient) for all
+    combinations of specified target and feature variables.
+
+    It is designed for exploratory screening in settings such as
+    questionnaire analysis, where multiple target variables (e.g.,
+    survey questions) are compared against one or more attributes
+    (e.g., demographic variables).
+
+    Args:
+        data (IntoFrameT):
+            Input DataFrame. Any DataFrame type supported by narwhals
+            (e.g. pandas, polars, pyarrow) can be used.
+        target (Union[List[str], str]):
+            One or more categorical target variable names.
+        features (Optional[Union[List[str]]], optional):
+            Feature variable names. If None, all columns except targets
+            are used as features. Defaults to None.
+        use_bining (bool, optional):
+            Whether to discretize numeric features before computing
+            information gain. Defaults to True.
+        max_unique (int, optional):
+            Threshold for triggering discretization of numeric features
+            and upper bound for the number of bins. Defaults to 20.
+        n_bins (Optional[int], optional):
+            Number of bins for discretization. If None, the number of bins
+            is determined automatically. Defaults to None.
+        to_native (bool, optional):
+            If True, convert the result to the native DataFrame type of
+            the backend. If False, return a narwhals DataFrame.
+            Defaults to True.
+
+    Returns:
+        IntoFrameT:
+            A DataFrame with one row per target–feature pair containing:
+
+            - target (str):
+                Target variable name.
+            - features (str):
+                Feature variable name.
+            - H_before (float):
+                Entropy of the target variable.
+            - H_after (float):
+                Conditional entropy given the feature.
+            - info_gain (float):
+                Information gain (mutual information).
+            - ig_ratio (float):
+                Normalized information gain (uncertainty coefficient).
+
+    Notes:
+        - Information gain is equivalent to mutual information.
+        - The normalized information gain (IG ratio) corresponds to
+          the uncertainty coefficient (Theil's U).
+        - The IG ratio allows comparison across different target
+          variables by expressing explained uncertainty as a proportion.
+        - Numeric features may be discretized prior to computation.
+    """
+    # 引数のアサーション ====================================================
+    build.assert_character(target, arg_name = 'target')
+    build.assert_character(features, arg_name = 'features', nullable = True)
+    build.assert_logical(use_bining, arg_name = 'use_bining', len_arg = 1)
+    build.assert_count(max_unique, arg_name = 'max_unique', len_arg = 1)
+    build.assert_count(n_bins, arg_name = 'n_bins', len_arg = 1, nullable = True)
+    build.assert_logical(to_native, arg_name = 'to_native', len_arg = 1)
+    # ====================================================================
+    data_nw = as_nw_datarame(data)
+    if isinstance(target, str): target = [target]
+    if features is None: features = data_nw.columns
+    elif isinstance(features, str): features = [features]
+
+    features = build.list_diff(features, target)
+
+    colpair = list(itertools.product(target, features))
+
+    result_dicts = []
+
+    for cols in colpair:
+        res = ig_compute(
+            data_nw, cols[0], cols[1], 
+            use_bining = use_bining,
+            max_unique = max_unique,
+            n_bins = n_bins
+            )
+        result_dicts += [{
+            'target':cols[0],
+            'features':cols[1],
+            'H_before': res.H_before,
+            'H_after': res.H_after,
+            'info_gain': res.info_gain,
+            'ig_ratio': res.ig_ratio
+            }]
+
+    result = nw.from_dicts(
+        result_dicts,
+        backend = data_nw.implementation
+    )
+    if to_native: return result.to_native()
+    return result
+
+
 # ## その他の補助関数
 
 # In[ ]:
 
 
-def weighted_mean(x: IntoSeriesT, w: IntoSeriesT, dropna:bool = False) -> float:
+def weighted_mean(x: IntoSeriesT, w: IntoSeriesT, dropna: bool = False) -> float:
   """Compute the weighted mean of a numeric series.
 
   This function computes the weighted mean of a numeric vector `x`
@@ -2821,7 +2993,7 @@ def Pareto_plot(
     group: str,
     values: Optional[str] = None,
     top_n: Optional[int] = None,
-    aggfunc: Callable[..., Any] = np.mean,
+    aggfunc: Callable[[IntoSeriesT], Union[int, float]] = np.mean,
     ax: Optional[Axes] = None,
     fontsize: int = 12,
     xlab_rotation: Union[int, float] = 0,
@@ -2912,10 +3084,10 @@ def Pareto_plot(
 
 
 def make_rank_table(
-    data: pd.DataFrame,
+    data: IntoSeriesT,
     group: str,
     values: str,
-    aggfunc: Callable[..., Any] = np.mean,
+    aggfunc: Callable[[IntoSeriesT], Union[int, float]] = np.mean,
     to_native: bool = True,
 ) -> pd.DataFrame:
     data_nw = as_nw_datarame(data)
@@ -2932,25 +3104,15 @@ def make_rank_table(
         stat_table = data_nw.group_by(group)\
                 .agg(aggfunc(values))
     else:
-        group_value = data_nw[group].unique()
-
-        # stat_values = [
-        #     aggfunc(data_nw.filter(nw.col(group) == g)[values].drop_nulls().to_native()) 
-        #     for g in group_value
-        #     ]
-        stat_values = [
-            aggfunc(
-                data_nw.filter(nw.col(group) == g)[values]
-                .drop_nulls().to_native()
-                ) 
-            for g in group_value
-            ]
-
+        stat = group_map(
+            data_nw, group,
+            func = lambda df: aggfunc(df[values]),
+        )
         stat_table = nw.from_dict({
-            group:group_value, values:stat_values
-            }, backend = data_nw.implementation
-            )
-
+                group: stat.groups[group], 
+                values: stat.mapped
+                }, backend = data_nw.implementation
+             )
     rank_table = stat_table.sort(values, descending = True)\
             .with_columns(share = nw.col(values) / nw.col(values).sum())\
             .with_columns(cumshare = nw.col('share').cum_sum())
@@ -5254,7 +5416,6 @@ def review_wrangling(
 # In[ ]:
 
 
-from collections import namedtuple
 GroupSplitResult = namedtuple('GroupSplitResult', ['data', 'groups'])
 
 def group_split(

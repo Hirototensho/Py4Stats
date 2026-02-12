@@ -1231,7 +1231,7 @@ def test_review_numeric(backend):
 @pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
 def test_group_split(backend):
     res = eda_nw.group_split(penguins_dict.get(backend), "species", "island")
-    assert all([eda_nw.is_FrameT(df) for df in res.data])
+    assert all([eda_nw.is_intoframe(df) for df in res.data])
     assert sum([df.shape[0] for df in res.data]) == 344
 
 @pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])

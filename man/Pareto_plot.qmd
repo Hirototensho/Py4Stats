@@ -14,7 +14,7 @@ Pareto_plot(
     group: str,
     values: Optional[str] = None,
     top_n: Optional[int] = None,
-    aggfunc: Callable[..., Any] = np.mean,
+    aggfunc: Callable[[IntoSeriesT], Union[int, float]] = np.mean,
     ax: Optional[Axes] = None,
     fontsize: int = 12,
     xlab_rotation: Union[int, float] = 0,
