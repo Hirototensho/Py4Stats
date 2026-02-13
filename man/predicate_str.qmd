@@ -39,7 +39,7 @@ is_ymd_like(
   （例：`pandas.Series`、`polars.DataFrame`、`pyarrow.Table`）を指定できます。
 - `na_default`：**bool**</br>
  　NA値に対して関数が返す値。`na_default = True` （初期設定）であれば `None` や  `NaN` には True を返し、`na_default = False` であれば  False が返します。
-- `to_native`（**bool**, optional）<br>
+- `to_native`: **bool**<br>
   `True` の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。<br>
   `False` の場合、`narwhals.DataFrame` を返します。デフォルトは `True` で、`to_native = False` は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。
 

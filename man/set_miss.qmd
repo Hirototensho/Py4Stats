@@ -40,7 +40,7 @@ set_miss(
     `method` が `'random'` 以外の場合、`random_state` は無視されます。
 - `na_value`: (**Any**)<br>
     欠測値として使用する値。デフォルトは `None` です。
-- `to_native`（**bool**, optional）<br>
+- `to_native`: **bool**<br>
   `True` の場合、入力と同じ型の Series（e.g. pandas / polars / pyarrow）を返します。<br>
   `False` の場合、`narwhals.Series` を返します。デフォルトは `True` で、`to_native = False` は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。
 

@@ -1,0 +1,120 @@
+# bind_rows
+
+![](https://img.shields.io/badge/lifecycle-experimental-orange){fig-align="left" fig-alt="badge of lifecycle experimental"}
+[![](https://img.shields.io/badge/Tested-Pandas_/_Polars_/_Pyarrow-blue){fig-align="left" fig-alt="badge of tested backend"}](../articles/eda_tools_development_status.qmd)
+
+複数のデータフレームを行方向に結合（縦方向に連結）し、必要に応じて出所情報を付与します。
+
+## 概要
+
+この関数はデータフレームを縦方向（行単位）に連結します。必要に応じて、各行がどの入力データフレームに由来するかを示す識別子列を追加できます。これは [`dplyr::bind_rows()`](https://dplyr.tidyverse.org/reference/bind_rows.html) の `.id` 引数と同様の動作です。
+
+``` python
+bind_rows(
+      *args: Union[IntoFrameT, List[IntoFrameT], Mapping[str, IntoFrameT]], 
+      names: Optional[Sequence[Union[str, int, float, bool]]] = None,
+      id: str = 'id', to_native: bool = True,
+      **keywargs
+  )
+```
+
+## 引数 Argument
+
+- `*args`:**IntoFrameT / list[IntoFrameT] / dict[IntoFrameT]**（必須）<br>
+    以下のいずれかの形式で結合するデータフレームを指定します：
+    - 1つ以上のデータフレーム
+    - データフレームのリスト／タプル
+    - 値がデータフレームである辞書
+    各データフレームには narwhals が受け入れ可能な DataFrame 互換オブジェクト<br>
+  （例：`pandas.DataFrame`、`polars.DataFrame`、`pyarrow.Table`）を指定できます。
+
+- `names`: (**list of str or int or float or bool**)<br>
+    各入力データフレームに対応する識別子のリスト。`*args` がデータフレーム、またはデータフレームのリスト／タプル
+    の場合にのみ有効です。省略（`None`）された場合、識別子は `range(n)` になります。<br>
+    `names` が `None` でない場合、以下を満たす必要があります：<br>
+    - すべての要素が同一の型であること<br>
+    - 要素の型が `str`, `int`, `float`, `bool` のいずれかであること<br>
+    - 長さが入力データフレームの数と一致すること<br>
+
+    `*args` に辞書が指定された場合は、辞書のキーが使用されます。
+
+- `id` (**str**, optional):
+        追加する識別子列の名前。`None` の場合、識別子列は作成されません。
+
+- `to_native`: **bool**<br>
+  `True` の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。<br>
+  `False` の場合、`narwhals.DataFrame` を返します。デフォルトは `True` で、`to_native = False` は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。
+
+### 返り値 Value
+
+- **IntoFrameT**<br>
+  行方向に結合されたたデータフレームを返します。
+
+## 使用例 Example
+
+``` python
+import py4stats as py4st
+import polars as pl
+
+table1 = pl.DataFrame({'x':[1, 2], 'y':[2, 6], 'z':['a', 'c']})
+table2 = pl.DataFrame({'x':[4], 'y':[3], 'z':['b']})
+
+print(bind_rows(table1, table2))
+#> shape: (3, 4)
+#> ┌─────┬─────┬─────┬─────┐
+#> │ id  ┆ x   ┆ y   ┆ z   │
+#> │ --- ┆ --- ┆ --- ┆ --- │
+#> │ i32 ┆ i64 ┆ i64 ┆ str │
+#> ╞═════╪═════╪═════╪═════╡
+#> │ 0   ┆ 1   ┆ 2   ┆ a   │
+#> │ 0   ┆ 2   ┆ 6   ┆ c   │
+#> │ 1   ┆ 4   ┆ 3   ┆ b   │
+#> └─────┴─────┴─────┴─────┘
+
+print(bind_rows(
+    [table1, table2], 
+    names = ['table1', 'table2'], 
+    id = 'source'
+    ))
+#> shape: (3, 4)
+#> ┌────────┬─────┬─────┬─────┐
+#> │ source ┆ x   ┆ y   ┆ z   │
+#> │ ---    ┆ --- ┆ --- ┆ --- │
+#> │ str    ┆ i64 ┆ i64 ┆ str │
+#> ╞════════╪═════╪═════╪═════╡
+#> │ table1 ┆ 1   ┆ 2   ┆ a   │
+#> │ table1 ┆ 2   ┆ 6   ┆ c   │
+#> │ table2 ┆ 4   ┆ 3   ┆ b   │
+#> └────────┴─────┴─────┴─────┘
+
+dict_table = {'table1': table1, 'table2': table2}
+print(bind_rows(dict_table))
+#> shape: (3, 4)
+#> ┌────────┬─────┬─────┬─────┐
+#> │ id     ┆ x   ┆ y   ┆ z   │
+#> │ ---    ┆ --- ┆ --- ┆ --- │
+#> │ str    ┆ i64 ┆ i64 ┆ str │
+#> ╞════════╪═════╪═════╪═════╡
+#> │ table1 ┆ 1   ┆ 2   ┆ a   │
+#> │ table1 ┆ 2   ┆ 6   ┆ c   │
+#> │ table2 ┆ 4   ┆ 3   ┆ b   │
+#> └────────┴─────┴─────┴─────┘
+```
+
+
+``` python
+print(bind_rows(table1, table2, id = None))
+#> shape: (3, 3)
+#> ┌─────┬─────┬─────┐
+#> │ x   ┆ y   ┆ z   │
+#> │ --- ┆ --- ┆ --- │
+#> │ i64 ┆ i64 ┆ str │
+#> ╞═════╪═════╪═════╡
+#> │ 1   ┆ 2   ┆ a   │
+#> │ 2   ┆ 6   ┆ c   │
+#> │ 4   ┆ 3   ┆ b   │
+#> └─────┴─────┴─────┘
+```
+
+***
+[Return to **Function reference**.](../reference.qmd)

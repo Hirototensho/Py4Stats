@@ -44,7 +44,7 @@ remove_constant(
 　削除した列（行）を報告するかどうかを表すブール値。`quiet = True`（初期設定） であれば何も報告せずに削除だけ行い、`quiet = False` なら、削除した列（行）の数と列名（行名）を報告します。
 - `dropna`：**bool**</br>
 　ユニーク値の数を計算する際に、`NaN` を除外するかどうかを表すブール値（`remove_constant()` のみ）。`dropna = True` だと `NaN` を除外し、`dropna = False`（初期設定）だと `NaN` を除外しません。データフレームに `NaN` と、 `NaN` ではない1種類の値からなる列がある場合、`dropna = False` だと削除されず、`dropna = True` だと削除されます。
-- `to_native`（**bool**, optional）<br>
+- `to_native`: **bool**<br>
   `True` の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。<br>
   `False` の場合、`narwhals.DataFrame` を返します。デフォルトは `True` で、`to_native = False` は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。
 
