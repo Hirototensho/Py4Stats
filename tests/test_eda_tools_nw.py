@@ -19,6 +19,7 @@ from py4stats import building_block as build # py4stats のプログラミング
 from typing import (Literal)
 
 import pathlib
+from itertools import product
 tests_path = pathlib.Path(__file__).parent
 
 # サンプルデータの読み込み --------------------------------
@@ -64,6 +65,8 @@ gentoo_dict = {
     'pl':gentoo_pl,
     'pa':gentoo_pa
 }
+
+list_backend = ['pd', 'pl', 'pa']
 
 # =========================================================
 # テスト用関数の定義
@@ -159,7 +162,7 @@ def _assert_df_eq(
 # diagnose
 # =========================================================
 
-@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
+@pytest.mark.parametrize("backend", list_backend)
 def test_diagnose(backend) -> None:
     path = f'{tests_path}/fixtures/diagnose_{backend}.csv'
     
@@ -174,7 +177,8 @@ def test_diagnose(backend) -> None:
 # freq_tabl/ crosstab
 # =========================================================
 
-@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
+@pytest.mark.parametrize("backend", list_backend)
+
 def test_freq_table(backend) -> None:
     path = f'{tests_path}/fixtures/freq_table_{backend}.csv'
     
@@ -298,7 +302,7 @@ def test_tabyl_with_boolen_col_pd():
 # =========================================================
 # compare_df_cols
 # =========================================================
-@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
+@pytest.mark.parametrize("backend", list_backend)
 def test_compare_df_cols(backend):
 
     output_df = eda_nw.compare_df_cols(
@@ -480,7 +484,7 @@ def test_filtering_out_columns_pa() -> None:
     out = eda_nw.filtering_out(df, contains="foo", axis="columns")
     assert list(out.to_pandas().columns) == ["bar"]
 
-@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
+@pytest.mark.parametrize("backend", list_backend)
 def test_filtering_out_cols(backend) -> None:
     path = f'{tests_path}/fixtures/filtering_out_{backend}.csv'
 
@@ -498,7 +502,7 @@ def test_filtering_out_cols(backend) -> None:
 # is_dummy_nw (Series/DataFrame)
 # =========================================================
 
-@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
+@pytest.mark.parametrize("backend", list_backend)
 def test_is_dummy_series(backend) -> None:
     assert eda_nw.is_dummy(mroz_dict.get(backend)['inlf']) 
 
@@ -509,7 +513,7 @@ def test_is_dummy_series(backend) -> None:
         cording = [0, 1, 2, 3]
     )
 
-@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
+@pytest.mark.parametrize("backend", list_backend)
 def test_is_dummy_nw_dataframe(backend) -> None:
     result = eda_nw.is_dummy(mroz_dict.get(backend), to_native = False)
 
@@ -618,7 +622,7 @@ def test_Pareto_plot_pa() -> None:
 # ================================================================
 # compare_group_means / compare_group_median
 # ================================================================
-@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
+@pytest.mark.parametrize("backend", list_backend)
 
 def test_compare_group_means(backend) -> None:
     path = f'{tests_path}/fixtures/compare_group_means_{backend}.csv'
@@ -634,7 +638,7 @@ def test_compare_group_means(backend) -> None:
             update_fixture = False
         )
 
-@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
+@pytest.mark.parametrize("backend", list_backend)
 def test_compare_group_median(backend) -> None:
     path = f'{tests_path}/fixtures/compare_group_median_{backend}.csv'
 
@@ -696,7 +700,7 @@ def test_plot_median_diff(backend, stats_diff) -> None:
 # mean_qi / median_qi / mean_ci (DataFrame)
 # ================================================================
 
-@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
+@pytest.mark.parametrize("backend", list_backend)
 
 def test_mean_qi(backend) -> None:
     
@@ -706,10 +710,10 @@ def test_mean_qi(backend) -> None:
     
     _assert_df_eq(
             output_df, path_fixture = path, 
-            update_fixture = True
+            update_fixture = False
         )
 
-@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
+@pytest.mark.parametrize("backend", list_backend)
 def test_median_qi(backend) -> None:
     
     path = f'{tests_path}/fixtures/median_qi_{backend}.csv'
@@ -718,10 +722,10 @@ def test_median_qi(backend) -> None:
     
     _assert_df_eq(
             output_df, path_fixture = path, 
-            update_fixture = True
+            update_fixture = False
         )
 
-@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
+@pytest.mark.parametrize("backend", list_backend)
 def test_mean_ci(backend) -> None:
     
     path = f'{tests_path}/fixtures/mean_ci_{backend}.csv'
@@ -730,14 +734,14 @@ def test_mean_ci(backend) -> None:
     
     _assert_df_eq(
             output_df, path_fixture = path, 
-            update_fixture = True
+            update_fixture = False
         )
     
 # ================================================================
 # mean_qi / median_qi / mean_ci (Series)
 # ================================================================
 
-@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
+@pytest.mark.parametrize("backend", list_backend)
 
 def test_mean_qi_series(backend) -> None:
     
@@ -747,10 +751,10 @@ def test_mean_qi_series(backend) -> None:
     
     _assert_df_eq(
             output_df, path_fixture = path, 
-            update_fixture = True
+            update_fixture = False
         )
 
-@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
+@pytest.mark.parametrize("backend", list_backend)
 def test_median_qi_series(backend) -> None:
     
     path = f'{tests_path}/fixtures/median_qi_series_{backend}.csv'
@@ -759,10 +763,10 @@ def test_median_qi_series(backend) -> None:
     
     _assert_df_eq(
             output_df, path_fixture = path, 
-            update_fixture = True
+            update_fixture = False
         )
 
-@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
+@pytest.mark.parametrize("backend", list_backend)
 def test_mean_ci_series(backend) -> None:
     
     path = f'{tests_path}/fixtures/mean_ci_series_{backend}.csv'
@@ -771,7 +775,7 @@ def test_mean_ci_series(backend) -> None:
     
     _assert_df_eq(
             output_df, path_fixture = path, 
-            update_fixture = True
+            update_fixture = False
         )
 # =======================================================================
 # plot_miss_var
@@ -1165,7 +1169,7 @@ def test_min_max_pa():
 # =========================================================
 # set_miss
 # =========================================================
-@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
+@pytest.mark.parametrize("backend", list_backend)
 def test_set_miss(backend):
     x = penguins_dict.get(backend)['body_mass_g']
     y = penguins_dict.get(backend)['bill_length_mm']
@@ -1196,9 +1200,9 @@ df_modify = {
     'pa':(pa.Table.from_pandas(old), pa.Table.from_pandas(new))
 }
 update_fixture = False
-# update_fixture = True
+# update_fixture = False
 
-@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
+@pytest.mark.parametrize("backend", list_backend)
 def test_review_wrangling(backend):
     output = eda_nw.review_wrangling(*df_modify.get(backend))
 
@@ -1212,7 +1216,7 @@ def test_review_wrangling(backend):
     assert output == expected
 
 
-@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
+@pytest.mark.parametrize("backend", list_backend)
 def test_review_numeric(backend):
     output = eda_nw.review_numeric(*df_modify.get(backend))
 
@@ -1228,13 +1232,13 @@ def test_review_numeric(backend):
 # ================================================================
 # group_split, group_map, group_modify
 # ================================================================
-@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
+@pytest.mark.parametrize("backend", list_backend)
 def test_group_split(backend):
     res = eda_nw.group_split(penguins_dict.get(backend), "species", "island")
     assert all([eda_nw.is_intoframe(df) for df in res.data])
     assert sum([df.shape[0] for df in res.data]) == 344
 
-@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
+@pytest.mark.parametrize("backend", list_backend)
 def test_group_map(backend):
     res = eda_nw.group_map(
         penguins_dict.get(backend), 
@@ -1243,7 +1247,7 @@ def test_group_map(backend):
         )
     assert res.mapped == [44, 56, 52, 68, 124]
 
-@pytest.mark.parametrize("backend", [('pd'), ('pl'), ('pa')])
+@pytest.mark.parametrize("backend", list_backend)
 def test_group_modify(backend) -> None:
     path = f'{tests_path}/fixtures/group_modify_{backend}.csv'
 
@@ -1258,4 +1262,52 @@ def test_group_modify(backend) -> None:
         output_df, 
         path_fixture = path, 
         update_fixture = False
+        )
+
+# ================================================================
+# bind_rows
+# ================================================================
+from itertools import product
+
+df1 = pl.DataFrame({'x':[1, 2], 'y':[2, 6], 'z':['a', 'c']})
+df2 = pl.DataFrame({'x':[4], 'y':[3], 'z':['b']})
+
+dict_table = {
+    'pd': [df1.to_pandas(), df2.to_pandas()],
+    'pl': [df1, df2],
+    'pa': [df1.to_arrow(), df2.to_arrow()],
+}
+
+list_backend = ['pd', 'pl', 'pa']
+test_type = ['A', 'B', 'C', 'D']
+
+@pytest.mark.parametrize(
+    "backend, test_type",
+    list(product(list_backend, test_type))
+)
+
+def test_bind_rows_backend(backend, test_type) -> None:
+    path = f'{tests_path}/fixtures/bind_rows_{backend}_{test_type}.csv'
+    match test_type:
+        case 'A': output_df = eda_nw.bind_rows(
+            dict_table.get(backend)
+            )
+        case 'B': output_df = eda_nw.bind_rows(
+            dict_table.get(backend),
+            names = ['table1', 'table2'], 
+            id = 'sauce'
+            )
+        case 'C': output_df = eda_nw.bind_rows(
+            dict(zip(['table1', 'table2'], dict_table.get(backend))),
+            id = 'sauce'
+            )
+        case 'D': output_df = eda_nw.bind_rows(
+            dict_table.get(backend)[0],
+            dict_table.get(backend),
+            id = None
+            )
+    
+    _assert_df_eq(
+            output_df, path_fixture = path, 
+            update_fixture = False
         )

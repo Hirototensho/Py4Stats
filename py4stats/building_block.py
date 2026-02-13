@@ -769,6 +769,36 @@ assert_logical = make_assert_type(is_logical, 'assert_logical', valid_type = ['b
 assert_function = make_assert_type(is_function, 'assert_function', valid_type = ['Callable'])
 
 
+
+
+assert_literal = make_assert_type(
+    lambda x: is_numeric(x) or is_character(x) or is_logical(x), 
+    func_name = 'assert_literal', 
+    valid_type = ['str', 'bool', 'int', 'float']
+    )
+
+
+
+
+def assert_same_type(arg, arg_name: str = 'arg'):
+    if length(arg) <= 1: return None
+
+    first_type = type(arg[0])
+    mismatched = [
+        f"{i} ({type(v).__name__})" 
+        for i, v in enumerate(arg) 
+        if type(v) is not first_type
+        ]
+    if mismatched:
+        not_sutisfy_text = oxford_comma_and(
+            mismatched, quotation = False
+        )
+
+        message = f"Elements of `{arg_name}` must share the same type.\n" +\
+                  f"{11 * ' '}Found at indices {not_sutisfy_text}."
+        raise TypeError(message)
+
+
 # ### 数値用の `assert_*()` 関数
 
 
@@ -1011,6 +1041,44 @@ assert_numeric = make_assert_numeric(is_numeric, 'assert_numeric', valid_type = 
 assert_integer = make_assert_numeric(is_integer, 'assert_integer', valid_type = ['int'])
 assert_count = make_assert_numeric(is_integer, 'assert_count', valid_type = ['positive integer'], lower = 0)
 assert_float = make_assert_numeric(is_float, 'assert_float', valid_type = ['float'])
+
+
+
+
+def assert_same_type(arg, arg_name: str = 'arg'):
+    if length(arg) <= 1: return None
+    first_type = type(arg[0])
+    mismatched = [
+        f"{i} ({type(v).__name__})" 
+        for i, v in enumerate(arg) 
+        if type(v) is not first_type
+        ]
+    if mismatched:
+        not_sutisfy_text = oxford_comma_and(
+            mismatched, quotation = False
+        )
+
+        message = f"Elements of `{arg_name}` must share the same type.\n" +\
+                  f"{11 * ' '}Found at indices {not_sutisfy_text}."
+        raise TypeError(message)
+
+
+
+
+def assert_literal_kyes(arg, arg_name: str = 'arg'):
+    keys = list(arg.keys())
+    if length(keys) > 1:
+        unique_type = list_unique([type(v).__name__ for v in arg])
+
+        if length(unique_type) > 1:
+            type_text = oxford_comma_and(unique_type)
+            message = f"Keys of `{arg_name}` must share the same type, got {type_text}." 
+            raise TypeError(message)
+
+    if not (is_numeric(keys) or is_character(keys) or is_logical(keys)):
+        valid_type = ['str', 'int', 'float']
+        messages = f"Keys of `{arg_name}` must be of type {oxford_comma_or(valid_type)}." 
+        raise TypeError(messages)
 
 
 # ## 数値などのフォーマット

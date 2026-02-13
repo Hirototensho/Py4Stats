@@ -221,6 +221,7 @@ def tidy_regression(
     # 引数のアサーション ----------------------------------------------------------------------------------
     build.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither', arg_name = 'conf_level')
     build.assert_logical(add_one_sided, arg_name = 'add_one_sided')
+    build.assert_logical(to_jp, arg_name = 'to_jp')
     # --------------------------------------------------------------------------------------------------
     tidied = summary_params_frame(x, alpha = 1 - conf_level, xname = name_of_term)
 
@@ -289,7 +290,9 @@ def tidy_test(
       AssertionError:
           If `conf_level` is not in (0, 1).
   """
+  # 引数のアサーション ----------------------------------------------------------------------------------
   build.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither', arg_name = 'conf_level')
+  # --------------------------------------------------------------------------------------------------
 
   if(x.distribution == 'F'):
     tidied = pd.DataFrame({
@@ -745,9 +748,9 @@ def compare_ols(
     """
     # 引数のアサーション ----------------------------------------------------------------------------------
     build.assert_character(model_name, arg_name = 'model_name', nullable = True)
-    build.assert_count(digits, arg_name = 'digits')
-    build.assert_logical(add_stars, arg_name = 'add_stars')
-    build.assert_character(line_break, arg_name = 'line_break')
+    build.assert_count(digits, arg_name = 'digits', len_arg = 1)
+    build.assert_logical(add_stars, arg_name = 'add_stars', len_arg = 1)
+    build.assert_character(line_break, arg_name = 'line_break', len_arg = 1)
     # --------------------------------------------------------------------------------------------------
     if not pandas.api.types.is_list_like(list_models):
             raise ValueError("Argument `list_models` is must be a list of models.")
@@ -972,7 +975,7 @@ def make_glance_tab(
             Table of fit statistics with rows as statistics and columns as models.
     """
     # 引数に妥当な値が指定されているかを検証
-    build.assert_count(digits, arg_name = 'digits')
+    build.assert_count(digits, arg_name = 'digits', len_arg = 1)
     # --------------------
     # モデル名が指定されていない場合、連番を作成する
     if model_name is None:
@@ -1220,6 +1223,36 @@ def coef_dot(
 
 
 
+from statsmodels.discrete.discrete_model import BinaryResultsWrapper
+def assert_glm_with_get_margeff(arg: Any, arg_name: str = 'list_models') -> None:
+    """Assert that inputs are statsmodels BinaryResultsWrapper objects.
+
+    Args:
+        arg:
+            A list-like object expected to contain `BinaryResultsWrapper`.
+
+    Raises:
+        AssertionError:
+            If any element is not a `BinaryResultsWrapper` or not have 'get_margeff' method.
+    """
+    if(arg_name is None):
+        arg_name = varname.argname('arg')
+    arg = pd.Series(arg)
+
+    condition =  arg.apply(
+        lambda x: isinstance(x, BinaryResultsWrapper) & hasattr(x, 'get_margeff')
+        )
+    not_sutisfy = arg[~condition].index.astype(str).to_list()
+    if not condition.all():
+        raise ValueError(
+            f"Argument `{arg_name}` must be of type '{BinaryResultsWrapper}'\n"
+            "that have 'get_margeff' method. "
+            f"element {build.oxford_comma_and(not_sutisfy)} of `{arg_name}` not sutisfy the condtion."
+        )
+
+
+
+
 def tidy_mfx(
     x: BinaryResultsWrapper,
     at: Literal['overall', 'mean', 'median', 'zero'] = "overall",
@@ -1258,7 +1291,8 @@ def tidy_mfx(
       AssertionError:
           If `conf_level` is not in (0, 1).
   """
-  # 引数に妥当な値が指定されているかを検証
+  # 引数のアサーション ==================================================================
+  assert_glm_with_get_margeff(x, arg_name = 'x') 
   build.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither', arg_name = 'conf_level')
   build.assert_logical(dummy, arg_name = 'dummy')
 
@@ -1272,7 +1306,7 @@ def tidy_mfx(
       values = ['coef', 'dydx', 'eyex', 'dyex', 'eydx'],
       arg_name = 'method'
       )
-
+  # ====================================================================================
   # 限界効果の推定
   est_margeff = x.get_margeff(dummy = dummy, at = at, method = method, **kwargs)
   tab = est_margeff.summary_frame()
@@ -1300,36 +1334,6 @@ def tidy_mfx(
     tab['conf_higher'] = CI[:, 1]
 
   return tab
-
-
-
-
-from statsmodels.discrete.discrete_model import BinaryResultsWrapper
-def assert_glm_with_get_margeff(arg: Any, arg_name: str = 'list_models') -> None:
-    """Assert that inputs are statsmodels BinaryResultsWrapper objects.
-
-    Args:
-        arg:
-            A list-like object expected to contain `BinaryResultsWrapper`.
-
-    Raises:
-        AssertionError:
-            If any element is not a `BinaryResultsWrapper` or not have 'get_margeff' method.
-    """
-    if(arg_name is None):
-        arg_name = varname.argname('arg')
-    arg = pd.Series(arg)
-
-    condition =  arg.apply(
-        lambda x: isinstance(x, BinaryResultsWrapper) & hasattr(x, 'get_margeff')
-        )
-    not_sutisfy = arg[~condition].index.astype(str).to_list()
-    if not condition.all():
-        raise ValueError(
-            f"Argument `{arg_name}` must be of type '{BinaryResultsWrapper}'\n"
-            "that have 'get_margeff' method. "
-            f"element {build.oxford_comma_and(not_sutisfy)} of `{arg_name}` not sutisfy the condtion."
-        )
 
 
 
@@ -1682,7 +1686,6 @@ def plot_Blinder_Oaxaca(
   for i, t in enumerate(diff_type):
     ax[i].stem(result[t], orientation = 'horizontal', basefmt = 'C7--')
     ax[i].set_yticks(range(len(result.index)), result.index)
-    # ax[i].invert_yaxis()
     ax[i].set_title(t);
 
   if fig is not None:

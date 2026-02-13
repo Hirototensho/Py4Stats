@@ -128,6 +128,19 @@ mroz_dict = {
     'pa':pa.Table.from_pandas(mroz)
 }
 
-# ================================================================
-# review_wrangling
-# ================================================================
+# =========================================================
+# テスト用関数の定義
+# =========================================================
+list_backend = ['pd', 'pl', 'pa']
+
+@pytest.mark.parametrize("backend", list_backend)
+def test_diagnose(backend) -> None:
+    path = f'{tests_path}/fixtures/diagnose_{backend}.csv'
+    
+    output_df = eda_nw.diagnose(penguins_dict.get(backend), to_native = False)
+    
+    _assert_df_eq(
+        output_df, 
+        path_fixture = path, 
+        update_fixture = False
+        )
