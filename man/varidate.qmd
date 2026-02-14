@@ -1,4 +1,4 @@
-# check_that check_viorate
+# check_that, check_viorate
 
 [![](https://img.shields.io/badge/Tested-Pandas_/_Polars_/_Pyarrow-blue){fig-align="left" fig-alt="badge of tested backend"}](../articles/eda_tools_development_status.qmd)
 
@@ -158,7 +158,7 @@ print(retailers.loc[df_viorate['to'], 'size':'turnover'])
 #> 6  sc3       0.14    5.0       NaN
 ```
 
-## Notes
+## 注意 Notes
 
 本関数の内部実装は、 `pd.DataFrame.eval()` メソッドに依存しているため、実行時間の面で必ずしも最適化されていません。
 

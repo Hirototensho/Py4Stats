@@ -28,7 +28,7 @@ bind_rows(
     各データフレームには narwhals が受け入れ可能な DataFrame 互換オブジェクト<br>
   （例：`pandas.DataFrame`、`polars.DataFrame`、`pyarrow.Table`）を指定できます。
 
-- `names`: (**list of str or int or float or bool**)<br>
+- `names`: **list of str / int / float / bool**<br>
     各入力データフレームに対応する識別子のリスト。`*args` がデータフレーム、またはデータフレームのリスト／タプル
     の場合にのみ有効です。省略（`None`）された場合、識別子は `range(n)` になります。<br>
     `names` が `None` でない場合、以下を満たす必要があります：<br>
@@ -38,7 +38,7 @@ bind_rows(
 
     `*args` に辞書が指定された場合は、辞書のキーが使用されます。
 
-- `id` (**str**, optional):
+- `id`: **str**, optional:
         追加する識別子列の名前。`None` の場合、識別子列は作成されません。
 
 - `to_native`: **bool**<br>
@@ -55,11 +55,11 @@ bind_rows(
 ``` python
 import py4stats as py4st
 import polars as pl
-
 table1 = pl.DataFrame({'x':[1, 2], 'y':[2, 6], 'z':['a', 'c']})
 table2 = pl.DataFrame({'x':[4], 'y':[3], 'z':['b']})
 
-print(bind_rows(table1, table2))
+# 基本的な使用方法
+print(py4st.bind_rows(table1, table2))
 #> shape: (3, 4)
 #> ┌─────┬─────┬─────┬─────┐
 #> │ id  ┆ x   ┆ y   ┆ z   │
@@ -71,7 +71,8 @@ print(bind_rows(table1, table2))
 #> │ 1   ┆ 4   ┆ 3   ┆ b   │
 #> └─────┴─────┴─────┴─────┘
 
-print(bind_rows(
+# id 列の値は names 引数で、列名は id 引数で調整できます
+print(py4st.bind_rows(
     [table1, table2], 
     names = ['table1', 'table2'], 
     id = 'source'
@@ -87,8 +88,9 @@ print(bind_rows(
 #> │ table2 ┆ 4   ┆ 3   ┆ b   │
 #> └────────┴─────┴─────┴─────┘
 
+# データフレームの辞書を与えると、keys が id 列として保持されます
 dict_table = {'table1': table1, 'table2': table2}
-print(bind_rows(dict_table))
+print(py4st.bind_rows(dict_table))
 #> shape: (3, 4)
 #> ┌────────┬─────┬─────┬─────┐
 #> │ id     ┆ x   ┆ y   ┆ z   │
@@ -101,6 +103,7 @@ print(bind_rows(dict_table))
 #> └────────┴─────┴─────┴─────┘
 ```
 
+`id = None` を指定すると `id` 列は追加されません。
 
 ``` python
 print(bind_rows(table1, table2, id = None))
@@ -115,6 +118,10 @@ print(bind_rows(table1, table2, id = None))
 #> │ 4   ┆ 3   ┆ b   │
 #> └─────┴─────┴─────┘
 ```
+
+## 注意 Notes
+
+`bind_row()` 関数では、`args` 引数に入力されたデータフレームが、全て同一のバックエンド（例：全て pandas、または全て polars）であることを前提としています。異なるバックエンドを混在させた場合、TypeError が発生します。
 
 ***
 [Return to **Function reference**.](../reference.qmd)

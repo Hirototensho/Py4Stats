@@ -66,7 +66,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
 <link href="../man/compare_df_cols.html" rel="next">
-<link href="../man/relocate.html" rel="prev">
+<link href="../man/bind_rows.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
@@ -224,6 +224,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../man/relocate.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">relocate</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/bind_rows.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">bind_rows</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -557,7 +562,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>keep</code>（<strong>bool</strong>, optional）<br> 分割後の各データフレームにグループ化変数を保持するかどうか。False を指定すると、グループ化変数は削除されます。デフォルトは True です。</li>
 <li><code>drop_na_groups</code>（<strong>bool</strong>, optional）<br> グループ化変数に欠損値を含むグループを除外するかどうか。デフォルトは True です。</li>
 <li><code>sort_group</code>（<strong>bool</strong>, optional）<br> グループをグループ化変数でソートしてから分割するかどうか。デフォルトは True です。</li>
-<li><code>to_native</code>（<strong>bool</strong>, optional）<br> <code>True</code> の場合、入力と同じ型のデータフレーム（e.g.&nbsp;pandas / polars / pyarrow）を返します。<br> <code>False</code> の場合、<code>narwhals.DataFrame</code> を返します。デフォルトは <code>True</code> で、<code>to_native = False</code> は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。</li>
+<li><code>to_native</code>: <strong>bool</strong><br> <code>True</code> の場合、入力と同じ型のデータフレーム（e.g.&nbsp;pandas / polars / pyarrow）を返します。<br> <code>False</code> の場合、<code>narwhals.DataFrame</code> を返します。デフォルトは <code>True</code> で、<code>to_native = False</code> は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。</li>
 </ul>
 <section id="返り値-value" class="level3">
 <h3 class="anchored" data-anchor-id="返り値-value">返り値 Value</h3>
@@ -1081,8 +1086,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../man/relocate.html" class="pagination-link" aria-label="relocate">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">relocate</span></span>
+      <a href="../man/bind_rows.html" class="pagination-link" aria-label="bind_rows">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">bind_rows</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">

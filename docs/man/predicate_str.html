@@ -228,6 +228,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../man/bind_rows.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">bind_rows</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../man/grouped_operation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">group_split, group_map, group_modify</span></a>
   </div>
 </li>
@@ -529,7 +534,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>data</code>：<strong>IntoSeriesT</strong>（必須）</li>
 <li>入力データ。narwhals が受け入れ可能な Series 互換オブジェクト （例：<code>pandas.Series</code>、<code>polars.DataFrame</code>、<code>pyarrow.Table</code>）を指定できます。</li>
 <li><code>na_default</code>：<strong>bool</strong><br> 　NA値に対して関数が返す値。<code>na_default = True</code> （初期設定）であれば <code>None</code> や <code>NaN</code> には True を返し、<code>na_default = False</code> であれば False が返します。</li>
-<li><code>to_native</code>（<strong>bool</strong>, optional）<br> <code>True</code> の場合、入力と同じ型のデータフレーム（e.g.&nbsp;pandas / polars / pyarrow）を返します。<br> <code>False</code> の場合、<code>narwhals.DataFrame</code> を返します。デフォルトは <code>True</code> で、<code>to_native = False</code> は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。</li>
+<li><code>to_native</code>: <strong>bool</strong><br> <code>True</code> の場合、入力と同じ型のデータフレーム（e.g.&nbsp;pandas / polars / pyarrow）を返します。<br> <code>False</code> の場合、<code>narwhals.DataFrame</code> を返します。デフォルトは <code>True</code> で、<code>to_native = False</code> は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。</li>
 </ul>
 </section>
 <section id="使用例-example" class="level2">

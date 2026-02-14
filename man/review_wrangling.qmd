@@ -198,7 +198,7 @@ print(py4st.review_wrangling(before, after, items = 'numeric'))
 #> ============================================================
 ```
 
-## Notes
+## 注意 Notes
 
 - 本関数では、`before` と `after` が同一の DataFrame バックエンド（例：どちらも pandas、またはどちらも polars）であることを前提としています。異なるバックエンドを混在させた場合、エラーが発生します。
 

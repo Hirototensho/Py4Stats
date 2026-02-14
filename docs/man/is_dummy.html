@@ -228,6 +228,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../man/bind_rows.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">bind_rows</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../man/grouped_operation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">group_split, group_map, group_modify</span></a>
   </div>
 </li>
@@ -520,7 +525,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>True</code> の場合：列名をインデックスにもつ pandas.Series を返します</li>
 <li><code>False</code> の場合：<code>to_native</code> の値に応じた値を出力します。</li>
 </ul></li>
-<li><code>to_native</code>（<strong>bool</strong>, optional）<br> <code>data</code> がデータ DataFrame 互換オブジェクトの場合の出力を制御します。 <code>True</code> の場合、<code>data</code> 同じバックエンドの Series（e.g.&nbsp;pandas / polars / pyarrow）を返します。<br> <code>False</code> の場合、<code>nw.Series</code> を返します。デフォルトは <code>True</code> で、<code>to_native = False</code> は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。</li>
+<li><code>to_native</code>: <strong>bool</strong><br> <code>data</code> がデータ DataFrame 互換オブジェクトの場合の出力を制御します。 <code>True</code> の場合、<code>data</code> 同じバックエンドの Series（e.g.&nbsp;pandas / polars / pyarrow）を返します。<br> <code>False</code> の場合、<code>nw.Series</code> を返します。デフォルトは <code>True</code> で、<code>to_native = False</code> は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。</li>
 <li><code>**kwargs</code>: 将来の拡張のために予約されたキーワード引数です。</li>
 </ul>
 </section>

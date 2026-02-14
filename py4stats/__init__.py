@@ -25,6 +25,7 @@ from .eda_tools._nw import (
     Min,
     Pareto_plot,
     Sum,
+    bind_rows,
     check_that,
     check_viorate,
     compare_df_cols,

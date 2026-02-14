@@ -37,7 +37,11 @@
 
 #### データフレームの列の並べ替え
 
-[`py4stats.relocate()`](man/relocate.qmd)  
+[`py4stats.relocate()`](man/relocate.qmd)
+
+#### データフレームの縦結合
+
+[`py4stats.relocate()`](man/bind_rows.qmd)  
 
 #### データフレームのグループ化された処理
 

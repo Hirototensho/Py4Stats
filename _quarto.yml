@@ -20,6 +20,7 @@ book:
       - man/remove_empty_constant.qmd
       - man/filtering_out.qmd
       - man/relocate.qmd
+      - man/bind_rows.qmd
       - man/grouped_operation.qmd
       - man/compare_df_cols.qmd
       - man/review_wrangling.qmd

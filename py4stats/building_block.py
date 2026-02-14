@@ -778,27 +778,6 @@ assert_literal = make_assert_type(
     )
 
 
-
-
-def assert_same_type(arg, arg_name: str = 'arg'):
-    if length(arg) <= 1: return None
-
-    first_type = type(arg[0])
-    mismatched = [
-        f"{i} ({type(v).__name__})" 
-        for i, v in enumerate(arg) 
-        if type(v) is not first_type
-        ]
-    if mismatched:
-        not_sutisfy_text = oxford_comma_and(
-            mismatched, quotation = False
-        )
-
-        message = f"Elements of `{arg_name}` must share the same type.\n" +\
-                  f"{11 * ' '}Found at indices {not_sutisfy_text}."
-        raise TypeError(message)
-
-
 # ### 数値用の `assert_*()` 関数
 
 

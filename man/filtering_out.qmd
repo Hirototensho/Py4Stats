@@ -114,7 +114,7 @@ print(py4st.filtering_out(
 #> save  4
 ```
 
-## Notes
+## 注意 Notes
 
 `axis='index'` による行を対象とするフィルタリングは、インデックスの存在に依存します。したがって、`pd.DataFrame` 以外の行ラベルをもたない `DataFrame` バックエンドでは、このオプションは利用できません。
 

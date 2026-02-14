@@ -65,7 +65,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../man/grouped_operation.html" rel="next">
+<link href="../man/bind_rows.html" rel="next">
 <link href="../man/filtering_out.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -224,6 +224,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../man/relocate.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">relocate</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/bind_rows.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">bind_rows</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -531,7 +536,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>"first"</code>: 選択した列をデータフレームの先頭（最も左）に配置します。</li>
 <li><code>"last"</code>: 選択した列をデータフレームの末尾（最も右）に配置します。 <code>place</code> 引数は <code>before</code> または <code>after</code> と同時に指定することはできません。 未指定（<code>None</code>）の場合は <code>"first"</code> と同じ挙動になります。</li>
 </ul></li>
-<li><p><code>to_native</code>（<strong>bool</strong>, optional）<br> <code>True</code> の場合、入力と同じ型のデータフレーム（e.g.&nbsp;pandas / polars / pyarrow）を返します。<br> <code>False</code> の場合、<code>narwhals.DataFrame</code> を返します。デフォルトは <code>True</code> で、<code>to_native = False</code> は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。</p></li>
+<li><p><code>to_native</code>: <strong>bool</strong><br> <code>True</code> の場合、入力と同じ型のデータフレーム（e.g.&nbsp;pandas / polars / pyarrow）を返します。<br> <code>False</code> の場合、<code>narwhals.DataFrame</code> を返します。デフォルトは <code>True</code> で、<code>to_native = False</code> は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。</p></li>
 </ul>
 <section id="返り値-value" class="level3">
 <h3 class="anchored" data-anchor-id="返り値-value">返り値 Value</h3>
@@ -1002,8 +1007,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../man/grouped_operation.html" class="pagination-link" aria-label="group_split, group_map, group_modify">
-        <span class="nav-page-text"><span class="chapter-title">group_split, group_map, group_modify</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../man/bind_rows.html" class="pagination-link" aria-label="bind_rows">
+        <span class="nav-page-text"><span class="chapter-title">bind_rows</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

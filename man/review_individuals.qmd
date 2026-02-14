@@ -160,9 +160,9 @@ print(py4st.review_numeric(before, after))
 
 ``` 
 
-## Notes
+## 注意 Notes
 
-- `review_category()` 関数では、`before` と `after` が同一の DataFrame バックエンド（例：どちらも pandas、またはどちらも polars）であることを前提としています。異なるバックエンドを混在させた場合、エラーが発生します。
+`review_category()` 関数では、`before` と `after` が同一の DataFrame バックエンド（例：どちらも pandas、またはどちらも polars）であることを前提としています。異なるバックエンドを混在させた場合、エラーが発生します。
 
 ## 参考 See also
 

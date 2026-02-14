@@ -335,7 +335,36 @@ def as_nw_datarame_list(arg: List[Any], arg_name: str = 'df_list', max_items: in
         raise TypeError(
             f"Argument `{arg_name}` must be a DataFrame supported by narwhals "
             "(e.g. pandas.DataFrame, polars.DataFrame, pyarrow.Table).\n"
-            f"{11 * ' '}Elements at indices {not_sutisfy_text} are not supported."
+                f"{11 * ' '}Elements at indices {not_sutisfy_text} are not supported."
+        ) from None
+
+
+# In[ ]:
+
+
+# @as_nw_datarame.register(list)
+def as_nw_datarame_dict(arg: Mapping[str, Any], arg_name: str = 'df_dict', max_items: int = 5):
+    try:
+        return {
+            key: nw.from_native(df) for df in arg
+            for key, df in zip(arg.keys(), arg.values())
+            }
+    except TypeError:
+        not_sutisfy = [
+            f"'{i}' ({type(v).__name__})" 
+            for i, v in zip(arg.keys(), arg.values())
+            if not is_intoframe(v)
+            ]
+
+        not_sutisfy_text = build.oxford_comma_shorten(
+            not_sutisfy, quotation = False,
+            max_items = max_items, suffix = 'elements'
+            )
+
+        raise TypeError(
+            f"Argument `{arg_name}` must be a DataFrame supported by narwhals "
+            "(e.g. pandas.DataFrame, polars.DataFrame, pyarrow.Table).\n"
+            f"{11 * ' '}Elements at keys {not_sutisfy_text} are not supported."
         ) from None
 
 
@@ -352,6 +381,37 @@ def as_nw_series(arg: Any, arg_name: str = 'data', **keywargs):
             "(e.g. pandas.Series, polars.Series, pyarrow.ChunkedArray), "
             f"but got '{type(arg).__name__}'."
         ) from None
+
+
+# In[ ]:
+
+
+def assign_nw(data_nw: nw.DataFrame, assignment: Mapping[str, Iterable]):
+    """Narwhals DataFrame の列に Iterable オブジェクトを代入する
+    >>> data_nw = nw.from_native(load_penguins())
+    >>> penguins_nw.pipe(assign_nw,{
+    ...    'body_mass_kg': data_nw['body_mass_g'] / 1000,
+    ...    'bill_length_mm': pd.cut(data_nw['bill_length_mm'], bins = 10, labels = False)
+    ...    }).select(ncs.matches('bill|body')).head(2)
+        ┌───────────────────────────────────────────────────────────┐
+        |                    Narwhals DataFrame                     |
+        |-----------------------------------------------------------|
+        |   bill_length_mm  bill_depth_mm  body_mass_g  body_mass_kg|
+        |0             2.0           18.7       3750.0          3.75|
+        |1             2.0           17.4       3800.0          3.80|
+        └───────────────────────────────────────────────────────────┘
+    """
+    result = data_nw.clone()
+    for key, val in zip(assignment.keys(), assignment.values()):
+
+        val_nw = nw.Series.from_iterable(
+            key, values = val, 
+            backend = data_nw.implementation
+            )
+
+        result = result.with_columns(val_nw.alias(key))
+
+    return result
 
 
 # # `diagnose()`
@@ -1678,9 +1738,11 @@ def crosstab(
 
     if sort_index:
         result = result.sort(index)
-    # return result
+
     if margins:
-        result = result.with_columns(nw.sum_horizontal(ncs.numeric()).alias(margins_name))
+        result = result.with_columns(
+            nw.sum_horizontal(ncs.numeric()).alias(margins_name)
+            )
 
         # row_sums の作成と結合
         row_sums = result.select(ncs.numeric().sum())\
@@ -3540,6 +3602,57 @@ def mean_ci_series(
     )
     if to_native: return result.to_native()
     return result
+
+
+# In[ ]:
+
+
+def plot_dot_line(
+    data: IntoFrameT,
+    x: str, y: str,
+    lower: str = 'lower',
+    upper: str = 'upper',
+    ax: Optional[Axes] = None,
+    color: Sequence[str] = "#1b69af",
+    **keywargs
+) -> None:
+    data_nw = as_nw_datarame(data)
+    # 引数のアサーション ==============================================
+    build.assert_character(color, arg_name = 'color')
+
+    columne_name = data_nw.columns
+    x = build.arg_match(
+        x, arg_name = 'x', values = columne_name
+    )
+    y = build.arg_match(
+        y, arg_name = 'y', values = columne_name
+    )
+    lower = build.arg_match(
+        lower, arg_name = 'lower', values = columne_name
+    )
+    upper = build.arg_match(
+        upper, arg_name = 'upper', values = columne_name
+    )
+    # ==============================================================    
+    if ax is None:
+        fig, ax = plt.subplots()
+
+    # 図の描画 -----------------------------
+    # エラーバーの作図
+    ax.hlines(
+        y = data_nw[y], xmin = data_nw[lower], xmax = data_nw[upper],
+        linewidth = 1.5,
+        color = color
+        )
+    # 点推定値の作図
+    ax.scatter(
+      x = data_nw[x],
+      y = data_nw[y],
+      c = color,
+      s = 60
+    )
+    ax.invert_yaxis()
+    ax.set_ylabel(y);
 
 
 # ## 正規表現と文字列関連の論理関数
@@ -5728,5 +5841,176 @@ def group_modify(
         ).drop('_group_id')
 
     if to_native: return result.to_native()
+    return result
+
+
+# ## bind_rows
+
+# In[ ]:
+
+
+@singledispatch
+def bind_rows(
+        *args: Union[IntoFrameT, List[IntoFrameT], Mapping[str, IntoFrameT]], 
+        names: Optional[Sequence[Union[str, int, float, bool]]] = None,
+        id: str = 'id', to_native: bool = True,
+        **keywargs
+) -> IntoFrameT:
+    """Row-bind (concatenate) multiple data frames while optionally preserving provenance.
+
+    This function concatenates data frames vertically (row-wise) and can optionally
+    add an identifier column that indicates which input each row came from, similar
+    to `dplyr::bind_rows()` with the `.id` argument.
+
+    Inputs can be provided as:
+
+    - Multiple data frames: `bind_rows(df1, df2, ...)`
+    - A list/tuple of data frames: `bind_rows([df1, df2, ...])`
+    - A mapping of name -> data frame: `bind_rows({"a": df1, "b": df2, ...})`
+
+    When `id` is not None, an identifier column is added:
+
+    - If `names` is provided (data frames / list input only), its elements are used.
+    - If `names` is None (data frames / list input), `range(n)` is used.
+    - If a mapping is provided, mapping keys are used (and `names` is ignored if given).
+
+    Concatenation is performed with `how="diagonal"` (i.e., union of columns).
+    Columns missing in an input are created and filled with nulls.
+
+
+    Args:
+        *args:
+            One of the supported input forms:
+            - One or more data frames.
+            - A single list/tuple of data frames.
+            - A single mapping (e.g., dict) whose values are data frames.
+
+            Each data frame must be a DataFrame supported by narwhals 
+            (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table).
+        names (list of str or int or float or bool, optional):
+            Optional list of identifier values to attach to each input data frame.
+            This is only valid when `*args` are data frames or a list/tuple of data
+            frames. If omitted (`None`), identifiers default to `range(n)`.
+
+            `names` must satisfy (when not None):
+            - All elements must share the same type.
+            - The element type must be one of: `str`, `int`, `float`, or `bool`.
+            - Length must match the number of input data frames.
+
+            This argument is only meaningful for the data frame / list input forms.
+            If a mapping is provided, mapping keys are used instead.
+
+        id (str, optional):
+            Name of the identifier column to add. If `None`, no identifier column
+            is created.
+        to_native (bool, optional):
+            If True, convert the result to the native DataFrame type of the
+            selected backend. If False, return a narwhals DataFrame.
+            Defaults to True.
+        **keywargs:
+            Extra keyword arguments reserved for forward compatibility.
+            (Currently ignored.)
+
+    Returns:
+        A row-bound DataFrame. The return type depends on `to_native`:
+        - If `to_native=True`, a native DataFrame is returned.
+        - If `to_native=False`, a narwhals DataFrame is returned.
+
+    Raises:
+        NotImplementedError:
+            If called with unsupported input types for `*args`.
+        TypeError:
+            If `id` is not a string or `None`, or if `names` / mapping keys contain
+            invalid element types (not in `str`, `int`, `float`, `bool`) or contain
+            mixed types.
+        ValueError:
+            If `names` is provided but its length does not match the number of
+            input data frames.
+
+    Examples:
+        Basic usage (positional inputs):
+
+            >>> py4st.bind_rows(df1, df2)
+
+        Provide explicit names:
+
+            >>> py4st.bind_rows(df1, df2, names=["train", "test"])
+
+        Use a custom id column name:
+
+            >>> py4st.bind_rows([df1, df2], names=[2020, 2021], id="year")
+
+        Use a mapping (keys become identifiers):
+
+            >>> py4st.bind_rows({"table1": df1, "table2": df2})
+
+        No identifier column:
+
+            >>> py4st.bind_rows(df1, df2, id=None)
+    """
+    raise NotImplementedError(f'bind_rows mtethod for object {type(args)} is not implemented.')
+
+
+# In[ ]:
+
+
+@bind_rows.register(Union[nw.typing.IntoDataFrame, list])
+def bind_rows_df(
+        *args: IntoFrameT, 
+        names: Optional[Sequence[Union[str, int, float, bool]]] = None,
+        id: str = 'id', to_native: bool = True,
+        **keywargs
+        )-> IntoFrameT:
+    # 引数のアサーション =======================================================
+    args = build.list_flatten(args)
+    args = as_nw_datarame_list(args, arg_name = 'args')
+    build.assert_character(id, arg_name = 'id', len_arg = 1, nullable = True)
+    build.assert_same_type(names, arg_name = 'names')
+    build.assert_literal(names, arg_name = 'names', nullable = True)
+    # =======================================================================
+    if id is None: 
+        result = nw.concat(args, how = "diagonal")
+        if to_native: return result.to_native()
+        return result
+
+    if names is None: names = range(len(args))
+
+    else: build.assert_length(names, arg_name = 'names', len_arg = len(args))
+
+    tabl_list = [
+        df.with_columns(nw.lit(key).alias(id))
+        for key, df in zip(names, args)
+    ]
+    result = nw.concat(tabl_list, how = "diagonal")\
+        .pipe(relocate, id, to_native = to_native)
+    return result
+
+
+# In[ ]:
+
+
+@bind_rows.register(dict)
+def bind_rows_dict(
+    args: Mapping[str, IntoFrameT], 
+    id: str = 'id', 
+    to_native: bool = True, 
+    **keywargs
+    )-> IntoFrameT:
+    # 引数のアサーション =======================================================
+    build.assert_literal_kyes(args, arg_name = 'args')
+    args = as_nw_datarame_dict(args, arg_name = 'args')
+    build.assert_character(id, arg_name = 'id', len_arg = 1, nullable = True)
+    # =======================================================================
+    if id is None: 
+        result = nw.concat(args.values(), how = "diagonal")
+        if to_native: return result.to_native()
+        return result
+
+    tabl_list = [
+        df.with_columns(nw.lit(key).alias(id))
+        for key, df in zip(args.keys(), args.values())
+    ]
+    result = nw.concat(tabl_list, how = "diagonal")\
+        .pipe(relocate, id, to_native = to_native)
     return result
 

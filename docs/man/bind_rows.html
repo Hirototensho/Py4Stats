@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>coefplot, mfxplot – Py4Stats</title>
+<title>bind_rows – Py4Stats</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -65,8 +65,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../man/tidy.html" rel="next">
-<link href="../man/compare_mfx.html" rel="prev">
+<link href="../man/grouped_operation.html" rel="next">
+<link href="../man/relocate.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
@@ -119,7 +119,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../man/compare_ols.html"><strong>Regression</strong></a></li><li class="breadcrumb-item"><a href="../man/coefplot.html"><span class="chapter-title">coefplot, mfxplot</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../man/diagnose.html"><strong>EDA</strong></a></li><li class="breadcrumb-item"><a href="../man/bind_rows.html"><span class="chapter-title">bind_rows</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -228,7 +228,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/bind_rows.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">bind_rows</span></a>
+  <a href="../man/bind_rows.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">bind_rows</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -309,7 +309,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/coefplot.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">coefplot, mfxplot</span></a>
+  <a href="../man/coefplot.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">coefplot, mfxplot</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -469,17 +469,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#概要" id="toc-概要" class="nav-link active" data-scroll-target="#概要">概要</a></li>
-  <li><a href="#引数-argument" id="toc-引数-argument" class="nav-link" data-scroll-target="#引数-argument">引数 Argument</a></li>
+  <li><a href="#引数-argument" id="toc-引数-argument" class="nav-link" data-scroll-target="#引数-argument">引数 Argument</a>
+  <ul class="collapse">
+  <li><a href="#返り値-value" id="toc-返り値-value" class="nav-link" data-scroll-target="#返り値-value">返り値 Value</a></li>
+  </ul></li>
   <li><a href="#使用例-example" id="toc-使用例-example" class="nav-link" data-scroll-target="#使用例-example">使用例 Example</a></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/main/man/coefplot.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/main/man/bind_rows.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../man/compare_ols.html"><strong>Regression</strong></a></li><li class="breadcrumb-item"><a href="../man/coefplot.html"><span class="chapter-title">coefplot, mfxplot</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../man/diagnose.html"><strong>EDA</strong></a></li><li class="breadcrumb-item"><a href="../man/bind_rows.html"><span class="chapter-title">bind_rows</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-title">coefplot, mfxplot</span></h1>
+<h1 class="title"><span class="chapter-title">bind_rows</span></h1>
 </div>
 
 
@@ -496,121 +499,103 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>回帰分析による推定値の視覚化</p>
+<p><img src="https://img.shields.io/badge/lifecycle-experimental-orange.png" class="img-fluid quarto-figure quarto-figure-left" alt="badge of lifecycle experimental"> <a href="../articles/eda_tools_development_status.html"><img src="https://img.shields.io/badge/Tested-Pandas_/_Polars_/_Pyarrow-blue.png" class="img-fluid quarto-figure quarto-figure-left" alt="badge of tested backend"></a></p>
+<p>複数のデータフレームを行方向に結合（縦方向に連結）し、必要に応じて出所情報を付与します。</p>
 <section id="概要" class="level2">
 <h2 class="anchored" data-anchor-id="概要">概要</h2>
-<p>グラフ上の縦軸が説明変数、横軸回帰係数の値です。点が回帰係数の推定値を、エラーバー（横棒）が信頼区間を表します。</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>coefplot(</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    mod, </span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    subset <span class="op">=</span> <span class="va">None</span>, </span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    conf_level <span class="op">=</span> [<span class="fl">0.95</span>, <span class="fl">0.99</span>], </span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    palette <span class="op">=</span> [<span class="st">'#1b69af'</span>, <span class="st">'#629CE7'</span>], </span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    show_Intercept <span class="op">=</span> <span class="va">False</span>,</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    show_vline <span class="op">=</span> <span class="va">True</span>,</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    ax <span class="op">=</span> <span class="va">None</span>,</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>kwargs</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>mfxplot(</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    mod, </span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    subset <span class="op">=</span> <span class="va">None</span>, </span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    conf_level <span class="op">=</span> [<span class="fl">0.95</span>, <span class="fl">0.99</span>], </span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    at <span class="op">=</span> <span class="st">'overall'</span>,</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    method <span class="op">=</span> <span class="st">'dydx'</span>,</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    dummy <span class="op">=</span> <span class="va">False</span>,</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    palette <span class="op">=</span> [<span class="st">'#1b69af'</span>, <span class="st">'#629CE7'</span>], </span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    show_Intercept <span class="op">=</span> <span class="va">False</span>,</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    show_vline <span class="op">=</span> <span class="va">True</span>,</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    ax <span class="op">=</span> <span class="va">None</span>,</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>kwargs</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>この関数はデータフレームを縦方向（行単位）に連結します。必要に応じて、各行がどの入力データフレームに由来するかを示す識別子列を追加できます。これは <a href="https://dplyr.tidyverse.org/reference/bind_rows.html"><code>dplyr::bind_rows()</code></a> の <code>.id</code> 引数と同様の動作です。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>bind_rows(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>      <span class="op">*</span>args: Union[IntoFrameT, List[IntoFrameT], Mapping[<span class="bu">str</span>, IntoFrameT]], </span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>      names: Optional[Sequence[Union[<span class="bu">str</span>, <span class="bu">int</span>, <span class="bu">float</span>, <span class="bu">bool</span>]]] <span class="op">=</span> <span class="va">None</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>      <span class="bu">id</span>: <span class="bu">str</span> <span class="op">=</span> <span class="st">'id'</span>, to_native: <span class="bu">bool</span> <span class="op">=</span> <span class="va">True</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>      <span class="op">**</span>keywargs</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="引数-argument" class="level2">
 <h2 class="anchored" data-anchor-id="引数-argument">引数 Argument</h2>
 <ul>
-<li><p><code>mod</code>：<code>statsmodels</code> で作成した回帰分析の結果（必須）。</p></li>
-<li><p><code>subset</code>：グラフに回帰係数を表示する説明変数のリスト。指定しなければモデルに含まれる全ての説明変数を使用します。また <code>subset</code> に指定された順番に合わせてグラフ内での回帰係数の並び順が変更されます。</p></li>
-<li><p><code>conf.level</code>：信頼区間の計算に用いる信頼係数。1つ目の要素が太い方のエラーバーの幅に、2つ目の要素が細い方のエラーバーの幅に対応します。初期設定は <code>[0.95, 0.99]</code> です。</p></li>
-<li><p><code>palette</code>：グラフの描画に使用する色コード。1つ目の要素が太い方のエラーバーの色に、2つ目の要素が細い方のエラーバーの色に対応します。</p></li>
-<li><p><code>show_Intercept</code>：切片の係数を表示するかどうか。True だと切片の係数を表示し、False（初期設定）だと表示しません。</p></li>
-<li><p><code>show_vline</code>：回帰係数 = 0 の垂直線を表示するかどうか。True （初期設定）を指定すると垂直線を表示し、False を指定すると表示されません。</p></li>
-<li><p><code>ax</code>：matplotlib の ax オブジェクト。複数のグラフを並べる場合などに使用します。</p></li>
-<li><p><code>at</code>：限界効果の集計方法（<code>mfxplot()</code> のみ）。内部で使用している<a href="https://www.statsmodels.org/devel/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html"><code>statsmodels.discrete.discrete_model.DiscreteResults.get_margeff()</code></a> メソッドに引数 <code>at</code> として渡されます。<code>method = 'coef'</code> を指定した場合、この引数は無視されます。</p>
+<li><p><code>*args</code>:<strong>IntoFrameT / list[IntoFrameT] / dict[IntoFrameT]</strong>（必須）<br> 以下のいずれかの形式で結合するデータフレームを指定します：</p>
 <ul>
-<li><code>'overall'</code>：各観測値の限界効果の平均値を表示（初期設定）</li>
-<li><code>'mean'</code>：各説明変数の平均値における限界効果を表示</li>
-<li><code>'median'</code>：各説明変数の中央値における限界効果を表示</li>
-<li><code>'zero'</code>：各説明変数の値がゼロであるときの限界効果を表示</li>
+<li>1つ以上のデータフレーム</li>
+<li>データフレームのリスト／タプル</li>
+<li>値がデータフレームである辞書 各データフレームには narwhals が受け入れ可能な DataFrame 互換オブジェクト<br> （例：<code>pandas.DataFrame</code>、<code>polars.DataFrame</code>、<code>pyarrow.Table</code>）を指定できます。</li>
 </ul></li>
-<li><p><code>method</code>：推定する限界効果の種類（<code>mfxplot()</code> のみ）。内部で使用している<a href="https://www.statsmodels.org/devel/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html"><code>statsmodels.discrete.discrete_model.DiscreteResults.get_margeff()</code></a> メソッドに引数 <code>method</code> として渡されます。ただし、<code>method = 'coef'</code> を指定した場合には限界効果を推定せずに回帰係数をそのまま表示します。</p>
+<li><p><code>names</code>: (<strong>list of str or int or float or bool</strong>)<br> 各入力データフレームに対応する識別子のリスト。<code>*args</code> がデータフレーム、またはデータフレームのリスト／タプル の場合にのみ有効です。省略（<code>None</code>）された場合、識別子は <code>range(n)</code> になります。<br> <code>names</code> が <code>None</code> でない場合、以下を満たす必要があります：<br></p>
 <ul>
-<li><code>'coef'</code>：回帰係数の推定値を表示</li>
-<li><code>'dydx'</code>：限界効果の値を変換なしでそのまま表。（初期設定）</li>
-<li><code>'eyex'</code>：弾力性 d(ln y)/d(ln x) の推定値を表示</li>
-<li><code>'dyex'</code>：準弾力性 dy /d(ln x) の推定値を表示</li>
-<li><code>'eydx'</code>：準弾力性 d(ln y)/dx の推定値を表示</li>
-</ul></li>
-<li><p><code>dummy</code>：ダミー変数の限界効果の推定方法（<code>mfxplot()</code> のみ）。もし False （初期設定）であれば、ダミー変数を連続な数値変数として扱います。もし、True であればダミー変数が0から1へと変化したときの予測値の変化を推定します。内部で使用している<a href="https://www.statsmodels.org/devel/generated/statsmodels.discrete.discrete_model.DiscreteResults.get_margeff.html"><code>statsmodels.discrete.discrete_model.DiscreteResults.get_margeff()</code></a> メソッドに引数 <code>dummy</code> として渡されます。</p></li>
+<li>すべての要素が同一の型であること<br></li>
+<li>要素の型が <code>str</code>, <code>int</code>, <code>float</code>, <code>bool</code> のいずれかであること<br></li>
+<li>長さが入力データフレームの数と一致すること<br></li>
 </ul>
+<p><code>*args</code> に辞書が指定された場合は、辞書のキーが使用されます。</p></li>
+<li><p><code>id</code> (<strong>str</strong>, optional): 追加する識別子列の名前。<code>None</code> の場合、識別子列は作成されません。</p></li>
+<li><p><code>to_native</code>: <strong>bool</strong><br> <code>True</code> の場合、入力と同じ型のデータフレーム（e.g.&nbsp;pandas / polars / pyarrow）を返します。<br> <code>False</code> の場合、<code>narwhals.DataFrame</code> を返します。デフォルトは <code>True</code> で、<code>to_native = False</code> は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。</p></li>
+</ul>
+<section id="返り値-value" class="level3">
+<h3 class="anchored" data-anchor-id="返り値-value">返り値 Value</h3>
+<ul>
+<li><strong>IntoFrameT</strong><br> 行方向に結合されたたデータフレームを返します。</li>
+</ul>
+</section>
 </section>
 <section id="使用例-example" class="level2">
 <h2 class="anchored" data-anchor-id="使用例-example">使用例 Example</h2>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> py4stats <span class="im">as</span> py4st</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> statsmodels.formula.api <span class="im">as</span> smf</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>table1 <span class="op">=</span> pl.DataFrame({<span class="st">'x'</span>:[<span class="dv">1</span>, <span class="dv">2</span>], <span class="st">'y'</span>:[<span class="dv">2</span>, <span class="dv">6</span>], <span class="st">'z'</span>:[<span class="st">'a'</span>, <span class="st">'c'</span>]})</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>table2 <span class="op">=</span> pl.DataFrame({<span class="st">'x'</span>:[<span class="dv">4</span>], <span class="st">'y'</span>:[<span class="dv">3</span>], <span class="st">'z'</span>:[<span class="st">'b'</span>]})</span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> palmerpenguins <span class="im">import</span> load_penguins</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>penguins <span class="op">=</span> load_penguins() <span class="co"># サンプルデータの読み込み</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co"># 回帰分析の実行</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>fit2 <span class="op">=</span> smf.ols(<span class="st">'body_mass_g ~ bill_length_mm + bill_depth_mm + species'</span>, data <span class="op">=</span> penguins).fit()</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>fit3 <span class="op">=</span> smf.ols(<span class="st">'body_mass_g ~ bill_length_mm + bill_depth_mm + species + sex'</span>, data <span class="op">=</span> penguins).fit()</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>py4st.coefplot(fit3)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="image/coefplot1.png" class="img-fluid figure-img"></p>
-<figcaption>coefplot1</figcaption>
-</figure>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>plt.rcParams[<span class="st">"figure.autolayout"</span>] <span class="op">=</span> <span class="va">True</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize <span class="op">=</span> (<span class="fl">2.2</span> <span class="op">*</span> <span class="dv">5</span>, <span class="dv">5</span>), dpi <span class="op">=</span> <span class="dv">100</span>)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>py4st.coefplot(fit2, ax <span class="op">=</span> ax[<span class="dv">0</span>])</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_xlim(<span class="op">-</span><span class="dv">900</span>, <span class="dv">1800</span>)</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>py4st.coefplot(fit3, ax <span class="op">=</span> ax[<span class="dv">1</span>], palette <span class="op">=</span> [<span class="st">'#FF6F91'</span>, <span class="st">'#F2E5EB'</span>])</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_xlim(<span class="op">-</span><span class="dv">900</span>, <span class="dv">1800</span>)<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="image/coefplot2.png" class="img-fluid figure-img"></p>
-<figcaption>coefplot2</figcaption>
-</figure>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>penguins[<span class="st">'female'</span>] <span class="op">=</span> np.where(penguins[<span class="st">'sex'</span>] <span class="op">==</span> <span class="st">'female'</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># ロジスティック回帰の実行</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>fit_logit1 <span class="op">=</span> smf.logit(<span class="st">'female ~ body_mass_g + bill_length_mm + bill_depth_mm'</span>, data <span class="op">=</span> penguins).fit()</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>fit_logit2 <span class="op">=</span> smf.logit(<span class="st">'female ~ body_mass_g + bill_length_mm + bill_depth_mm + species'</span>, data <span class="op">=</span> penguins).fit()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>plt.rcParams[<span class="st">"figure.autolayout"</span>] <span class="op">=</span> <span class="va">True</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize <span class="op">=</span> (<span class="fl">2.2</span> <span class="op">*</span> <span class="dv">5</span>, <span class="dv">5</span>), dpi <span class="op">=</span> <span class="dv">100</span>)</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>py4st.mfxplot(fit_logit1, ax <span class="op">=</span> ax[<span class="dv">0</span>])</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_xlim(<span class="op">-</span><span class="fl">0.2</span>, <span class="fl">0.85</span>)</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>py4st.mfxplot(fit_logit2, ax <span class="op">=</span> ax[<span class="dv">1</span>], palette <span class="op">=</span> [<span class="st">'#FF6F91'</span>, <span class="st">'#F2E5EB'</span>])</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_xlim(<span class="op">-</span><span class="fl">0.2</span>, <span class="fl">0.85</span>)<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="image/coefplot3.png" class="img-fluid figure-img"></p>
-<figcaption>coefplot3</figcaption>
-</figure>
-</div>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(bind_rows(table1, table2))</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; shape: (3, 4)</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ┌─────┬─────┬─────┬─────┐</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ id  ┆ x   ┆ y   ┆ z   │</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ --- ┆ --- ┆ --- ┆ --- │</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ i32 ┆ i64 ┆ i64 ┆ str │</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ╞═════╪═════╪═════╪═════╡</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ 0   ┆ 1   ┆ 2   ┆ a   │</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ 0   ┆ 2   ┆ 6   ┆ c   │</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ 1   ┆ 4   ┆ 3   ┆ b   │</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; └─────┴─────┴─────┴─────┘</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(bind_rows(</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    [table1, table2], </span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    names <span class="op">=</span> [<span class="st">'table1'</span>, <span class="st">'table2'</span>], </span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    <span class="bu">id</span> <span class="op">=</span> <span class="st">'source'</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    ))</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; shape: (3, 4)</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ┌────────┬─────┬─────┬─────┐</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ source ┆ x   ┆ y   ┆ z   │</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ ---    ┆ --- ┆ --- ┆ --- │</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ str    ┆ i64 ┆ i64 ┆ str │</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ╞════════╪═════╪═════╪═════╡</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ table1 ┆ 1   ┆ 2   ┆ a   │</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ table1 ┆ 2   ┆ 6   ┆ c   │</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ table2 ┆ 4   ┆ 3   ┆ b   │</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; └────────┴─────┴─────┴─────┘</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>dict_table <span class="op">=</span> {<span class="st">'table1'</span>: table1, <span class="st">'table2'</span>: table2}</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(bind_rows(dict_table))</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; shape: (3, 4)</span></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ┌────────┬─────┬─────┬─────┐</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ id     ┆ x   ┆ y   ┆ z   │</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ ---    ┆ --- ┆ --- ┆ --- │</span></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ str    ┆ i64 ┆ i64 ┆ str │</span></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ╞════════╪═════╪═════╪═════╡</span></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ table1 ┆ 1   ┆ 2   ┆ a   │</span></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ table1 ┆ 2   ┆ 6   ┆ c   │</span></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ table2 ┆ 4   ┆ 3   ┆ b   │</span></span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; └────────┴─────┴─────┴─────┘</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(bind_rows(table1, table2, <span class="bu">id</span> <span class="op">=</span> <span class="va">None</span>))</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; shape: (3, 3)</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ┌─────┬─────┬─────┐</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ x   ┆ y   ┆ z   │</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ --- ┆ --- ┆ --- │</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ i64 ┆ i64 ┆ str │</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ╞═════╪═════╪═════╡</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ 1   ┆ 2   ┆ a   │</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ 2   ┆ 6   ┆ c   │</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ 4   ┆ 3   ┆ b   │</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; └─────┴─────┴─────┘</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <hr>
 <p><a href="../reference.html">Return to <strong>Function reference</strong>.</a></p>
 
@@ -1020,13 +1005,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../man/compare_mfx.html" class="pagination-link" aria-label="compare_mfx">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">compare_mfx</span></span>
+      <a href="../man/relocate.html" class="pagination-link" aria-label="relocate">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">relocate</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../man/tidy.html" class="pagination-link" aria-label="tidy, tidy_mfx">
-        <span class="nav-page-text"><span class="chapter-title">tidy, tidy_mfx</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../man/grouped_operation.html" class="pagination-link" aria-label="group_split, group_map, group_modify">
+        <span class="nav-page-text"><span class="chapter-title">group_split, group_map, group_modify</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -1035,4 +1020,4 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/main/man/coefplot.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/main/man/bind_rows.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></div></div></footer></body></html>

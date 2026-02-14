@@ -228,6 +228,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../man/bind_rows.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">bind_rows</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../man/grouped_operation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">group_split, group_map, group_modify</span></a>
   </div>
 </li>
@@ -525,7 +530,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>starts_with</code>：<strong>str</strong><br> 　列名（行名）の検索に使用する文字列。内部で使用している <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.startswith.html"><code>pandas.Series.str.startswith</code></a> に渡され、指定された文字列で列名（行名）が始まる列（行）を除外します。</li>
 <li><code>ends_with</code>：<strong>str</strong><br> 　列名（行名）の検索に使用する文字列。内部で使用している <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.endswith.html"><code>pandas.Series.str.endswith</code></a> に渡され、指定された文字列で列名（行名）が終わる列（行）を除外します。</li>
 <li><code>axis</code>：<strong><code>{0 or 'index', 1 or 'columns'}</code></strong><br> <code>axis = 1</code> または <code>axis = 'columns'</code> なら列の削除を行い、<code>axis = 0</code> または <code>axis = 'index'</code> なら行の削除を行います。 このオプションは、<code>data</code> がインデックス属性 (例: pandas.DataFrame) をもつ場合のみ有効です。</li>
-<li><code>to_native</code>（<strong>bool</strong>, optional）<br> <code>True</code> の場合、入力と同じ型のデータフレーム（e.g.&nbsp;pandas / polars / pyarrow）を返します。<br> <code>False</code> の場合、<code>narwhals.DataFrame</code> を返します。デフォルトは <code>True</code> で、<code>to_native = False</code> は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。</li>
+<li><code>to_native</code>: <strong>bool</strong><br> <code>True</code> の場合、入力と同じ型のデータフレーム（e.g.&nbsp;pandas / polars / pyarrow）を返します。<br> <code>False</code> の場合、<code>narwhals.DataFrame</code> を返します。デフォルトは <code>True</code> で、<code>to_native = False</code> は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。</li>
 </ul>
 </section>
 <section id="使用例-example" class="level2">
