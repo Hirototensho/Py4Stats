@@ -283,7 +283,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/varidate.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">check_that check_viorate</span></a>
+  <a href="../man/varidate.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">check_that, check_viorate</span></a>
   </div>
 </li>
       </ul>
@@ -474,6 +474,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#返り値-value" id="toc-返り値-value" class="nav-link" data-scroll-target="#返り値-value">返り値 Value</a></li>
   </ul></li>
   <li><a href="#使用例-example" id="toc-使用例-example" class="nav-link" data-scroll-target="#使用例-example">使用例 Example</a></li>
+  <li><a href="#注意-notes" id="toc-注意-notes" class="nav-link" data-scroll-target="#注意-notes">注意 Notes</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/main/man/bind_rows.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></nav>
     </div>
@@ -520,14 +521,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>データフレームのリスト／タプル</li>
 <li>値がデータフレームである辞書 各データフレームには narwhals が受け入れ可能な DataFrame 互換オブジェクト<br> （例：<code>pandas.DataFrame</code>、<code>polars.DataFrame</code>、<code>pyarrow.Table</code>）を指定できます。</li>
 </ul></li>
-<li><p><code>names</code>: (<strong>list of str or int or float or bool</strong>)<br> 各入力データフレームに対応する識別子のリスト。<code>*args</code> がデータフレーム、またはデータフレームのリスト／タプル の場合にのみ有効です。省略（<code>None</code>）された場合、識別子は <code>range(n)</code> になります。<br> <code>names</code> が <code>None</code> でない場合、以下を満たす必要があります：<br></p>
+<li><p><code>names</code>: <strong>list of str / int / float / bool</strong><br> 各入力データフレームに対応する識別子のリスト。<code>*args</code> がデータフレーム、またはデータフレームのリスト／タプル の場合にのみ有効です。省略（<code>None</code>）された場合、識別子は <code>range(n)</code> になります。<br> <code>names</code> が <code>None</code> でない場合、以下を満たす必要があります：<br></p>
 <ul>
 <li>すべての要素が同一の型であること<br></li>
 <li>要素の型が <code>str</code>, <code>int</code>, <code>float</code>, <code>bool</code> のいずれかであること<br></li>
 <li>長さが入力データフレームの数と一致すること<br></li>
 </ul>
 <p><code>*args</code> に辞書が指定された場合は、辞書のキーが使用されます。</p></li>
-<li><p><code>id</code> (<strong>str</strong>, optional): 追加する識別子列の名前。<code>None</code> の場合、識別子列は作成されません。</p></li>
+<li><p><code>id</code>: <strong>str</strong>, optional: 追加する識別子列の名前。<code>None</code> の場合、識別子列は作成されません。</p></li>
 <li><p><code>to_native</code>: <strong>bool</strong><br> <code>True</code> の場合、入力と同じ型のデータフレーム（e.g.&nbsp;pandas / polars / pyarrow）を返します。<br> <code>False</code> の場合、<code>narwhals.DataFrame</code> を返します。デフォルトは <code>True</code> で、<code>to_native = False</code> は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。</p></li>
 </ul>
 <section id="返り値-value" class="level3">
@@ -541,11 +542,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="使用例-example">使用例 Example</h2>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> py4stats <span class="im">as</span> py4st</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>table1 <span class="op">=</span> pl.DataFrame({<span class="st">'x'</span>:[<span class="dv">1</span>, <span class="dv">2</span>], <span class="st">'y'</span>:[<span class="dv">2</span>, <span class="dv">6</span>], <span class="st">'z'</span>:[<span class="st">'a'</span>, <span class="st">'c'</span>]})</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>table2 <span class="op">=</span> pl.DataFrame({<span class="st">'x'</span>:[<span class="dv">4</span>], <span class="st">'y'</span>:[<span class="dv">3</span>], <span class="st">'z'</span>:[<span class="st">'b'</span>]})</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(bind_rows(table1, table2))</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>table1 <span class="op">=</span> pl.DataFrame({<span class="st">'x'</span>:[<span class="dv">1</span>, <span class="dv">2</span>], <span class="st">'y'</span>:[<span class="dv">2</span>, <span class="dv">6</span>], <span class="st">'z'</span>:[<span class="st">'a'</span>, <span class="st">'c'</span>]})</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>table2 <span class="op">=</span> pl.DataFrame({<span class="st">'x'</span>:[<span class="dv">4</span>], <span class="st">'y'</span>:[<span class="dv">3</span>], <span class="st">'z'</span>:[<span class="st">'b'</span>]})</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 基本的な使用方法</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(py4st.bind_rows(table1, table2))</span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; shape: (3, 4)</span></span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ┌─────┬─────┬─────┬─────┐</span></span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ id  ┆ x   ┆ y   ┆ z   │</span></span>
@@ -557,34 +558,37 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ 1   ┆ 4   ┆ 3   ┆ b   │</span></span>
 <span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; └─────┴─────┴─────┴─────┘</span></span>
 <span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(bind_rows(</span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    [table1, table2], </span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    names <span class="op">=</span> [<span class="st">'table1'</span>, <span class="st">'table2'</span>], </span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    <span class="bu">id</span> <span class="op">=</span> <span class="st">'source'</span></span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    ))</span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; shape: (3, 4)</span></span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ┌────────┬─────┬─────┬─────┐</span></span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ source ┆ x   ┆ y   ┆ z   │</span></span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ ---    ┆ --- ┆ --- ┆ --- │</span></span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ str    ┆ i64 ┆ i64 ┆ str │</span></span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ╞════════╪═════╪═════╪═════╡</span></span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ table1 ┆ 1   ┆ 2   ┆ a   │</span></span>
-<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ table1 ┆ 2   ┆ 6   ┆ c   │</span></span>
-<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ table2 ┆ 4   ┆ 3   ┆ b   │</span></span>
-<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; └────────┴─────┴─────┴─────┘</span></span>
-<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>dict_table <span class="op">=</span> {<span class="st">'table1'</span>: table1, <span class="st">'table2'</span>: table2}</span>
-<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(bind_rows(dict_table))</span>
-<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; shape: (3, 4)</span></span>
-<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ┌────────┬─────┬─────┬─────┐</span></span>
-<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ id     ┆ x   ┆ y   ┆ z   │</span></span>
-<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ ---    ┆ --- ┆ --- ┆ --- │</span></span>
-<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ str    ┆ i64 ┆ i64 ┆ str │</span></span>
-<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ╞════════╪═════╪═════╪═════╡</span></span>
-<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ table1 ┆ 1   ┆ 2   ┆ a   │</span></span>
-<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ table1 ┆ 2   ┆ 6   ┆ c   │</span></span>
-<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ table2 ┆ 4   ┆ 3   ┆ b   │</span></span>
-<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; └────────┴─────┴─────┴─────┘</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co"># id 列の値は names 引数で、列名は id 引数で調整できます</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(py4st.bind_rows(</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    [table1, table2], </span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    names <span class="op">=</span> [<span class="st">'table1'</span>, <span class="st">'table2'</span>], </span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="bu">id</span> <span class="op">=</span> <span class="st">'source'</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    ))</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; shape: (3, 4)</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ┌────────┬─────┬─────┬─────┐</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ source ┆ x   ┆ y   ┆ z   │</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ ---    ┆ --- ┆ --- ┆ --- │</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ str    ┆ i64 ┆ i64 ┆ str │</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ╞════════╪═════╪═════╪═════╡</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ table1 ┆ 1   ┆ 2   ┆ a   │</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ table1 ┆ 2   ┆ 6   ┆ c   │</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ table2 ┆ 4   ┆ 3   ┆ b   │</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; └────────┴─────┴─────┴─────┘</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a><span class="co"># データフレームの辞書を与えると、keys が id 列として保持されます</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>dict_table <span class="op">=</span> {<span class="st">'table1'</span>: table1, <span class="st">'table2'</span>: table2}</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(py4st.bind_rows(dict_table))</span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; shape: (3, 4)</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ┌────────┬─────┬─────┬─────┐</span></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ id     ┆ x   ┆ y   ┆ z   │</span></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ ---    ┆ --- ┆ --- ┆ --- │</span></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ str    ┆ i64 ┆ i64 ┆ str │</span></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ╞════════╪═════╪═════╪═════╡</span></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ table1 ┆ 1   ┆ 2   ┆ a   │</span></span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ table1 ┆ 2   ┆ 6   ┆ c   │</span></span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ table2 ┆ 4   ┆ 3   ┆ b   │</span></span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; └────────┴─────┴─────┴─────┘</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>id = None</code> を指定すると <code>id</code> 列は追加されません。</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(bind_rows(table1, table2, <span class="bu">id</span> <span class="op">=</span> <span class="va">None</span>))</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; shape: (3, 3)</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ┌─────┬─────┬─────┐</span></span>
@@ -596,6 +600,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ 2   ┆ 6   ┆ c   │</span></span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ 4   ┆ 3   ┆ b   │</span></span>
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; └─────┴─────┴─────┘</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="注意-notes" class="level2">
+<h2 class="anchored" data-anchor-id="注意-notes">注意 Notes</h2>
+<p><code>bind_row()</code> 関数では、<code>args</code> 引数に入力されたデータフレームが、全て同一のバックエンド（例：全て pandas、または全て polars）であることを前提としています。異なるバックエンドを混在させた場合、TypeError が発生します。</p>
 <hr>
 <p><a href="../reference.html">Return to <strong>Function reference</strong>.</a></p>
 

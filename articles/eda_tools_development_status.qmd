@@ -1,5 +1,5 @@
 # eda_toolsの開発状況
-2026年2月11日
+2026年2月14日
 
 ## 関数の実装状況一覧
 
@@ -11,6 +11,7 @@
 | Min                  | pd.Series        | ✅       | ❌       | ❌        | pd.DataFrame.eval() での使用を想定した関数     |
 | Pareto_plot          | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | Sum                  | pd.Series        | ✅       | ❌       | ❌        | pd.DataFrame.eval() での使用を想定した関数     |
+| bind_rows            | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | check_that           | DataFrame        | ✅       | ⭕️       | ⭕️        | 実装に pd.DataFrame.eval() を使用            |
 | check_viorate        | DataFrame        | ✅       | ⭕️       | ⭕️        | 実装に pd.DataFrame.eval() を使用            |
 | compare_df_cols      | DataFrame        | ✅       | ✅       | ✅        |                                            |

@@ -131,16 +131,11 @@ mroz_dict = {
 # =========================================================
 # テスト用関数の定義
 # =========================================================
-list_backend = ['pd', 'pl', 'pa']
 
-@pytest.mark.parametrize("backend", list_backend)
-def test_diagnose(backend) -> None:
-    path = f'{tests_path}/fixtures/diagnose_{backend}.csv'
+
+def test_bind_rows_mixed_backend():
+    with pytest.raises(TypeError, match = "must share the same backend"):
+        eda_nw.bind_rows(penguins_dict)
     
-    output_df = eda_nw.diagnose(penguins_dict.get(backend), to_native = False)
-    
-    _assert_df_eq(
-        output_df, 
-        path_fixture = path, 
-        update_fixture = False
-        )
+    with pytest.raises(TypeError, match = "must share the same backend"):
+        eda_nw.bind_rows(list(mroz_dict.values()))

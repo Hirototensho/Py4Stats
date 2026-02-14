@@ -5849,6 +5849,22 @@ def group_modify(
 # In[ ]:
 
 
+def _assert_unique_backend(args, arg_name: str = 'args'):
+    if build.length(args) <= 1: return None
+
+    unique_type = build.list_unique(
+        df.implementation for df in args
+        )
+
+    if build.length(unique_type) > 1:
+        type_text = build.oxford_comma_and(unique_type)
+        message = f"Elements of `{arg_name}` must share the same backend, got {type_text}." 
+        raise TypeError(message)
+
+
+# In[ ]:
+
+
 @singledispatch
 def bind_rows(
         *args: Union[IntoFrameT, List[IntoFrameT], Mapping[str, IntoFrameT]], 
@@ -5923,6 +5939,12 @@ def bind_rows(
             If `id` is not a string or `None`, or if `names` / mapping keys contain
             invalid element types (not in `str`, `int`, `float`, `bool`) or contain
             mixed types.
+        TypeError:
+            If input data frames (including values of a mapping input)
+            are backed by different backends (e.g., mixing pandas and
+            polars). All inputs must share the same backend.
+            Mixing backends is not supported.
+
         ValueError:
             If `names` is provided but its length does not match the number of
             input data frames.
@@ -5956,14 +5978,15 @@ def bind_rows(
 
 @bind_rows.register(Union[nw.typing.IntoDataFrame, list])
 def bind_rows_df(
-        *args: IntoFrameT, 
+        *args: Union[IntoFrameT, List[IntoFrameT]],
         names: Optional[Sequence[Union[str, int, float, bool]]] = None,
         id: str = 'id', to_native: bool = True,
         **keywargs
         )-> IntoFrameT:
     # 引数のアサーション =======================================================
-    args = build.list_flatten(args)
+    args = list(build.list_flatten(args))
     args = as_nw_datarame_list(args, arg_name = 'args')
+    _assert_unique_backend(args)
     build.assert_character(id, arg_name = 'id', len_arg = 1, nullable = True)
     build.assert_same_type(names, arg_name = 'names')
     build.assert_literal(names, arg_name = 'names', nullable = True)
@@ -5999,6 +6022,7 @@ def bind_rows_dict(
     # 引数のアサーション =======================================================
     build.assert_literal_kyes(args, arg_name = 'args')
     args = as_nw_datarame_dict(args, arg_name = 'args')
+    _assert_unique_backend(args.values())
     build.assert_character(id, arg_name = 'id', len_arg = 1, nullable = True)
     # =======================================================================
     if id is None: 

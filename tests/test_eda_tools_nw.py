@@ -1311,3 +1311,12 @@ def test_bind_rows_backend(backend, test_type) -> None:
             output_df, path_fixture = path, 
             update_fixture = False
         )
+# ================================================================
+# bind_rows (バックエンド混在に対するエラー)
+# ================================================================
+def test_bind_rows_mixed_backend():
+    with pytest.raises(TypeError, match = "must share the same backend"):
+        eda_nw.bind_rows(penguins_dict)
+    
+    with pytest.raises(TypeError, match = "must share the same backend"):
+        eda_nw.bind_rows(list(mroz_dict.values()))

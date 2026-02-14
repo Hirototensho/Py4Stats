@@ -530,11 +530,11 @@
     ]
   },
   {
-    "objectID": "man/filtering_out.html#notes",
-    "href": "man/filtering_out.html#notes",
+    "objectID": "man/filtering_out.html#注意-notes",
+    "href": "man/filtering_out.html#注意-notes",
     "title": "filtering_out",
-    "section": "Notes",
-    "text": "Notes\naxis='index' による行を対象とするフィルタリングは、インデックスの存在に依存します。したがって、pd.DataFrame 以外の行ラベルをもたない DataFrame バックエンドでは、このオプションは利用できません。\n\nReturn to Function reference.",
+    "section": "注意 Notes",
+    "text": "注意 Notes\naxis='index' による行を対象とするフィルタリングは、インデックスの存在に依存します。したがって、pd.DataFrame 以外の行ラベルをもたない DataFrame バックエンドでは、このオプションは利用できません。\n\nReturn to Function reference.",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>12</span>  <span class='chapter-title'>filtering_out</span>"
@@ -611,7 +611,7 @@
     "href": "man/bind_rows.html#引数-argument",
     "title": "bind_rows",
     "section": "引数 Argument",
-    "text": "引数 Argument\n\n*args:IntoFrameT / list[IntoFrameT] / dict[IntoFrameT]（必須） 以下のいずれかの形式で結合するデータフレームを指定します：\n\n1つ以上のデータフレーム\nデータフレームのリスト／タプル\n値がデータフレームである辞書 各データフレームには narwhals が受け入れ可能な DataFrame 互換オブジェクト （例：pandas.DataFrame、polars.DataFrame、pyarrow.Table）を指定できます。\n\nnames: (list of str or int or float or bool) 各入力データフレームに対応する識別子のリスト。*args がデータフレーム、またはデータフレームのリスト／タプル の場合にのみ有効です。省略（None）された場合、識別子は range(n) になります。 names が None でない場合、以下を満たす必要があります：\n\nすべての要素が同一の型であること\n要素の型が str, int, float, bool のいずれかであること\n長さが入力データフレームの数と一致すること\n\n*args に辞書が指定された場合は、辞書のキーが使用されます。\nid (str, optional): 追加する識別子列の名前。None の場合、識別子列は作成されません。\nto_native: bool True の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。 False の場合、narwhals.DataFrame を返します。デフォルトは True で、to_native = False は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。\n\n\n返り値 Value\n\nIntoFrameT 行方向に結合されたたデータフレームを返します。",
+    "text": "引数 Argument\n\n*args:IntoFrameT / list[IntoFrameT] / dict[IntoFrameT]（必須） 以下のいずれかの形式で結合するデータフレームを指定します：\n\n1つ以上のデータフレーム\nデータフレームのリスト／タプル\n値がデータフレームである辞書 各データフレームには narwhals が受け入れ可能な DataFrame 互換オブジェクト （例：pandas.DataFrame、polars.DataFrame、pyarrow.Table）を指定できます。\n\nnames: list of str / int / float / bool 各入力データフレームに対応する識別子のリスト。*args がデータフレーム、またはデータフレームのリスト／タプル の場合にのみ有効です。省略（None）された場合、識別子は range(n) になります。 names が None でない場合、以下を満たす必要があります：\n\nすべての要素が同一の型であること\n要素の型が str, int, float, bool のいずれかであること\n長さが入力データフレームの数と一致すること\n\n*args に辞書が指定された場合は、辞書のキーが使用されます。\nid: str, optional: 追加する識別子列の名前。None の場合、識別子列は作成されません。\nto_native: bool True の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。 False の場合、narwhals.DataFrame を返します。デフォルトは True で、to_native = False は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。\n\n\n返り値 Value\n\nIntoFrameT 行方向に結合されたたデータフレームを返します。",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>14</span>  <span class='chapter-title'>bind_rows</span>"
@@ -622,7 +622,18 @@
     "href": "man/bind_rows.html#使用例-example",
     "title": "bind_rows",
     "section": "使用例 Example",
-    "text": "使用例 Example\nimport py4stats as py4st\nimport polars as pl\n\ntable1 = pl.DataFrame({'x':[1, 2], 'y':[2, 6], 'z':['a', 'c']})\ntable2 = pl.DataFrame({'x':[4], 'y':[3], 'z':['b']})\n\nprint(bind_rows(table1, table2))\n#&gt; shape: (3, 4)\n#&gt; ┌─────┬─────┬─────┬─────┐\n#&gt; │ id  ┆ x   ┆ y   ┆ z   │\n#&gt; │ --- ┆ --- ┆ --- ┆ --- │\n#&gt; │ i32 ┆ i64 ┆ i64 ┆ str │\n#&gt; ╞═════╪═════╪═════╪═════╡\n#&gt; │ 0   ┆ 1   ┆ 2   ┆ a   │\n#&gt; │ 0   ┆ 2   ┆ 6   ┆ c   │\n#&gt; │ 1   ┆ 4   ┆ 3   ┆ b   │\n#&gt; └─────┴─────┴─────┴─────┘\n\nprint(bind_rows(\n    [table1, table2], \n    names = ['table1', 'table2'], \n    id = 'source'\n    ))\n#&gt; shape: (3, 4)\n#&gt; ┌────────┬─────┬─────┬─────┐\n#&gt; │ source ┆ x   ┆ y   ┆ z   │\n#&gt; │ ---    ┆ --- ┆ --- ┆ --- │\n#&gt; │ str    ┆ i64 ┆ i64 ┆ str │\n#&gt; ╞════════╪═════╪═════╪═════╡\n#&gt; │ table1 ┆ 1   ┆ 2   ┆ a   │\n#&gt; │ table1 ┆ 2   ┆ 6   ┆ c   │\n#&gt; │ table2 ┆ 4   ┆ 3   ┆ b   │\n#&gt; └────────┴─────┴─────┴─────┘\n\ndict_table = {'table1': table1, 'table2': table2}\nprint(bind_rows(dict_table))\n#&gt; shape: (3, 4)\n#&gt; ┌────────┬─────┬─────┬─────┐\n#&gt; │ id     ┆ x   ┆ y   ┆ z   │\n#&gt; │ ---    ┆ --- ┆ --- ┆ --- │\n#&gt; │ str    ┆ i64 ┆ i64 ┆ str │\n#&gt; ╞════════╪═════╪═════╪═════╡\n#&gt; │ table1 ┆ 1   ┆ 2   ┆ a   │\n#&gt; │ table1 ┆ 2   ┆ 6   ┆ c   │\n#&gt; │ table2 ┆ 4   ┆ 3   ┆ b   │\n#&gt; └────────┴─────┴─────┴─────┘\nprint(bind_rows(table1, table2, id = None))\n#&gt; shape: (3, 3)\n#&gt; ┌─────┬─────┬─────┐\n#&gt; │ x   ┆ y   ┆ z   │\n#&gt; │ --- ┆ --- ┆ --- │\n#&gt; │ i64 ┆ i64 ┆ str │\n#&gt; ╞═════╪═════╪═════╡\n#&gt; │ 1   ┆ 2   ┆ a   │\n#&gt; │ 2   ┆ 6   ┆ c   │\n#&gt; │ 4   ┆ 3   ┆ b   │\n#&gt; └─────┴─────┴─────┘\n\nReturn to Function reference.",
+    "text": "使用例 Example\nimport py4stats as py4st\nimport polars as pl\ntable1 = pl.DataFrame({'x':[1, 2], 'y':[2, 6], 'z':['a', 'c']})\ntable2 = pl.DataFrame({'x':[4], 'y':[3], 'z':['b']})\n\n# 基本的な使用方法\nprint(py4st.bind_rows(table1, table2))\n#&gt; shape: (3, 4)\n#&gt; ┌─────┬─────┬─────┬─────┐\n#&gt; │ id  ┆ x   ┆ y   ┆ z   │\n#&gt; │ --- ┆ --- ┆ --- ┆ --- │\n#&gt; │ i32 ┆ i64 ┆ i64 ┆ str │\n#&gt; ╞═════╪═════╪═════╪═════╡\n#&gt; │ 0   ┆ 1   ┆ 2   ┆ a   │\n#&gt; │ 0   ┆ 2   ┆ 6   ┆ c   │\n#&gt; │ 1   ┆ 4   ┆ 3   ┆ b   │\n#&gt; └─────┴─────┴─────┴─────┘\n\n# id 列の値は names 引数で、列名は id 引数で調整できます\nprint(py4st.bind_rows(\n    [table1, table2], \n    names = ['table1', 'table2'], \n    id = 'source'\n    ))\n#&gt; shape: (3, 4)\n#&gt; ┌────────┬─────┬─────┬─────┐\n#&gt; │ source ┆ x   ┆ y   ┆ z   │\n#&gt; │ ---    ┆ --- ┆ --- ┆ --- │\n#&gt; │ str    ┆ i64 ┆ i64 ┆ str │\n#&gt; ╞════════╪═════╪═════╪═════╡\n#&gt; │ table1 ┆ 1   ┆ 2   ┆ a   │\n#&gt; │ table1 ┆ 2   ┆ 6   ┆ c   │\n#&gt; │ table2 ┆ 4   ┆ 3   ┆ b   │\n#&gt; └────────┴─────┴─────┴─────┘\n\n# データフレームの辞書を与えると、keys が id 列として保持されます\ndict_table = {'table1': table1, 'table2': table2}\nprint(py4st.bind_rows(dict_table))\n#&gt; shape: (3, 4)\n#&gt; ┌────────┬─────┬─────┬─────┐\n#&gt; │ id     ┆ x   ┆ y   ┆ z   │\n#&gt; │ ---    ┆ --- ┆ --- ┆ --- │\n#&gt; │ str    ┆ i64 ┆ i64 ┆ str │\n#&gt; ╞════════╪═════╪═════╪═════╡\n#&gt; │ table1 ┆ 1   ┆ 2   ┆ a   │\n#&gt; │ table1 ┆ 2   ┆ 6   ┆ c   │\n#&gt; │ table2 ┆ 4   ┆ 3   ┆ b   │\n#&gt; └────────┴─────┴─────┴─────┘\nid = None を指定すると id 列は追加されません。\nprint(bind_rows(table1, table2, id = None))\n#&gt; shape: (3, 3)\n#&gt; ┌─────┬─────┬─────┐\n#&gt; │ x   ┆ y   ┆ z   │\n#&gt; │ --- ┆ --- ┆ --- │\n#&gt; │ i64 ┆ i64 ┆ str │\n#&gt; ╞═════╪═════╪═════╡\n#&gt; │ 1   ┆ 2   ┆ a   │\n#&gt; │ 2   ┆ 6   ┆ c   │\n#&gt; │ 4   ┆ 3   ┆ b   │\n#&gt; └─────┴─────┴─────┘",
+    "crumbs": [
+      "**EDA**",
+      "<span class='chapter-number'>14</span>  <span class='chapter-title'>bind_rows</span>"
+    ]
+  },
+  {
+    "objectID": "man/bind_rows.html#注意-notes",
+    "href": "man/bind_rows.html#注意-notes",
+    "title": "bind_rows",
+    "section": "注意 Notes",
+    "text": "注意 Notes\nbind_row() 関数では、args 引数に入力されたデータフレームが、全て同一のバックエンド（例：全て pandas、または全て polars）であることを前提としています。異なるバックエンドを混在させた場合、TypeError が発生します。\n\nReturn to Function reference.",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>14</span>  <span class='chapter-title'>bind_rows</span>"
@@ -783,11 +794,11 @@
     ]
   },
   {
-    "objectID": "man/review_wrangling.html#notes",
-    "href": "man/review_wrangling.html#notes",
+    "objectID": "man/review_wrangling.html#注意-notes",
+    "href": "man/review_wrangling.html#注意-notes",
     "title": "review_wrangling",
-    "section": "Notes",
-    "text": "Notes\n\n本関数では、before と after が同一の DataFrame バックエンド（例：どちらも pandas、またはどちらも polars）であることを前提としています。異なるバックエンドを混在させた場合、エラーが発生します。\nreview_wrangling() 関数は、行（レコード）単位の差分（値の変更・削除など）を追跡していません。これは、レコード単位の差分を追跡するためには index が必要になり、特定のバックエンド（e.g. Pandas）への依存が生じることと、前処理では行の並び替えや index の再設定によって before と after のレコード対応付けが曖昧になりやすいことが理由です。そのため、本関数は個々のレコードの変化ではなく、データセット全体に生じた構造的な変化をレビューする関数として設計しています。",
+    "section": "注意 Notes",
+    "text": "注意 Notes\n\n本関数では、before と after が同一の DataFrame バックエンド（例：どちらも pandas、またはどちらも polars）であることを前提としています。異なるバックエンドを混在させた場合、エラーが発生します。\nreview_wrangling() 関数は、行（レコード）単位の差分（値の変更・削除など）を追跡していません。これは、レコード単位の差分を追跡するためには index が必要になり、特定のバックエンド（e.g. Pandas）への依存が生じることと、前処理では行の並び替えや index の再設定によって before と after のレコード対応付けが曖昧になりやすいことが理由です。そのため、本関数は個々のレコードの変化ではなく、データセット全体に生じた構造的な変化をレビューする関数として設計しています。",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>17</span>  <span class='chapter-title'>review_wrangling</span>"
@@ -860,11 +871,11 @@
     ]
   },
   {
-    "objectID": "man/review_individuals.html#notes",
-    "href": "man/review_individuals.html#notes",
+    "objectID": "man/review_individuals.html#注意-notes",
+    "href": "man/review_individuals.html#注意-notes",
     "title": "Individual review functions",
-    "section": "Notes",
-    "text": "Notes\n\nreview_category() 関数では、before と after が同一の DataFrame バックエンド（例：どちらも pandas、またはどちらも polars）であることを前提としています。異なるバックエンドを混在させた場合、エラーが発生します。",
+    "section": "注意 Notes",
+    "text": "注意 Notes\nreview_category() 関数では、before と after が同一の DataFrame バックエンド（例：どちらも pandas、またはどちらも polars）であることを前提としています。異なるバックエンドを混在させた場合、エラーが発生します。",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>18</span>  <span class='chapter-title'>Individual review functions</span>"
@@ -1181,78 +1192,78 @@
   {
     "objectID": "man/varidate.html",
     "href": "man/varidate.html",
-    "title": "check_that check_viorate",
+    "title": "check_that, check_viorate",
     "section": "",
     "text": "概要\n簡易なルールベースのデータ検証ツール\nR言語の varidateパッケージの check_that() 関数などをオマージュした、ごく簡易なデータ検証関数です。",
     "crumbs": [
       "**EDA**",
-      "<span class='chapter-number'>25</span>  <span class='chapter-title'>check_that check_viorate</span>"
+      "<span class='chapter-number'>25</span>  <span class='chapter-title'>check_that, check_viorate</span>"
     ]
   },
   {
     "objectID": "man/varidate.html#概要",
     "href": "man/varidate.html#概要",
-    "title": "check_that check_viorate",
+    "title": "check_that, check_viorate",
     "section": "",
     "text": "check_that(\n    data: IntoFrameT,\n    rule_dict: Union[Mapping[str, str], pd.Series],\n    **kwargs: Any,\n)\n\ncheck_viorate(\n    data: IntoFrameT,\n    rule_dict: Union[Mapping[str, str], pd.Series],\n    **kwargs: Any,\n)",
     "crumbs": [
       "**EDA**",
-      "<span class='chapter-number'>25</span>  <span class='chapter-title'>check_that check_viorate</span>"
+      "<span class='chapter-number'>25</span>  <span class='chapter-title'>check_that, check_viorate</span>"
     ]
   },
   {
     "objectID": "man/varidate.html#引数-argument",
     "href": "man/varidate.html#引数-argument",
-    "title": "check_that check_viorate",
+    "title": "check_that, check_viorate",
     "section": "引数 Argument",
     "text": "引数 Argument\n\ndata：IntoFrameT（必須） 　ルールに基づくデータ検証を行うデータセット。narwhals が受け入れ可能な DataFrame 互換オブジェクト （例：pandas.DataFrame、polars.DataFrame、pyarrow.Table）を指定できます。\nrule_dictdict or pd.Series of str（必須） 　pandas.eval() メソッドで実行した結果が論理値となるような expression の文字列を値とする辞書オブジェクト。詳細は使用例も参照してください。\nto_native: bool True の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。 False の場合、narwhals.DataFrame を返します。デフォルトは True で、to_native = False は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。\n**kwargs 　pandas.eval() に渡す追加の引数。",
     "crumbs": [
       "**EDA**",
-      "<span class='chapter-number'>25</span>  <span class='chapter-title'>check_that check_viorate</span>"
+      "<span class='chapter-number'>25</span>  <span class='chapter-title'>check_that, check_viorate</span>"
     ]
   },
   {
     "objectID": "man/varidate.html#返り値-value",
     "href": "man/varidate.html#返り値-value",
-    "title": "check_that check_viorate",
+    "title": "check_that, check_viorate",
     "section": "返り値 Value",
     "text": "返り値 Value\n\ncheck_that(): データセット単位の検証結果の集計\n次の列を含む、引数 data に代入されたデータフレームと同じ型の DataFrame が出力されます。\n\nrule: 検証ルールの名前\nitem: ルールが検証対象とした項目の数。レコード（行）を検証単位とするルールの場合、item は data の行数（rows）になります。一方、データセット全体を検証単位とするルール（例：集計量に基づく条件）の場合、item は 1 になります。\npasses: 検証の結果、ルールを満たすと判定されたレコードの数。\nfails: 検証の結果、ルールを満たさないと判定されたレコードの数。\ncountna: 欠測値によって、ルールの検証が行えなかったレコードの数。行（レコード）を検証単位とするルールでは、ルールの評価に使用された変数のいずれかに欠測値が含まれる場合、そのレコードは検証不能として NA 扱いされます。countna は、このように検証を正しく実施できなかったレコードの件数を表します。\nexpression: 検証ルールを表す文字列（expression）。\n\n\n\ncheck_viorate(): レコード単位の検証結果\nルール名を列名として、レコード毎の違反を示す論理変数をもつ DataFrame が出力されます。\n各列の要素の True は検証のルールへの違反、もしくは欠測値によって評価に失敗したことを表します。rule_dict で設定された各ルールに対応する列の他に、次の列が追加で出力されます。\n\nany: 行内のいずれかのルールが違反または評価に失敗した場合に True となるブール値。\nall: 行内の全ルールが違反または評価に失敗した場合に True となるブール値。",
     "crumbs": [
       "**EDA**",
-      "<span class='chapter-number'>25</span>  <span class='chapter-title'>check_that check_viorate</span>"
+      "<span class='chapter-number'>25</span>  <span class='chapter-title'>check_that, check_viorate</span>"
     ]
   },
   {
     "objectID": "man/varidate.html#使用例-examples",
     "href": "man/varidate.html#使用例-examples",
-    "title": "check_that check_viorate",
+    "title": "check_that, check_viorate",
     "section": "使用例 Examples",
     "text": "使用例 Examples\n　ここでは py4st.check_that() 関数を使って Loo, Jonge(2022, p. 136)の結果を再現します。まずはR言語の validate パッケージに付属する retailers データを利用します。retailers は60件の小売業者の経営状況についてのデータで、従業員数、売上高とその他の収入、人件費、総費用、および利益がユーロ導入前の通貨単位である1000ギルダー単位で収録されています。\nimport py4stats as py4st\nimport pandas as pd\n\nURL = 'https://raw.githubusercontent.com/data-cleaning/validate/master/pkg/data/retailers.csv'\nretailers = pd.read_csv(URL, sep = ';')\nretailers.columns = retailers.columns.to_series().str.replace('.', '_', regex = False)\n　py4st.check_that() 関数は、第1引数にデータセットを、第2引数に検証ルールの辞書オブジェクトを代入して使用します。\n　まずは、検証ルールの辞書オブジェクトを定義します。辞書オブジェクトの値には pandas.eval() メソッドで実行可能な expression の文字列を指定し、key に検証ルールの名前を指定します。検証ルールの名前は任意の値で構いませんが、 expression は結果が論理値となるものでなければなりません。\nrule_dict =  {\n    'to':'turnover &gt; 0',                                     # 売上高は厳密に正である\n    'sc':'staff_costs / staff &lt; 50',                         # 従業員1人当たりの人件費は50,000ギルダー未満である\n    'cd1':'staff_costs &gt; 0 | ~(staff &gt; 0)',                    # 従業員がいる場合、人件費は厳密に正である\n    'cd2':py4st.implies_exper('staff &gt; 0', 'staff_costs &gt; 0'), # cd1 の別表現\n    'bs':'turnover + other_rev == total_rev',                # 売上高とその他の収入の合計は総収入に等しい\n    'mn':'profit.mean() &gt; 0'                                 # セクター全体の平均的な利益はゼロよりも大きい\n    }\npd.Series(rule_dict)\n#&gt; to                          turnover &gt; 0\n#&gt; sc              staff_costs / staff &lt; 50\n#&gt; cd1       staff_costs &gt; 0 | ~(staff &gt; 0)\n#&gt; cd2       staff_costs &gt; 0 | ~(staff &gt; 0)\n#&gt; bs     turnover + other_rev == total_rev\n#&gt; mn                     profit.mean() &gt; 0\n#&gt; dtype: object\nretailers と rule_dict を py4st.check_that() に代入すると、rule_dict に指定したルールに基づいた検証が実行されます。item 列はその検証ルールで生成された論理値の個数（通常はデータセットの列数と一致します）を表し、passes 列は検証結果が True となったレコードの数を、fails は False となったレコードの数を表します。また、coutna はルールの検証に使用した変数（データセットの列）のいずれかが欠測値であったレコードの数です。\nprint(py4st.check_that(retailers, rule_dict))\n#&gt;   rule  item  passes  fails  coutna                         expression\n#&gt; 0   to    60      56      0       4                       turnover &gt; 0\n#&gt; 1   sc    60      39      5      16           staff_costs / staff &lt; 50\n#&gt; 2  cd1    60      44      0      16     staff_costs &gt; 0 | ~(staff &gt; 0)\n#&gt; 3  cd2    60      44      0      16     staff_costs &gt; 0 | ~(staff &gt; 0)\n#&gt; 4   bs    60      19      4      37  turnover + other_rev == total_rev\n#&gt; 5   mn     1       1      0       0                  profit.mean() &gt; 0\n前述の通り、py4st.check_that() 関数ではルール検証を pandas.eval() メソッドで実行しているため、検証ルールに自作関数や外部のモジュールからインポート関数を使うには、関数名の前に @ をつけて @func(…) と記述し、また **kwargs 引数に local_dict = locals() と指定してください。\n　次のコードで定義している is_complete() 関数は、代入された pd.Series が全て欠測値ではなく、指定された変数に関して完全ケースであることを判定する関数です。turnover.notna() & total_rev.notna() & other_rev.notna() と記述しても同じ結果が得られますが、自作関数を使うことで若干簡潔に記述できます。\nfrom pandas.api.types import is_numeric_dtype\ndef is_complete(*arg): return pd.concat(arg, axis = 'columns').notna().all(axis = 'columns')\n\npd.set_option('display.expand_frame_repr', False)\n\nrule_dict2 =  {\n    'to_num':'@is_numeric_dtype(turnover)',                      # 売上高は数値変数である\n    'rev_complete':'@is_complete(turnover, total_rev, other_rev)', # 売上高と収入が全て観測されている\n    }\n\nprint(py4st.check_that(\n    retailers, rule_dict2, local_dict = locals()\n    ))\n#&gt;            rule  item  passes  fails  coutna                                    expression\n#&gt; 0        to_num     1       1      0       0                   @is_numeric_dtype(turnover)\n#&gt; 1  rev_complete    60      23      0      37  @is_complete(turnover, total_rev, other_rev)\npy4st.check_viorate() の使い方も py4st.check_that() と同様ですが、py4st.check_that() がデータセット全体での検証結果を出力するのに対し、py4st.check_viorate() ではレコード別の検証結果を表示します。py4st.check_viorate() から出力されるデータフレームでは、各列が検証ルールに、各行が元データの観測値に対応し、当該ルールが満たされていない場合、True と表示されます。また、any 列は複数あるルールのいずれか1つでも満たされていないことを、all 列は全てのルールが満たされていないことを示します。\nrule_dict3 =  {\n    'to':'turnover &gt; 0',                                     # 売上高は厳密に正である\n    'sc':'staff_costs / staff &lt; 50',                         # 従業員1人当たりの人件費は50,000ギルダー未満である\n    'rev_complete':'@is_complete(turnover, total_rev, other_rev)',# 売上高と収入が全て観測されている\n    }\n  \ndf_viorate = py4st.check_viorate(retailers, rule_dict3)\nprint(df_viorate.head())\n#&gt;       to     sc rev_complete   any    all\n#&gt; 0   True   True         True  True   True\n#&gt; 1  False  False         True  True  False\n#&gt; 2  False   True        False  True  False\n#&gt; 3  False   True        False  True  False\n#&gt; 4   True   True         True  True   True\ndf_viorate データフレームの各列は論理値であるため、次のように検証ルールを満たさない観測値を抽出することができます。\nprint(retailers.loc[df_viorate['to'], 'size':'turnover'])\n#&gt;   size  incl_prob  staff  turnover\n#&gt; 0  sc0       0.02   75.0       NaN\n#&gt; 4  sc3       0.14    NaN       NaN\n#&gt; 6  sc3       0.14    5.0       NaN",
     "crumbs": [
       "**EDA**",
-      "<span class='chapter-number'>25</span>  <span class='chapter-title'>check_that check_viorate</span>"
+      "<span class='chapter-number'>25</span>  <span class='chapter-title'>check_that, check_viorate</span>"
     ]
   },
   {
-    "objectID": "man/varidate.html#notes",
-    "href": "man/varidate.html#notes",
-    "title": "check_that check_viorate",
-    "section": "Notes",
-    "text": "Notes\n本関数の内部実装は、 pd.DataFrame.eval() メソッドに依存しているため、実行時間の面で必ずしも最適化されていません。",
+    "objectID": "man/varidate.html#注意-notes",
+    "href": "man/varidate.html#注意-notes",
+    "title": "check_that, check_viorate",
+    "section": "注意 Notes",
+    "text": "注意 Notes\n本関数の内部実装は、 pd.DataFrame.eval() メソッドに依存しているため、実行時間の面で必ずしも最適化されていません。",
     "crumbs": [
       "**EDA**",
-      "<span class='chapter-number'>25</span>  <span class='chapter-title'>check_that check_viorate</span>"
+      "<span class='chapter-number'>25</span>  <span class='chapter-title'>check_that, check_viorate</span>"
     ]
   },
   {
     "objectID": "man/varidate.html#参考文献",
     "href": "man/varidate.html#参考文献",
-    "title": "check_that check_viorate",
+    "title": "check_that, check_viorate",
     "section": "参考文献",
     "text": "参考文献\n\nLoo, Mark van der, and Edwin de Jonge. (2022). 『統計的データクリーニングの理論と実践: Rによるデータ編集/欠測補完システム』. 共立出版. 地道 正行, 髙橋 雅夫, 藤野 友和, 安川 武彦〔訳〕\n\n\nReturn to Function reference.",
     "crumbs": [
       "**EDA**",
-      "<span class='chapter-number'>25</span>  <span class='chapter-title'>check_that check_viorate</span>"
+      "<span class='chapter-number'>25</span>  <span class='chapter-title'>check_that, check_viorate</span>"
     ]
   },
   {
@@ -2514,7 +2525,7 @@
     "href": "articles/eda_tools_development_status.html",
     "title": "eda_toolsの開発状況",
     "section": "",
-    "text": "関数の実装状況一覧\n2026年2月11日",
+    "text": "関数の実装状況一覧\n2026年2月14日",
     "crumbs": [
       "**Contributing Notes**",
       "<span class='chapter-number'>47</span>  <span class='chapter-title'>eda_toolsの開発状況</span>"
@@ -2525,7 +2536,7 @@
     "href": "articles/eda_tools_development_status.html#関数の実装状況一覧",
     "title": "eda_toolsの開発状況",
     "section": "",
-    "text": "関数の実装状況一覧\n\n\n\n\n\n\n\n\n\n\nfunctions\nInput\nPandas\nPolars\nPyarrow\n補足\n\n\n\n\nMean\npd.Series\n✅\n❌\n❌\npd.DataFrame.eval() での使用を想定した関数\n\n\nMedian\npd.Series\n✅\n❌\n❌\npd.DataFrame.eval() での使用を想定した関数\n\n\nMax\npd.Series\n✅\n❌\n❌\npd.DataFrame.eval() での使用を想定した関数\n\n\nMin\npd.Series\n✅\n❌\n❌\npd.DataFrame.eval() での使用を想定した関数\n\n\nPareto_plot\nDataFrame\n✅\n✅\n✅\n\n\n\nSum\npd.Series\n✅\n❌\n❌\npd.DataFrame.eval() での使用を想定した関数\n\n\ncheck_that\nDataFrame\n✅\n⭕️\n⭕️\n実装に pd.DataFrame.eval() を使用\n\n\ncheck_viorate\nDataFrame\n✅\n⭕️\n⭕️\n実装に pd.DataFrame.eval() を使用\n\n\ncompare_df_cols\nDataFrame\n✅\n✅\n✅\n\n\n\ncompare_df_record\nDataFrame\n✅\n✅\n✅\n\n\n\ncompare_df_stats\nDataFrame\n✅\n✅\n✅\n\n\n\ncompare_group_means\nDataFrame\n✅\n✅\n✅\n\n\n\ncompare_group_median\nDataFrame\n✅\n✅\n✅\n\n\n\ncrosstab\nDataFrame\n✅\n✅\n⭕️\nPyarrow は Polars 依存の実装\n\n\ndiagnose\nDataFrame\n✅\n✅\n✅\n\n\n\ndiagnose_category\nDataFrame\n✅\n✅\n✅\n\n\n\nfiltering_out\nDataFrame\n✅\n✅\n✅\n\n\n\nfreq_table\nDataFrame\n✅\n✅\n✅\n\n\n\ngroup_split\nDataFrame\n✅\n✅\n✅\n\n\n\ngroup_map\nDataFrame\n✅\n✅\n✅\n\n\n\ngroup_modify\nDataFrame\n✅\n✅\n✅\n\n\n\nimplies_exper\npd.Series\n✅\n❌\n❌\npd.DataFrame.eval() での使用を想定した関数\n\n\nis_dummy\nDataFrame/Series\n✅\n✅\n✅\n\n\n\nis_number\nSeries\n✅\n✅\n✅\n\n\n\nis_ymd_like\nSeries\n✅\n✅\n✅\n\n\n\nis_ymd\nSeries\n✅\n✅\n✅\n\n\n\nmean_ci\nDataFrame/Series\n✅\n✅\n✅\n\n\n\nmean_qi\nDataFrame/Series\n✅\n✅\n✅\n\n\n\nmedian_qi\nDataFrame/Series\n✅\n✅\n✅\n\n\n\nmin_max\nSeries\n✅\n✅\n✅\n\n\n\nplot_mean_diff\nDataFrame\n✅\n✅\n✅\n\n\n\nplot_median_diff\nDataFrame\n✅\n✅\n✅\n\n\n\nplot_miss_var\nDataFrame\n✅\n✅\n✅\n\n\n\nscale\nSeries\n✅\n✅\n✅\n\n\n\nset_miss\nSeries\n✅\n✅\n✅\n\n\n\nrelocate\nDataFrame\n✅\n✅\n✅\n\n\n\nremove_constant\nDataFrame\n✅\n✅\n✅\n\n\n\nremove_empty\nDataFrame\n✅\n✅\n✅\n\n\n\nreview_wrangling\nDataFrame\n✅\n✅\n✅\n\n\n\nreview_shape\nDataFrame\n✅\n✅\n✅\n\n\n\nreview_col_addition\nDataFrame\n✅\n✅\n✅\n\n\n\nreview_casting\nDataFrame\n✅\n✅\n✅\n\n\n\nreview_missing\nDataFrame\n✅\n✅\n✅\n\n\n\ntabyl\nDataFrame\n✅\n⭕️\n⭕️\n一部の処理が Pandas 依存\n\n\nweighted_mean\nSeries\n✅\n✅\n✅",
+    "text": "関数の実装状況一覧\n\n\n\n\n\n\n\n\n\n\nfunctions\nInput\nPandas\nPolars\nPyarrow\n補足\n\n\n\n\nMean\npd.Series\n✅\n❌\n❌\npd.DataFrame.eval() での使用を想定した関数\n\n\nMedian\npd.Series\n✅\n❌\n❌\npd.DataFrame.eval() での使用を想定した関数\n\n\nMax\npd.Series\n✅\n❌\n❌\npd.DataFrame.eval() での使用を想定した関数\n\n\nMin\npd.Series\n✅\n❌\n❌\npd.DataFrame.eval() での使用を想定した関数\n\n\nPareto_plot\nDataFrame\n✅\n✅\n✅\n\n\n\nSum\npd.Series\n✅\n❌\n❌\npd.DataFrame.eval() での使用を想定した関数\n\n\nbind_rows\nDataFrame\n✅\n✅\n✅\n\n\n\ncheck_that\nDataFrame\n✅\n⭕️\n⭕️\n実装に pd.DataFrame.eval() を使用\n\n\ncheck_viorate\nDataFrame\n✅\n⭕️\n⭕️\n実装に pd.DataFrame.eval() を使用\n\n\ncompare_df_cols\nDataFrame\n✅\n✅\n✅\n\n\n\ncompare_df_record\nDataFrame\n✅\n✅\n✅\n\n\n\ncompare_df_stats\nDataFrame\n✅\n✅\n✅\n\n\n\ncompare_group_means\nDataFrame\n✅\n✅\n✅\n\n\n\ncompare_group_median\nDataFrame\n✅\n✅\n✅\n\n\n\ncrosstab\nDataFrame\n✅\n✅\n⭕️\nPyarrow は Polars 依存の実装\n\n\ndiagnose\nDataFrame\n✅\n✅\n✅\n\n\n\ndiagnose_category\nDataFrame\n✅\n✅\n✅\n\n\n\nfiltering_out\nDataFrame\n✅\n✅\n✅\n\n\n\nfreq_table\nDataFrame\n✅\n✅\n✅\n\n\n\ngroup_split\nDataFrame\n✅\n✅\n✅\n\n\n\ngroup_map\nDataFrame\n✅\n✅\n✅\n\n\n\ngroup_modify\nDataFrame\n✅\n✅\n✅\n\n\n\nimplies_exper\npd.Series\n✅\n❌\n❌\npd.DataFrame.eval() での使用を想定した関数\n\n\nis_dummy\nDataFrame/Series\n✅\n✅\n✅\n\n\n\nis_number\nSeries\n✅\n✅\n✅\n\n\n\nis_ymd_like\nSeries\n✅\n✅\n✅\n\n\n\nis_ymd\nSeries\n✅\n✅\n✅\n\n\n\nmean_ci\nDataFrame/Series\n✅\n✅\n✅\n\n\n\nmean_qi\nDataFrame/Series\n✅\n✅\n✅\n\n\n\nmedian_qi\nDataFrame/Series\n✅\n✅\n✅\n\n\n\nmin_max\nSeries\n✅\n✅\n✅\n\n\n\nplot_mean_diff\nDataFrame\n✅\n✅\n✅\n\n\n\nplot_median_diff\nDataFrame\n✅\n✅\n✅\n\n\n\nplot_miss_var\nDataFrame\n✅\n✅\n✅\n\n\n\nscale\nSeries\n✅\n✅\n✅\n\n\n\nset_miss\nSeries\n✅\n✅\n✅\n\n\n\nrelocate\nDataFrame\n✅\n✅\n✅\n\n\n\nremove_constant\nDataFrame\n✅\n✅\n✅\n\n\n\nremove_empty\nDataFrame\n✅\n✅\n✅\n\n\n\nreview_wrangling\nDataFrame\n✅\n✅\n✅\n\n\n\nreview_shape\nDataFrame\n✅\n✅\n✅\n\n\n\nreview_col_addition\nDataFrame\n✅\n✅\n✅\n\n\n\nreview_casting\nDataFrame\n✅\n✅\n✅\n\n\n\nreview_missing\nDataFrame\n✅\n✅\n✅\n\n\n\ntabyl\nDataFrame\n✅\n⭕️\n⭕️\n一部の処理が Pandas 依存\n\n\nweighted_mean\nSeries\n✅\n✅\n✅",
     "crumbs": [
       "**Contributing Notes**",
       "<span class='chapter-number'>47</span>  <span class='chapter-title'>eda_toolsの開発状況</span>"
