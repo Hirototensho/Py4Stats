@@ -2356,54 +2356,6 @@ def binning_for_ig(data, col, max_unique:int = 20, n_bins: Optional[int] = None)
 # In[ ]:
 
 
-# from collections import namedtuple
-# IGResult = namedtuple('IGResult', ['H_before', 'H_after', 'info_gain', 'ig_ratio'])
-
-# def ig_compute(
-#         data, target: str, 
-#         feature: str, 
-#         use_bining: bool = True,
-#         max_unique: int = 20,
-#         n_bins: Optional[int] = None
-#         ):
-#     data_nw = as_nw_datarame(data)
-    
-#     H_before = entropy(data[target])
-    
-#     if build.is_numeric(data_nw[feature]) and use_bining:
-#         data_nw = binning_for_ig(
-#             data_nw, feature, 
-#             max_unique = max_unique, n_bins = n_bins
-#             )
-
-#     splited = group_split(
-#         data_nw, feature,
-#         drop_na_groups = True
-#         )
-#     count = [df.shape[0] for df in splited.data]
-#     ent = [
-#         entropy(df[target], dropna = True) 
-#         for df in splited.data
-#         ]
-    
-#     ent = nw.Series.from_iterable(
-#         'ent', ent, backend = data_nw.implementation
-#         )
-    
-#     count = nw.Series.from_iterable(
-#         'count', count, backend = data_nw.implementation
-#         )
-    
-#     H_after = weighted_mean(ent, count)
-#     info_gain = np.max([H_before - H_after, 0])
-#     ig_ratio = info_gain / H_before if H_before > 0 else np.nan
-
-#     return IGResult(H_before, H_after, info_gain, ig_ratio)
-
-
-# In[ ]:
-
-
 from collections import namedtuple
 IGResult = namedtuple('IGResult', ['H_before', 'H_after', 'info_gain', 'ig_ratio'])
 
@@ -2414,7 +2366,7 @@ def ig_compute(
         max_unique: int = 20,
         n_bins: Optional[int] = None
         ):
-    data_pd = as_nw_datarame(data).to_pandas()
+    data_pd = as_nw_datarame(data).to_pandas().copy()
     
     
     if build.is_numeric(data_pd[feature]) and use_bining:
@@ -2423,14 +2375,16 @@ def ig_compute(
         if n_bins is None: n_bins = min(int(np.log2(1 + n)), max_unique)
 
         data_pd[feature] = pd.qcut(
-            data_pd[feature], q = n_bins, labels = False,
+            data_pd[feature], 
+            q = n_bins, 
+            labels = False,
             duplicates = 'drop'
             )
         
     H_before = entropy(data_pd[target])
     
     res = data_pd\
-        .groupby(feature)[target]\
+        .groupby(feature, observed = True)[target]\
         .agg([entropy, 'count'])
 
     H_after = weighted_mean(res['entropy'], res['count'])

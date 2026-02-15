@@ -1,0 +1,70 @@
+# info_gain
+
+[![](https://img.shields.io/badge/Tested-Pandas_/_Polars_/_Pyarrow-blue){fig-align="left" fig-alt="badge of tested backend"}](../articles/eda_tools_development_status.qmd)
+
+複数の目的変数と特徴量の組み合わせに対して情報利得を計算します。
+
+## 概要
+
+本関数は、指定された目的変数と特徴量のすべての組み合わせについて、情報利得（相互情報量）およびその正規化指標（不確実性係数）を算出します。この関数は、アンケート分析のように、複数の目的変数（例：設問項目）と1つまたは複数の属性変数（例：デモグラフィック変数）との関係を探索的にスクリーニングする用途を想定しています。
+
+```python
+info_gain(
+      data: IntoFrameT, 
+      target: Union[List[str], str],
+      features: Optional[Union[List[str]]] = None,
+      use_bining: bool = True,
+      n_bins: Optional[int] = None,
+      max_unique: int = 20,
+      to_native: bool = True,
+      )
+```
+
+## 引数 Argument
+
+- `data`：**IntoFrameT**（必須）<br>
+  入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト<br>
+  （例：`pandas.DataFrame`、`polars.DataFrame`、`pyarrow.Table`）を指定できます。
+- `target`: **str or list of str**</br>
+  1つ以上のカテゴリ型の目的変数名。
+ `features`: **str or list of str**</br>
+  特徴量の変数名。None の場合、目的変数を除くすべての列が特徴量として使用されます。デフォルトは None です。
+- `use_bining`: **bool**
+  数値型の特徴量に対して、情報利得の計算前に離散化を行うかどうか。デフォルトは True です。
+- `max_unique`: **int**
+        数値特徴量を離散化するかどうかを判断する一意値数の閾値であり、
+        同時にビン数の上限としても用いられます。
+        デフォルトは 20 です。
+- `n_bins`: **int**
+        離散化に用いるビン数。None の場合は自動的に決定されます。デフォルトは None です。
+- `to_native`: **bool**<br>
+  `True` の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。<br>
+  `False` の場合、`narwhals.DataFrame` を返します。デフォルトは `True` で、`to_native = False` は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。
+
+
+## 返り値 Value
+
+`info_gain()`関数は、次の値をもつ `DataFrame` を出力します。
+
+- `target` (str): 目的変数名。
+- `features` (str): 特徴量名。
+- `H_before` (float): 目的変数のエントロピー。
+- `H_after` (float): 特徴量を条件とした条件付きエントロピー。
+- `info_gain` (float): 情報利得（相互情報量）。
+- `ig_ratio` (float): 正規化情報利得（不確実性係数）。
+
+## 使用例 Examples
+
+```python
+import pandas as pd
+import py4stats as py4st
+from palmerpenguins import load_penguins
+```
+
+
+## Note 
+
+`evenness` は、各列ごとに情報エントロピーを $[0, 1]$ の範囲に正規化した指標です。本実装では、対数の底をカテゴリの個数（`unique`）に設定することで正規化を行っており、これは底を2とした情報エントロピーを `log2(unique)` で割ることと同値です。この指標は正規化エントロピー（normalized entropy）としても知られています。
+
+***
+[Return to **Function reference**.](../reference.qmd)
