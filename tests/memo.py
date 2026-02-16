@@ -134,19 +134,25 @@ list_backend = ['pd', 'pl', 'pa']
 # テスト用関数の定義
 # =========================================================
 
+@pytest.mark.parametrize("arg, expectation", [
+    pytest.param([1, 2, 3],        nullcontext()),
+    pytest.param([True, False],    nullcontext()),
+    pytest.param([0.1, 0.2, 0.3],  nullcontext()),
+    pytest.param(['a', 'b', 'c'],  nullcontext()),
+    pytest.param(['a', 'b', ['x']],  pytest.raises(TypeError, match=r"must be of type")),
+    pytest.param(['a', pd.Series([1, 2])],  pytest.raises(TypeError, match=r"must be of type")),
+])
 
-@pytest.mark.parametrize("backend", list_backend)
-def test_info_gain(backend) -> None:
-    path = f'{tests_path}/fixtures/info_gain_{backend}.csv'
+def test_assert_literal(arg, expectation):
+    with expectation:
+        build.assert_literal(arg)
 
-    output_df = eda_nw.info_gain(
-        penguins_dict.get(backend), 
-        target = ['species', 'island'],
-        features = ['island', 'sex', 'body_mass_g']
-    )
-    
-    _assert_df_eq(
-        output_df, 
-        path_fixture = path, 
-        update_fixture = True
-        )
+
+# def test_assert_scalar_not_raise():
+#     assert build.assert_scalar('x') is None
+#     assert build.assert_scalar(1) is None
+#     assert build.assert_scalar(True) is None
+
+# def test_assert_scalar_raise():
+#     with pytest.raises(ValueError):
+#         build.assert_scalar(['x'])

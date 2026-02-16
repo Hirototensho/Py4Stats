@@ -117,24 +117,27 @@ def test_assert_length_len_arg():
 def test_assert_length_len_max():
     l = ['a', 'b', 'c']
     with pytest.raises(ValueError):
-        build.assert_length(l, arg_name = 'l', len_arg = 2)
+        build.assert_length(l, arg_name = 'l', len_max = 2)
 
 def test_assert_length_len_min():
     l = ['a', 'b', 'c']
     with pytest.raises(ValueError):
-        build.assert_length(l, arg_name = 'l', len_arg = 4)
+        build.assert_length(l, arg_name = 'l', len_min = 4)
 
 # =========================================================
 # assert_scalar
 # =========================================================
-def test_assert_scalar_not_raise():
-    assert build.assert_scalar('x') is None
-    assert build.assert_scalar(1) is None
-    assert build.assert_scalar(True) is None
+@pytest.mark.parametrize("arg, expectation", [
+    pytest.param('x',    nullcontext()),
+    pytest.param(1,      nullcontext()),
+    pytest.param(True,   nullcontext()),
+    pytest.param(['x'],  pytest.raises(ValueError)),
+    pytest.param([True], pytest.raises(ValueError)),
+])
 
-def test_assert_scalar_raise():
-    with pytest.raises(ValueError):
-        build.assert_scalar(['x'])
+def test_assert_scalar(arg, expectation):
+    with expectation:
+        build.assert_scalar(arg)
 
 # =========================================================
 # assert_missing
@@ -259,7 +262,41 @@ def test_assert_count_requires_nonnegative_integer():
     with pytest.raises(ValueError):
         build.assert_count([-1, 1], arg_name="n")
 
+# =========================================================
+# assert_literal
+# =========================================================
 
+@pytest.mark.parametrize("arg, expectation", [
+    pytest.param([1, 2, 3],        nullcontext()),
+    pytest.param([True, False],    nullcontext()),
+    pytest.param([0.1, 0.2, 0.3],  nullcontext()),
+    pytest.param(['a', 'b', 'c'],  nullcontext()),
+    pytest.param(['a', 'b', ['x']],  pytest.raises(TypeError, match=r"must be of type")),
+    pytest.param(['a', pd.Series([1, 2])],  pytest.raises(TypeError, match=r"must be of type")),
+])
+
+def test_assert_literal(arg, expectation):
+    with expectation:
+        build.assert_literal(arg)
+
+# =========================================================
+# assert_same_type
+# =========================================================
+
+@pytest.mark.parametrize("arg, expectation", [
+    pytest.param([1, 2, 3],        nullcontext()),
+    pytest.param([True, False],    nullcontext()),
+    pytest.param([0.1, 0.2, 0.3],  nullcontext()),
+    pytest.param(['a', 'b', 'c'],  nullcontext()),
+    pytest.param([1, 2, '3'],      pytest.raises(TypeError, match=r"must share the same type")),
+    pytest.param([1, 2, 0.3],      pytest.raises(TypeError, match=r"must share the same type")),
+    pytest.param([True, False, 5], pytest.raises(TypeError, match=r"must share the same type")),
+    pytest.param(['a', 'b', 3],    pytest.raises(TypeError, match=r"must share the same type"))  
+])
+
+def test_assert_same_type_not_error(arg, expectation):
+    with expectation:
+        build.assert_same_type(arg)
 
 # =========================================================
 # p_stars / style_pvalue
