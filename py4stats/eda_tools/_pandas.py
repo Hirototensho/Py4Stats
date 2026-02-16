@@ -1282,9 +1282,9 @@ def Pareto_plot(
     """
     future_warn_pandas_implementation()
     # 引数のアサーション
-    if(top_n is not None): build.assert_count(top_n, lower = 1)
-    build.assert_numeric(xlab_rotation)
-    build.assert_character(palette)
+    if(top_n is not None): build.assert_count(top_n, arg_name = 'top_n', lower = 1)
+    build.assert_numeric(xlab_rotation, arg_name = 'xlab_rotation')
+    build.assert_character(palette, arg_name = 'palette')
 
     # 指定された変数でのランクを表すデータフレームを作成
     if values is None:
@@ -1389,7 +1389,7 @@ def mean_qi(
           If `width` is not in (0, 1).
   """
   future_warn_pandas_implementation()
-  build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
+  build.assert_numeric(width, arg_name = 'width', lower = 0, upper = 1, inclusive = 'neither')
   if(isinstance(self, pd.DataFrame)):
     self = self.select_dtypes([int, float])
     var_name = self.columns
@@ -1440,7 +1440,7 @@ def median_qi(
           If `width` is not in (0, 1).
   """
   future_warn_pandas_implementation()
-  build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
+  build.assert_numeric(width, arg_name = 'width', lower = 0, upper = 1, inclusive = 'neither')
   if(isinstance(self, pd.DataFrame)):
     self = self.select_dtypes([int, float])
     var_name = self.columns
@@ -1492,7 +1492,7 @@ def mean_ci(
       `t.isf((1 - width) / 2, df=n-1)`.
   """
   future_warn_pandas_implementation()
-  build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither')
+  build.assert_numeric(width, arg_name = 'width', lower = 0, upper = 1, inclusive = 'neither')
   if(isinstance(self, pd.DataFrame)):
     self = self.select_dtypes([int, float])
     var_name = self.columns
@@ -1593,8 +1593,8 @@ def is_number(self, na_default = True):
 
 def set_n_miss(x, n = 10, method = 'random', random_state = None, na_value = pd.NA):
   future_warn_pandas_implementation()
-  method = build.arg_match(method, ['random', 'first', 'last'])
-  build.assert_count(n, upper = len(x))
+  method = build.arg_match(method, ['random', 'first', 'last'], arg_name = 'method')
+  build.assert_count(n, arg_name = 'n', upper = len(x))
 
   x = x.copy()
   n_miss = x.isna().sum()
@@ -1617,8 +1617,8 @@ def set_n_miss(x, n = 10, method = 'random', random_state = None, na_value = pd.
 
 def set_prop_miss(x, prop = 0.1, method = 'random', random_state = None, na_value = pd.NA):
   future_warn_pandas_implementation()
-  method = build.arg_match(method, ['random', 'first', 'last'])
-  build.assert_numeric(prop, lower = 0, upper = 1)
+  method = build.arg_match(method, ['random', 'first', 'last'], arg_name = 'method')
+  build.assert_numeric(prop, arg_name = 'prop', lower = 0, upper = 1)
 
   x = x.copy()
   prop_miss = x.isna().mean()
