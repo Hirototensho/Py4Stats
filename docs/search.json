@@ -567,7 +567,7 @@
     "href": "man/filtering_out.html#概要",
     "title": "filtering_out",
     "section": "",
-    "text": "filtering_out(\n    data: IntoFrameT,\n    contains: Optional[str] = None,\n    starts_with: Optional[str] = None,\n    ends_with: Optional[str] = None,\n    axis: Union[int, str] = 'columns',\n    to_native: bool = True,\n)",
+    "text": "filtering_out(\n    data: IntoFrameT,\n    *args: Union[str, List[str], narwhals.Expr, narwhals.selectors.Selector], \n    contains: Optional[str] = None,\n    starts_with: Optional[str] = None,\n    ends_with: Optional[str] = None,\n    axis: Union[int, str] = 'columns',\n    to_native: bool = True,\n)",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>13</span>  <span class='chapter-title'>filtering_out</span>"
