@@ -1320,3 +1320,23 @@ def test_bind_rows_mixed_backend():
     
     with pytest.raises(TypeError, match = "must share the same backend"):
         eda_nw.bind_rows(list(mroz_dict.values()))
+
+# ================================================================
+# info_gain
+# ================================================================
+
+@pytest.mark.parametrize("backend", list_backend)
+def test_info_gain(backend) -> None:
+    path = f'{tests_path}/fixtures/info_gain_{backend}.csv'
+
+    output_df = eda_nw.info_gain(
+        penguins_dict.get(backend), 
+        target = ['species', 'island'],
+        features = ['island', 'sex', 'body_mass_g']
+    )
+    
+    _assert_df_eq(
+        output_df, 
+        path_fixture = path, 
+        update_fixture = True
+        )

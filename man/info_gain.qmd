@@ -1,5 +1,6 @@
 # info_gain
 
+![](https://img.shields.io/badge/lifecycle-experimental-orange){fig-align="left" fig-alt="badge of lifecycle experimental"}
 [![](https://img.shields.io/badge/Tested-Pandas_/_Polars_/_Pyarrow-blue){fig-align="left" fig-alt="badge of tested backend"}](../articles/eda_tools_development_status.qmd)
 
 複数の目的変数と特徴量の組み合わせに対して情報利得を計算します。
@@ -16,7 +17,8 @@ info_gain(
       use_bining: bool = True,
       n_bins: Optional[int] = None,
       max_unique: int = 20,
-      to_native: bool = True,
+      base: float = 2.0,
+      to_native: bool = True
       )
 ```
 
@@ -37,6 +39,8 @@ info_gain(
         デフォルトは 20 です。
 - `n_bins`: **int**
         離散化に用いるビン数。None の場合は自動的に決定されます。デフォルトは None です。
+- `base`: **float**
+        エントロピーの計算に使用する対数の底。デフォルトは2.0です。
 - `to_native`: **bool**<br>
   `True` の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。<br>
   `False` の場合、`narwhals.DataFrame` を返します。デフォルトは `True` で、`to_native = False` は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。
@@ -48,23 +52,66 @@ info_gain(
 
 - `target` (str): 目的変数名。
 - `features` (str): 特徴量名。
-- `H_before` (float): 目的変数のエントロピー。
-- `H_after` (float): 特徴量を条件とした条件付きエントロピー。
+- `h_before` (float): 目的変数のエントロピー。
+- `h_after` (float): 特徴量を条件とした条件付きエントロピー。
 - `info_gain` (float): 情報利得（相互情報量）。
-- `ig_ratio` (float): 正規化情報利得（不確実性係数）。
+- `ig_ratio` (float): `h_before` で正規化した情報利得（Theil’s U, 不確実性係数）。
 
 ## 使用例 Examples
 
 ```python
 import pandas as pd
 import py4stats as py4st
-from palmerpenguins import load_penguins
-```
 
+titanic = sns.load_dataset('titanic')
+
+result = py4st.info_gain(
+    titanic, target = 'survived',
+    features = ['class', 'fare', 'sex', 'embark_town']
+    )
+
+print(result.round(4))
+#>      target     features  h_before  h_after      ig  ig_ratio
+#> 0  survived        class    0.9607   0.8769  0.0838    0.0873
+#> 1  survived         fare    0.9607   0.8653  0.0955    0.0994
+#> 2  survived          sex    0.9607   0.7430  0.2177    0.2266
+#> 3  survived  embark_town    0.9607   0.9388  0.0219    0.0228
+```
 
 ## Note 
 
-`evenness` は、各列ごとに情報エントロピーを $[0, 1]$ の範囲に正規化した指標です。本実装では、対数の底をカテゴリの個数（`unique`）に設定することで正規化を行っており、これは底を2とした情報エントロピーを `log2(unique)` で割ることと同値です。この指標は正規化エントロピー（normalized entropy）としても知られています。
+以下では、`target` に指定された目的変数を $Y$、`features` に指定された特徴量を $X$ で表します。`info_gain()` 関数では、目的変数 $Y$ のエントロピー `h_before` は次のように計算されています。
+$$
+\begin{aligned}
+H(Y) &= -E_Y[\log_2 P(Y)] = -\sum_{y \in Y} P(y) \log_2 P(y)
+\end{aligned}
+$$
+
+特徴量を条件とした条件付きエントロピー `h_before` 次のように計算されます。
+
+$$
+\begin{aligned}
+H(Y|X) &= -\sum_{y, x \in Y, X} P(y, x) \log_2\frac{P(y, x)}{P(x)}
+\end{aligned}
+$$
+
+情報利得 `info_gain` は次のように計算され、これは相互情報量と同値です。
+
+$$
+\begin{aligned}
+I(Y, X) &= H(Y) - H(Y|X)
+\end{aligned}
+$$
+
+`ig_ratio` は $I(Y, X)$ を目的変数のエントロピー $H(Y)$ で割った値として定義され、Theil’s U や Uncertainty coefficient としても知られる指標です。
+
+$$
+\begin{aligned}
+IG_{\text{ratio}}  &= \frac{I(Y, X)}{H(Y)} = \frac{H(Y) - H(Y|X)}{H(Y)}
+\end{aligned}
+$$
+
+`ig_ratio` の値は、目的変数 $Y$ の不確実性が、特徴量 $X$ を知ること何割減るか示す値として解釈できます。
 
 ***
 [Return to **Function reference**.](../reference.qmd)

@@ -10,8 +10,6 @@
 
 [`py4stats.diagnose()`](man/diagnose.qmd)
 
-[`py4stats.diagnose_category()`](man/diagnose_category.qmd)
-
 #### クロス集計
 
 [`py4stats.tabyl()`](man/tabyl.qmd)
@@ -20,7 +18,13 @@
 
 [`py4stats.Pareto_plot()`](man/Pareto_plot.qmd)
 
+#### カテゴリー変数の要約
+
+[`py4stats.diagnose_category()`](man/diagnose_category.qmd)
+
 [`py4stats.plot_category()`](man/plot_category.qmd)
+
+[`py4stats.info_gain()`](man/info_gain.qmd)
 
 ### 数値変数の点推定と区間推定
 

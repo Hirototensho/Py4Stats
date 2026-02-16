@@ -236,7 +236,7 @@ from py4stats import building_block as build # py4stats のプログラミング
 # from py4stats import eda_tools as eda        # 基本統計量やデータの要約など
 import matplotlib.pyplot as plt
 import functools
-from functools import singledispatch, reduce
+from functools import singledispatch, reduce, partial
 import pandas_flavor as pf
 
 import pandas as pd
@@ -342,7 +342,7 @@ def as_nw_datarame_list(arg: List[Any], arg_name: str = 'df_list', max_items: in
 # In[ ]:
 
 
-# @as_nw_datarame.register(list)
+@as_nw_datarame.register(dict)
 def as_nw_datarame_dict(arg: Mapping[str, Any], arg_name: str = 'df_dict', max_items: int = 5):
     try:
         return {
@@ -2356,49 +2356,92 @@ def binning_for_ig(data, col, max_unique:int = 20, n_bins: Optional[int] = None)
 # In[ ]:
 
 
+# from collections import namedtuple
+# IGResult = namedtuple('IGResult', ['H_before', 'H_after', 'info_gain', 'ig_ratio'])
+
+# def ig_compute(
+#         data, target: str, 
+#         feature: str, 
+#         use_bining: bool = True,
+#         max_unique: int = 20,
+#         n_bins: Optional[int] = None
+#         ):
+#     data_nw = as_nw_datarame(data)
+
+#     H_before = entropy(data[target])
+
+#     if build.is_numeric(data_nw[feature]) and use_bining:
+#         data_nw = binning_for_ig(
+#             data_nw, feature, 
+#             max_unique = max_unique, n_bins = n_bins
+#             )
+
+#     splited = group_split(
+#         data_nw, feature,
+#         drop_na_groups = True
+#         )
+#     count = [df.shape[0] for df in splited.data]
+#     ent = [
+#         entropy(df[target], dropna = True) 
+#         for df in splited.data
+#         ]
+
+#     ent = nw.Series.from_iterable(
+#         'ent', ent, backend = data_nw.implementation
+#         )
+
+#     count = nw.Series.from_iterable(
+#         'count', count, backend = data_nw.implementation
+#         )
+
+#     H_after = weighted_mean(ent, count)
+#     info_gain = np.max([H_before - H_after, 0])
+#     ig_ratio = info_gain / H_before if H_before > 0 else np.nan
+
+#     return IGResult(H_before, H_after, info_gain, ig_ratio)
+
+
+# In[ ]:
+
+
 from collections import namedtuple
-IGResult = namedtuple('IGResult', ['H_before', 'H_after', 'info_gain', 'ig_ratio'])
+IGResult = namedtuple('IGResult', ['h_before', 'h_after', 'info_gain', 'ig_ratio'])
 
 def ig_compute(
         data, target: str, 
         feature: str, 
         use_bining: bool = True,
         max_unique: int = 20,
-        n_bins: Optional[int] = None
+        n_bins: Optional[int] = None,
+        base: float = 2.0
         ):
-    data_nw = as_nw_datarame(data)
+    data_pd = as_nw_datarame(data).to_pandas().copy()
 
-    H_before = entropy(data[target])
 
-    if build.is_numeric(data_nw[feature]) and use_bining:
-        data_nw = binning_for_ig(
-            data_nw, feature, 
-            max_unique = max_unique, n_bins = n_bins
+    if build.is_numeric(data_pd[feature]) and use_bining:
+        n = data_pd.shape[0]
+
+        if n_bins is None: n_bins = min(int(np.log2(1 + n)), max_unique)
+
+        data_pd[feature] = pd.qcut(
+            data_pd[feature], 
+            q = n_bins, 
+            labels = False,
+            duplicates = 'drop'
             )
 
-    splited = group_split(
-        data_nw, feature,
-        drop_na_groups = True
-        )
-    count = [df.shape[0] for df in splited.data]
-    ent = [
-        entropy(df[target], dropna = True) 
-        for df in splited.data
-        ]
+    entropy_b = partial(entropy, base = base)
+    h_before = entropy_b(data_pd[target])
 
-    ent = nw.Series.from_iterable(
-        'ent', ent, backend = data_nw.implementation
-        )
+    res = data_pd\
+        .groupby(feature, observed = True)[target]\
+        .agg([entropy_b, 'count'])
 
-    count = nw.Series.from_iterable(
-        'count', count, backend = data_nw.implementation
-        )
+    h_after = weighted_mean(res['entropy'], res['count'])
+    info_gain = np.max([h_before - h_after, 0])
+    ig_ratio = info_gain / h_before if h_before > 0 else np.nan
 
-    H_after = weighted_mean(ent, count)
-    info_gain = np.max([H_before - H_after, 0])
-    ig_ratio = info_gain / H_before if H_before > 0 else np.nan
-
-    return IGResult(H_before, H_after, info_gain, ig_ratio)
+    return IGResult(h_before, h_after, info_gain, ig_ratio)
 
 
 # In[ ]:
@@ -2411,7 +2454,8 @@ def info_gain(
         use_bining: bool = True,
         n_bins: Optional[int] = None,
         max_unique: int = 20,
-        to_native: bool = True,
+        base: float = 2.0,
+        to_native: bool = True
         ):
     """
     Compute information gain for multiple target-feature pairs.
@@ -2443,6 +2487,8 @@ def info_gain(
         n_bins (Optional[int], optional):
             Number of bins for discretization. If None, the number of bins
             is determined automatically. Defaults to None.
+        base (float, optional):
+            The logarithmic base of entropy, defaults to 2.0.
         to_native (bool, optional):
             If True, convert the result to the native DataFrame type of
             the backend. If False, return a narwhals DataFrame.
@@ -2456,9 +2502,9 @@ def info_gain(
                 Target variable name.
             - features (str):
                 Feature variable name.
-            - H_before (float):
+            - h_before (float):
                 Entropy of the target variable.
-            - H_after (float):
+            - h_after (float):
                 Conditional entropy given the feature.
             - info_gain (float):
                 Information gain (mutual information).
@@ -2480,15 +2526,17 @@ def info_gain(
     build.assert_count(max_unique, arg_name = 'max_unique', len_arg = 1)
     build.assert_count(n_bins, arg_name = 'n_bins', len_arg = 1, nullable = True)
     build.assert_logical(to_native, arg_name = 'to_native', len_arg = 1)
+    build.assert_numeric(base, arg_name = 'base', len_arg = 1)
     # ====================================================================
     data_nw = as_nw_datarame(data)
+
     if isinstance(target, str): target = [target]
-    if features is None: features = data_nw.columns
+
+    if features is None: 
+        features = build.list_diff(data_nw.columns, target)
     elif isinstance(features, str): features = [features]
 
-    features = build.list_diff(features, target)
-
-    colpair = list(itertools.product(target, features))
+    colpair = itertools.product(target, features)
 
     result_dicts = []
 
@@ -2497,13 +2545,14 @@ def info_gain(
             data_nw, cols[0], cols[1], 
             use_bining = use_bining,
             max_unique = max_unique,
-            n_bins = n_bins
+            n_bins = n_bins,
+            base = base
             )
         result_dicts += [{
             'target':cols[0],
             'features':cols[1],
-            'H_before': res.H_before,
-            'H_after': res.H_after,
+            'h_before': res.h_before,
+            'h_after': res.h_after,
             'info_gain': res.info_gain,
             'ig_ratio': res.ig_ratio
             }]

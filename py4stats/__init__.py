@@ -41,6 +41,7 @@ from .eda_tools._nw import (
     group_split, 
     group_map, 
     group_modify,
+    info_gain,
     implies_exper,
     is_dummy,
     is_number,

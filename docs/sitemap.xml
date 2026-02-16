@@ -10,7 +10,7 @@
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/reference.html</loc>
-    <lastmod>2026-02-14T01:51:55.728Z</lastmod>
+    <lastmod>2026-02-16T02:49:18.332Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/diagnose.html</loc>
@@ -29,12 +29,16 @@
     <lastmod>2026-02-12T08:13:13.778Z</lastmod>
   </url>
   <url>
+    <loc>https://github.com/Hirototensho/Py4Stats/man/diagnose_category.html</loc>
+    <lastmod>2026-02-14T01:47:25.489Z</lastmod>
+  </url>
+  <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/plot_category.html</loc>
     <lastmod>2026-02-11T08:10:50.581Z</lastmod>
   </url>
   <url>
-    <loc>https://github.com/Hirototensho/Py4Stats/man/diagnose_category.html</loc>
-    <lastmod>2026-02-14T01:47:25.489Z</lastmod>
+    <loc>https://github.com/Hirototensho/Py4Stats/man/info_gain.html</loc>
+    <lastmod>2026-02-16T03:10:07.025Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/Hirototensho/Py4Stats/man/point_range.html</loc>
