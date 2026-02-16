@@ -1338,5 +1338,5 @@ def test_info_gain(backend) -> None:
     _assert_df_eq(
         output_df, 
         path_fixture = path, 
-        update_fixture = True
+        update_fixture = False
         )

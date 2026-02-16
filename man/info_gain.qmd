@@ -12,14 +12,14 @@
 ```python
 info_gain(
       data: IntoFrameT, 
-      target: Union[List[str], str],
-      features: Optional[Union[List[str]]] = None,
+      target: Union[str, List[str]],
+      features: Optional[Union[str, List[str]]] = None,
       use_bining: bool = True,
       n_bins: Optional[int] = None,
       max_unique: int = 20,
       base: float = 2.0,
       to_native: bool = True
-      )
+    )
 ```
 
 ## 引数 Argument
@@ -50,60 +50,71 @@ info_gain(
 
 `info_gain()`関数は、次の値をもつ `DataFrame` を出力します。
 
-- `target` (str): 目的変数名。
-- `features` (str): 特徴量名。
-- `h_before` (float): 目的変数のエントロピー。
-- `h_after` (float): 特徴量を条件とした条件付きエントロピー。
-- `info_gain` (float): 情報利得（相互情報量）。
+- `target` (str): 目的変数名
+- `features` (str): 特徴量名
+- `h_target` (float): 目的変数のエントロピー
+- `h_feature` (float): 特徴量のエントロピー
+- `joint_ent` (float): 目的変数と特徴量の結合エントロピー
+- `h_cond` (float): 特徴量で条件付けた目的変数の条件付きエントロピー
+- `info_gain` (float): 情報利得（相互情報量）
 - `ig_ratio` (float): `h_before` で正規化した情報利得（Theil’s U, 不確実性係数）。
 
 ## 使用例 Examples
 
 ```python
-import pandas as pd
+import polars as pl
 import py4stats as py4st
-
-titanic = sns.load_dataset('titanic')
+titanic = pl.from_pandas(sns.load_dataset('titanic'))
 
 result = py4st.info_gain(
     titanic, target = 'survived',
     features = ['class', 'fare', 'sex', 'embark_town']
     )
 
-print(result.round(4))
-#>      target     features  h_before  h_after      ig  ig_ratio
-#> 0  survived        class    0.9607   0.8769  0.0838    0.0873
-#> 1  survived         fare    0.9607   0.8653  0.0955    0.0994
-#> 2  survived          sex    0.9607   0.7430  0.2177    0.2266
-#> 3  survived  embark_town    0.9607   0.9388  0.0219    0.0228
+print(result)
+#> shape: (4, 8)
+#> ┌──────────┬─────────────┬──────────┬───────────┬──────────┬───────────┬───────────┬──────────┐
+#> │ target   ┆ feature     ┆ h_target ┆ h_feature ┆ h_cond   ┆ joint_ent ┆ info_gain ┆ ig_ratio │
+#> │ ---      ┆ ---         ┆ ---      ┆ ---       ┆ ---      ┆ ---       ┆ ---       ┆ ---      │
+#> │ str      ┆ str         ┆ f64      ┆ f64       ┆ f64      ┆ f64       ┆ f64       ┆ f64      │
+#> ╞══════════╪═════════════╪══════════╪═══════════╪══════════╪═══════════╪═══════════╪══════════╡
+#> │ survived ┆ class       ┆ 0.960708 ┆ 1.439321  ┆ 0.876877 ┆ 2.316198  ┆ 0.083831  ┆ 0.08726  │
+#> │ survived ┆ fare        ┆ 0.960708 ┆ 3.151193  ┆ 0.865258 ┆ 4.01645   ┆ 0.09545   ┆ 0.099354 │
+#> │ survived ┆ sex         ┆ 0.960708 ┆ 0.936205  ┆ 0.743048 ┆ 1.679252  ┆ 0.21766   ┆ 0.226562 │
+#> │ survived ┆ embark_town ┆ 0.960708 ┆ 1.096869  ┆ 0.957185 ┆ 2.054054  ┆ 0.003523  ┆ 0.003667 │
+#> └──────────┴─────────────┴──────────┴───────────┴──────────┴───────────┴───────────┴──────────┘
 ```
 
 ## Note 
 
-以下では、`target` に指定された目的変数を $Y$、`features` に指定された特徴量を $X$ で表します。`info_gain()` 関数では、目的変数 $Y$ のエントロピー `h_before` は次のように計算されています。
+以下では、`target` に指定された目的変数を $Y$、`features` に指定された特徴量を $X$ で表します。`info_gain()` 関数では、目的変数 $Y$ のエントロピー `h_target` と特徴量 $X$ のエントロピー `h_feature` は次のように計算されています。
 $$
 \begin{aligned}
-H(Y) &= -E_Y[\log_2 P(Y)] = -\sum_{y \in Y} P(y) \log_2 P(y)
+H(Y) &= -E_Y[\log_2 P(Y)] = -\sum_{y \in Y} P(y) \log_2 P(y)\\
+H(X) &= -E_X[\log_2 P(X)] = -\sum_{x \in X} P(x) \log_2 P(x)
 \end{aligned}
 $$
 
-特徴量を条件とした条件付きエントロピー `h_before` 次のように計算されます。
+目的変数 $Y$ と特徴量 $X$ の結合エントロピー `joint_ent` は、$Y$ と $X$  の同次分布のエントロピーとして次のように計算されます。
 
 $$
 \begin{aligned}
-H(Y|X) &= -\sum_{y, x \in Y, X} P(y, x) \log_2\frac{P(y, x)}{P(x)}
+H(Y, X) &=- E_{Y, X}[\log_2 P(y, x)]
 \end{aligned}
 $$
 
-情報利得 `info_gain` は次のように計算され、これは相互情報量と同値です。
+さらに、情報利得（相互情報量） `info_gain` は次のように計算されます。
 
 $$
 \begin{aligned}
-I(Y, X) &= H(Y) - H(Y|X)
+I(Y, X) &= H(Y) + H(X) - H(Y, X)\\
+        &= H(Y) - H(Y|X)
 \end{aligned}
 $$
 
-`ig_ratio` は $I(Y, X)$ を目的変数のエントロピー $H(Y)$ で割った値として定義され、Theil’s U や Uncertainty coefficient としても知られる指標です。
+ここで、$H(Y|X) = H(Y, X) - H(X)$ は特徴量 $X$ を条件とした $Y$ の条件付きエントロピーです。このように情報利得は. $Y$ のエントロピーと条件付きエントロピーの差分として計算できるため、情報利得 $I(Y, X)$ は特徴量 $X$ による条件付けを行うことで削減された目的変数 $Y$ の不確実性の量として解釈できることが分かります。
+
+最後に、`ig_ratio` は $I(Y, X)$ を目的変数のエントロピー $H(Y)$ で割った値として定義され、Theil’s U や Uncertainty coefficient としても知られる指標です。
 
 $$
 \begin{aligned}
@@ -111,7 +122,7 @@ IG_{\text{ratio}}  &= \frac{I(Y, X)}{H(Y)} = \frac{H(Y) - H(Y|X)}{H(Y)}
 \end{aligned}
 $$
 
-`ig_ratio` の値は、目的変数 $Y$ の不確実性が、特徴量 $X$ を知ること何割減るか示す値として解釈できます。
+`ig_ratio` の値は、特徴量 $X$ による条件付けによって減少した目的変数 $Y$ の不確実性の割合として解釈できます。
 
 ***
 [Return to **Function reference**.](../reference.qmd)

@@ -254,6 +254,7 @@ import warnings
 
 import math
 from wcwidth import wcswidth
+import scipy.stats as st
 
 from collections import namedtuple
 
@@ -2357,91 +2358,85 @@ def binning_for_ig(data, col, max_unique:int = 20, n_bins: Optional[int] = None)
 
 
 # from collections import namedtuple
-# IGResult = namedtuple('IGResult', ['H_before', 'H_after', 'info_gain', 'ig_ratio'])
+# IGResult = namedtuple('IGResult', ['h_before', 'h_after', 'info_gain', 'ig_ratio'])
 
 # def ig_compute(
 #         data, target: str, 
 #         feature: str, 
 #         use_bining: bool = True,
 #         max_unique: int = 20,
-#         n_bins: Optional[int] = None
+#         n_bins: Optional[int] = None,
+#         base: float = 2.0
 #         ):
-#     data_nw = as_nw_datarame(data)
+#     data_pd = as_nw_datarame(data).to_pandas().copy()
 
-#     H_before = entropy(data[target])
+#     if build.is_numeric(data_pd[feature]) and use_bining:
+#         n = data_pd.shape[0]
 
-#     if build.is_numeric(data_nw[feature]) and use_bining:
-#         data_nw = binning_for_ig(
-#             data_nw, feature, 
-#             max_unique = max_unique, n_bins = n_bins
+#         if n_bins is None: n_bins = min(int(np.log2(1 + n)), max_unique)
+
+#         data_pd[feature] = pd.qcut(
+#             data_pd[feature], 
+#             q = n_bins, 
+#             labels = False,
+#             duplicates = 'drop'
 #             )
 
-#     splited = group_split(
-#         data_nw, feature,
-#         drop_na_groups = True
-#         )
-#     count = [df.shape[0] for df in splited.data]
-#     ent = [
-#         entropy(df[target], dropna = True) 
-#         for df in splited.data
-#         ]
+#     entropy_b = partial(entropy, base = base)
+#     h_before = entropy_b(data_pd[target])
 
-#     ent = nw.Series.from_iterable(
-#         'ent', ent, backend = data_nw.implementation
-#         )
+#     res = data_pd\
+#         .groupby(feature, observed = True)[target]\
+#         .agg([entropy_b, 'count'])
 
-#     count = nw.Series.from_iterable(
-#         'count', count, backend = data_nw.implementation
-#         )
+#     h_after = weighted_mean(res['entropy'], res['count'])
+#     info_gain = np.max([h_before - h_after, 0])
+#     ig_ratio = info_gain / h_before if h_before > 0 else np.nan
 
-#     H_after = weighted_mean(ent, count)
-#     info_gain = np.max([H_before - H_after, 0])
-#     ig_ratio = info_gain / H_before if H_before > 0 else np.nan
-
-#     return IGResult(H_before, H_after, info_gain, ig_ratio)
+#     return IGResult(h_before, h_after, info_gain, ig_ratio)
 
 
 # In[ ]:
 
 
 from collections import namedtuple
-IGResult = namedtuple('IGResult', ['h_before', 'h_after', 'info_gain', 'ig_ratio'])
+IGResult = namedtuple(
+    'IGResult', 
+    ['h_target', 'h_feature', 'h_cond', 'joint_ent', 'info_gain', 'ig_ratio']
+    )
 
 def ig_compute(
-        data, target: str, 
+        data, 
+        target: str, 
         feature: str, 
         use_bining: bool = True,
         max_unique: int = 20,
         n_bins: Optional[int] = None,
         base: float = 2.0
         ):
-    data_pd = as_nw_datarame(data).to_pandas().copy()
+    data_nw = as_nw_datarame(data)
 
 
-    if build.is_numeric(data_pd[feature]) and use_bining:
-        n = data_pd.shape[0]
-
-        if n_bins is None: n_bins = min(int(np.log2(1 + n)), max_unique)
-
-        data_pd[feature] = pd.qcut(
-            data_pd[feature], 
-            q = n_bins, 
-            labels = False,
-            duplicates = 'drop'
+    if build.is_numeric(data_nw[feature]) and use_bining:
+        data_nw = binning_for_ig(
+            data_nw, col = feature,
+            max_unique = max_unique,
+            n_bins = n_bins
             )
 
-    entropy_b = partial(entropy, base = base)
-    h_before = entropy_b(data_pd[target])
+    h_target = entropy(data_nw[target], base = base)
+    h_feature = entropy(data_nw[feature], base = base)
 
-    res = data_pd\
-        .groupby(feature, observed = True)[target]\
-        .agg([entropy_b, 'count'])
+    colpaire = build.list_unique([feature, target])
+    freq = freq_table(data_nw, colpaire, to_native = False)['freq']
+    joint_ent = st.entropy(freq, base = base)
 
-    h_after = weighted_mean(res['entropy'], res['count'])
-    info_gain = np.max([h_before - h_after, 0])
-    ig_ratio = info_gain / h_before if h_before > 0 else np.nan
+    h_cond = joint_ent - h_feature
+    info_gain = np.max([h_target + h_feature - joint_ent, 0.0]) # 相互情報量の非負性を満たすため
 
-    return IGResult(h_before, h_after, info_gain, ig_ratio)
+    ig_ratio = info_gain / h_target if h_target > 0 else np.nan
+    result = IGResult(h_target, h_feature, h_cond, joint_ent, info_gain, ig_ratio)
+    return result
 
 
 # In[ ]:
@@ -2449,8 +2444,8 @@ def ig_compute(
 
 def info_gain(
         data: IntoFrameT, 
-        target: Union[List[str], str],
-        features: Optional[Union[List[str]]] = None,
+        target: Union[str, List[str]],
+        features: Optional[Union[str, List[str]]] = None,
         use_bining: bool = True,
         n_bins: Optional[int] = None,
         max_unique: int = 20,
@@ -2496,16 +2491,18 @@ def info_gain(
 
     Returns:
         IntoFrameT:
-            A DataFrame with one row per target–feature pair containing:
+            A DataFrame with one row per target-feature pair containing:
 
             - target (str):
                 Target variable name.
             - features (str):
                 Feature variable name.
-            - h_before (float):
+            - h_target (float):
                 Entropy of the target variable.
-            - h_after (float):
-                Conditional entropy given the feature.
+            - h_feature (float):
+                Entropy of the feature.
+            - joint_ent (float):
+                Joint entropy of the target variable and feature.
             - info_gain (float):
                 Information gain (mutual information).
             - ig_ratio (float):
@@ -2551,8 +2548,9 @@ def info_gain(
         result_dicts += [{
             'target':cols[0],
             'features':cols[1],
-            'h_before': res.h_before,
-            'h_after': res.h_after,
+            'h_target': res.h_target,
+            'h_feature': res.h_feature,
+            'joint_ent': res.joint_ent,
             'info_gain': res.info_gain,
             'ig_ratio': res.ig_ratio
             }]

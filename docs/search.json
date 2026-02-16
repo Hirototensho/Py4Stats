@@ -413,7 +413,7 @@
     "href": "man/info_gain.html#概要",
     "title": "info_gain",
     "section": "",
-    "text": "info_gain(\n      data: IntoFrameT, \n      target: Union[List[str], str],\n      features: Optional[Union[List[str]]] = None,\n      use_bining: bool = True,\n      n_bins: Optional[int] = None,\n      max_unique: int = 20,\n      base: float = 2.0,\n      to_native: bool = True\n      )",
+    "text": "info_gain(\n      data: IntoFrameT, \n      target: Union[str, List[str]],\n      features: Optional[Union[str, List[str]]] = None,\n      use_bining: bool = True,\n      n_bins: Optional[int] = None,\n      max_unique: int = 20,\n      base: float = 2.0,\n      to_native: bool = True\n    )",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>10</span>  <span class='chapter-title'>info_gain</span>"
@@ -435,7 +435,7 @@
     "href": "man/info_gain.html#返り値-value",
     "title": "info_gain",
     "section": "返り値 Value",
-    "text": "返り値 Value\ninfo_gain()関数は、次の値をもつ DataFrame を出力します。\n\ntarget (str): 目的変数名。\nfeatures (str): 特徴量名。\nh_before (float): 目的変数のエントロピー。\nh_after (float): 特徴量を条件とした条件付きエントロピー。\ninfo_gain (float): 情報利得（相互情報量）。\nig_ratio (float): h_before で正規化した情報利得（Theil’s U, 不確実性係数）。",
+    "text": "返り値 Value\ninfo_gain()関数は、次の値をもつ DataFrame を出力します。\n\ntarget (str): 目的変数名\nfeatures (str): 特徴量名\nh_target (float): 目的変数のエントロピー\nh_feature (float): 特徴量のエントロピー\njoint_ent (float): 目的変数と特徴量の結合エントロピー\ninfo_gain (float): 情報利得（相互情報量）\nig_ratio (float): h_before で正規化した情報利得（Theil’s U, 不確実性係数）。",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>10</span>  <span class='chapter-title'>info_gain</span>"
@@ -446,7 +446,7 @@
     "href": "man/info_gain.html#使用例-examples",
     "title": "info_gain",
     "section": "使用例 Examples",
-    "text": "使用例 Examples\nimport pandas as pd\nimport py4stats as py4st\n\ntitanic = sns.load_dataset('titanic')\n\nresult = py4st.info_gain(\n    titanic, target = 'survived',\n    features = ['class', 'fare', 'sex', 'embark_town']\n    )\n\nprint(result.round(4))\n#&gt;      target     features  h_before  h_after      ig  ig_ratio\n#&gt; 0  survived        class    0.9607   0.8769  0.0838    0.0873\n#&gt; 1  survived         fare    0.9607   0.8653  0.0955    0.0994\n#&gt; 2  survived          sex    0.9607   0.7430  0.2177    0.2266\n#&gt; 3  survived  embark_town    0.9607   0.9388  0.0219    0.0228",
+    "text": "使用例 Examples\nimport pandas as pd\nimport py4stats as py4st\n\ntitanic = sns.load_dataset('titanic')\n\nresult = py4st.info_gain(\n    titanic, target = 'survived',\n    features = ['class', 'fare', 'sex', 'embark_town']\n    )\n\nprint(result.round(4))\n#&gt;      target     features  h_target  h_feature  joint_ent  info_gain  ig_ratio\n#&gt; 0  survived        class    0.9607     1.4393     0.8769     0.0838    0.0873\n#&gt; 1  survived         fare    0.9607     3.1512     0.8653     0.0955    0.0994\n#&gt; 2  survived          sex    0.9607     0.9362     0.7430     0.2177    0.2266\n#&gt; 3  survived  embark_town    0.9607     1.0969     0.9572     0.0035    0.0037",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>10</span>  <span class='chapter-title'>info_gain</span>"
@@ -457,7 +457,7 @@
     "href": "man/info_gain.html#note",
     "title": "info_gain",
     "section": "Note",
-    "text": "Note\n以下では、target に指定された目的変数を \\(Y\\)、features に指定された特徴量を \\(X\\) で表します。info_gain() 関数では、目的変数 \\(Y\\) のエントロピー h_before は次のように計算されています。 \\[\n\\begin{aligned}\nH(Y) &= -E_Y[\\log_2 P(Y)] = -\\sum_{y \\in Y} P(y) \\log_2 P(y)\n\\end{aligned}\n\\]\n特徴量を条件とした条件付きエントロピー h_before 次のように計算されます。\n\\[\n\\begin{aligned}\nH(Y|X) &= -\\sum_{y, x \\in Y, X} P(y, x) \\log_2\\frac{P(y, x)}{P(x)}\n\\end{aligned}\n\\]\n情報利得 info_gain は次のように計算され、これは相互情報量と同値です。\n\\[\n\\begin{aligned}\nI(Y, X) &= H(Y) - H(Y|X)\n\\end{aligned}\n\\]\nig_ratio は \\(I(Y, X)\\) を目的変数のエントロピー \\(H(Y)\\) で割った値として定義され、Theil’s U や Uncertainty coefficient としても知られる指標です。\n\\[\n\\begin{aligned}\nIG_{\\text{ratio}}  &= \\frac{I(Y, X)}{H(Y)} = \\frac{H(Y) - H(Y|X)}{H(Y)}\n\\end{aligned}\n\\]\nig_ratio の値は、目的変数 \\(Y\\) の不確実性が、特徴量 \\(X\\) を知ること何割減るか示す値として解釈できます。\n\nReturn to Function reference.",
+    "text": "Note\n以下では、target に指定された目的変数を \\(Y\\)、features に指定された特徴量を \\(X\\) で表します。info_gain() 関数では、目的変数 \\(Y\\) のエントロピー h_target と特徴量 \\(X\\) のエントロピー h_feature は次のように計算されています。 \\[\n\\begin{aligned}\nH(Y) &= -E_Y[\\log_2 P(Y)] = -\\sum_{y \\in Y} P(y) \\log_2 P(y)\\\\\nH(X) &= -E_X[\\log_2 P(X)] = -\\sum_{x \\in X} P(x) \\log_2 P(x)\n\\end{aligned}\n\\]\n目的変数 \\(Y\\) と特徴量 \\(X\\) の結合エントロピー joint_ent は、\\(Y\\) と \\(X\\) の同次分布のエントロピーとして次のように計算されます。\n\\[\n\\begin{aligned}\nH(Y, X) &=- E_{Y, X}[\\log_2 P(y, x)]\n\\end{aligned}\n\\]\nさらに、情報利得（相互情報量） info_gain は次のように計算されます。\n\\[\n\\begin{aligned}\nI(Y, X) &= H(Y) + H(X) - H(Y, X)\\\\\n        &= H(Y) - H(Y|X)\n\\end{aligned}\n\\]\nここで、\\(H(Y|X) = H(Y, X) - H(X)\\) は特徴量 \\(X\\) を条件とした \\(Y\\) の条件付きエントロピーです。このように情報利得は. \\(Y\\) のエントロピーと条件付きエントロピーの差分として計算できるため、情報利得 \\(I(Y, X)\\) は特徴量 \\(X\\) による条件付けを行うことで削減された目的変数 \\(Y\\) の不確実性の量として解釈できることが分かります。\n最後に、ig_ratio は \\(I(Y, X)\\) を目的変数のエントロピー \\(H(Y)\\) で割った値として定義され、Theil’s U や Uncertainty coefficient としても知られる指標です。\n\\[\n\\begin{aligned}\nIG_{\\text{ratio}}  &= \\frac{I(Y, X)}{H(Y)} = \\frac{H(Y) - H(Y|X)}{H(Y)}\n\\end{aligned}\n\\]\nig_ratio の値は、特徴量 \\(X\\) による条件付けによって減少した目的変数 \\(Y\\) の不確実性の割合として解釈できます。\n\nReturn to Function reference.",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>10</span>  <span class='chapter-title'>info_gain</span>"

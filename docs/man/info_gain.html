@@ -539,14 +539,14 @@ window.Quarto = {
 <p>本関数は、指定された目的変数と特徴量のすべての組み合わせについて、情報利得（相互情報量）およびその正規化指標（不確実性係数）を算出します。この関数は、アンケート分析のように、複数の目的変数（例：設問項目）と1つまたは複数の属性変数（例：デモグラフィック変数）との関係を探索的にスクリーニングする用途を想定しています。</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>info_gain(</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>      data: IntoFrameT, </span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>      target: Union[List[<span class="bu">str</span>], <span class="bu">str</span>],</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>      features: Optional[Union[List[<span class="bu">str</span>]]] <span class="op">=</span> <span class="va">None</span>,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>      target: Union[<span class="bu">str</span>, List[<span class="bu">str</span>]],</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>      features: Optional[Union[<span class="bu">str</span>, List[<span class="bu">str</span>]]] <span class="op">=</span> <span class="va">None</span>,</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>      use_bining: <span class="bu">bool</span> <span class="op">=</span> <span class="va">True</span>,</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>      n_bins: Optional[<span class="bu">int</span>] <span class="op">=</span> <span class="va">None</span>,</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>      max_unique: <span class="bu">int</span> <span class="op">=</span> <span class="dv">20</span>,</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>      base: <span class="bu">float</span> <span class="op">=</span> <span class="fl">2.0</span>,</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>      to_native: <span class="bu">bool</span> <span class="op">=</span> <span class="va">True</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>      )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="引数-argument" class="level2">
 <h2 class="anchored" data-anchor-id="引数-argument">引数 Argument</h2>
@@ -564,11 +564,12 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="返り値-value">返り値 Value</h2>
 <p><code>info_gain()</code>関数は、次の値をもつ <code>DataFrame</code> を出力します。</p>
 <ul>
-<li><code>target</code> (str): 目的変数名。</li>
-<li><code>features</code> (str): 特徴量名。</li>
-<li><code>h_before</code> (float): 目的変数のエントロピー。</li>
-<li><code>h_after</code> (float): 特徴量を条件とした条件付きエントロピー。</li>
-<li><code>info_gain</code> (float): 情報利得（相互情報量）。</li>
+<li><code>target</code> (str): 目的変数名</li>
+<li><code>features</code> (str): 特徴量名</li>
+<li><code>h_target</code> (float): 目的変数のエントロピー</li>
+<li><code>h_feature</code> (float): 特徴量のエントロピー</li>
+<li><code>joint_ent</code> (float): 目的変数と特徴量の結合エントロピー</li>
+<li><code>info_gain</code> (float): 情報利得（相互情報量）</li>
 <li><code>ig_ratio</code> (float): <code>h_before</code> で正規化した情報利得（Theil’s U, 不確実性係数）。</li>
 </ul>
 </section>
@@ -585,38 +586,41 @@ window.Quarto = {
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(result.<span class="bu">round</span>(<span class="dv">4</span>))</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      target     features  h_before  h_after      ig  ig_ratio</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 0  survived        class    0.9607   0.8769  0.0838    0.0873</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1  survived         fare    0.9607   0.8653  0.0955    0.0994</span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2  survived          sex    0.9607   0.7430  0.2177    0.2266</span></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3  survived  embark_town    0.9607   0.9388  0.0219    0.0228</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      target     features  h_target  h_feature  joint_ent  info_gain  ig_ratio</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 0  survived        class    0.9607     1.4393     0.8769     0.0838    0.0873</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1  survived         fare    0.9607     3.1512     0.8653     0.0955    0.0994</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2  survived          sex    0.9607     0.9362     0.7430     0.2177    0.2266</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3  survived  embark_town    0.9607     1.0969     0.9572     0.0035    0.0037</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="note" class="level2">
 <h2 class="anchored" data-anchor-id="note">Note</h2>
-<p>以下では、<code>target</code> に指定された目的変数を <span class="math inline">\(Y\)</span>、<code>features</code> に指定された特徴量を <span class="math inline">\(X\)</span> で表します。<code>info_gain()</code> 関数では、目的変数 <span class="math inline">\(Y\)</span> のエントロピー <code>h_before</code> は次のように計算されています。 <span class="math display">\[
+<p>以下では、<code>target</code> に指定された目的変数を <span class="math inline">\(Y\)</span>、<code>features</code> に指定された特徴量を <span class="math inline">\(X\)</span> で表します。<code>info_gain()</code> 関数では、目的変数 <span class="math inline">\(Y\)</span> のエントロピー <code>h_target</code> と特徴量 <span class="math inline">\(X\)</span> のエントロピー <code>h_feature</code> は次のように計算されています。 <span class="math display">\[
 \begin{aligned}
-H(Y) &amp;= -E_Y[\log_2 P(Y)] = -\sum_{y \in Y} P(y) \log_2 P(y)
+H(Y) &amp;= -E_Y[\log_2 P(Y)] = -\sum_{y \in Y} P(y) \log_2 P(y)\\
+H(X) &amp;= -E_X[\log_2 P(X)] = -\sum_{x \in X} P(x) \log_2 P(x)
 \end{aligned}
 \]</span></p>
-<p>特徴量を条件とした条件付きエントロピー <code>h_before</code> 次のように計算されます。</p>
+<p>目的変数 <span class="math inline">\(Y\)</span> と特徴量 <span class="math inline">\(X\)</span> の結合エントロピー <code>joint_ent</code> は、<span class="math inline">\(Y\)</span> と <span class="math inline">\(X\)</span> の同次分布のエントロピーとして次のように計算されます。</p>
 <p><span class="math display">\[
 \begin{aligned}
-H(Y|X) &amp;= -\sum_{y, x \in Y, X} P(y, x) \log_2\frac{P(y, x)}{P(x)}
+H(Y, X) &amp;=- E_{Y, X}[\log_2 P(y, x)]
 \end{aligned}
 \]</span></p>
-<p>情報利得 <code>info_gain</code> は次のように計算され、これは相互情報量と同値です。</p>
+<p>さらに、情報利得（相互情報量） <code>info_gain</code> は次のように計算されます。</p>
 <p><span class="math display">\[
 \begin{aligned}
-I(Y, X) &amp;= H(Y) - H(Y|X)
+I(Y, X) &amp;= H(Y) + H(X) - H(Y, X)\\
+        &amp;= H(Y) - H(Y|X)
 \end{aligned}
 \]</span></p>
-<p><code>ig_ratio</code> は <span class="math inline">\(I(Y, X)\)</span> を目的変数のエントロピー <span class="math inline">\(H(Y)\)</span> で割った値として定義され、Theil’s U や Uncertainty coefficient としても知られる指標です。</p>
+<p>ここで、<span class="math inline">\(H(Y|X) = H(Y, X) - H(X)\)</span> は特徴量 <span class="math inline">\(X\)</span> を条件とした <span class="math inline">\(Y\)</span> の条件付きエントロピーです。このように情報利得は. <span class="math inline">\(Y\)</span> のエントロピーと条件付きエントロピーの差分として計算できるため、情報利得 <span class="math inline">\(I(Y, X)\)</span> は特徴量 <span class="math inline">\(X\)</span> による条件付けを行うことで削減された目的変数 <span class="math inline">\(Y\)</span> の不確実性の量として解釈できることが分かります。</p>
+<p>最後に、<code>ig_ratio</code> は <span class="math inline">\(I(Y, X)\)</span> を目的変数のエントロピー <span class="math inline">\(H(Y)\)</span> で割った値として定義され、Theil’s U や Uncertainty coefficient としても知られる指標です。</p>
 <p><span class="math display">\[
 \begin{aligned}
 IG_{\text{ratio}}  &amp;= \frac{I(Y, X)}{H(Y)} = \frac{H(Y) - H(Y|X)}{H(Y)}
 \end{aligned}
 \]</span></p>
-<p><code>ig_ratio</code> の値は、目的変数 <span class="math inline">\(Y\)</span> の不確実性が、特徴量 <span class="math inline">\(X\)</span> を知ること何割減るか示す値として解釈できます。</p>
+<p><code>ig_ratio</code> の値は、特徴量 <span class="math inline">\(X\)</span> による条件付けによって減少した目的変数 <span class="math inline">\(Y\)</span> の不確実性の割合として解釈できます。</p>
 <hr>
 <p><a href="../reference.html">Return to <strong>Function reference</strong>.</a></p>
 
