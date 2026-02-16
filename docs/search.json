@@ -2294,7 +2294,7 @@
     "href": "articles/release_notes.html#修正と改善fixes-improvements",
     "title": "Release Notes",
     "section": "🛠 修正と改善（Fixes /Improvements）",
-    "text": "🛠 修正と改善（Fixes /Improvements）\n\neda_tools モジュールの関数全体について、エラーメッセージを改善を行いました。\n\ndiagnose() 関数の data など、narwhals が受け入れ可能な DataFrame 互換オブジェクトもしくは Series 互換オブジェクトが代入されることを想定した引数に、list, dict, int などの非互換オブジェクトが代入された場合のエラーメッセージを改善しました。\n\nPareto_plot() 関数のリファクタリングを実施し、型ヒントを改善しました。",
+    "text": "🛠 修正と改善（Fixes /Improvements）\n\neda_tools モジュールの関数全体について、エラーメッセージを改善を行いました。\n\ndiagnose() 関数の data など、narwhals が受け入れ可能な DataFrame 互換オブジェクトもしくは Series 互換オブジェクトが代入されることを想定した引数に、list, dict, int などの非互換オブジェクトが代入された場合のエラーメッセージを改善しました。\n\nPareto_plot() 関数のリファクタリングを実施し、型ヒントを改善しました。\nassert_character() 関数や assert_numeric() で、引数の最小要素数を指定する len_min の設定が正常に反映されない問題を修正しました。",
     "crumbs": [
       "**Articles**",
       "<span class='chapter-number'>43</span>  <span class='chapter-title'>Release Notes</span>"
