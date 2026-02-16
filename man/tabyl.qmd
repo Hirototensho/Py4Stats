@@ -1,5 +1,7 @@
 # tabyl
 
+[![](https://img.shields.io/badge/Tested-Pandas_/_Polars_/_Pyarrow-blue){fig-align="left" fig-alt="badge of tested backend"}](../articles/eda_tools_development_status.qmd)
+
 レポートティング向けのクロス集計表を作成
 
 ## 概要
@@ -42,7 +44,7 @@ tabyl(
     - `all` 各セルの度数を総度数で割り、全てのセルの相対度数の和が100%になるように計算します。
 - `digits`：**int**</br>
 　丸括弧`( )`に表示する相対度数の小数点以下の桁数。初期設定は1です。
-- `to_native`（**bool**, optional）<br>
+- `to_native`: **bool**<br>
   `True` の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。<br>
   `False` の場合、`narwhals.DataFrame` を返します。デフォルトは `True` で、`to_native = False` は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。
 

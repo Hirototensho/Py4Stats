@@ -1,5 +1,7 @@
 # Pareto_plot
 
+[![](https://img.shields.io/badge/Tested-Pandas_/_Polars_/_Pyarrow-blue){fig-align="left" fig-alt="badge of tested backend"}](../articles/eda_tools_development_status.qmd)
+
 パレート図の作成
 
 ## 概要
@@ -12,7 +14,7 @@ Pareto_plot(
     group: str,
     values: Optional[str] = None,
     top_n: Optional[int] = None,
-    aggfunc: Callable[..., Any] = np.mean,
+    aggfunc: Callable[[IntoSeriesT], Union[int, float]] = np.mean,
     ax: Optional[Axes] = None,
     fontsize: int = 12,
     xlab_rotation: Union[int, float] = 0,

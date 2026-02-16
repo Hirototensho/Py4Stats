@@ -1,12 +1,15 @@
 # review_wrangling
 
-![review_wrangling](image/review_wrangling.png){width=60%}
+![](https://img.shields.io/badge/lifecycle-experimental-orange){fig-align="left" fig-alt="badge of lifecycle experimental"}
+[![](https://img.shields.io/badge/Tested-Pandas_/_Polars_/_Pyarrow-blue){fig-align="left" fig-alt="badge of tested backend"}](../articles/eda_tools_development_status.qmd)
+
+![](image/review_wrangling.png){width=60% fig-align="center"}
 
 データ前処理（wrangling）による変更点を要約して、レビュー形式の文字列として出力する関数です。
 
 ## 概要
 
-この関数は、前処理の前後（before / after）の DataFrame（相当）を比較し、変更点をユーザーが読みやすいレビュー形式の文字列として返します。
+この関数は、前処理の前後（before / after）の DataFrame を比較し、変更点をユーザーが読みやすいレビュー形式の文字列として返します。
 
 ``` python
 review_wrangling(
@@ -92,23 +95,23 @@ print(py4st.review_wrangling(before, after))
 #> ============================================================
 ```
 
-先ほどのデータに、さらに前処理を加え、今度は一部の列や行を除外します。
+次に、先ほどのデータに、列の追加や削除、型変換、レコードの抽出といった前処理を加えてみましょう。
 
 ``` python
 after = py4st.filtering_out(after, 'sex')
 
 s = after['body_mass_g']
-after['heavy'] = np.where(s >= s.quantile(0.75), True, False)
-after['species'] = pd.Categorical(after['species'])
-after['year'] = after['year'].astype(float)
-after['const'] = 1
+after['heavy'] = np.where(s >= s.quantile(0.75), True, False) # 列の追加 1
+after['const'] = 1                                            # 列の追加 2
+after['species'] = pd.Categorical(after['species'])           # 列の型変換 1
+after['year'] = after['year'].astype(float)                   # 列の型変換 2
 
-after['flipper_length_mm'] = py4st.set_miss(
+after['flipper_length_mm'] = py4st.set_miss(                  # 欠測値の挿入
     after['flipper_length_mm'], prop = 0.1,
     random_state = 1230
     )
 
-after = after.query('species != "Adelie"')
+after = after.query('species != "Adelie"')                    # レコードの抽出
 ```
 
 `review_wrangling()` では、カテゴリー変数についてユニーク値の変化を追っているため、データの抽出による暗黙的なカテゴリーの除外（e.g. `species = 'Adelie'` を除外したことで `island = 'Torgersen'` が除外された）も報告することができます。
@@ -146,7 +149,7 @@ print(py4st.review_wrangling(before, after))
 #> ==========================================================
 ```
 
-データセットから除外された列が多い場合、レビューテキストの視認性を維持するために列名の一部が省略表記されます。
+なお、初期設定では、データセットから除外された列が多い場合、テキストの視認性を維持するために列名の一部が省略されます。
 
 ``` python
 mroz = wooldridge.data('mroz')
@@ -171,7 +174,7 @@ print(py4st.review_wrangling(
 #> ======================================================================================
 ```
 
-デフォトのレビューには含まれませんが、`items` に `'numeric'` を指定することで、数値変数について ASCII 文字列の箱ひげ図による分布の要約を出力できます。
+デフォトのレビューには含まれませんが、`items` に `'numeric'` を指定・追加することで、数値変数について ASCII 文字列の箱ひげ図による分布の要約を出力できます。
 
 ``` python
 print(py4st.review_wrangling(before, after, items = 'numeric'))
@@ -195,7 +198,7 @@ print(py4st.review_wrangling(before, after, items = 'numeric'))
 #> ============================================================
 ```
 
-## Notes
+## 注意 Notes
 
 - 本関数では、`before` と `after` が同一の DataFrame バックエンド（例：どちらも pandas、またはどちらも polars）であることを前提としています。異なるバックエンドを混在させた場合、エラーが発生します。
 

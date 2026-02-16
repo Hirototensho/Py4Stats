@@ -65,7 +65,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../man/plot_category.html" rel="next">
+<link href="../man/diagnose_category.html" rel="next">
 <link href="../man/freq_table.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -198,12 +198,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../man/diagnose_category.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">diagnose_category</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../man/plot_category.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">plot_category</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/diagnose_category.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">diagnose_category</span></a>
+  <a href="../man/info_gain.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">info_gain</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -224,6 +229,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../man/relocate.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">relocate</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/bind_rows.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">bind_rows</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/grouped_operation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">group_split, group_map, group_modify</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -273,7 +288,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/varidate.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">check_that check_viorate</span></a>
+  <a href="../man/varidate.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">check_that, check_viorate</span></a>
   </div>
 </li>
       </ul>
@@ -485,6 +500,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
+<div class="quarto-figure quarto-figure-left">
+<figure class="figure">
+<p><a href="../articles/eda_tools_development_status.html"><img src="https://img.shields.io/badge/Tested-Pandas_/_Polars_/_Pyarrow-blue.png" class="img-fluid quarto-figure quarto-figure-left figure-img" alt="badge of tested backend"></a></p>
+</figure>
+</div>
 <p>パレート図の作成</p>
 <section id="概要" class="level2">
 <h2 class="anchored" data-anchor-id="概要">概要</h2>
@@ -494,7 +514,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    group: <span class="bu">str</span>,</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    values: Optional[<span class="bu">str</span>] <span class="op">=</span> <span class="va">None</span>,</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    top_n: Optional[<span class="bu">int</span>] <span class="op">=</span> <span class="va">None</span>,</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    aggfunc: Callable[..., Any] <span class="op">=</span> np.mean,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    aggfunc: Callable[[IntoSeriesT], Union[<span class="bu">int</span>, <span class="bu">float</span>]] <span class="op">=</span> np.mean,</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    ax: Optional[Axes] <span class="op">=</span> <span class="va">None</span>,</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    fontsize: <span class="bu">int</span> <span class="op">=</span> <span class="dv">12</span>,</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    xlab_rotation: Union[<span class="bu">int</span>, <span class="bu">float</span>] <span class="op">=</span> <span class="dv">0</span>,</span>
@@ -967,8 +987,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../man/plot_category.html" class="pagination-link" aria-label="plot_category">
-        <span class="nav-page-text"><span class="chapter-title">plot_category</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../man/diagnose_category.html" class="pagination-link" aria-label="diagnose_category">
+        <span class="nav-page-text"><span class="chapter-title">diagnose_category</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

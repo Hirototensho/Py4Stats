@@ -167,6 +167,7 @@ import scipy as sp
 import varname
 import collections
 import textwrap
+import warnings
 # from functools import partial
 
 
@@ -208,6 +209,17 @@ ArrayLike = Union[NumberLike, Sequence[NumberLike], np.ndarray, pd.Series]
 
 # p-value などは 0..1 の数値配列として扱うことが多い
 # Sequence[int, float, np.number] = ArrayLike
+
+
+
+
+# def warn_arg_name_none(func_name):
+#     warnings.warn(
+#         f"Argument name inference feature of `{func_name}()`  is deprecated and will be removed in a future release of Py4Stats."
+#         "Please explicitly specify the argument name in the `arg_name.",
+#         category = FutureWarning,
+#         stacklevel = 2,
+#     )
 
 
 # ## `oxford_comma()`
@@ -416,11 +428,11 @@ def assert_length(
                      f"Argument `{arg_name}` must have length {len_arg}, "
                      f"but has length {arg_length}."
                 )
-        if (len_max is not None) and (len_min is not None):
-            if not(len_min <= arg_length <= len_max):
-                raise ValueError(
-                     f"Argument `{arg_name}` must have length {len_min} <= n <= {len_max}, "
-                     f"but has length {arg_length}."
+        if len_max is None: len_max = float('inf')
+        if not(len_min <= arg_length <= len_max):
+            raise ValueError(
+                f"Argument `{arg_name}` must have length {len_min} <= n <= {len_max}, "
+                f"but has length {arg_length}."
             )
 
 
@@ -470,9 +482,10 @@ def assert_missing(
             f"Argument `{arg_name}` contains only missing values."
         )
 
-    if not any_missing and any(missing): 
+    if not any_missing and not all_missing and any(missing): 
+       not_sutisfy_text = oxford_comma_and(not_sutisfy, quotation = False)
        raise ValueError(
-            f"Argument `{arg_name}` contains missing values (element {oxford_comma_and(not_sutisfy)})."
+            f"Argument `{arg_name}` contains missing values (element {not_sutisfy_text})."
         )
 
 
@@ -566,6 +579,7 @@ def arg_match(
         arg_name = varname.argname('arg')
 
     if (arg is None) and nullable: return None
+    if all(is_missing(arg)) and all_missing: return None
 
     assert_missing(
       arg, arg_name = arg_name, 
@@ -732,6 +746,8 @@ def make_assert_type(
 
     # 欠測値に関するアサーション ============================================
     if (arg is None) and nullable: return None
+    if all(is_missing(arg)) and all_missing: return None
+
     if scalar_only: assert_scalar(arg, arg_name = arg_name)
 
     arg = pd.Series(arg)
@@ -765,8 +781,16 @@ def make_assert_type(
 
 assert_character = make_assert_type(is_character, 'assert_character', valid_type = ['str'])
 assert_logical = make_assert_type(is_logical, 'assert_logical', valid_type = ['bool'])
-
 assert_function = make_assert_type(is_function, 'assert_function', valid_type = ['Callable'])
+
+
+
+
+assert_literal = make_assert_type(
+    lambda x: is_numeric(x) or is_character(x) or is_logical(x), 
+    func_name = 'assert_literal', 
+    valid_type = ['str', 'bool', 'int', 'float']
+    )
 
 
 # ### 数値用の `assert_*()` 関数
@@ -962,6 +986,8 @@ def make_assert_numeric(
 
     # 欠測値に関するアサーション ============================================
     if (arg is None) and nullable: return None
+    if all(is_missing(arg)) and all_missing: return None
+
     if scalar_only: assert_scalar(arg, arg_name = arg_name)
 
     arg = pd.Series(arg)
@@ -1013,6 +1039,44 @@ assert_count = make_assert_numeric(is_integer, 'assert_count', valid_type = ['po
 assert_float = make_assert_numeric(is_float, 'assert_float', valid_type = ['float'])
 
 
+
+
+def assert_same_type(arg, arg_name: str = 'arg'):
+    if length(arg) <= 1: return None
+    first_type = type(arg[0])
+    mismatched = [
+        f"{i} ({type(v).__name__})" 
+        for i, v in enumerate(arg) 
+        if type(v) is not first_type
+        ]
+    if mismatched:
+        not_sutisfy_text = oxford_comma_and(
+            mismatched, quotation = False
+        )
+
+        message = f"Elements of `{arg_name}` must share the same type.\n" +\
+                  f"{11 * ' '}Found at indices {not_sutisfy_text}."
+        raise TypeError(message)
+
+
+
+
+def assert_literal_kyes(arg, arg_name: str = 'arg'):
+    keys = list(arg.keys())
+    if length(keys) > 1:
+        unique_type = list_unique([type(v).__name__ for v in arg])
+
+        if length(unique_type) > 1:
+            type_text = oxford_comma_and(unique_type)
+            message = f"Keys of `{arg_name}` must share the same type, got {type_text}." 
+            raise TypeError(message)
+
+    if not (is_numeric(keys) or is_character(keys) or is_logical(keys)):
+        valid_type = ['str', 'int', 'float']
+        messages = f"Keys of `{arg_name}` must be of type {oxford_comma_or(valid_type)}." 
+        raise TypeError(messages)
+
+
 # ## 数値などのフォーマット
 
 
@@ -1043,8 +1107,8 @@ def p_stars(
     # pd.cut() の bin として使用するときにエラーを生じないよう、昇順にソート
     stars2 = pd.Series(stars2, dtype = 'float64').sort_values()
 
-    assert_numeric(p_value, lower = 0)
-    assert_numeric(stars2, lower = 0)
+    assert_numeric(p_value, arg_name = 'p_value', lower = 0)
+    assert_numeric(stars2, arg_name = 'stars2', lower = 0)
 
     # 0.0 に stars2 の値を追加したものを bins とします。
     bins = [0.0, *stars2.to_list()]
@@ -1082,10 +1146,10 @@ def style_pvalue(
   Returns:
         pandas.Series: Formatted p-values as strings.
   """
-  assert_numeric(p_value, lower = 0)
-  assert_count(digits, lower = 1)
-  assert_numeric(p_min, lower = 0, upper = 1)
-  assert_numeric(p_max, lower = 0, upper = 1)
+  assert_numeric(p_value, arg_name = 'p_value', lower = 0)
+  assert_count(digits, arg_name = 'digits', lower = 1)
+  assert_numeric(p_min, arg_name = 'p_min', lower = 0, upper = 1)
+  assert_numeric(p_max, arg_name = 'p_max', lower = 0, upper = 1)
 
   if(prepend_p): prefix = ['p', 'p=']
   else: prefix = ['', '']
@@ -1104,14 +1168,14 @@ def style_pvalue(
 
 @np.vectorize
 def num_comma(x: NumberLike, digits: int = 2, big_mark: str = ",") -> str:
-  assert_count(digits)
-  arg_match(big_mark, [',', '_', ''])
+  assert_count(digits, arg_name = 'digits')
+  arg_match(big_mark, [',', '_', ''], arg_name = 'big_mark')
   return f'{x:{big_mark}.{digits}f}'
 
 @np.vectorize
 def num_currency(x: NumberLike, symbol: str = "$", digits: int = 0, big_mark: str = ",") -> str:
-  assert_count(digits)
-  arg_match(big_mark, [',', '_', ''])
+  assert_count(digits, arg_name = 'digits')
+  arg_match(big_mark, [',', '_', ''], arg_name = 'big_mark')
   return f'{symbol}{x:{big_mark}.{digits}f}'
 
 @np.vectorize
@@ -1124,28 +1188,28 @@ def num_percent(x: NumberLike, digits: int = 2) -> str:
 def style_number(x: ArrayLike, digits: int = 2, big_mark: str = ",") -> pd.Series:
   x = pd.Series(x)
 
-  assert_numeric(x)
-  assert_count(digits)
+  assert_numeric(x, arg_name = 'x')
+  assert_count(digits, arg_name = 'digits')
 
-  arg_match(big_mark, [',', '_', ''])
+  arg_match(big_mark, [',', '_', ''], arg_name = 'big_mark')
 
   return x.apply(lambda v: f'{v:{big_mark}.{digits}f}')
 
 def style_currency(x: ArrayLike, symbol: str = "$", digits: int = 0, big_mark: str = ",") -> pd.Series:
   x = pd.Series(x)
 
-  assert_numeric(x)
-  assert_count(digits)
+  assert_numeric(x, arg_name = 'x')
+  assert_count(digits, arg_name = 'digits')
 
-  arg_match(big_mark, [',', '_', ''])
+  arg_match(big_mark, [',', '_', ''], arg_name = 'big_mark')
 
   return x.apply(lambda v: f'{symbol}{v:{big_mark}.{digits}f}')
 
 def style_percent(x: ArrayLike, digits: int = 2, unit: float = 100, symbol: str = "%") -> pd.Series:
   x = pd.Series(x)
 
-  assert_numeric(x)
-  assert_count(digits)
+  assert_numeric(x, arg_name = 'x')
+  assert_count(digits, arg_name = 'digits')
 
   return x.apply(lambda v: f'{v*unit:.{digits}f}{symbol}')
 
@@ -1245,4 +1309,11 @@ def list_replace(x: List[Any], mapping: Union[Dict, Callable]) -> List[Any]:
         return [mapping.get(v, v) for v in x]
     if isinstance(mapping, Callable):
         return [mapping(v) for v in x]
+
+
+
+
+def which(x: Iterable[bool]):
+    indices = [i for i, val in enumerate(x) if val]
+    return indices
 

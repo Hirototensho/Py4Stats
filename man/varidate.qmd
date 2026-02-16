@@ -1,4 +1,6 @@
-# check_that check_viorate
+# check_that, check_viorate
+
+[![](https://img.shields.io/badge/Tested-Pandas_/_Polars_/_Pyarrow-blue){fig-align="left" fig-alt="badge of tested backend"}](../articles/eda_tools_development_status.qmd)
 
 簡易なルールベースのデータ検証ツール
 
@@ -27,7 +29,7 @@ check_viorate(
   （例：`pandas.DataFrame`、`polars.DataFrame`、`pyarrow.Table`）を指定できます。
 - `rule_dict`**dict or pd.Series of str**（必須）<br>
 　`pandas.eval()` メソッドで実行した結果が論理値となるような expression の文字列を値とする辞書オブジェクト。詳細は使用例も参照してください。
-- `to_native`（**bool**, optional）<br>
+- `to_native`: **bool**<br>
   `True` の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。<br>
   `False` の場合、`narwhals.DataFrame` を返します。デフォルトは `True` で、`to_native = False` は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。
 - `**kwargs`<br>
@@ -156,7 +158,7 @@ print(retailers.loc[df_viorate['to'], 'size':'turnover'])
 #> 6  sc3       0.14    5.0       NaN
 ```
 
-## Notes
+## 注意 Notes
 
 本関数の内部実装は、 `pd.DataFrame.eval()` メソッドに依存しているため、実行時間の面で必ずしも最適化されていません。
 

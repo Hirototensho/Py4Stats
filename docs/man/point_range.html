@@ -66,7 +66,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
 <link href="../man/remove_empty_constant.html" rel="next">
-<link href="../man/diagnose_category.html" rel="prev">
+<link href="../man/info_gain.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
@@ -198,12 +198,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../man/diagnose_category.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">diagnose_category</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../man/plot_category.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">plot_category</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/diagnose_category.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">diagnose_category</span></a>
+  <a href="../man/info_gain.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">info_gain</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -224,6 +229,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../man/relocate.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">relocate</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/bind_rows.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">bind_rows</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/grouped_operation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">group_split, group_map, group_modify</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -273,7 +288,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/varidate.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">check_that check_viorate</span></a>
+  <a href="../man/varidate.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">check_that, check_viorate</span></a>
   </div>
 </li>
       </ul>
@@ -486,6 +501,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
+<div class="quarto-figure quarto-figure-left">
+<figure class="figure">
+<p><a href="../articles/eda_tools_development_status.html"><img src="https://img.shields.io/badge/Tested-Pandas_/_Polars_/_Pyarrow-blue.png" class="img-fluid quarto-figure quarto-figure-left figure-img" alt="badge of tested backend"></a></p>
+</figure>
+</div>
 <p>数値変数の点推定と区間推定</p>
 <section id="概要" class="level2">
 <h2 class="anchored" data-anchor-id="概要">概要</h2>
@@ -521,7 +541,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <ul>
 <li><code>data</code>：<strong>IntoFrameT or IntoSeriesT</strong>（必須）<br> 入力データ。narwhals が受け入れ可能な DataFrame もしくは Series 互換オブジェクト （例：<code>pandas.DataFrame</code>、<code>polars.DataFrame</code>、<code>pyarrow.Table</code>）を指定できます。</li>
 <li><code>width</code>：<strong>float</strong><br> 　分位点区間の幅、もしくは信頼区間の計算に用いる信頼係数。</li>
-<li><code>to_native</code>（<strong>bool</strong>, optional）<br> <code>True</code> の場合、入力と同じ型のデータフレーム（e.g.&nbsp;pandas / polars / pyarrow）を返します。<br> <code>False</code> の場合、<code>narwhals.DataFrame</code> を返します。デフォルトは <code>True</code> で、<code>to_native = False</code> は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。</li>
+<li><code>to_native</code>: <strong>bool</strong><br> <code>True</code> の場合、入力と同じ型のデータフレーム（e.g.&nbsp;pandas / polars / pyarrow）を返します。<br> <code>False</code> の場合、<code>narwhals.DataFrame</code> を返します。デフォルトは <code>True</code> で、<code>to_native = False</code> は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。</li>
 </ul>
 </section>
 <section id="使用例-examples" class="level2">
@@ -964,8 +984,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../man/diagnose_category.html" class="pagination-link" aria-label="diagnose_category">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">diagnose_category</span></span>
+      <a href="../man/info_gain.html" class="pagination-link" aria-label="info_gain">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">info_gain</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">

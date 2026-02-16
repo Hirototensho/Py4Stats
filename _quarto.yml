@@ -14,12 +14,15 @@ book:
       - man/tabyl.qmd
       - man/freq_table.qmd
       - man/Pareto_plot.qmd
-      - man/plot_category.qmd
       - man/diagnose_category.qmd
+      - man/plot_category.qmd
+      - man/info_gain.qmd
       - man/point_range.qmd
       - man/remove_empty_constant.qmd
       - man/filtering_out.qmd
       - man/relocate.qmd
+      - man/bind_rows.qmd
+      - man/grouped_operation.qmd
       - man/compare_df_cols.qmd
       - man/review_wrangling.qmd
       - man/review_individuals.qmd

@@ -236,7 +236,7 @@ from py4stats import building_block as build # py4stats のプログラミング
 # from py4stats import eda_tools as eda        # 基本統計量やデータの要約など
 import matplotlib.pyplot as plt
 import functools
-from functools import singledispatch, reduce
+from functools import singledispatch, reduce, partial
 import pandas_flavor as pf
 
 import pandas as pd
@@ -254,6 +254,9 @@ import warnings
 
 import math
 from wcwidth import wcswidth
+import scipy.stats as st
+
+from collections import namedtuple
 
 
 # In[ ]:
@@ -272,6 +275,7 @@ from typing import (
     Union,
     Literal,
     overload,
+    NamedTuple
 )
 from numpy.typing import ArrayLike
 
@@ -284,13 +288,140 @@ except Exception:  # notebook等で未importでも落ちないように
 DataLike = Union[pd.Series, pd.DataFrame]
 
 
+# In[ ]:
+
+
+def is_intoframe(obj: object) -> bool:
+    try:
+        _ = nw.from_native(obj)
+        return True
+    except Exception:
+        return False
+
+
+# In[ ]:
+
+
+@singledispatch
+def as_nw_datarame(arg: Any, arg_name: str = 'data'):
+    try:
+        return nw.from_native(arg)
+    except TypeError:
+        raise TypeError(
+            f"Argument `{arg_name}` must be a DataFrame supported by narwhals "
+            "(e.g. pandas.DataFrame, polars.DataFrame, pyarrow.Table), "
+            f"but got '{type(arg).__name__}'."
+        ) from None
+
+
+# In[ ]:
+
+
+@as_nw_datarame.register(list)
+def as_nw_datarame_list(arg: List[Any], arg_name: str = 'df_list', max_items: int = 5):
+    try:
+        return [nw.from_native(df) for df in arg]
+    except TypeError:
+        not_sutisfy = [
+            f"{i} ({type(v).__name__})" 
+            for i, v in enumerate(arg) 
+            if not is_intoframe(v)
+            ]
+
+        not_sutisfy_text = build.oxford_comma_shorten(
+            not_sutisfy, quotation = False,
+            max_items = max_items, suffix = 'elements'
+            )
+
+        raise TypeError(
+            f"Argument `{arg_name}` must be a DataFrame supported by narwhals "
+            "(e.g. pandas.DataFrame, polars.DataFrame, pyarrow.Table).\n"
+                f"{11 * ' '}Elements at indices {not_sutisfy_text} are not supported."
+        ) from None
+
+
+# In[ ]:
+
+
+@as_nw_datarame.register(dict)
+def as_nw_datarame_dict(arg: Mapping[str, Any], arg_name: str = 'df_dict', max_items: int = 5):
+    try:
+        return {
+            key: nw.from_native(df) for df in arg
+            for key, df in zip(arg.keys(), arg.values())
+            }
+    except TypeError:
+        not_sutisfy = [
+            f"'{i}' ({type(v).__name__})" 
+            for i, v in zip(arg.keys(), arg.values())
+            if not is_intoframe(v)
+            ]
+
+        not_sutisfy_text = build.oxford_comma_shorten(
+            not_sutisfy, quotation = False,
+            max_items = max_items, suffix = 'elements'
+            )
+
+        raise TypeError(
+            f"Argument `{arg_name}` must be a DataFrame supported by narwhals "
+            "(e.g. pandas.DataFrame, polars.DataFrame, pyarrow.Table).\n"
+            f"{11 * ' '}Elements at keys {not_sutisfy_text} are not supported."
+        ) from None
+
+
+# In[ ]:
+
+
+def as_nw_series(arg: Any, arg_name: str = 'data', **keywargs):
+    try:
+        return nw.from_native(arg, series_only = True)
+    except TypeError:
+
+        raise TypeError(
+            f"Argument `{arg_name}` must be a Series supported by narwhals "
+            "(e.g. pandas.Series, polars.Series, pyarrow.ChunkedArray), "
+            f"but got '{type(arg).__name__}'."
+        ) from None
+
+
+# In[ ]:
+
+
+def assign_nw(data_nw: nw.DataFrame, assignment: Mapping[str, Iterable]):
+    """Narwhals DataFrame の列に Iterable オブジェクトを代入する
+    >>> data_nw = nw.from_native(load_penguins())
+    >>> penguins_nw.pipe(assign_nw,{
+    ...    'body_mass_kg': data_nw['body_mass_g'] / 1000,
+    ...    'bill_length_mm': pd.cut(data_nw['bill_length_mm'], bins = 10, labels = False)
+    ...    }).select(ncs.matches('bill|body')).head(2)
+        ┌───────────────────────────────────────────────────────────┐
+        |                    Narwhals DataFrame                     |
+        |-----------------------------------------------------------|
+        |   bill_length_mm  bill_depth_mm  body_mass_g  body_mass_kg|
+        |0             2.0           18.7       3750.0          3.75|
+        |1             2.0           17.4       3800.0          3.80|
+        └───────────────────────────────────────────────────────────┘
+    """
+    result = data_nw.clone()
+    for key, val in zip(assignment.keys(), assignment.values()):
+
+        val_nw = nw.Series.from_iterable(
+            key, values = val, 
+            backend = data_nw.implementation
+            )
+
+        result = result.with_columns(val_nw.alias(key))
+
+    return result
+
+
 # # `diagnose()`
 
 # In[ ]:
 
 
 def get_dtypes(data: IntoFrameT) -> pd.Series:
-    data_nw = nw.from_native(data)
+    data_nw = as_nw_datarame(data)
     implement = data_nw.implementation
 
     if isinstance(data, nw.DataFrame):
@@ -346,7 +477,7 @@ def diagnose(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
             - unique_rate: percentage of unique values (100 * unique_count / nrow).
     """
     build.assert_logical(to_native, arg_name = 'to_native')
-    data_nw = nw.from_native(data)
+    data_nw = as_nw_datarame(data)
 
     n = data_nw.shape[0]
     list_dtypes = get_dtypes(data).to_list()
@@ -472,17 +603,6 @@ def plot_miss_var(
 # In[ ]:
 
 
-def is_FrameT(obj: object) -> bool:
-    try:
-        _ = nw.from_native(obj)
-        return True
-    except Exception:
-        return False
-
-
-# In[ ]:
-
-
 def _join_comparsion(result_list, on):
     redundant_col = f"{on}_right"
     result = reduce(
@@ -494,7 +614,7 @@ def _join_comparsion(result_list, on):
                 )), result_list
                 )
     result = filtering_out(
-            result, starts_with = redundant_col, 
+            result, redundant_col, 
             to_native = False
         )
     return result
@@ -573,9 +693,7 @@ def compare_df_cols(
             df_name = [f'df{i + 1}' for i in range(len(df_list))]
 
     # 引数のアサーション ----------------------
-    assert isinstance(df_list, list) & \
-        all([is_FrameT(v) for v in df_list]), \
-        "argument 'df_list' is must be a list of DataFrame."
+    _ = as_nw_datarame(df_list)
 
     return_match = build.arg_match(
         return_match, values = ['all', 'match', 'mismatch'],
@@ -729,10 +847,6 @@ def compare_df_stats(
         else:
             df_name = [f'df{i + 1}' for i in range(len(df_list))]
     # 引数のアサーション ==========================================
-    assert isinstance(df_list, list) & \
-            all([is_FrameT(v) for v in df_list]), \
-            "argument 'df_list' is must be a list of DataFrame."
-
     return_match = build.arg_match(
         return_match, arg_name = 'return_match',
         values = ['all', 'match', 'mismatch']
@@ -744,7 +858,7 @@ def compare_df_stats(
     build.assert_logical(to_native, arg_name = 'to_native')
     # ==========================================================
 
-    df_list_nw = [nw.from_native(v) for v in df_list]
+    df_list_nw = as_nw_datarame(df_list)
 
     # 統計値の計算 =============================================
     stats_list = [
@@ -866,8 +980,8 @@ def compare_df_record(
         >>> compare_df_record(df1, df2, columns="all")
         >>> compare_df_record(df1, df2, rtol=1e-4, columns="common")
     """
-    df1 = nw.from_native(df1)
-    df2 = nw.from_native(df2)
+    df1 = as_nw_datarame(df1, arg_name = 'df1')
+    df2 = as_nw_datarame(df2, arg_name = 'df2')
     all1 = df1.columns
     all2 = df2.columns
 
@@ -1070,7 +1184,7 @@ def enframe_table(
     # build.assert_character(names, arg_name = 'names', nullable = True)
     build.assert_logical(to_native, arg_name = 'to_native')
     # =======================================================================
-    data = nw.from_native(data, allow_series = True)
+    data = as_nw_datarame(data)
 
     if backend is None:
         backend = data.implementation
@@ -1119,9 +1233,9 @@ def enframe_iterable(
 # In[ ]:
 
 
-@enframe.register(Union[int, float, bool, str])
+@enframe.register(Union[int, float, bool, None, str, pd._libs.missing.NAType])
 def enframe_atomic(
-    data: Union[int, float, bool, str],
+    data: Union[int, float, bool, None, str, pd._libs.missing.NAType],
     name: str = 'name',
     value: str = 'value',
     names: Optional[Union[list[str], list[int]]] = None,
@@ -1135,10 +1249,9 @@ def enframe_atomic(
     build.assert_logical(to_native, arg_name = 'to_native')
     # =======================================================================
     if backend is None: backend = 'pandas'
-    if names is None: names = range(build.length(data))
 
     result = nw.from_dict({
-        name: names,
+        name: 0,
         value: [data]
     }, backend = backend)
 
@@ -1165,7 +1278,7 @@ def enframe_series(
     # build.assert_character(names, arg_name = 'names', nullable = True)
     build.assert_logical(to_native, arg_name = 'to_native')
     # =======================================================================
-    data = nw.from_native(data, allow_series = True)
+    data = as_nw_series(data)
 
     if backend is None:
         if hasattr(data, 'implementation'):
@@ -1287,8 +1400,8 @@ def compare_group_means(
     else: how_join = 'inner'
 
     # ==============================================================
-    group1 = nw.from_native(group1)
-    group2 = nw.from_native(group2)
+    group1 = as_nw_datarame(group1, arg_name = 'group1')
+    group2 = as_nw_datarame(group2, arg_name = 'group2')
     group1 = remove_constant(group1, to_native = False)
     group2 = remove_constant(group2, to_native = False)
 
@@ -1432,8 +1545,8 @@ def compare_group_median(
     else: how_join = 'inner'
 
     # ==============================================================
-    group1 = nw.from_native(group1)
-    group2 = nw.from_native(group2)
+    group1 = as_nw_datarame(group1, arg_name = 'group1')
+    group2 = as_nw_datarame(group2, arg_name = 'group1')
     group1 = remove_constant(group1, to_native = False)
     group2 = remove_constant(group2, to_native = False)
 
@@ -1598,7 +1711,7 @@ def crosstab(
             arg_name = 'normalize'
         )
     # -----------------------------------------------------
-    data_nw = nw.from_native(data)
+    data_nw = as_nw_datarame(data)
     impl = data_nw.implementation
 
     if impl.is_pyarrow():
@@ -1626,9 +1739,11 @@ def crosstab(
 
     if sort_index:
         result = result.sort(index)
-    # return result
+
     if margins:
-        result = result.with_columns(nw.sum_horizontal(ncs.numeric()).alias(margins_name))
+        result = result.with_columns(
+            nw.sum_horizontal(ncs.numeric()).alias(margins_name)
+            )
 
         # row_sums の作成と結合
         row_sums = result.select(ncs.numeric().sum())\
@@ -1743,7 +1858,7 @@ def freq_table(
         )
     # =========================================================
 
-    data_nw = nw.from_native(data)
+    data_nw = as_nw_datarame(data)
 
     if dropna:
         data_nw = data_nw.drop_nulls(subset)
@@ -1838,10 +1953,10 @@ def tabyl(
     build.assert_character(margins_name, arg_name = 'margins_name')
     build.assert_logical(dropna, arg_name = 'dropna')
     build.assert_count(digits, arg_name = 'digits')
-    # build.assert_logical(to_native, arg_name = 'to_native')
+    build.assert_logical(to_native, arg_name = 'to_native')
     # ==============================================================
 
-    data_nw = nw.from_native(data)
+    data_nw = as_nw_datarame(data)
 
     if(not isinstance(normalize, bool)):
       normalize = build.arg_match(
@@ -1984,7 +2099,7 @@ def is_dummy_series(
 ) -> bool:
     build.assert_logical(dropna, arg_name = 'dropna')
 
-    data_nw = nw.from_native(data, series_only = True)
+    data_nw = as_nw_series(data)
     if dropna: data_nw = data_nw.drop_nulls()
 
     return set(data_nw) == set(cording)
@@ -2003,7 +2118,7 @@ def is_dummy_data_frame(
     build.assert_logical(to_pd_series, arg_name = 'to_pd_series')
     build.assert_logical(to_native, arg_name = 'to_native')
 
-    data_nw = nw.from_native(data)
+    data_nw = as_nw_datarame(data)
 
     result_df = data_nw.select(
         nw.all().map_batches(
@@ -2049,7 +2164,7 @@ def entropy(x: IntoSeriesT, base: float = 2.0, dropna: bool = True) -> float:
     build.assert_numeric(base, arg_name = 'base', lower = 0, inclusive = 'right')
     build.assert_logical(dropna, arg_name = 'dropna')
 
-    x_nw = nw.from_native(x, series_only = True)
+    x_nw = as_nw_series(x)
 
     if dropna: x_nw = x_nw.drop_nulls()
 
@@ -2060,7 +2175,7 @@ def entropy(x: IntoSeriesT, base: float = 2.0, dropna: bool = True) -> float:
 def normalized_entropy(x: IntoSeriesT, dropna: bool = True) -> float:
     build.assert_logical(dropna, arg_name = 'dropna')
 
-    x_nw = nw.from_native(x, series_only = True)
+    x_nw = as_nw_series(x)
     if dropna: x_nw = x_nw.drop_nulls()
 
     K = x_nw.n_unique()
@@ -2151,7 +2266,7 @@ def diagnose_category(data: IntoFrameT, dropna: bool = True, to_native: bool = T
     build.assert_logical(to_native, arg_name = 'to_native')
     build.assert_logical(dropna, arg_name = 'dropna')
 
-    data_nw = nw.from_native(data)
+    data_nw = as_nw_datarame(data)
     res_is_dummy = is_dummy(data_nw, to_pd_series = True)
     dummy_col = res_is_dummy[res_is_dummy].index.to_list()
 
@@ -2214,12 +2329,243 @@ def diagnose_category(data: IntoFrameT, dropna: bool = True, to_native: bool = T
     return result
 
 
+# ### info_gain: 情報理論の指標に基づいたカテゴリー変数間の相関分析（実験的実装）
+
+# In[ ]:
+
+
+def binning_for_ig(data, col, max_unique:int = 20, n_bins: Optional[int] = None):
+    data_nw = as_nw_datarame(data)
+    n = data_nw.shape[0]
+
+    x = data_nw[col]
+    if x.n_unique() >= max_unique:
+        # n_bins が未指定なら、スタージェスの公式で計算
+        if n_bins is None: n_bins = min(int(np.log2(1 + n)), max_unique)
+
+        bined = pd.qcut(x, q = n_bins, labels = False)
+
+        bined = nw.Series.from_iterable(
+            col, values = bined, 
+            backend = data_nw.implementation
+            )
+
+        data_nw = data_nw.with_columns(bined.alias(col))
+    return data_nw
+
+
+# In[ ]:
+
+
+# from collections import namedtuple
+# IGResult = namedtuple('IGResult', ['h_before', 'h_after', 'info_gain', 'ig_ratio'])
+
+# def ig_compute(
+#         data, target: str, 
+#         feature: str, 
+#         use_bining: bool = True,
+#         max_unique: int = 20,
+#         n_bins: Optional[int] = None,
+#         base: float = 2.0
+#         ):
+#     data_pd = as_nw_datarame(data).to_pandas().copy()
+
+#     if build.is_numeric(data_pd[feature]) and use_bining:
+#         n = data_pd.shape[0]
+
+#         if n_bins is None: n_bins = min(int(np.log2(1 + n)), max_unique)
+
+#         data_pd[feature] = pd.qcut(
+#             data_pd[feature], 
+#             q = n_bins, 
+#             labels = False,
+#             duplicates = 'drop'
+#             )
+
+#     entropy_b = partial(entropy, base = base)
+#     h_before = entropy_b(data_pd[target])
+
+#     res = data_pd\
+#         .groupby(feature, observed = True)[target]\
+#         .agg([entropy_b, 'count'])
+
+#     h_after = weighted_mean(res['entropy'], res['count'])
+#     info_gain = np.max([h_before - h_after, 0])
+#     ig_ratio = info_gain / h_before if h_before > 0 else np.nan
+
+#     return IGResult(h_before, h_after, info_gain, ig_ratio)
+
+
+# In[ ]:
+
+
+from collections import namedtuple
+IGResult = namedtuple(
+    'IGResult', 
+    ['target', 'feature', 'h_target', 'h_feature', 'h_cond', 'joint_ent', 'info_gain', 'ig_ratio']
+    )
+
+def ig_compute(
+        data, 
+        target: str, 
+        feature: str, 
+        use_bining: bool = True,
+        max_unique: int = 20,
+        n_bins: Optional[int] = None,
+        base: float = 2.0
+        ):
+    data_nw = as_nw_datarame(data)
+
+
+    if build.is_numeric(data_nw[feature]) and use_bining:
+        data_nw = binning_for_ig(
+            data_nw, col = feature,
+            max_unique = max_unique,
+            n_bins = n_bins
+            )
+
+    h_target = entropy(data_nw[target], base = base)
+    h_feature = entropy(data_nw[feature], base = base)
+
+    colpaire = build.list_unique([feature, target])
+    freq = freq_table(data_nw, colpaire, to_native = False)['freq']
+    joint_ent = st.entropy(freq, base = base)
+
+    h_cond = joint_ent - h_feature
+    info_gain = np.max([h_target + h_feature - joint_ent, 0.0]) # 相互情報量の非負性を満たすため
+
+    ig_ratio = info_gain / h_target if h_target > 0 else np.nan
+    result = IGResult(
+        target, feature, h_target, h_feature, 
+        h_cond, joint_ent, info_gain, ig_ratio
+        )
+    return result
+
+
+# In[ ]:
+
+
+def info_gain(
+        data: IntoFrameT, 
+        target: Union[str, List[str]],
+        features: Optional[Union[str, List[str]]] = None,
+        use_bining: bool = True,
+        n_bins: Optional[int] = None,
+        max_unique: int = 20,
+        base: float = 2.0,
+        to_native: bool = True
+        ):
+    """
+    Compute information gain for multiple target-feature pairs.
+
+    This function evaluates the information gain (mutual information)
+    and its normalized form (uncertainty coefficient) for all
+    combinations of specified target and feature variables.
+
+    It is designed for exploratory screening in settings such as
+    questionnaire analysis, where multiple target variables (e.g.,
+    survey questions) are compared against one or more attributes
+    (e.g., demographic variables).
+
+    Args:
+        data (IntoFrameT):
+            Input DataFrame. Any DataFrame type supported by narwhals
+            (e.g. pandas, polars, pyarrow) can be used.
+        target (Union[List[str], str]):
+            One or more categorical target variable names.
+        features (Optional[Union[List[str]]], optional):
+            Feature variable names. If None, all columns except targets
+            are used as features. Defaults to None.
+        use_bining (bool, optional):
+            Whether to discretize numeric features before computing
+            information gain. Defaults to True.
+        max_unique (int, optional):
+            Threshold for triggering discretization of numeric features
+            and upper bound for the number of bins. Defaults to 20.
+        n_bins (Optional[int], optional):
+            Number of bins for discretization. If None, the number of bins
+            is determined automatically. Defaults to None.
+        base (float, optional):
+            The logarithmic base of entropy, defaults to 2.0.
+        to_native (bool, optional):
+            If True, convert the result to the native DataFrame type of
+            the backend. If False, return a narwhals DataFrame.
+            Defaults to True.
+
+    Returns:
+        IntoFrameT:
+            A DataFrame with one row per target-feature pair containing:
+
+            - target (str):
+                Target variable name.
+            - features (str):
+                Feature variable name.
+            - h_target (float):
+                Entropy of the target variable.
+            - h_feature (float):
+                Entropy of the feature.
+            - h_cond (float):
+                Conditional entropy given the feature.
+            - joint_ent (float):
+                Joint entropy of the target variable and feature.
+            - info_gain (float):
+                Information gain (mutual information).
+            - ig_ratio (float):
+                Normalized information gain (uncertainty coefficient).
+
+    Notes:
+        - Information gain is equivalent to mutual information.
+        - The normalized information gain (IG ratio) corresponds to
+          the uncertainty coefficient (Theil's U).
+        - The IG ratio allows comparison across different target
+          variables by expressing explained uncertainty as a proportion.
+        - Numeric features may be discretized prior to computation.
+    """
+    # 引数のアサーション ====================================================
+    build.assert_character(target, arg_name = 'target')
+    build.assert_character(features, arg_name = 'features', nullable = True)
+    build.assert_logical(use_bining, arg_name = 'use_bining', len_arg = 1)
+    build.assert_count(max_unique, arg_name = 'max_unique', len_arg = 1)
+    build.assert_count(n_bins, arg_name = 'n_bins', len_arg = 1, nullable = True)
+    build.assert_logical(to_native, arg_name = 'to_native', len_arg = 1)
+    build.assert_numeric(base, arg_name = 'base', len_arg = 1)
+    # ====================================================================
+    data_nw = as_nw_datarame(data)
+
+    if isinstance(target, str): target = [target]
+
+    if features is None: 
+        features = build.list_diff(data_nw.columns, target)
+    elif isinstance(features, str): features = [features]
+
+    colpair = itertools.product(target, features)
+
+    result_dicts = []
+
+    for cols in colpair:
+        res = ig_compute(
+            data_nw, cols[0], cols[1], 
+            use_bining = use_bining,
+            max_unique = max_unique,
+            n_bins = n_bins,
+            base = base
+            )
+        result_dicts += [res._asdict()]
+
+    result = nw.from_dicts(
+        result_dicts,
+        backend = data_nw.implementation
+    )
+    if to_native: return result.to_native()
+    return result
+
+
 # ## その他の補助関数
 
 # In[ ]:
 
 
-def weighted_mean(x: IntoSeriesT, w: IntoSeriesT, dropna:bool = False) -> float:
+def weighted_mean(x: IntoSeriesT, w: IntoSeriesT, dropna: bool = False) -> float:
   """Compute the weighted mean of a numeric series.
 
   This function computes the weighted mean of a numeric vector `x`
@@ -2249,8 +2595,8 @@ def weighted_mean(x: IntoSeriesT, w: IntoSeriesT, dropna:bool = False) -> float:
       ValueError:
           If `x` or `w` is not numeric.
   """
-  x = nw.from_native(x, series_only = True)
-  w = nw.from_native(w, series_only = True)
+  x = as_nw_series(x)
+  w = as_nw_series(w)
 
   if dropna:
     non_nan = ~x.is_nan() & ~w.is_nan()
@@ -2316,7 +2662,7 @@ def scale_series(x: IntoSeriesT, ddof: int = 1, to_native: bool = True) -> IntoS
     build.assert_count(ddof, arg_name = 'ddof')
     build.assert_logical(to_native, arg_name = 'to_native')
 
-    x = nw.from_native(x, series_only = True)
+    x = as_nw_series(x)
 
     build.assert_numeric(x, arg_name = 'x', any_missing = True)
 
@@ -2378,7 +2724,7 @@ def min_max(x: Union[IntoSeriesT, pd.DataFrame], to_native: bool = True) -> Into
 def min_max_series(x: Union[IntoSeriesT, pd.DataFrame], to_native: bool = True) -> IntoSeriesT:
     build.assert_logical(to_native, arg_name = 'to_native')
 
-    x = nw.from_native(x, series_only = True)
+    x = as_nw_series(x)
 
     build.assert_numeric(x, arg_name = 'x', any_missing = True)
 
@@ -2407,7 +2753,7 @@ def missing_percent(
         axis: str = 'index',
         pct: bool = True
         ) -> pd.Series:
-    data_nw = nw.from_native(data)
+    data_nw = as_nw_datarame(data)
     n = data_nw.shape[0]
 
     if axis == 'index':
@@ -2423,7 +2769,7 @@ def missing_percent(
                 nw.sum_horizontal(nw.all()).alias('miss_count')
             )['miss_count']
 
-        if data_nw.implementation.is_pandas_like():
+        if data_nw.implementation.is_pandas_like() and hasattr(data, 'index'):
             miss_count = pd.Series(miss_count, index = data.index)
         else:
             miss_count = pd.Series(miss_count)
@@ -2479,8 +2825,8 @@ def remove_empty(
     build.assert_logical(to_native, arg_name = 'to_native', len_arg = 1)
     # ==============================================================
 
+    data_nw = as_nw_datarame(data)
     df_shape = data.shape
-    data_nw = nw.from_native(data)
     # 空白列の除去 ------------------------------
     if cols :
         empty_col = missing_percent(data, axis = 'index', pct = False) >= cutoff
@@ -2516,7 +2862,7 @@ def remove_empty(
 
 
 def is_constant(data: IntoSeriesT, dropna: bool = True) -> bool:
-    data = nw.from_native(data, series_only = True)
+    data = as_nw_series(data)
     if dropna: 
         return data.drop_nulls().n_unique() == 1
     else:
@@ -2558,7 +2904,7 @@ def remove_constant(
     build.assert_logical(dropna, arg_name = 'dropna', len_arg = 1)
     build.assert_logical(to_native, arg_name = 'to_native', len_arg = 1)
     # ==============================================================
-    data_nw = nw.from_native(data)
+    data_nw = as_nw_datarame(data)
     col_name = data_nw.columns
 
     bool_constant = [is_constant(col, dropna) for col in data_nw.iter_columns()]
@@ -2682,7 +3028,7 @@ def filtering_out(
     build.assert_character(ends_with, arg_name = 'ends_with', nullable = True)
     _assert_selectors(*args, arg_name = 'args', nullable = True)
     # ==============================================================
-    data_nw = nw.from_native(data)
+    data_nw = as_nw_datarame(data)
 
     # columns に基づく除外処理 =================================================================
     if axis in ("0", "index"):
@@ -2753,7 +3099,7 @@ def Pareto_plot(
     group: str,
     values: Optional[str] = None,
     top_n: Optional[int] = None,
-    aggfunc: Callable[..., Any] = np.mean,
+    aggfunc: Callable[[IntoSeriesT], Union[int, float]] = np.mean,
     ax: Optional[Axes] = None,
     fontsize: int = 12,
     xlab_rotation: Union[int, float] = 0,
@@ -2807,7 +3153,7 @@ def Pareto_plot(
     build.assert_numeric(xlab_rotation, arg_name = 'xlab_rotation')
     build.assert_character(palette, arg_name = 'palette')
     # ===================================================================================
-    data_nw = nw.from_native(data)
+    data_nw = as_nw_datarame(data)
     # 指定された変数でのランクを表すデータフレームを作成
     if values is None:
         shere_rank = freq_table(
@@ -2844,13 +3190,13 @@ def Pareto_plot(
 
 
 def make_rank_table(
-    data: pd.DataFrame,
+    data: IntoSeriesT,
     group: str,
     values: str,
-    aggfunc: Callable[..., Any] = np.mean,
+    aggfunc: Callable[[IntoSeriesT], Union[int, float]] = np.mean,
     to_native: bool = True,
 ) -> pd.DataFrame:
-    data_nw = nw.from_native(data)
+    data_nw = as_nw_datarame(data)
 
     # 引数のアサーション ===================================================================
     col_names = data_nw.columns
@@ -2864,25 +3210,15 @@ def make_rank_table(
         stat_table = data_nw.group_by(group)\
                 .agg(aggfunc(values))
     else:
-        group_value = data_nw[group].unique()
-
-        # stat_values = [
-        #     aggfunc(data_nw.filter(nw.col(group) == g)[values].drop_nulls().to_native()) 
-        #     for g in group_value
-        #     ]
-        stat_values = [
-            aggfunc(
-                data_nw.filter(nw.col(group) == g)[values]
-                .drop_nulls().to_native()
-                ) 
-            for g in group_value
-            ]
-
+        stat = group_map(
+            data_nw, group,
+            func = lambda df: aggfunc(df[values]),
+        )
         stat_table = nw.from_dict({
-            group:group_value, values:stat_values
-            }, backend = data_nw.implementation
-            )
-
+                group: stat.groups[group], 
+                values: stat.mapped
+                }, backend = data_nw.implementation
+             )
     rank_table = stat_table.sort(values, descending = True)\
             .with_columns(share = nw.col(values) / nw.col(values).sum())\
             .with_columns(cumshare = nw.col('share').cum_sum())
@@ -3042,7 +3378,7 @@ def mean_qi_data_frame(
         values = interpolation_values
         )
     # =======================================================================
-    df_numeric = nw.from_native(data).select(ncs.numeric())
+    df_numeric = as_nw_datarame(data).select(ncs.numeric())
 
     result = nw.from_dict({
         'variable': df_numeric.columns,
@@ -3078,7 +3414,7 @@ def mean_qi_series(
         values = interpolation_values
         )
     # =======================================================================
-    data_nw = nw.from_native(data, series_only = True)
+    data_nw = as_nw_series(data)
     if data_nw.name: variable = data_nw.name
     else: variable = 'x'
 
@@ -3155,7 +3491,7 @@ def median_qi_data_frame(
         )
     # =======================================================================
 
-    df_numeric = nw.from_native(data).select(ncs.numeric())
+    df_numeric = as_nw_datarame(data).select(ncs.numeric())
 
     result = nw.from_dict({
         'variable': df_numeric.columns,
@@ -3189,7 +3525,7 @@ def median_qi_series(
         )
     # =======================================================================
 
-    data_nw = nw.from_native(data, allow_series=True)
+    data_nw = as_nw_series(data)
     if data_nw.name: variable = data_nw.name
     else: variable = 'x'
 
@@ -3263,7 +3599,7 @@ def mean_ci_data_frame(
     build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither', len_arg = 1)
     build.assert_logical(to_native, arg_name = 'to_native', len_arg = 1)
     # =======================================================================
-    df_numeric = nw.from_native(data).select(ncs.numeric())
+    df_numeric = as_nw_datarame(data).select(ncs.numeric())
     n = len(df_numeric)
     t_alpha = t.isf((1 - width) / 2, df = n - 1)
     x_mean = df_numeric.select(ncs.numeric().mean())\
@@ -3292,7 +3628,7 @@ def mean_ci_series(
     build.assert_numeric(width, lower = 0, upper = 1, inclusive = 'neither', len_arg = 1)
     build.assert_logical(to_native, arg_name = 'to_native', len_arg = 1)
     # =======================================================================
-    data_nw = nw.from_native(data, allow_series=True)
+    data_nw = as_nw_series(data)
     if data_nw.name: variable = data_nw.name
     else: variable = 'x'
 
@@ -3310,6 +3646,57 @@ def mean_ci_series(
     )
     if to_native: return result.to_native()
     return result
+
+
+# In[ ]:
+
+
+def plot_dot_line(
+    data: IntoFrameT,
+    x: str, y: str,
+    lower: str = 'lower',
+    upper: str = 'upper',
+    ax: Optional[Axes] = None,
+    color: Sequence[str] = "#1b69af",
+    **keywargs
+) -> None:
+    data_nw = as_nw_datarame(data)
+    # 引数のアサーション ==============================================
+    build.assert_character(color, arg_name = 'color')
+
+    columne_name = data_nw.columns
+    x = build.arg_match(
+        x, arg_name = 'x', values = columne_name
+    )
+    y = build.arg_match(
+        y, arg_name = 'y', values = columne_name
+    )
+    lower = build.arg_match(
+        lower, arg_name = 'lower', values = columne_name
+    )
+    upper = build.arg_match(
+        upper, arg_name = 'upper', values = columne_name
+    )
+    # ==============================================================    
+    if ax is None:
+        fig, ax = plt.subplots()
+
+    # 図の描画 -----------------------------
+    # エラーバーの作図
+    ax.hlines(
+        y = data_nw[y], xmin = data_nw[lower], xmax = data_nw[upper],
+        linewidth = 1.5,
+        color = color
+        )
+    # 点推定値の作図
+    ax.scatter(
+      x = data_nw[x],
+      y = data_nw[y],
+      c = color,
+      s = 60
+    )
+    ax.invert_yaxis()
+    ax.set_ylabel(y);
 
 
 # ## 正規表現と文字列関連の論理関数
@@ -3438,7 +3825,7 @@ def is_ymd_like(data:IntoSeriesT, na_default:bool = True, to_native: bool = True
 
     rex_ymd_like = '[Script=Han]{0,2}[0-9]{1,4}(?:年|-)[0-9]{1,2}(?:月|-)[0-9]{1,2}(?:日)?'
 
-    data_nw = nw.from_native(data, allow_series = True)
+    data_nw = as_nw_series(data)
 
     result = data_nw.str.contains(rex_ymd_like)
 
@@ -3577,7 +3964,7 @@ def check_that(
     build.assert_character(rule_dict.values(), arg_name = 'rule_dict')
     build.assert_logical(to_native, arg_name = 'to_native')
     # ===============================================================================
-    data_nw = nw.from_native(data)
+    data_nw = as_nw_datarame(data)
     data_pd = data_nw.to_pandas()
     col_names = data_nw.columns
     N = data_nw.shape[0]
@@ -3666,7 +4053,7 @@ def check_viorate(
     build.assert_character(rule_dict.values(), arg_name = 'rule_dict')
     build.assert_logical(to_native, arg_name = 'to_native')
     # ===============================================================================
-    data_nw = nw.from_native(data)
+    data_nw = as_nw_datarame(data)
     data_pd = data_nw.to_pandas()
     value_impl = data_nw.implementation
     N = data_nw.shape[0]
@@ -3837,7 +4224,7 @@ def set_miss(
     4    5.0
     dtype: float64
     """
-    x_nw = nw.from_native(x, series_only = True)
+    x_nw = as_nw_series(x)
 
     # 引数のアサーション ==================================================================
     if not((n is not None) ^ (prop is not None)):
@@ -3873,7 +4260,7 @@ def set_miss(
         if n_to_miss <=0:
             warnings.warn(
                 f"Already contained {n_miss}(>= n) missing value(s) in `x`, "
-            "no additional missing values were added.",
+                "no additional missing values were added.",
             category = UserWarning,
             stacklevel = 2
             )
@@ -4093,7 +4480,7 @@ def relocate(
         raise ValueError("Please specify either `place` or `before`/`after`, not both.")
     # ======================================================
 
-    data_nw = nw.from_native(data)
+    data_nw = as_nw_datarame(data)
     colnames = data_nw.columns
     selected = data_nw.select(args).columns
 
@@ -4133,7 +4520,7 @@ def make_table_to_plot(
         sort_by: Literal['values', 'frequency'] = 'values',
         to_native: bool = True
         ) -> None:
-    data_nw = nw.from_native(data)
+    data_nw = as_nw_datarame(data)
 
     variables = data_nw.columns
     def foo(v):
@@ -4331,7 +4718,7 @@ def plot_category(
         ... })
         >>> py4st.plot_category(df, sort_by="values", legend_type="horizontal")
     """
-    data_nw = nw.from_native(data)
+    data_nw = as_nw_datarame(data)
     variables = data_nw.columns
     # 引数のアサーション ==============================================
     legend_type = build.arg_match(
@@ -4387,13 +4774,6 @@ def plot_category(
 
 
 # ### `review_wrangling()`
-
-# In[ ]:
-
-
-# def list_minus(x, y):
-#     return [v for v in x if v not in y]
-
 
 # In[ ]:
 
@@ -4514,8 +4894,8 @@ def review_col_addition(
         max_width, arg_name = 'max_width', 
         len_arg = 1)
     # =======================================================================
-    columns_before = nw.from_native(before).columns
-    columns_after  = nw.from_native(after).columns
+    columns_before = as_nw_datarame(before, arg_name = 'before').columns
+    columns_after  = as_nw_datarame(after, arg_name = 'after').columns
 
     added = build.list_diff(columns_after, columns_before)
     removed = build.list_diff(columns_before, columns_after)
@@ -4671,8 +5051,8 @@ def review_shape(before: IntoFrameT, after: IntoFrameT) -> str:
             A formatted string summarizing changes in the number of rows
             and columns.
     """
-    before_nw = nw.from_native(before)
-    after_nw  = nw.from_native(after)
+    before_nw = as_nw_datarame(before, arg_name = 'before')
+    after_nw  = as_nw_datarame(after, arg_name = 'after')
     row_o, col_o = before_nw.shape
     row_n, col_n = after_nw.shape
     d_o = len(f"{np.max([row_o, col_o]):,}")
@@ -4740,8 +5120,8 @@ def review_category(
             addition:  None
             removal:  'Torgersen'
     """
-    before_nw = nw.from_native(before)
-    after_nw  = nw.from_native(after)
+    before_nw = as_nw_datarame(before, arg_name = 'before')
+    after_nw  = as_nw_datarame(after, arg_name = 'after')
     # 引数のアサーション =======================================================
     _assert_same_backend(before_nw, after_nw, 'review_category')
 
@@ -4799,7 +5179,7 @@ import numpy as np
 
 def draw_ascii_boxplot(data, range_min = None, range_max = None, width = 30):
     """データセットから文字列の箱ひげ図を作成する"""
-    data = nw.from_native(data, series_only = True)
+    data = as_nw_series(data)
 
     # 五数要約の計算
     min_val = data.min()
@@ -4852,8 +5232,8 @@ def draw_ascii_boxplot(data, range_min = None, range_max = None, width = 30):
 
 
 def make_boxplot_with_label(before, after, col, space_left = 7, space_right = 7, width = 30, digits = 2):
-    before = nw.from_native(before)
-    after = nw.from_native(after)
+    before = as_nw_datarame(before, arg_name = 'before')
+    after = as_nw_datarame(after, arg_name = 'after')
 
     min_be = before[col].min()
     max_be = before[col].max()
@@ -4943,11 +5323,21 @@ def review_numeric(
     # 引数のアサーション =======================================================
     build.assert_count(digits, arg_name = 'digits', len_arg = 1)
     build.assert_count(width_boxplot, arg_name = 'width_boxplot', len_arg = 1)
+    # _ = as_nw_datarame(before, arg_name = 'before')
+    # _ = as_nw_datarame(after, arg_name = 'after')
     # =======================================================================
-    before_nw = remove_empty(before, to_native = False)\
-        .select(ncs.numeric())
-    after_nw = remove_empty(after, to_native = False)\
-        .select(ncs.numeric())
+
+    # before_nw = remove_empty(before, to_native = False)\
+    #     .select(ncs.numeric())
+    # after_nw = remove_empty(after, to_native = False)\
+    #     .select(ncs.numeric())
+
+    before_nw = as_nw_datarame(before, arg_name = 'before')\
+        .select(ncs.numeric())\
+        .pipe(remove_empty, to_native = False)
+    after_nw = as_nw_datarame(after, arg_name = 'after')\
+        .select(ncs.numeric())\
+        .pipe(remove_empty, to_native = False)
 
     cols1 = before_nw.columns
     cols2 = after_nw.columns
@@ -5113,8 +5503,8 @@ def review_wrangling(
             ============================================================
     """
 
-    after_nw = nw.from_native(after)
-    before_nw = nw.from_native(before)
+    after_nw = as_nw_datarame(after, arg_name = 'after')
+    before_nw = as_nw_datarame(before, arg_name = 'before')
     if isinstance(items, str): items = [items]
     # 引数のアサーション =======================================================
     _assert_same_backend(before_nw, after_nw)
@@ -5175,5 +5565,520 @@ def review_wrangling(
         result = f"{make_header(result, f' {title} ')}\n{result}"
         result = f"{result}\n{make_header(result, '=')}"
 
+    return result
+
+
+# # grouped operation
+
+# In[ ]:
+
+
+GroupSplitResult = namedtuple('GroupSplitResult', ['data', 'groups'])
+
+def group_split(
+        data: IntoFrameT,
+        *group_cols: Union[str, List[str], narwhals.Expr, narwhals.selectors.Selector], 
+        keep: bool = True,
+        drop_na_groups: bool = True,
+        sort_groups: bool = True,
+        to_native: bool = True, 
+        ) -> Tuple[List[IntoFrameT], IntoFrameT]:
+    """
+    Split a data frame into a list of group-wise data frames.
+
+    This function partitions the input data frame according to the values
+    of one or more grouping columns, and returns:
+
+    - a list of data frames, one for each group, and
+    - a data frame describing the group keys corresponding to each element
+      of the list.
+
+    The behavior is conceptually similar to `dplyr::group_split()`, but is
+    implemented in a backend-agnostic way using narwhals.
+
+    Args:
+        data (IntoFrameT):
+            Input DataFrame. Any DataFrame type supported by narwhals
+            (e.g. pandas, polars, pyarrow) can be used.
+        *group_cols (Union[str, List[str], narwhals.Expr, narwhals.Selector]):
+            Columns used to define groups. Each element may be:
+            - a column name (`str`)
+            - a list of column names
+            - a narwhals expression
+            - a narwhals selector
+        keep (bool, optional):
+            Whether to keep the grouping columns in each split data frame.
+            If False, grouping columns are removed from the returned data frames.
+            Defaults to True.
+        drop_na_groups (bool, optional):
+            Whether to drop groups with missing values in the grouping columns.
+            Defaults to True.
+        sort_groups (bool, optional):
+            Whether to sort groups by the grouping columns before splitting.
+            This ensures a stable and reproducible group order.
+            Defaults to True.
+        to_native (bool, optional):
+            Whether to return native backend data frames.
+            If False, narwhals DataFrame objects are returned.
+            Defaults to True.
+
+    Returns:
+        A NamedTuple with two fields:
+
+        - `data`:list of data frames, one per group.
+        - `groups`: a data frame describing the grouping keys.
+
+        The i-th element of `data` corresponds to the i-th row of `groups`.
+
+    Examples:
+        >>> import py4stats as py4st
+        >>> from palmerpenguins import load_penguins
+        >>> penguins = load_penguins()
+
+        >>> splited = py4st.group_split(penguins, 'species', 'island')
+        >>> print(len(splited.data))
+        5
+        >>> print([df.shape[0] for df in splited.data])
+        [44, 56, 52, 68, 124]
+    """
+    # 引数のアサーション =======================================================
+    _assert_selectors(*group_cols, arg_name = 'args')
+    build.assert_logical(sort_groups, arg_name = 'sort_groups')
+    build.assert_logical(drop_na_groups, arg_name = 'drop_na_groups')
+    build.assert_logical(to_native, arg_name = 'to_native')
+    # ========================================================================
+
+    data_nw = as_nw_datarame(data)
+    # group_cols で区別されるデータに対するグループ番号を生成・付与
+    group_tab = data_nw.select(*group_cols).unique()
+
+    cols_selected = group_tab.columns
+
+    if drop_na_groups:
+        group_tab = group_tab.drop_nulls()
+
+    if sort_groups:
+        group_tab = group_tab.sort(*group_cols)
+
+    group_tab = group_tab.with_row_index('_group_id')
+
+    with_group_id = data_nw.join(group_tab, on = cols_selected, how = 'left')
+
+    if not keep:
+        with_group_id = with_group_id.drop(cols_selected)
+
+    # データセットをグループ番号別に分割
+    list_dfs = [
+        with_group_id.filter(nw.col('_group_id') == g).drop('_group_id')
+        for g in group_tab['_group_id']
+        ]
+    if to_native:
+        list_dfs = [df.to_native() for df in list_dfs]
+        group_tab = group_tab.to_native()
+
+    result = GroupSplitResult(data = list_dfs, groups = group_tab)
+
+    return result
+
+
+# In[ ]:
+
+
+GroupMapResult = namedtuple('GroupSplitResult', ['mapped', 'groups'])
+
+def group_map(
+        data: IntoFrameT,
+        *group_cols: Union[str, List[str], narwhals.Expr, narwhals.selectors.Selector], 
+        func: Callable[[IntoFrameT], Any], 
+        drop_na_groups: bool = True,
+        sort_groups: bool = True
+        ) -> Tuple[List[IntoFrameT], IntoFrameT]:
+    """
+    Apply a function to each group and return the results without combining them.
+
+    This function splits the input data frame into groups (using
+    `group_split()`), applies a function to each group, and returns the
+    mapped results along with the corresponding group information.
+
+    Unlike `group_modify()`, this function does not attempt to combine
+    the results into a single data frame. It is intended for cases where
+    maximum flexibility is desired.
+
+    This function is conceptually similar to `dplyr::group_map()`.
+
+    Args:
+        data (IntoFrameT):
+            Input DataFrame. Any DataFrame type supported by narwhals
+            (e.g. pandas, polars, pyarrow) can be used.
+        *group_cols (Union[str, List[str], narwhals.Expr, narwhals.Selector]):
+            Columns used to define groups. Each element may be:
+            - a column name (`str`)
+            - a list of column names
+            - a narwhals expression
+            - a narwhals selector
+        func (callable):
+            A function that takes a data frame as its argument.
+            The function is applied separately to each group.
+        drop_na_groups (bool, optional):
+            Whether to drop groups with missing values in the grouping columns.
+            Defaults to True.
+        sort_groups (bool, optional):
+            Whether to sort groups by the grouping columns before splitting.
+            Defaults to True.
+
+    Returns:
+        A NamedTuple with two fields:
+
+        - `mapped`: a list containing the result of applying `func`
+          to each group.
+        - `groups`: a data frame describing the grouping keys.
+
+        The i-th element of `mapped` corresponds to the i-th row of `groups`.
+
+    Note:
+        `func` can return any Python object. The results are not combined
+        or coerced into a tabular structure. This makes `group_map()`
+        suitable for use cases such as returning model objects,
+        plots, or other non-tabular results.
+
+    Examples:
+        >>> import py4stats as py4st
+        >>> from palmerpenguins import load_penguins
+        >>> penguins = load_penguins()
+
+        >>> res = py4st.group_map(penguins, "species", func=lambda df: df.shape[0])
+        >>> res.mapped
+        [152, 68, 124]
+        >>> res.groups
+    """
+    # 引数のアサーション =======================================================
+    _assert_selectors(*group_cols, arg_name = 'args')
+    build.assert_function(func, arg_name = 'func', len_arg = 1)
+    build.assert_logical(drop_na_groups, arg_name = 'drop_na_groups')
+    build.assert_logical(sort_groups, arg_name = 'sort_groups')
+    # ========================================================================
+    list_dfs, group_tab = group_split(
+        data, *group_cols, 
+        sort_groups = sort_groups,
+        drop_na_groups = drop_na_groups,
+        to_native = True,
+        )
+
+    mapped = [func(df) for df in list_dfs]
+
+    result = GroupMapResult(mapped = mapped, groups = group_tab)
+    return result
+
+
+# In[ ]:
+
+
+def group_modify(
+        data: IntoFrameT,
+        *group_cols: Union[str, List[str], narwhals.Expr, narwhals.selectors.Selector], 
+        func: Callable[[IntoFrameT], Union[IntoFrameT, IntoSeriesT, int, float, bool, str, None]],
+        drop_na_groups: bool = True,
+        sort_groups: bool = True,
+        to_native: bool = True
+        ) -> IntoFrameT:
+    """
+    Apply a function to each group and combine the results into a data frame.
+
+    This function splits the input data frame into groups, applies a function
+    to each group, and combines the results into a single data frame by
+    attaching the grouping variables.
+
+    The function supplied to `func` is always called with a *native*
+    data frame (e.g. pandas or polars), so existing analysis functions
+    can be reused without modification.
+
+    This function is conceptually similar to `dplyr::group_modify()`.
+
+    Args:
+        data:
+            A data-frame-like object supported by narwhals.
+        *group_cols:
+            Columns used to define groups.
+        *group_cols (Union[str, List[str], narwhals.Expr, narwhals.Selector]):
+            Columns used to define groups. Each element may be:
+            - a column name (`str`)
+            - a list of column names
+            - a narwhals expression
+            - a narwhals selector
+        func (callable):
+            A function that takes a data frame as its argument.
+            The function is applied separately to each group.
+        drop_na_groups (bool, optional):
+            Whether to drop groups with missing values in the grouping columns.
+            Defaults to True.
+        sort_groups (bool, optional):
+            Whether to sort groups by the grouping columns before splitting.
+            Defaults to True.
+        to_native (bool, optional):
+            If True, convert the result to the native DataFrame type of the
+            selected backend. If False, return a narwhals DataFrame.
+            Defaults to True.
+
+    Returns:
+        A data frame where the results of `func` are combined and
+        augmented with the grouping columns.
+
+    Note:
+        The function supplied to `func` must return a value that can be
+        coerced into a data frame. Supported return types include:
+
+        - data frame-like objects
+        - Series-like objects
+        - scalar values (int, float, bool, str)
+        - None
+
+        Objects that cannot be converted into a tabular structure
+        (e.g., fitted model objects or plot objects) are not supported.
+        For such use cases, consider using `group_map()` instead.
+
+    Examples:
+        >>> import py4stats as py4st
+        >>> from palmerpenguins import load_penguins
+        >>> penguins = load_penguins()
+
+        >>> result = group_modify(
+        ...     penguins, 'species', 'island',
+        ...     func = lambda df: df[['bill_length_mm']].mean()
+        ... )
+        >>> result.head()
+    """
+    # 引数のアサーション =======================================================
+    _assert_selectors(*group_cols, arg_name = 'args')
+    build.assert_function(func, arg_name = 'func', len_arg = 1)
+    build.assert_logical(drop_na_groups, arg_name = 'drop_na_groups')
+    build.assert_logical(sort_groups, arg_name = 'sort_groups')
+    build.assert_logical(to_native, arg_name = 'to_native')
+
+    # 実装メモ ================================================================
+    # <3> における結合処理の一貫性と、<2> で pd.DataFrame など native class の 
+    # DataFrame と同じメソッドが使えることを両立するために、<1> で `to_native = False`
+    # を指定し、<2> で `df.to_native()` を使っています。
+    # ========================================================================
+    impl = as_nw_datarame(data).implementation
+
+    list_dfs, group_tab = group_split(
+        data, *group_cols, 
+        sort_groups = sort_groups,
+        drop_na_groups = drop_na_groups,
+        to_native = False,                                   # <1>
+        ) # -> Tuple[List[nw.DataFrame], nw.DataFrame]
+
+    list_result1 = [func(df.to_native()) for df in list_dfs] # <2>
+
+    list_result2 = [
+        nw.from_native(v).with_columns(nw.lit(id).alias('_group_id')) 
+        if is_intoframe(v) 
+        else enframe(v, backend = impl, to_native = False)
+            .with_columns(nw.lit(id).alias('_group_id')) 
+        for v, id in zip(list_result1, group_tab['_group_id'])
+        ] # -> List[nw.DataFrame]
+
+    result = group_tab.join(                                  # <3>
+            nw.concat(list_result2),
+            on = '_group_id',
+            how = 'left'
+        ).drop('_group_id')
+
+    if to_native: return result.to_native()
+    return result
+
+
+# ## bind_rows
+
+# In[ ]:
+
+
+def _assert_unique_backend(args, arg_name: str = 'args'):
+    if build.length(args) <= 1: return None
+
+    unique_type = build.list_unique(
+        df.implementation for df in args
+        )
+
+    if build.length(unique_type) > 1:
+        type_text = build.oxford_comma_and(unique_type)
+        message = f"Elements of `{arg_name}` must share the same backend, got {type_text}." 
+        raise TypeError(message)
+
+
+# In[ ]:
+
+
+@singledispatch
+def bind_rows(
+        *args: Union[IntoFrameT, List[IntoFrameT], Mapping[str, IntoFrameT]], 
+        names: Optional[Sequence[Union[str, int, float, bool]]] = None,
+        id: str = 'id', to_native: bool = True,
+        **keywargs
+) -> IntoFrameT:
+    """Row-bind (concatenate) multiple data frames while optionally preserving provenance.
+
+    This function concatenates data frames vertically (row-wise) and can optionally
+    add an identifier column that indicates which input each row came from, similar
+    to `dplyr::bind_rows()` with the `.id` argument.
+
+    Inputs can be provided as:
+
+    - Multiple data frames: `bind_rows(df1, df2, ...)`
+    - A list/tuple of data frames: `bind_rows([df1, df2, ...])`
+    - A mapping of name -> data frame: `bind_rows({"a": df1, "b": df2, ...})`
+
+    When `id` is not None, an identifier column is added:
+
+    - If `names` is provided (data frames / list input only), its elements are used.
+    - If `names` is None (data frames / list input), `range(n)` is used.
+    - If a mapping is provided, mapping keys are used (and `names` is ignored if given).
+
+    Concatenation is performed with `how="diagonal"` (i.e., union of columns).
+    Columns missing in an input are created and filled with nulls.
+
+
+    Args:
+        *args:
+            One of the supported input forms:
+            - One or more data frames.
+            - A single list/tuple of data frames.
+            - A single mapping (e.g., dict) whose values are data frames.
+
+            Each data frame must be a DataFrame supported by narwhals 
+            (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table).
+        names (list of str or int or float or bool, optional):
+            Optional list of identifier values to attach to each input data frame.
+            This is only valid when `*args` are data frames or a list/tuple of data
+            frames. If omitted (`None`), identifiers default to `range(n)`.
+
+            `names` must satisfy (when not None):
+            - All elements must share the same type.
+            - The element type must be one of: `str`, `int`, `float`, or `bool`.
+            - Length must match the number of input data frames.
+
+            This argument is only meaningful for the data frame / list input forms.
+            If a mapping is provided, mapping keys are used instead.
+
+        id (str, optional):
+            Name of the identifier column to add. If `None`, no identifier column
+            is created.
+        to_native (bool, optional):
+            If True, convert the result to the native DataFrame type of the
+            selected backend. If False, return a narwhals DataFrame.
+            Defaults to True.
+        **keywargs:
+            Extra keyword arguments reserved for forward compatibility.
+            (Currently ignored.)
+
+    Returns:
+        A row-bound DataFrame. The return type depends on `to_native`:
+        - If `to_native=True`, a native DataFrame is returned.
+        - If `to_native=False`, a narwhals DataFrame is returned.
+
+    Raises:
+        NotImplementedError:
+            If called with unsupported input types for `*args`.
+        TypeError:
+            If `id` is not a string or `None`, or if `names` / mapping keys contain
+            invalid element types (not in `str`, `int`, `float`, `bool`) or contain
+            mixed types.
+        TypeError:
+            If input data frames (including values of a mapping input)
+            are backed by different backends (e.g., mixing pandas and
+            polars). All inputs must share the same backend.
+            Mixing backends is not supported.
+
+        ValueError:
+            If `names` is provided but its length does not match the number of
+            input data frames.
+
+    Examples:
+        Basic usage (positional inputs):
+
+            >>> py4st.bind_rows(df1, df2)
+
+        Provide explicit names:
+
+            >>> py4st.bind_rows(df1, df2, names=["train", "test"])
+
+        Use a custom id column name:
+
+            >>> py4st.bind_rows([df1, df2], names=[2020, 2021], id="year")
+
+        Use a mapping (keys become identifiers):
+
+            >>> py4st.bind_rows({"table1": df1, "table2": df2})
+
+        No identifier column:
+
+            >>> py4st.bind_rows(df1, df2, id=None)
+    """
+    raise NotImplementedError(f'bind_rows mtethod for object {type(args)} is not implemented.')
+
+
+# In[ ]:
+
+
+@bind_rows.register(Union[nw.typing.IntoDataFrame, list])
+def bind_rows_df(
+        *args: Union[IntoFrameT, List[IntoFrameT]],
+        names: Optional[Sequence[Union[str, int, float, bool]]] = None,
+        id: str = 'id', to_native: bool = True,
+        **keywargs
+        )-> IntoFrameT:
+    # 引数のアサーション =======================================================
+    args = list(build.list_flatten(args))
+    args = as_nw_datarame_list(args, arg_name = 'args')
+    _assert_unique_backend(args)
+    build.assert_character(id, arg_name = 'id', len_arg = 1, nullable = True)
+    build.assert_same_type(names, arg_name = 'names')
+    build.assert_literal(names, arg_name = 'names', nullable = True)
+    # =======================================================================
+    if id is None: 
+        result = nw.concat(args, how = "diagonal")
+        if to_native: return result.to_native()
+        return result
+
+    if names is None: names = range(len(args))
+
+    else: build.assert_length(names, arg_name = 'names', len_arg = len(args))
+
+    tabl_list = [
+        df.with_columns(nw.lit(key).alias(id))
+        for key, df in zip(names, args)
+    ]
+    result = nw.concat(tabl_list, how = "diagonal")\
+        .pipe(relocate, id, to_native = to_native)
+    return result
+
+
+# In[ ]:
+
+
+@bind_rows.register(dict)
+def bind_rows_dict(
+    args: Mapping[str, IntoFrameT], 
+    id: str = 'id', 
+    to_native: bool = True, 
+    **keywargs
+    )-> IntoFrameT:
+    # 引数のアサーション =======================================================
+    build.assert_literal_kyes(args, arg_name = 'args')
+    args = as_nw_datarame_dict(args, arg_name = 'args')
+    _assert_unique_backend(args.values())
+    build.assert_character(id, arg_name = 'id', len_arg = 1, nullable = True)
+    # =======================================================================
+    if id is None: 
+        result = nw.concat(args.values(), how = "diagonal")
+        if to_native: return result.to_native()
+        return result
+
+    tabl_list = [
+        df.with_columns(nw.lit(key).alias(id))
+        for key, df in zip(args.keys(), args.values())
+    ]
+    result = nw.concat(tabl_list, how = "diagonal")\
+        .pipe(relocate, id, to_native = to_native)
     return result
 

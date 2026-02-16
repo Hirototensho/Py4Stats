@@ -1,0 +1,128 @@
+# info_gain
+
+![](https://img.shields.io/badge/lifecycle-experimental-orange){fig-align="left" fig-alt="badge of lifecycle experimental"}
+[![](https://img.shields.io/badge/Tested-Pandas_/_Polars_/_Pyarrow-blue){fig-align="left" fig-alt="badge of tested backend"}](../articles/eda_tools_development_status.qmd)
+
+複数の目的変数と特徴量の組み合わせに対して情報利得などの情報理論に基づく指標を計算します。
+
+## 概要
+
+本関数は、指定された目的変数と特徴量のすべての組み合わせについて、情報利得（相互情報量）およびその正規化指標（不確実性係数）を算出します。この関数は、アンケート分析のように、複数の目的変数（例：設問項目）と1つまたは複数の属性変数（例：デモグラフィック変数）との関係を探索的にスクリーニングする用途を想定しています。
+
+```python
+info_gain(
+      data: IntoFrameT, 
+      target: Union[str, List[str]],
+      features: Optional[Union[str, List[str]]] = None,
+      use_bining: bool = True,
+      n_bins: Optional[int] = None,
+      max_unique: int = 20,
+      base: float = 2.0,
+      to_native: bool = True
+    )
+```
+
+## 引数 Argument
+
+- `data`：**IntoFrameT**（必須）<br>
+  入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト<br>
+  （例：`pandas.DataFrame`、`polars.DataFrame`、`pyarrow.Table`）を指定できます。
+- `target`: **str or list of str**</br>
+  1つ以上のカテゴリ型の目的変数名。
+ `features`: **str or list of str**</br>
+  特徴量の変数名。None の場合、目的変数を除くすべての列が特徴量として使用されます。デフォルトは None です。
+- `use_bining`: **bool**
+  数値型の特徴量に対して、情報利得の計算前に離散化を行うかどうか。デフォルトは True です。
+- `max_unique`: **int**
+        数値特徴量を離散化するかどうかを判断する一意値数の閾値であり、
+        同時にビン数の上限としても用いられます。
+        デフォルトは 20 です。
+- `n_bins`: **int**
+        離散化に用いるビン数。None の場合は自動的に決定されます。デフォルトは None です。
+- `base`: **float**
+        エントロピーの計算に使用する対数の底。デフォルトは2.0です。
+- `to_native`: **bool**<br>
+  `True` の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。<br>
+  `False` の場合、`narwhals.DataFrame` を返します。デフォルトは `True` で、`to_native = False` は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。
+
+
+## 返り値 Value
+
+`info_gain()`関数は、次の値をもつ `DataFrame` を出力します。
+
+- `target` (str): 目的変数名
+- `features` (str): 特徴量名
+- `h_target` (float): 目的変数のエントロピー
+- `h_feature` (float): 特徴量のエントロピー
+- `joint_ent` (float): 目的変数と特徴量の結合エントロピー
+- `h_cond` (float): 特徴量で条件付けた目的変数の条件付きエントロピー
+- `info_gain` (float): 情報利得（相互情報量）
+- `ig_ratio` (float): `h_before` で正規化した情報利得（Theil’s U, 不確実性係数）。
+
+## 使用例 Examples
+
+```python
+import polars as pl
+import py4stats as py4st
+titanic = pl.from_pandas(sns.load_dataset('titanic'))
+
+result = py4st.info_gain(
+    titanic, target = 'survived',
+    features = ['class', 'fare', 'sex', 'embark_town']
+    )
+
+print(result)
+#> shape: (4, 8)
+#> ┌──────────┬─────────────┬──────────┬───────────┬──────────┬───────────┬───────────┬──────────┐
+#> │ target   ┆ feature     ┆ h_target ┆ h_feature ┆ h_cond   ┆ joint_ent ┆ info_gain ┆ ig_ratio │
+#> │ ---      ┆ ---         ┆ ---      ┆ ---       ┆ ---      ┆ ---       ┆ ---       ┆ ---      │
+#> │ str      ┆ str         ┆ f64      ┆ f64       ┆ f64      ┆ f64       ┆ f64       ┆ f64      │
+#> ╞══════════╪═════════════╪══════════╪═══════════╪══════════╪═══════════╪═══════════╪══════════╡
+#> │ survived ┆ class       ┆ 0.960708 ┆ 1.439321  ┆ 0.876877 ┆ 2.316198  ┆ 0.083831  ┆ 0.08726  │
+#> │ survived ┆ fare        ┆ 0.960708 ┆ 3.151193  ┆ 0.865258 ┆ 4.01645   ┆ 0.09545   ┆ 0.099354 │
+#> │ survived ┆ sex         ┆ 0.960708 ┆ 0.936205  ┆ 0.743048 ┆ 1.679252  ┆ 0.21766   ┆ 0.226562 │
+#> │ survived ┆ embark_town ┆ 0.960708 ┆ 1.096869  ┆ 0.957185 ┆ 2.054054  ┆ 0.003523  ┆ 0.003667 │
+#> └──────────┴─────────────┴──────────┴───────────┴──────────┴───────────┴───────────┴──────────┘
+```
+
+## Note 
+
+以下では、`target` に指定された目的変数を $Y$、`features` に指定された特徴量を $X$ で表します。`info_gain()` 関数では、目的変数 $Y$ のエントロピー `h_target` と特徴量 $X$ のエントロピー `h_feature` は次のように計算されています。
+$$
+\begin{aligned}
+H(Y) &= -E_Y[\log_2 P(Y)] = -\sum_{y \in Y} P(y) \log_2 P(y)\\
+H(X) &= -E_X[\log_2 P(X)] = -\sum_{x \in X} P(x) \log_2 P(x)
+\end{aligned}
+$$
+
+目的変数 $Y$ と特徴量 $X$ の結合エントロピー `joint_ent` は、$Y$ と $X$  の同次分布のエントロピーとして次のように計算されます。
+
+$$
+\begin{aligned}
+H(Y, X) &=- E_{Y, X}[\log_2 P(y, x)]
+\end{aligned}
+$$
+
+さらに、情報利得（相互情報量） `info_gain` は次のように計算されます。
+
+$$
+\begin{aligned}
+I(Y, X) &= H(Y) + H(X) - H(Y, X)\\
+        &= H(Y) - H(Y|X)
+\end{aligned}
+$$
+
+ここで、$H(Y|X) = H(Y, X) - H(X)$ は特徴量 $X$ を条件とした $Y$ の条件付きエントロピーです。このように情報利得は. $Y$ のエントロピーと条件付きエントロピーの差分として計算できるため、情報利得 $I(Y, X)$ は特徴量 $X$ による条件付けを行うことで削減された目的変数 $Y$ の不確実性の量として解釈できることが分かります。
+
+最後に、`ig_ratio` は $I(Y, X)$ を目的変数のエントロピー $H(Y)$ で割った値として定義され、Theil’s U や Uncertainty coefficient としても知られる指標です。
+
+$$
+\begin{aligned}
+IG_{\text{ratio}}  &= \frac{I(Y, X)}{H(Y)} = \frac{H(Y) - H(Y|X)}{H(Y)}
+\end{aligned}
+$$
+
+`ig_ratio` の値は、特徴量 $X$ による条件付けによって減少した目的変数 $Y$ の不確実性の割合として解釈できます。
+
+***
+[Return to **Function reference**.](../reference.qmd)

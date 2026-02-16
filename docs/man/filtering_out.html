@@ -198,12 +198,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../man/diagnose_category.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">diagnose_category</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../man/plot_category.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">plot_category</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/diagnose_category.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">diagnose_category</span></a>
+  <a href="../man/info_gain.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">info_gain</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -224,6 +229,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../man/relocate.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">relocate</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/bind_rows.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">bind_rows</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/grouped_operation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">group_split, group_map, group_modify</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -273,7 +288,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/varidate.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">check_that check_viorate</span></a>
+  <a href="../man/varidate.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">check_that, check_viorate</span></a>
   </div>
 </li>
       </ul>
@@ -461,7 +476,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#概要" id="toc-概要" class="nav-link active" data-scroll-target="#概要">概要</a></li>
   <li><a href="#引数-argument" id="toc-引数-argument" class="nav-link" data-scroll-target="#引数-argument">引数 Argument</a></li>
   <li><a href="#使用例-example" id="toc-使用例-example" class="nav-link" data-scroll-target="#使用例-example">使用例 Example</a></li>
-  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
+  <li><a href="#注意-notes" id="toc-注意-notes" class="nav-link" data-scroll-target="#注意-notes">注意 Notes</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/main/man/filtering_out.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></nav>
     </div>
@@ -487,6 +502,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
+<div class="quarto-figure quarto-figure-left">
+<figure class="figure">
+<p><a href="../articles/eda_tools_development_status.html"><img src="https://img.shields.io/badge/Tested-Pandas_/_Polars_/_Pyarrow-blue.png" class="img-fluid quarto-figure quarto-figure-left figure-img" alt="badge of tested backend"></a></p>
+</figure>
+</div>
 <p>データフレームの行と列の除外</p>
 <section id="概要" class="level2">
 <h2 class="anchored" data-anchor-id="概要">概要</h2>
@@ -504,7 +524,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="引数-argument">引数 Argument</h2>
 <ul>
 <li><code>data</code>：<strong>IntoFrameT</strong>（必須）<br> 入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト<br> （例：<code>pandas.DataFrame</code>、<code>polars.DataFrame</code>、<code>pyarrow.Table</code>）を指定できます。</li>
-<li><code>*args</code>（<strong>str / list[str] / narwhals.Expr / narwhals.Selector</strong>）<br> 移動したい列を指定します。指定方法は次のとおりです。
+<li><code>*args</code>（<strong>str / list[str] / narwhals.Expr / narwhals.Selector</strong>）<br> データフレームから除外したい列を指定します。指定方法は次のとおりです。
 <ul>
 <li>列名（例：<code>"x"</code>）</li>
 <li>列名のリスト（例：<code>["x", "y"]</code>）</li>
@@ -515,7 +535,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>starts_with</code>：<strong>str</strong><br> 　列名（行名）の検索に使用する文字列。内部で使用している <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.startswith.html"><code>pandas.Series.str.startswith</code></a> に渡され、指定された文字列で列名（行名）が始まる列（行）を除外します。</li>
 <li><code>ends_with</code>：<strong>str</strong><br> 　列名（行名）の検索に使用する文字列。内部で使用している <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.endswith.html"><code>pandas.Series.str.endswith</code></a> に渡され、指定された文字列で列名（行名）が終わる列（行）を除外します。</li>
 <li><code>axis</code>：<strong><code>{0 or 'index', 1 or 'columns'}</code></strong><br> <code>axis = 1</code> または <code>axis = 'columns'</code> なら列の削除を行い、<code>axis = 0</code> または <code>axis = 'index'</code> なら行の削除を行います。 このオプションは、<code>data</code> がインデックス属性 (例: pandas.DataFrame) をもつ場合のみ有効です。</li>
-<li><code>to_native</code>（<strong>bool</strong>, optional）<br> <code>True</code> の場合、入力と同じ型のデータフレーム（e.g.&nbsp;pandas / polars / pyarrow）を返します。<br> <code>False</code> の場合、<code>narwhals.DataFrame</code> を返します。デフォルトは <code>True</code> で、<code>to_native = False</code> は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。</li>
+<li><code>to_native</code>: <strong>bool</strong><br> <code>True</code> の場合、入力と同じ型のデータフレーム（e.g.&nbsp;pandas / polars / pyarrow）を返します。<br> <code>False</code> の場合、<code>narwhals.DataFrame</code> を返します。デフォルトは <code>True</code> で、<code>to_native = False</code> は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。</li>
 </ul>
 </section>
 <section id="使用例-example" class="level2">
@@ -579,8 +599,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; keep  1</span></span>
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; save  4</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
-<section id="notes" class="level2">
-<h2 class="anchored" data-anchor-id="notes">Notes</h2>
+<section id="注意-notes" class="level2">
+<h2 class="anchored" data-anchor-id="注意-notes">注意 Notes</h2>
 <p><code>axis='index'</code> による行を対象とするフィルタリングは、インデックスの存在に依存します。したがって、<code>pd.DataFrame</code> 以外の行ラベルをもたない <code>DataFrame</code> バックエンドでは、このオプションは利用できません。</p>
 <hr>
 <p><a href="../reference.html">Return to <strong>Function reference</strong>.</a></p>

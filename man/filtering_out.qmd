@@ -1,5 +1,7 @@
 # filtering_out
 
+[![](https://img.shields.io/badge/Tested-Pandas_/_Polars_/_Pyarrow-blue){fig-align="left" fig-alt="badge of tested backend"}](../articles/eda_tools_development_status.qmd)
+
 データフレームの行と列の除外
 
 ## 概要
@@ -38,7 +40,7 @@ filtering_out(
 - `axis`：**`{0 or 'index', 1 or 'columns'}`**</br>
     `axis = 1` または `axis = 'columns'` なら列の削除を行い、`axis = 0` または `axis = 'index'` なら行の削除を行います。
      このオプションは、`data` がインデックス属性 (例: pandas.DataFrame) をもつ場合のみ有効です。
-- `to_native`（**bool**, optional）<br>
+- `to_native`: **bool**<br>
   `True` の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。<br>
   `False` の場合、`narwhals.DataFrame` を返します。デフォルトは `True` で、`to_native = False` は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。
 
@@ -112,7 +114,7 @@ print(py4st.filtering_out(
 #> save  4
 ```
 
-## Notes
+## 注意 Notes
 
 `axis='index'` による行を対象とするフィルタリングは、インデックスの存在に依存します。したがって、`pd.DataFrame` 以外の行ラベルをもたない `DataFrame` バックエンドでは、このオプションは利用できません。
 

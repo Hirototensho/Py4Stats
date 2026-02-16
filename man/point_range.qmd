@@ -1,5 +1,7 @@
 # mean_qi median_qi mean_ci
 
+[![](https://img.shields.io/badge/Tested-Pandas_/_Polars_/_Pyarrow-blue){fig-align="left" fig-alt="badge of tested backend"}](../articles/eda_tools_development_status.qmd)
+
 数値変数の点推定と区間推定
 
 ## 概要
@@ -41,7 +43,7 @@ mean_ci(
   （例：`pandas.DataFrame`、`polars.DataFrame`、`pyarrow.Table`）を指定できます。
 - `width`：**float**<br>
 　分位点区間の幅、もしくは信頼区間の計算に用いる信頼係数。
-- `to_native`（**bool**, optional）<br>
+- `to_native`: **bool**<br>
   `True` の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。<br>
   `False` の場合、`narwhals.DataFrame` を返します。デフォルトは `True` で、`to_native = False` は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。
 

@@ -215,3 +215,70 @@ print(py4st.is_dummy.dispatch(list).__name__)
 print(py4st.is_dummy.dispatch(int).__name__) # デフォルト実装
 #> is_dummy
 ```
+
+## 関数ドキュメントでのバックエンド対応状況の表示
+
+それぞれの関数に対するテストの実施状況は、[shields.io](https://shields.io/badges) で作成し Static Badge を使って表示します。
+
+Pandas, Polars, Pyarrow の全てについてテストを実施して動作が確認できている場合、ドキュメントの冒頭に次のバッジを追加します。
+
+[![](https://img.shields.io/badge/Tested-Pandas_/_Polars_/_Pyarrow-blue){fig-align="left" fig-alt="badge of tested backend"}](../articles/eda_tools_development_status.qmd)
+
+```{.markdown} 
+[![](https://img.shields.io/badge/Tested-Pandas_/_Polars_/_Pyarrow-blue){fig-align="left" fig-alt="badge of tested backend"}](../articles/eda_tools_development_status.qmd)
+```
+
+一方で、動作が確認できているバックエンドが Pandas のみで、Polars, Pyarrow ではテストできていない場合には、次のバッジを使用します。
+
+[![](https://img.shields.io/badge/Tested-Pandas-blue){fig-align="left" fig-alt="badge of tested backend"}](../articles/eda_tools_development_status.qmd)
+[![](https://img.shields.io/badge/Not_tested-Polars_%2F_Pyarrow-lightgray){fig-align="left" fig-alt="badge of not tested backend"}](../articles/eda_tools_development_status.qmd)
+
+```{.markdown} 
+[![](https://img.shields.io/badge/Tested-Pandas-blue){fig-align="left" fig-alt="badge of tested backend"}](../articles/eda_tools_development_status.qmd)
+[![](https://img.shields.io/badge/Not_tested-Polars_%2F_Pyarrow-lightgray){fig-align="left" fig-alt="badge of not tested backend"}](../articles/eda_tools_development_status.qmd)
+```
+
+このように、Pandas, Polars, Pyarrow の全てで動作が確認できていない場合には、バッジの色を変えることで位置付けを明示します。
+
+### 注意点
+
+上記のバッジの意味・用途については、あくまでテストで動くことを確認済みであることを示すものとします。テストを実施した上でも、特定のバックエンドでは機能の制限や既知のエラーがある場合には、ドキュメントや docstring の Notes セクションに明記することとします。
+
+## 関数ライフサイクルの表示
+
+本ライブラリにおける関数のライフサイクルは、R の [lifecycle](https://lifecycle.r-lib.org/index.html) パッケージを参考に、次のようなバッジで表示します。
+
+![](https://img.shields.io/badge/lifecycle-experimental-orange){fig-align="left" fig-alt="badge of lifecycle experimental"}
+![](https://img.shields.io/badge/lifecycle-stable-brightgreen){fig-align="left" fig-alt="badge of lifecycle stable"}
+![](https://img.shields.io/badge/lifecycle-supreseded-blue){fig-align="left" fig-alt="badge of lifecycle supreseded"}
+![](https://img.shields.io/badge/lifecycle-deprecated-orange){fig-align="left" fig-alt="badge of lifecycle deprecated"}
+
+ライフサイクルにおける各ステージの意味は次の通りです。
+
+| ステージ        | 意味                 | エラー/警告   | 維持方針            |
+|----------------|---------------------|-------------|--------------------|
+| experimental   | 仕様が変わる可能性あり | なし         | 破壊的変更あり得る    |
+| stable         | 安定した仕様          | なし        | 維持・非破壊的        |
+| superseded     | 代替あり・削除予定なし | なし         | 互換維持             |
+| deprecated     | 代替あり・削除予定    | 警告あり      | 移行を促進            |
+
+特別な事情がなければ stable をデフォルトとして、その場合にはバッジを省略する形にしたいと思います。
+
+なお、それぞれのバッジを表示する markdown のコードは次の通りです。
+
+![](https://img.shields.io/badge/lifecycle-experimental-orange){fig-align="left" fig-alt="badge of lifecycle experimental"}
+```{.markdown} 
+![](https://img.shields.io/badge/lifecycle-experimental-orange){fig-align="left" fig-alt="badge of lifecycle experimental"}
+```
+![](https://img.shields.io/badge/lifecycle-stable-brightgreen){fig-align="left" fig-alt="badge of lifecycle stable"}
+```{.markdown} 
+![](https://img.shields.io/badge/lifecycle-stable-brightgreen){fig-align="left" fig-alt="badge of lifecycle stable"}
+```
+![](https://img.shields.io/badge/lifecycle-supreseded-blue){fig-align="left" fig-alt="badge of lifecycle supreseded"}
+```{.markdown} 
+![](https://img.shields.io/badge/lifecycle-supreseded-blue){fig-align="left" fig-alt="badge of lifecycle supreseded"}
+```
+![](https://img.shields.io/badge/lifecycle-deprecated-orange){fig-align="left" fig-alt="badge of lifecycle deprecated"}
+```{.markdown}
+![](https://img.shields.io/badge/lifecycle-deprecated-orange){fig-align="left" fig-alt="badge of lifecycle deprecated"}
+```

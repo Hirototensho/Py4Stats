@@ -125,7 +125,7 @@ assert_float(
 * `all_missing`: **bool**</br>
   `True` の場合、すべての要素が欠測値であることを許容します。
 * `nullable`: **bool**</br>
-  `True` の場合、引数そのものが `None` であることを許容します。
+  `True` の場合、引数そのものが `None` であることを許容します。この機能は、`None` を初期値とする Optional な引数のアサーションを行う際に使用することを想定しています。
 * `scalar_only`: **bool**</br>
   `True` の場合、スカラー値のみを許容します。この場合、1要素であっても、list や配列などの array-like オブジェクトは受け付けません。
 
@@ -161,7 +161,6 @@ build.assert_numeric(z, arg_name = 'z', lower = 0, upper = 1)
 #> ValueError: Argument `x` must have value 0 <= x <= 2.
 #>             element '3' of `x` not sutisfy the condtion.
 
-
 z = 1
 build.assert_numeric(
     z, arg_name = 'z', 
@@ -170,6 +169,45 @@ build.assert_numeric(
     )
 #> ValueError: Argument `z` must have value 0 <= x < 1.
 ```
+
+また、これらの関数では、 `len_arg`, `len_min` および `len_max` を使うことで引数の要素数に関するアサーションを実施できます。
+
+```python
+build.assert_numeric(x, arg_name = 'x', len_arg = 1)
+#> ValueError: Argument `x` must have length 1, but has length 3.
+
+build.assert_numeric(x, arg_name = 'x', len_min = 4)
+#> ValueError: Argument `x` must have length 4 <= n <= inf, but has length 3.
+
+build.assert_numeric(x, arg_name = 'x', len_max = 2)
+#> ValueError: Argument `x` must have length 1 <= n <= 2, but has length 3.
+```
+
+欠測値を含む引数に関する処理として、初期設定では引数の要素に欠測値が含まれるとエラーを出力しますが、`any_missing = True` を指定した場合、欠測値を除外した上でアサーションを実施します。
+
+```python
+l = [1, 2, None]
+build.assert_numeric(l, arg_name = 'l')
+#> ValueError: Argument `l` contains missing values (element 2).
+
+build.assert_numeric(l, arg_name = 'l', any_missing = True)
+
+l = [None, None]
+build.assert_numeric(l, arg_name = 'l', any_missing = True)
+#> ValueError: Argument `arg` contains only missing values.
+
+build.assert_numeric(l, arg_name = 'l', all_missing = True)
+```
+
+また、引数に None が指定されると初期設定ではエラーを出力しますが、`nullable = True` で `None` を許容することができ、`None` ます。`nullable = True` かつ `arg` に `None` が代入された場合、引数の型や値に関するアサーションは省略されます。
+
+```python
+build.assert_numeric(None, arg_name = 'x')
+#> ValueError: Argument `x` contains only missing values.
+
+build.assert_numeric(None, arg_name = 'x', nullable = True)
+```
+
 
 ## 参照
 

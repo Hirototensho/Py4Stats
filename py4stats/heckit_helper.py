@@ -164,7 +164,7 @@ def coefplot_Heckit(
         None
     """
     build.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither')
-    build.assert_character(palette)
+    build.assert_character(palette, arg_name = 'palette', len_arg = 2)
 
     # 回帰係数の表を抽出
     tidy_ci_high = reg.tidy(

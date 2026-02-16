@@ -198,12 +198,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../man/diagnose_category.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">diagnose_category</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../man/plot_category.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">plot_category</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/diagnose_category.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">diagnose_category</span></a>
+  <a href="../man/info_gain.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">info_gain</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -224,6 +229,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../man/relocate.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">relocate</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/bind_rows.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">bind_rows</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/grouped_operation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">group_split, group_map, group_modify</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -273,7 +288,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/varidate.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">check_that check_viorate</span></a>
+  <a href="../man/varidate.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">check_that, check_viorate</span></a>
   </div>
 </li>
       </ul>
@@ -462,7 +477,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#引数-argument" id="toc-引数-argument" class="nav-link" data-scroll-target="#引数-argument">引数 Argument</a></li>
   <li><a href="#返り値-value" id="toc-返り値-value" class="nav-link" data-scroll-target="#返り値-value">返り値 Value</a></li>
   <li><a href="#使用例-examples" id="toc-使用例-examples" class="nav-link" data-scroll-target="#使用例-examples">使用例 Examples</a></li>
-  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
+  <li><a href="#注意-notes" id="toc-注意-notes" class="nav-link" data-scroll-target="#注意-notes">注意 Notes</a></li>
   <li><a href="#参考-see-also" id="toc-参考-see-also" class="nav-link" data-scroll-target="#参考-see-also">参考 See also</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/main/man/review_wrangling.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></nav>
@@ -489,16 +504,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
+<p><img src="https://img.shields.io/badge/lifecycle-experimental-orange.png" class="img-fluid quarto-figure quarto-figure-left" alt="badge of lifecycle experimental"> <a href="../articles/eda_tools_development_status.html"><img src="https://img.shields.io/badge/Tested-Pandas_/_Polars_/_Pyarrow-blue.png" class="img-fluid quarto-figure quarto-figure-left" alt="badge of tested backend"></a></p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="image/review_wrangling.png" class="img-fluid figure-img" style="width:60.0%"></p>
-<figcaption>review_wrangling</figcaption>
+<p><img src="image/review_wrangling.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:60.0%"></p>
 </figure>
 </div>
 <p>データ前処理（wrangling）による変更点を要約して、レビュー形式の文字列として出力する関数です。</p>
 <section id="概要" class="level2">
 <h2 class="anchored" data-anchor-id="概要">概要</h2>
-<p>この関数は、前処理の前後（before / after）の DataFrame（相当）を比較し、変更点をユーザーが読みやすいレビュー形式の文字列として返します。</p>
+<p>この関数は、前処理の前後（before / after）の DataFrame を比較し、変更点をユーザーが読みやすいレビュー形式の文字列として返します。</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>review_wrangling(</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    before: IntoFrameT, </span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    after: IntoFrameT, </span>
@@ -571,21 +586,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     addition:  None</span></span>
 <span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     removal:  'nan'</span></span>
 <span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ============================================================</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>先ほどのデータに、さらに前処理を加え、今度は一部の列や行を除外します。</p>
+<p>次に、先ほどのデータに、列の追加や削除、型変換、レコードの抽出といった前処理を加えてみましょう。</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>after <span class="op">=</span> py4st.filtering_out(after, <span class="st">'sex'</span>)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>s <span class="op">=</span> after[<span class="st">'body_mass_g'</span>]</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>after[<span class="st">'heavy'</span>] <span class="op">=</span> np.where(s <span class="op">&gt;=</span> s.quantile(<span class="fl">0.75</span>), <span class="va">True</span>, <span class="va">False</span>)</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>after[<span class="st">'species'</span>] <span class="op">=</span> pd.Categorical(after[<span class="st">'species'</span>])</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>after[<span class="st">'year'</span>] <span class="op">=</span> after[<span class="st">'year'</span>].astype(<span class="bu">float</span>)</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>after[<span class="st">'const'</span>] <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>after[<span class="st">'heavy'</span>] <span class="op">=</span> np.where(s <span class="op">&gt;=</span> s.quantile(<span class="fl">0.75</span>), <span class="va">True</span>, <span class="va">False</span>) <span class="co"># 列の追加 1</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>after[<span class="st">'const'</span>] <span class="op">=</span> <span class="dv">1</span>                                            <span class="co"># 列の追加 2</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>after[<span class="st">'species'</span>] <span class="op">=</span> pd.Categorical(after[<span class="st">'species'</span>])           <span class="co"># 列の型変換 1</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>after[<span class="st">'year'</span>] <span class="op">=</span> after[<span class="st">'year'</span>].astype(<span class="bu">float</span>)                   <span class="co"># 列の型変換 2</span></span>
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>after[<span class="st">'flipper_length_mm'</span>] <span class="op">=</span> py4st.set_miss(</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>after[<span class="st">'flipper_length_mm'</span>] <span class="op">=</span> py4st.set_miss(                  <span class="co"># 欠測値の挿入</span></span>
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    after[<span class="st">'flipper_length_mm'</span>], prop <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    random_state <span class="op">=</span> <span class="dv">1230</span></span>
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>after <span class="op">=</span> after.query(<span class="st">'species != "Adelie"'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>after <span class="op">=</span> after.query(<span class="st">'species != "Adelie"'</span>)                    <span class="co"># レコードの抽出</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><code>review_wrangling()</code> では、カテゴリー変数についてユニーク値の変化を追っているため、データの抽出による暗黙的なカテゴリーの除外（e.g.&nbsp;<code>species = 'Adelie'</code> を除外したことで <code>island = 'Torgersen'</code> が除外された）も報告することができます。</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(py4st.review_wrangling(before, after))</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ================== Review of wrangling ===================</span></span>
@@ -617,7 +632,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     addition:  None</span></span>
 <span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     removal:  'Torgersen'</span></span>
 <span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ==========================================================</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>データセットから除外された列が多い場合、レビューテキストの視認性を維持するために列名の一部が省略表記されます。</p>
+<p>なお、初期設定では、データセットから除外された列が多い場合、テキストの視認性を維持するために列名の一部が省略されます。</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>mroz <span class="op">=</span> wooldridge.data(<span class="st">'mroz'</span>)</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(py4st.review_wrangling(</span>
@@ -638,7 +653,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; No columns had categories added or removed.</span></span>
 <span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ======================================================================================</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>デフォトのレビューには含まれませんが、<code>items</code> に <code>'numeric'</code> を指定することで、数値変数について ASCII 文字列の箱ひげ図による分布の要約を出力できます。</p>
+<p>デフォトのレビューには含まれませんが、<code>items</code> に <code>'numeric'</code> を指定・追加することで、数値変数について ASCII 文字列の箱ひげ図による分布の要約を出力できます。</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(py4st.review_wrangling(before, after, items <span class="op">=</span> <span class="st">'numeric'</span>))</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; =================== Review of wrangling ====================</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Boxplot of Numeric values (for reference):</span></span>
@@ -659,8 +674,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       after:  2,007.00|=============:==============|2,009.00</span></span>
 <span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ============================================================</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
-<section id="notes" class="level2">
-<h2 class="anchored" data-anchor-id="notes">Notes</h2>
+<section id="注意-notes" class="level2">
+<h2 class="anchored" data-anchor-id="注意-notes">注意 Notes</h2>
 <ul>
 <li><p>本関数では、<code>before</code> と <code>after</code> が同一の DataFrame バックエンド（例：どちらも pandas、またはどちらも polars）であることを前提としています。異なるバックエンドを混在させた場合、エラーが発生します。</p></li>
 <li><p><code>review_wrangling()</code> 関数は、行（レコード）単位の差分（値の変更・削除など）を追跡していません。これは、レコード単位の差分を追跡するためには index が必要になり、特定のバックエンド（e.g.&nbsp;Pandas）への依存が生じることと、前処理では行の並び替えや index の再設定によって before と after のレコード対応付けが曖昧になりやすいことが理由です。そのため、本関数は個々のレコードの変化ではなく、データセット全体に生じた構造的な変化をレビューする関数として設計しています。</p></li>

@@ -1,5 +1,5 @@
 # eda_toolsの開発状況
-2026年1月24日
+2026年2月14日
 
 ## 関数の実装状況一覧
 
@@ -11,6 +11,7 @@
 | Min                  | pd.Series        | ✅       | ❌       | ❌        | pd.DataFrame.eval() での使用を想定した関数     |
 | Pareto_plot          | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | Sum                  | pd.Series        | ✅       | ❌       | ❌        | pd.DataFrame.eval() での使用を想定した関数     |
+| bind_rows            | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | check_that           | DataFrame        | ✅       | ⭕️       | ⭕️        | 実装に pd.DataFrame.eval() を使用            |
 | check_viorate        | DataFrame        | ✅       | ⭕️       | ⭕️        | 実装に pd.DataFrame.eval() を使用            |
 | compare_df_cols      | DataFrame        | ✅       | ✅       | ✅        |                                            |
@@ -23,6 +24,9 @@
 | diagnose_category    | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | filtering_out        | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | freq_table           | DataFrame        | ✅       | ✅       | ✅        |                                            |
+| group_split          | DataFrame        | ✅       | ✅       | ✅        |                                            |
+| group_map            | DataFrame        | ✅       | ✅       | ✅        |                                            |
+| group_modify         | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | implies_exper        | pd.Series        | ✅       | ❌       | ❌        | pd.DataFrame.eval() での使用を想定した関数     |
 | is_dummy             | DataFrame/Series | ✅       | ✅       | ✅        |                                            |
 | is_number            | Series           | ✅       | ✅       | ✅        |                                            |
@@ -40,6 +44,11 @@
 | relocate             | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | remove_constant      | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | remove_empty         | DataFrame        | ✅       | ✅       | ✅        |                                            |
+| review_wrangling     | DataFrame        | ✅       | ✅       | ✅        |                                            |
+| review_shape         | DataFrame        | ✅       | ✅       | ✅        |                                            |
+| review_col_addition  | DataFrame        | ✅       | ✅       | ✅        |                                            |
+| review_casting       | DataFrame        | ✅       | ✅       | ✅        |                                            |
+| review_missing       | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | tabyl                | DataFrame        | ✅       | ⭕️       | ⭕️        | 一部の処理が Pandas 依存                      |
 | weighted_mean        | Series           | ✅       | ✅       | ✅        |                                            |
 

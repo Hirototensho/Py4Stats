@@ -65,7 +65,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../man/compare_df_cols.html" rel="next">
+<link href="../man/bind_rows.html" rel="next">
 <link href="../man/filtering_out.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -198,12 +198,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../man/diagnose_category.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">diagnose_category</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../man/plot_category.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">plot_category</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/diagnose_category.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">diagnose_category</span></a>
+  <a href="../man/info_gain.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">info_gain</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -224,6 +229,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../man/relocate.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">relocate</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/bind_rows.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">bind_rows</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/grouped_operation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">group_split, group_map, group_modify</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -273,7 +288,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/varidate.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">check_that check_viorate</span></a>
+  <a href="../man/varidate.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">check_that, check_viorate</span></a>
   </div>
 </li>
       </ul>
@@ -489,6 +504,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
+<div class="quarto-figure quarto-figure-left">
+<figure class="figure">
+<p><a href="../articles/eda_tools_development_status.html"><img src="https://img.shields.io/badge/Tested-Pandas_/_Polars_/_Pyarrow-blue.png" class="img-fluid quarto-figure quarto-figure-left figure-img" alt="badge of tested backend"></a></p>
+</figure>
+</div>
 <p>データフレームの列を削除することなく並び替える関数</p>
 <section id="概要" class="level2">
 <h2 class="anchored" data-anchor-id="概要">概要</h2>
@@ -500,7 +520,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>      after: Optional[<span class="bu">str</span>] <span class="op">=</span> <span class="va">None</span>,</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>      place: Optional[Literal[<span class="st">"first"</span>, <span class="st">"last"</span>]] <span class="op">=</span> <span class="va">None</span>,</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>      to_native: <span class="bu">bool</span> <span class="op">=</span> <span class="va">True</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    ):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="引数-argument" class="level2">
 <h2 class="anchored" data-anchor-id="引数-argument">引数 Argument</h2>
@@ -521,7 +541,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>"first"</code>: 選択した列をデータフレームの先頭（最も左）に配置します。</li>
 <li><code>"last"</code>: 選択した列をデータフレームの末尾（最も右）に配置します。 <code>place</code> 引数は <code>before</code> または <code>after</code> と同時に指定することはできません。 未指定（<code>None</code>）の場合は <code>"first"</code> と同じ挙動になります。</li>
 </ul></li>
-<li><p><code>to_native</code>（<strong>bool</strong>, optional）<br> <code>True</code> の場合、入力と同じ型のデータフレーム（e.g.&nbsp;pandas / polars / pyarrow）を返します。<br> <code>False</code> の場合、<code>narwhals.DataFrame</code> を返します。デフォルトは <code>True</code> で、<code>to_native = False</code> は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。</p></li>
+<li><p><code>to_native</code>: <strong>bool</strong><br> <code>True</code> の場合、入力と同じ型のデータフレーム（e.g.&nbsp;pandas / polars / pyarrow）を返します。<br> <code>False</code> の場合、<code>narwhals.DataFrame</code> を返します。デフォルトは <code>True</code> で、<code>to_native = False</code> は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。</p></li>
 </ul>
 <section id="返り値-value" class="level3">
 <h3 class="anchored" data-anchor-id="返り値-value">返り値 Value</h3>
@@ -536,13 +556,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> narwhals.selectors <span class="im">as</span> ncs</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> palmerpenguins <span class="im">import</span> load_penguins</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>penguins_mini <span class="op">=</span> py4st.filtering_out(penguins, starts_with <span class="op">=</span> <span class="st">'bill'</span>).head(<span class="dv">3</span>)</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(penguins_mini)</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   species     island  flipper_length_mm  body_mass_g     sex  year</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 0  Adelie  Torgersen              181.0       3750.0    male  2007</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1  Adelie  Torgersen              186.0       3800.0  female  2007</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2  Adelie  Torgersen              195.0       3250.0  female  2007</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>penguins <span class="op">=</span> load_penguins()</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>penguins_mini <span class="op">=</span> py4st.filtering_out(penguins, starts_with <span class="op">=</span> <span class="st">'bill'</span>).head(<span class="dv">3</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(penguins_mini)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   species     island  flipper_length_mm  body_mass_g     sex  year</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 0  Adelie  Torgersen              181.0       3750.0    male  2007</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1  Adelie  Torgersen              186.0       3800.0  female  2007</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2  Adelie  Torgersen              195.0       3250.0  female  2007</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># *args に指定した列は最前列に移動します</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(py4st.relocate(penguins_mini, <span class="st">'year'</span>, <span class="st">'sex'</span>))</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    year     sex species     island  flipper_length_mm  body_mass_g</span></span>
@@ -572,11 +593,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2  Adelie  Torgersen  2007              195.0       3250.0  female</span></span>
 <span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a><span class="co">#.  place = 'last' で最後列に移動</span></span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(py4st.relocate(penguins_mini, <span class="st">'year'</span>, place <span class="op">=</span> <span class="st">'last'</span>))</span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   species     island  flipper_length_mm  body_mass_g     sex  year</span></span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 0  Adelie  Torgersen              181.0       3750.0    male  2007</span></span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1  Adelie  Torgersen              186.0       3800.0  female  2007</span></span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2  Adelie  Torgersen              195.0       3250.0  female  2007</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(py4st.relocate(penguins_mini, <span class="st">'species'</span>, place <span class="op">=</span> <span class="st">'last'</span>))</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       island  flipper_length_mm  body_mass_g     sex  year species</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 0  Torgersen              181.0       3750.0    male  2007  Adelie</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1  Torgersen              186.0       3800.0  female  2007  Adelie</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2  Torgersen              195.0       3250.0  female  2007  Adelie</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <hr>
 <p><a href="../reference.html">Return to <strong>Function reference</strong>.</a></p>
 
@@ -991,8 +1012,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../man/compare_df_cols.html" class="pagination-link" aria-label="compare_df_cols, compare_df_stats">
-        <span class="nav-page-text"><span class="chapter-title">compare_df_cols, compare_df_stats</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../man/bind_rows.html" class="pagination-link" aria-label="bind_rows">
+        <span class="nav-page-text"><span class="chapter-title">bind_rows</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

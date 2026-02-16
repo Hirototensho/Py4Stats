@@ -10,8 +10,6 @@
 
 [`py4stats.diagnose()`](man/diagnose.qmd)
 
-[`py4stats.diagnose_category()`](man/diagnose_category.qmd)
-
 #### クロス集計
 
 [`py4stats.tabyl()`](man/tabyl.qmd)
@@ -20,7 +18,13 @@
 
 [`py4stats.Pareto_plot()`](man/Pareto_plot.qmd)
 
+#### カテゴリー変数の要約
+
+[`py4stats.diagnose_category()`](man/diagnose_category.qmd)
+
 [`py4stats.plot_category()`](man/plot_category.qmd)
+
+[`py4stats.info_gain()`](man/info_gain.qmd)
 
 ### 数値変数の点推定と区間推定
 
@@ -37,8 +41,17 @@
 
 #### データフレームの列の並べ替え
 
-[`py4stats.relocate()`](man/relocate.qmd)  
+[`py4stats.relocate()`](man/relocate.qmd)
 
+#### データフレームの縦結合
+
+[`py4stats.relocate()`](man/bind_rows.qmd)  
+
+#### データフレームのグループ化された処理
+
+[`py4stats.group_split()`](man/grouped_operation.qmd)
+[`py4stats.group_map()`](man/grouped_operation.qmd)
+[`py4stats.group_modify()`](man/grouped_operation.qmd)
 
 #### 複数のデータフレームの比較
 

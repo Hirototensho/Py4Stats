@@ -1,5 +1,7 @@
 # relocate
 
+[![](https://img.shields.io/badge/Tested-Pandas_/_Polars_/_Pyarrow-blue){fig-align="left" fig-alt="badge of tested backend"}](../articles/eda_tools_development_status.qmd)
+
 データフレームの列を削除することなく並び替える関数
 
 ## 概要
@@ -45,8 +47,7 @@ relocate(
     `place` 引数は `before` または `after` と同時に指定することはできません。
     未指定（`None`）の場合は `"first"` と同じ挙動になります。
 
-
-- `to_native`（**bool**, optional）<br>
+- `to_native`: **bool**<br>
   `True` の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。<br>
   `False` の場合、`narwhals.DataFrame` を返します。デフォルトは `True` で、`to_native = False` は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。
 
