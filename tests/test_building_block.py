@@ -147,7 +147,7 @@ def test_assert_missing_any_missing_False():
     with pytest.raises(ValueError) as excinfo:
         build.assert_missing(arg, 'arg')
     
-    assert "contains missing values (element '3' and '4')" in str(excinfo.value)
+    assert "contains missing values (element 3 and 4)" in str(excinfo.value)
 
 def test_assert_missing_any_missing_True():
     arg = [1, 2 ,3, None, pd.NA]

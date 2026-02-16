@@ -529,9 +529,10 @@ def assert_missing(
             f"Argument `{arg_name}` contains only missing values."
         )
 
-    if not any_missing and any(missing): 
+    if not any_missing and not all_missing and any(missing): 
+       not_sutisfy_text = oxford_comma_and(not_sutisfy, quotation = False)
        raise ValueError(
-            f"Argument `{arg_name}` contains missing values (element {oxford_comma_and(not_sutisfy)})."
+            f"Argument `{arg_name}` contains missing values (element {not_sutisfy_text})."
         )
 
 
@@ -625,6 +626,7 @@ def arg_match(
         arg_name = varname.argname('arg')
 
     if (arg is None) and nullable: return None
+    if all(is_missing(arg)) and all_missing: return None
 
     assert_missing(
       arg, arg_name = arg_name, 
@@ -791,6 +793,8 @@ def make_assert_type(
 
     # 欠測値に関するアサーション ============================================
     if (arg is None) and nullable: return None
+    if all(is_missing(arg)) and all_missing: return None
+
     if scalar_only: assert_scalar(arg, arg_name = arg_name)
 
     arg = pd.Series(arg)
@@ -1029,6 +1033,8 @@ def make_assert_numeric(
 
     # 欠測値に関するアサーション ============================================
     if (arg is None) and nullable: return None
+    if all(is_missing(arg)) and all_missing: return None
+
     if scalar_only: assert_scalar(arg, arg_name = arg_name)
 
     arg = pd.Series(arg)

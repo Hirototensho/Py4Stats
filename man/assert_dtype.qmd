@@ -125,7 +125,7 @@ assert_float(
 * `all_missing`: **bool**</br>
   `True` の場合、すべての要素が欠測値であることを許容します。
 * `nullable`: **bool**</br>
-  `True` の場合、引数そのものが `None` であることを許容します。
+  `True` の場合、引数そのものが `None` であることを許容します。この機能は、`None` を初期値とする Optional な引数のアサーションを行う際に使用することを想定しています。
 * `scalar_only`: **bool**</br>
   `True` の場合、スカラー値のみを許容します。この場合、1要素であっても、list や配列などの array-like オブジェクトは受け付けません。
 
@@ -188,12 +188,18 @@ build.assert_numeric(x, arg_name = 'x', len_max = 2)
 ```python
 l = [1, 2, None]
 build.assert_numeric(l, arg_name = 'l')
-#> ValueError: Argument `l` contains missing values (element '2').
+#> ValueError: Argument `l` contains missing values (element 2).
 
 build.assert_numeric(l, arg_name = 'l', any_missing = True)
+
+l = [None, None]
+build.assert_numeric(l, arg_name = 'l', any_missing = True)
+#> ValueError: Argument `arg` contains only missing values.
+
+build.assert_numeric(l, arg_name = 'l', all_missing = True)
 ```
 
-また、引数に `None` が指定されると初期設定ではエラーを出力しますが、`nullable = True` で `None` を許容することができます。この場合、`nullable = True` で `arg` に `None` が代入された場合、引数の型や値に関するアサーションは省略されます。
+また、引数に None が指定されると初期設定ではエラーを出力しますが、`nullable = True` で `None` を許容することができ、`None` ます。`nullable = True` かつ `arg` に `None` が代入された場合、引数の型や値に関するアサーションは省略されます。
 
 ```python
 build.assert_numeric(None, arg_name = 'x')
