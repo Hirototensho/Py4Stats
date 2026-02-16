@@ -1508,7 +1508,7 @@ def mfxplot(
         None
     """
     # 引数のアサーション ==============================================
-    assert_glm_with_get_margeff(mod)
+    assert_glm_with_get_margeff(mod, arg_name = 'mod')
     # ==============================================================
 
     # 回帰係数の表を抽出

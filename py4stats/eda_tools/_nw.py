@@ -4260,7 +4260,7 @@ def set_miss(
         if n_to_miss <=0:
             warnings.warn(
                 f"Already contained {n_miss}(>= n) missing value(s) in `x`, "
-            "no additional missing values were added.",
+                "no additional missing values were added.",
             category = UserWarning,
             stacklevel = 2
             )

@@ -167,6 +167,7 @@ import scipy as sp
 import varname
 import collections
 import textwrap
+import warnings
 # from functools import partial
 
 
@@ -208,6 +209,17 @@ ArrayLike = Union[NumberLike, Sequence[NumberLike], np.ndarray, pd.Series]
 
 # p-value などは 0..1 の数値配列として扱うことが多い
 # Sequence[int, float, np.number] = ArrayLike
+
+
+
+
+# def warn_arg_name_none(func_name):
+#     warnings.warn(
+#         f"Argument name inference feature of `{func_name}()`  is deprecated and will be removed in a future release of Py4Stats."
+#         "Please explicitly specify the argument name in the `arg_name.",
+#         category = FutureWarning,
+#         stacklevel = 2,
+#     )
 
 
 # ## `oxford_comma()`
@@ -398,65 +410,6 @@ def length(x):
     if isinstance(x, collections.abc.Sized):
         return len(x)       # list, dict, pandas.Series, etc.
     return 1
-
-
-
-
-# def assert_length(
-#         arg: Any, 
-#         arg_name: str,
-#         len_arg: Optional[int] = None,
-#         len_min: int = 1,
-#         len_max: Optional[int] = None
-#         ):
-#         arg_length = length(arg)
-#         if len_arg is not None:
-#             if arg_length != len_arg:
-#                 raise ValueError(
-#                      f"Argument `{arg_name}` must have length {len_arg}, "
-#                      f"but has length {arg_length}."
-#                 )
-#         if (len_max is not None) and (len_min is not None):
-#             if not(len_min <= arg_length <= len_max):
-#                 raise ValueError(
-#                      f"Argument `{arg_name}` must have length {len_min} <= n <= {len_max}, "
-#                      f"but has length {arg_length}."
-#             )
-
-
-
-
-# def assert_length(
-#         arg: Any, 
-#         arg_name: str,
-#         len_arg: Optional[int] = None,
-#         len_min: int = 1,
-#         len_max: Optional[int] = None
-#         ):
-#         arg_length = length(arg)
-#         if len_arg is not None:
-#             if arg_length != len_arg:
-#                 raise ValueError(
-#                      f"Argument `{arg_name}` must have length {len_arg}, "
-#                      f"but has length {arg_length}."
-#                 )
-
-#         if arg_length < len_min:
-#             if len_max is None:
-#                 length_message = f'{len_min} <= n <= {len_max}'
-#             else:
-#                 length_message = f'length n >= {len_min}'
-
-#             raise ValueError(
-#                 f"Argument `{arg_name}` must have length {length_message}, "
-#                 f"but has length {arg_length}."
-#             )
-
-#         if len_max is not None and arg_length > len_max:
-#             raise ValueError(
-#                 f"Argument `{arg_name}` must have length {len_min} <= n <= {len_max}, "
-#                 f"but has length {arg_length}."
-#             )
 
 
 
@@ -1154,8 +1107,8 @@ def p_stars(
     # pd.cut() の bin として使用するときにエラーを生じないよう、昇順にソート
     stars2 = pd.Series(stars2, dtype = 'float64').sort_values()
 
-    assert_numeric(p_value, lower = 0)
-    assert_numeric(stars2, lower = 0)
+    assert_numeric(p_value, arg_name = 'p_value', lower = 0)
+    assert_numeric(stars2, arg_name = 'stars2', lower = 0)
 
     # 0.0 に stars2 の値を追加したものを bins とします。
     bins = [0.0, *stars2.to_list()]
@@ -1193,10 +1146,10 @@ def style_pvalue(
   Returns:
         pandas.Series: Formatted p-values as strings.
   """
-  assert_numeric(p_value, lower = 0)
-  assert_count(digits, lower = 1)
-  assert_numeric(p_min, lower = 0, upper = 1)
-  assert_numeric(p_max, lower = 0, upper = 1)
+  assert_numeric(p_value, arg_name = 'p_value', lower = 0)
+  assert_count(digits, arg_name = 'digits', lower = 1)
+  assert_numeric(p_min, arg_name = 'p_min', lower = 0, upper = 1)
+  assert_numeric(p_max, arg_name = 'p_max', lower = 0, upper = 1)
 
   if(prepend_p): prefix = ['p', 'p=']
   else: prefix = ['', '']
@@ -1215,14 +1168,14 @@ def style_pvalue(
 
 @np.vectorize
 def num_comma(x: NumberLike, digits: int = 2, big_mark: str = ",") -> str:
-  assert_count(digits)
-  arg_match(big_mark, [',', '_', ''])
+  assert_count(digits, arg_name = 'digits')
+  arg_match(big_mark, [',', '_', ''], arg_name = 'big_mark')
   return f'{x:{big_mark}.{digits}f}'
 
 @np.vectorize
 def num_currency(x: NumberLike, symbol: str = "$", digits: int = 0, big_mark: str = ",") -> str:
-  assert_count(digits)
-  arg_match(big_mark, [',', '_', ''])
+  assert_count(digits, arg_name = 'digits')
+  arg_match(big_mark, [',', '_', ''], arg_name = 'big_mark')
   return f'{symbol}{x:{big_mark}.{digits}f}'
 
 @np.vectorize
@@ -1235,28 +1188,28 @@ def num_percent(x: NumberLike, digits: int = 2) -> str:
 def style_number(x: ArrayLike, digits: int = 2, big_mark: str = ",") -> pd.Series:
   x = pd.Series(x)
 
-  assert_numeric(x)
-  assert_count(digits)
+  assert_numeric(x, arg_name = 'x')
+  assert_count(digits, arg_name = 'digits')
 
-  arg_match(big_mark, [',', '_', ''])
+  arg_match(big_mark, [',', '_', ''], arg_name = 'big_mark')
 
   return x.apply(lambda v: f'{v:{big_mark}.{digits}f}')
 
 def style_currency(x: ArrayLike, symbol: str = "$", digits: int = 0, big_mark: str = ",") -> pd.Series:
   x = pd.Series(x)
 
-  assert_numeric(x)
-  assert_count(digits)
+  assert_numeric(x, arg_name = 'x')
+  assert_count(digits, arg_name = 'digits')
 
-  arg_match(big_mark, [',', '_', ''])
+  arg_match(big_mark, [',', '_', ''], arg_name = 'big_mark')
 
   return x.apply(lambda v: f'{symbol}{v:{big_mark}.{digits}f}')
 
 def style_percent(x: ArrayLike, digits: int = 2, unit: float = 100, symbol: str = "%") -> pd.Series:
   x = pd.Series(x)
 
-  assert_numeric(x)
-  assert_count(digits)
+  assert_numeric(x, arg_name = 'x')
+  assert_count(digits, arg_name = 'digits')
 
   return x.apply(lambda v: f'{v*unit:.{digits}f}{symbol}')
 
