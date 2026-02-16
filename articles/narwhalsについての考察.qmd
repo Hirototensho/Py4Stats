@@ -180,7 +180,40 @@ result.schema
 #> Schema([('species', Categorical), ('island', Categorical)])
 ```
 
+## `nw.from_native()` を用いた型変換のオーバーヘッド
 
+narwhals の公式ドキュメント [Overhead](https://narwhals-dev.github.io/narwhals/overhead/) には、narwhals を経由したデータフレームを操作することによるパフォーマンス上のオーバーヘッドは僅かなものだと報告されています。
+
+一方で、最低限必要な回数以上に `nw.from_native()` 関数が呼び出された場合はどうでしょうか。具体的には、次のコードのようにある関数が内部で依存している関数もまた `nw.from_native()` を呼び出しているというケースです。これは `eda_tools` モジュールの各所で見られます。
+
+``` python
+def f(data):
+    data_nw = nw.from_native(data)
+    return data_nw.implementation
+
+def g(data):
+    data_nw = nw.from_native(data)
+    return f(data_nw)
+
+def h(data):
+    data_nw = nw.from_native(data)
+    return g(data_nw)
+```
+
+seaborn ライブラリの `diamonds` データを例に上記の関数を実行してみると、結果は次のとおりで私の実行環境では 0.3〜0.4 μs 程度のオーバーヘッドがあることが分かります。
+
+``` python
+diamonds = sns.load_dataset('diamonds')
+
+%timeit f(diamonds)
+#> 10.3 µs ± 48.9 ns per loop (mean ± std. dev. of 7 runs, 100,000 loops each)
+%timeit g(diamonds)
+#> 10.7 µs ± 14.2 ns per loop (mean ± std. dev. of 7 runs, 100,000 loops each)
+%timeit h(diamonds)
+#> 11 µs ± 40 ns per loop (mean ± std. dev. of 7 runs, 100,000 loops each)
+```
+
+このオーバーヘッドは `eda_tools` モジュールで実装している集計・可視化処理の実行時間全体から見ると僅かなものだと思います。僅かなオーバーヘッドを避けるために、ユーザー関数から呼び出される関数（上記の例で言えば `f()`）を `nw.DataFrame` 専用の関数として実装するよりは、オーバーヘッドを受け入れて、単体でもバックエンドを問わずに実行できる関数として実装しておく方が保守性とユーザビリティの面で有益だと思われます。
 
 
 
