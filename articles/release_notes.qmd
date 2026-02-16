@@ -19,8 +19,8 @@
 
 - `eda_tools` モジュールの関数全体について、エラーメッセージを改善を行いました。
   - [`diagnose()`](../man/diagnose.qmd) 関数の `data` など、narwhals が受け入れ可能な DataFrame 互換オブジェクトもしくは Series 互換オブジェクトが代入されることを想定した引数に、list, dict, int などの非互換オブジェクトが代入された場合のエラーメッセージを改善しました。
-
 - [`Pareto_plot()`](../man/Pareto_plot.qmd) 関数のリファクタリングを実施し、型ヒントを改善しました。
+- [`assert_character()`](../man/assert_dtype.qmd) 関数や [`assert_numeric()`](../man/assert_dtype.qmd) で、引数の最小要素数を指定する `len_min` の設定が正常に反映されない問題を修正しました。
 
 ## Py4Stats v0.4.0 2026-01-27
 
