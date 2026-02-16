@@ -1,5 +1,27 @@
 # Release Notes
 
+# Py4Stats v0.5.0 2026-02-16
+
+## 概要（Summary）
+
+このリリースでは4つの関数 `group_split(), group_map(), group_modify()` および、`bind_rows()` を追加し、既存関数のリファクタリングとバグ修正を行いました。
+
+## ✨ 主な新機能 （New Features）
+
+- [`group_split(), group_map(), group_modify()`](../man/grouped_operation.qmd) の追加
+  - データフレームに対して、変数を基準としたグループへの分割・関数適用・結果の統合を行います。
+- [`bind_rows()`](../man/bind_rows.qmd) 関数の追加
+  - 複数のデータフレームを行方向に結合（縦方向に連結）し、必要に応じて出所情報を付与します。
+- [`info_gain()`](../man/info_gain.qmd) 関数の追加
+  - 複数の目的変数と特徴量の組み合わせに対して情報利得などの情報理論に基づく指標を計算します。
+
+## 🛠 修正と改善（Fixes /Improvements）
+
+- `eda_tools` モジュールの関数全体について、エラーメッセージを改善を行いました。
+  - [`diagnose()`](../man/diagnose.qmd) 関数の `data` など、narwhals が受け入れ可能な DataFrame 互換オブジェクトもしくは Series 互換オブジェクトが代入されることを想定した引数に、list, dict, int などの非互換オブジェクトが代入された場合のエラーメッセージを改善しました。
+
+- [`Pareto_plot()`](../man/Pareto_plot.qmd) 関数のリファクタリングを実施し、型ヒントを改善しました。
+
 ## Py4Stats v0.4.0 2026-01-27
 
 ### 概要（Summary）

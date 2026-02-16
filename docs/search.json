@@ -402,7 +402,7 @@
     "href": "man/info_gain.html",
     "title": "info_gain",
     "section": "",
-    "text": "概要\n複数の目的変数と特徴量の組み合わせに対して情報利得を計算します。\n本関数は、指定された目的変数と特徴量のすべての組み合わせについて、情報利得（相互情報量）およびその正規化指標（不確実性係数）を算出します。この関数は、アンケート分析のように、複数の目的変数（例：設問項目）と1つまたは複数の属性変数（例：デモグラフィック変数）との関係を探索的にスクリーニングする用途を想定しています。",
+    "text": "概要\n複数の目的変数と特徴量の組み合わせに対して情報利得などの情報理論に基づく指標を計算します。\n本関数は、指定された目的変数と特徴量のすべての組み合わせについて、情報利得（相互情報量）およびその正規化指標（不確実性係数）を算出します。この関数は、アンケート分析のように、複数の目的変数（例：設問項目）と1つまたは複数の属性変数（例：デモグラフィック変数）との関係を探索的にスクリーニングする用途を想定しています。",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>10</span>  <span class='chapter-title'>info_gain</span>"
@@ -2030,7 +2030,7 @@
     "href": "man/assert_dtype.html#使用例-examples",
     "title": "building_block.assert_dtypes",
     "section": "使用例 Examples",
-    "text": "使用例 Examples\nfrom py4stats import building_block as build\nx = [1, 2, 3]\ny = ['A', 'B', 'C']\n\nbuild.assert_character(x, arg_name = 'x')\n#&gt; TypeError: Argument `x` must be of type 'str'.\n\nbuild.assert_character(y, arg_name = 'y')\nbuild.assert_numeric(x, arg_name = 'x')\n\nbuild.assert_numeric(y, arg_name = 'y')\n#&gt; TypeError: Argument `y` must be of type 'int' or 'float' with value(s) -inf &lt;= x &lt;= inf.\n\nz = [0.1, 0.3, 0.6]\nbuild.assert_numeric(z, arg_name = 'z', lower = 0, upper = 1)\n\nz.extend([2, 3])\nbuild.assert_numeric(z, arg_name = 'z', lower = 0, upper = 1)\n#&gt; ValueError: Argument `x` must have value 0 &lt;= x &lt;= 2.\n#&gt;             element '3' of `x` not sutisfy the condtion.\n\n\nz = 1\nbuild.assert_numeric(\n    z, arg_name = 'z', \n    lower = 0, upper = 1, \n    inclusive = 'left'\n    )\n#&gt; ValueError: Argument `z` must have value 0 &lt;= x &lt; 1.",
+    "text": "使用例 Examples\nfrom py4stats import building_block as build\nx = [1, 2, 3]\ny = ['A', 'B', 'C']\n\nbuild.assert_character(x, arg_name = 'x')\n#&gt; TypeError: Argument `x` must be of type 'str'.\n\nbuild.assert_character(y, arg_name = 'y')\nbuild.assert_numeric(x, arg_name = 'x')\n\nbuild.assert_numeric(y, arg_name = 'y')\n#&gt; TypeError: Argument `y` must be of type 'int' or 'float' with value(s) -inf &lt;= x &lt;= inf.\n\nz = [0.1, 0.3, 0.6]\nbuild.assert_numeric(z, arg_name = 'z', lower = 0, upper = 1)\n\nz.extend([2, 3])\nbuild.assert_numeric(z, arg_name = 'z', lower = 0, upper = 1)\n#&gt; ValueError: Argument `x` must have value 0 &lt;= x &lt;= 2.\n#&gt;             element '3' of `x` not sutisfy the condtion.\n\nz = 1\nbuild.assert_numeric(\n    z, arg_name = 'z', \n    lower = 0, upper = 1, \n    inclusive = 'left'\n    )\n#&gt; ValueError: Argument `z` must have value 0 &lt;= x &lt; 1.\nまた、これらの関数では、 len_arg, len_min および len_max を使うことで引数の要素数に関するアサーションを実施できます。\nbuild.assert_numeric(x, arg_name = 'x', len_arg = 1)\n#&gt; ValueError: Argument `x` must have length 1, but has length 3.\n\nbuild.assert_numeric(x, arg_name = 'x', len_min = 4)\n#&gt; ValueError: Argument `x` must have length 4 &lt;= n &lt;= inf, but has length 3.\n\nbuild.assert_numeric(x, arg_name = 'x', len_max = 2)\n#&gt; ValueError: Argument `x` must have length 1 &lt;= n &lt;= 2, but has length 3.",
     "crumbs": [
       "**building_block**",
       "<span class='chapter-number'>38</span>  <span class='chapter-title'>building_block.assert_dtypes</span>"
@@ -2261,7 +2261,40 @@
     "href": "articles/release_notes.html",
     "title": "Release Notes",
     "section": "",
-    "text": "Py4Stats v0.4.0 2026-01-27",
+    "text": "Py4Stats v0.5.0 2026-02-16",
+    "crumbs": [
+      "**Articles**",
+      "<span class='chapter-number'>43</span>  <span class='chapter-title'>Release Notes</span>"
+    ]
+  },
+  {
+    "objectID": "articles/release_notes.html#概要summary",
+    "href": "articles/release_notes.html#概要summary",
+    "title": "Release Notes",
+    "section": "概要（Summary）",
+    "text": "概要（Summary）\nこのリリースでは4つの関数 group_split(), group_map(), group_modify() および、bind_rows() を追加し、既存関数のリファクタリングとバグ修正を行いました。",
+    "crumbs": [
+      "**Articles**",
+      "<span class='chapter-number'>43</span>  <span class='chapter-title'>Release Notes</span>"
+    ]
+  },
+  {
+    "objectID": "articles/release_notes.html#主な新機能-new-features",
+    "href": "articles/release_notes.html#主な新機能-new-features",
+    "title": "Release Notes",
+    "section": "✨ 主な新機能 （New Features）",
+    "text": "✨ 主な新機能 （New Features）\n\ngroup_split(), group_map(), group_modify() の追加\n\nデータフレームに対して、変数を基準としたグループへの分割・関数適用・結果の統合を行います。\n\nbind_rows() 関数の追加\n\n複数のデータフレームを行方向に結合（縦方向に連結）し、必要に応じて出所情報を付与します。\n\ninfo_gain() 関数の追加\n\n複数の目的変数と特徴量の組み合わせに対して情報利得などの情報理論に基づく指標を計算します。",
+    "crumbs": [
+      "**Articles**",
+      "<span class='chapter-number'>43</span>  <span class='chapter-title'>Release Notes</span>"
+    ]
+  },
+  {
+    "objectID": "articles/release_notes.html#修正と改善fixes-improvements",
+    "href": "articles/release_notes.html#修正と改善fixes-improvements",
+    "title": "Release Notes",
+    "section": "🛠 修正と改善（Fixes /Improvements）",
+    "text": "🛠 修正と改善（Fixes /Improvements）\n\neda_tools モジュールの関数全体について、エラーメッセージを改善を行いました。\n\ndiagnose() 関数の data など、narwhals が受け入れ可能な DataFrame 互換オブジェクトもしくは Series 互換オブジェクトが代入されることを想定した引数に、list, dict, int などの非互換オブジェクトが代入された場合のエラーメッセージを改善しました。\n\nPareto_plot() 関数のリファクタリングを実施し、型ヒントを改善しました。",
     "crumbs": [
       "**Articles**",
       "<span class='chapter-number'>43</span>  <span class='chapter-title'>Release Notes</span>"
@@ -2271,8 +2304,8 @@
     "objectID": "articles/release_notes.html#py4stats-v0.4.0-2026-01-27",
     "href": "articles/release_notes.html#py4stats-v0.4.0-2026-01-27",
     "title": "Release Notes",
-    "section": "",
-    "text": "概要（Summary）\nこのリリースでは review_wrangling() 関数を追加し、既存関数のリファクタリングとバグ修正を行いました。\n\n\n✨ 主な新機能 （New Features）\n\nreview_wrangling() 関数の追加\n\nデータ前処理（wrangling）による変更点をレビュー形式で要約して、文字列として出力する関数です。\n\n\n\n\n🛠 修正と改善（Fixes /Improvements）\n\nrelocate(): *args 引数が未指定であった場合のエラーメッセージを改善しました。\nis_dummy(): data 引数に list を代入した場合でも dropna = True が正しく機能するように修正しました。\nmean_qi(), median_qi(), mean_ci(), scale(), min_max()\n\n関数のリファクタリングを実施し、メソッドが未実装のオブジェクトを代入したときのエラーメッセージを改善しました。\n\nset_miss(): pd.DataFram に使用した場合、欠測率が prop で指定した値より高くなる現象を修正しました。",
+    "section": "Py4Stats v0.4.0 2026-01-27",
+    "text": "Py4Stats v0.4.0 2026-01-27\n\n概要（Summary）\nこのリリースでは review_wrangling() 関数を追加し、既存関数のリファクタリングとバグ修正を行いました。\n\n\n✨ 主な新機能 （New Features）\n\nreview_wrangling() 関数の追加\n\nデータ前処理（wrangling）による変更点をレビュー形式で要約して、文字列として出力する関数です。\n\n\n\n\n🛠 修正と改善（Fixes /Improvements）\n\nrelocate(): *args 引数が未指定であった場合のエラーメッセージを改善しました。\nis_dummy(): data 引数に list を代入した場合でも dropna = True が正しく機能するように修正しました。\nmean_qi(), median_qi(), mean_ci(), scale(), min_max()\n\n関数のリファクタリングを実施し、メソッドが未実装のオブジェクトを代入したときのエラーメッセージを改善しました。\n\nset_miss(): pd.DataFram に使用した場合、欠測率が prop で指定した値より高くなる現象を修正しました。",
     "crumbs": [
       "**Articles**",
       "<span class='chapter-number'>43</span>  <span class='chapter-title'>Release Notes</span>"

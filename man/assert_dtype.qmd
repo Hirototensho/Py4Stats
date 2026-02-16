@@ -161,7 +161,6 @@ build.assert_numeric(z, arg_name = 'z', lower = 0, upper = 1)
 #> ValueError: Argument `x` must have value 0 <= x <= 2.
 #>             element '3' of `x` not sutisfy the condtion.
 
-
 z = 1
 build.assert_numeric(
     z, arg_name = 'z', 
@@ -170,6 +169,20 @@ build.assert_numeric(
     )
 #> ValueError: Argument `z` must have value 0 <= x < 1.
 ```
+
+また、これらの関数では、 `len_arg`, `len_min` および `len_max` を使うことで引数の要素数に関するアサーションを実施できます。
+
+```python
+build.assert_numeric(x, arg_name = 'x', len_arg = 1)
+#> ValueError: Argument `x` must have length 1, but has length 3.
+
+build.assert_numeric(x, arg_name = 'x', len_min = 4)
+#> ValueError: Argument `x` must have length 4 <= n <= inf, but has length 3.
+
+build.assert_numeric(x, arg_name = 'x', len_max = 2)
+#> ValueError: Argument `x` must have length 1 <= n <= 2, but has length 3.
+```
+
 
 ## 参照
 

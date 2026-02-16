@@ -426,6 +426,41 @@ def length(x):
 
 
 
+# def assert_length(
+#         arg: Any, 
+#         arg_name: str,
+#         len_arg: Optional[int] = None,
+#         len_min: int = 1,
+#         len_max: Optional[int] = None
+#         ):
+#         arg_length = length(arg)
+#         if len_arg is not None:
+#             if arg_length != len_arg:
+#                 raise ValueError(
+#                      f"Argument `{arg_name}` must have length {len_arg}, "
+#                      f"but has length {arg_length}."
+#                 )
+
+#         if arg_length < len_min:
+#             if len_max is None:
+#                 length_message = f'{len_min} <= n <= {len_max}'
+#             else:
+#                 length_message = f'length n >= {len_min}'
+
+#             raise ValueError(
+#                 f"Argument `{arg_name}` must have length {length_message}, "
+#                 f"but has length {arg_length}."
+#             )
+
+#         if len_max is not None and arg_length > len_max:
+#             raise ValueError(
+#                 f"Argument `{arg_name}` must have length {len_min} <= n <= {len_max}, "
+#                 f"but has length {arg_length}."
+#             )
+
+
+
+
 def assert_length(
         arg: Any, 
         arg_name: str,
@@ -440,17 +475,12 @@ def assert_length(
                      f"Argument `{arg_name}` must have length {len_arg}, "
                      f"but has length {arg_length}."
                 )
-
-        if arg_length < len_min:
-            raise ValueError(
-                f"Argument `{arg_name}` must have length n > {len_min}, "
-                f"but has length {arg_length}."
-        )
-        if len_max is not None and arg_length > len_max:
+        if len_max is None: len_max = float('inf')
+        if not(len_min <= arg_length <= len_max):
             raise ValueError(
                 f"Argument `{arg_name}` must have length {len_min} <= n <= {len_max}, "
                 f"but has length {arg_length}."
-                )
+            )
 
 
 
