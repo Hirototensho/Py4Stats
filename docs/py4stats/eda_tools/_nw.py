@@ -2402,7 +2402,7 @@ def binning_for_ig(data, col, max_unique:int = 20, n_bins: Optional[int] = None)
 from collections import namedtuple
 IGResult = namedtuple(
     'IGResult', 
-    ['h_target', 'h_feature', 'h_cond', 'joint_ent', 'info_gain', 'ig_ratio']
+    ['target', 'feature', 'h_target', 'h_feature', 'h_cond', 'joint_ent', 'info_gain', 'ig_ratio']
     )
 
 def ig_compute(
@@ -2435,7 +2435,10 @@ def ig_compute(
     info_gain = np.max([h_target + h_feature - joint_ent, 0.0]) # 相互情報量の非負性を満たすため
 
     ig_ratio = info_gain / h_target if h_target > 0 else np.nan
-    result = IGResult(h_target, h_feature, h_cond, joint_ent, info_gain, ig_ratio)
+    result = IGResult(
+        target, feature, h_target, h_feature, 
+        h_cond, joint_ent, info_gain, ig_ratio
+        )
     return result
 
 
@@ -2501,6 +2504,8 @@ def info_gain(
                 Entropy of the target variable.
             - h_feature (float):
                 Entropy of the feature.
+            - h_cond (float):
+                Conditional entropy given the feature.
             - joint_ent (float):
                 Joint entropy of the target variable and feature.
             - info_gain (float):
@@ -2545,15 +2550,7 @@ def info_gain(
             n_bins = n_bins,
             base = base
             )
-        result_dicts += [{
-            'target':cols[0],
-            'features':cols[1],
-            'h_target': res.h_target,
-            'h_feature': res.h_feature,
-            'joint_ent': res.joint_ent,
-            'info_gain': res.info_gain,
-            'ig_ratio': res.ig_ratio
-            }]
+        result_dicts += [res._asdict()]
 
     result = nw.from_dicts(
         result_dicts,

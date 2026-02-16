@@ -435,7 +435,7 @@
     "href": "man/info_gain.html#返り値-value",
     "title": "info_gain",
     "section": "返り値 Value",
-    "text": "返り値 Value\ninfo_gain()関数は、次の値をもつ DataFrame を出力します。\n\ntarget (str): 目的変数名\nfeatures (str): 特徴量名\nh_target (float): 目的変数のエントロピー\nh_feature (float): 特徴量のエントロピー\njoint_ent (float): 目的変数と特徴量の結合エントロピー\ninfo_gain (float): 情報利得（相互情報量）\nig_ratio (float): h_before で正規化した情報利得（Theil’s U, 不確実性係数）。",
+    "text": "返り値 Value\ninfo_gain()関数は、次の値をもつ DataFrame を出力します。\n\ntarget (str): 目的変数名\nfeatures (str): 特徴量名\nh_target (float): 目的変数のエントロピー\nh_feature (float): 特徴量のエントロピー\njoint_ent (float): 目的変数と特徴量の結合エントロピー\nh_cond (float): 特徴量で条件付けた目的変数の条件付きエントロピー\ninfo_gain (float): 情報利得（相互情報量）\nig_ratio (float): h_before で正規化した情報利得（Theil’s U, 不確実性係数）。",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>10</span>  <span class='chapter-title'>info_gain</span>"
@@ -446,7 +446,7 @@
     "href": "man/info_gain.html#使用例-examples",
     "title": "info_gain",
     "section": "使用例 Examples",
-    "text": "使用例 Examples\nimport pandas as pd\nimport py4stats as py4st\n\ntitanic = sns.load_dataset('titanic')\n\nresult = py4st.info_gain(\n    titanic, target = 'survived',\n    features = ['class', 'fare', 'sex', 'embark_town']\n    )\n\nprint(result.round(4))\n#&gt;      target     features  h_target  h_feature  joint_ent  info_gain  ig_ratio\n#&gt; 0  survived        class    0.9607     1.4393     0.8769     0.0838    0.0873\n#&gt; 1  survived         fare    0.9607     3.1512     0.8653     0.0955    0.0994\n#&gt; 2  survived          sex    0.9607     0.9362     0.7430     0.2177    0.2266\n#&gt; 3  survived  embark_town    0.9607     1.0969     0.9572     0.0035    0.0037",
+    "text": "使用例 Examples\nimport polars as pl\nimport py4stats as py4st\ntitanic = pl.from_pandas(sns.load_dataset('titanic'))\n\nresult = py4st.info_gain(\n    titanic, target = 'survived',\n    features = ['class', 'fare', 'sex', 'embark_town']\n    )\n\nprint(result)\n#&gt; shape: (4, 8)\n#&gt; ┌──────────┬─────────────┬──────────┬───────────┬──────────┬───────────┬───────────┬──────────┐\n#&gt; │ target   ┆ feature     ┆ h_target ┆ h_feature ┆ h_cond   ┆ joint_ent ┆ info_gain ┆ ig_ratio │\n#&gt; │ ---      ┆ ---         ┆ ---      ┆ ---       ┆ ---      ┆ ---       ┆ ---       ┆ ---      │\n#&gt; │ str      ┆ str         ┆ f64      ┆ f64       ┆ f64      ┆ f64       ┆ f64       ┆ f64      │\n#&gt; ╞══════════╪═════════════╪══════════╪═══════════╪══════════╪═══════════╪═══════════╪══════════╡\n#&gt; │ survived ┆ class       ┆ 0.960708 ┆ 1.439321  ┆ 0.876877 ┆ 2.316198  ┆ 0.083831  ┆ 0.08726  │\n#&gt; │ survived ┆ fare        ┆ 0.960708 ┆ 3.151193  ┆ 0.865258 ┆ 4.01645   ┆ 0.09545   ┆ 0.099354 │\n#&gt; │ survived ┆ sex         ┆ 0.960708 ┆ 0.936205  ┆ 0.743048 ┆ 1.679252  ┆ 0.21766   ┆ 0.226562 │\n#&gt; │ survived ┆ embark_town ┆ 0.960708 ┆ 1.096869  ┆ 0.957185 ┆ 2.054054  ┆ 0.003523  ┆ 0.003667 │\n#&gt; └──────────┴─────────────┴──────────┴───────────┴──────────┴───────────┴───────────┴──────────┘",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>10</span>  <span class='chapter-title'>info_gain</span>"

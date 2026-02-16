@@ -569,28 +569,34 @@ window.Quarto = {
 <li><code>h_target</code> (float): 目的変数のエントロピー</li>
 <li><code>h_feature</code> (float): 特徴量のエントロピー</li>
 <li><code>joint_ent</code> (float): 目的変数と特徴量の結合エントロピー</li>
+<li><code>h_cond</code> (float): 特徴量で条件付けた目的変数の条件付きエントロピー</li>
 <li><code>info_gain</code> (float): 情報利得（相互情報量）</li>
 <li><code>ig_ratio</code> (float): <code>h_before</code> で正規化した情報利得（Theil’s U, 不確実性係数）。</li>
 </ul>
 </section>
 <section id="使用例-examples" class="level2">
 <h2 class="anchored" data-anchor-id="使用例-examples">使用例 Examples</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> py4stats <span class="im">as</span> py4st</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>titanic <span class="op">=</span> sns.load_dataset(<span class="st">'titanic'</span>)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> py4st.info_gain(</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    titanic, target <span class="op">=</span> <span class="st">'survived'</span>,</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    features <span class="op">=</span> [<span class="st">'class'</span>, <span class="st">'fare'</span>, <span class="st">'sex'</span>, <span class="st">'embark_town'</span>]</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(result.<span class="bu">round</span>(<span class="dv">4</span>))</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      target     features  h_target  h_feature  joint_ent  info_gain  ig_ratio</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 0  survived        class    0.9607     1.4393     0.8769     0.0838    0.0873</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1  survived         fare    0.9607     3.1512     0.8653     0.0955    0.0994</span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2  survived          sex    0.9607     0.9362     0.7430     0.2177    0.2266</span></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3  survived  embark_town    0.9607     1.0969     0.9572     0.0035    0.0037</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>titanic <span class="op">=</span> pl.from_pandas(sns.load_dataset(<span class="st">'titanic'</span>))</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> py4st.info_gain(</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    titanic, target <span class="op">=</span> <span class="st">'survived'</span>,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    features <span class="op">=</span> [<span class="st">'class'</span>, <span class="st">'fare'</span>, <span class="st">'sex'</span>, <span class="st">'embark_town'</span>]</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(result)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; shape: (4, 8)</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ┌──────────┬─────────────┬──────────┬───────────┬──────────┬───────────┬───────────┬──────────┐</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ target   ┆ feature     ┆ h_target ┆ h_feature ┆ h_cond   ┆ joint_ent ┆ info_gain ┆ ig_ratio │</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ ---      ┆ ---         ┆ ---      ┆ ---       ┆ ---      ┆ ---       ┆ ---       ┆ ---      │</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ str      ┆ str         ┆ f64      ┆ f64       ┆ f64      ┆ f64       ┆ f64       ┆ f64      │</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ╞══════════╪═════════════╪══════════╪═══════════╪══════════╪═══════════╪═══════════╪══════════╡</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ survived ┆ class       ┆ 0.960708 ┆ 1.439321  ┆ 0.876877 ┆ 2.316198  ┆ 0.083831  ┆ 0.08726  │</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ survived ┆ fare        ┆ 0.960708 ┆ 3.151193  ┆ 0.865258 ┆ 4.01645   ┆ 0.09545   ┆ 0.099354 │</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ survived ┆ sex         ┆ 0.960708 ┆ 0.936205  ┆ 0.743048 ┆ 1.679252  ┆ 0.21766   ┆ 0.226562 │</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ survived ┆ embark_town ┆ 0.960708 ┆ 1.096869  ┆ 0.957185 ┆ 2.054054  ┆ 0.003523  ┆ 0.003667 │</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; └──────────┴─────────────┴──────────┴───────────┴──────────┴───────────┴───────────┴──────────┘</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="note" class="level2">
 <h2 class="anchored" data-anchor-id="note">Note</h2>
