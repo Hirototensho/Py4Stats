@@ -183,6 +183,25 @@ build.assert_numeric(x, arg_name = 'x', len_max = 2)
 #> ValueError: Argument `x` must have length 1 <= n <= 2, but has length 3.
 ```
 
+欠測値を含む引数に関する処理として、初期設定では引数の要素に欠測値が含まれるとエラーを出力しますが、`any_missing = True` を指定した場合、欠測値を除外した上でアサーションを実施します。
+
+```python
+l = [1, 2, None]
+build.assert_numeric(l, arg_name = 'l')
+#> ValueError: Argument `l` contains missing values (element '2').
+
+build.assert_numeric(l, arg_name = 'l', any_missing = True)
+```
+
+また、引数に `None` が指定されると初期設定ではエラーを出力しますが、`nullable = True` で `None` を許容することができます。この場合、`nullable = True` で `arg` に `None` が代入された場合、引数の型や値に関するアサーションは省略されます。
+
+```python
+build.assert_numeric(None, arg_name = 'x')
+#> ValueError: Argument `x` contains only missing values.
+
+build.assert_numeric(None, arg_name = 'x', nullable = True)
+```
+
 
 ## 参照
 

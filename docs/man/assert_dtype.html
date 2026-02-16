@@ -663,6 +663,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>build.assert_numeric(x, arg_name <span class="op">=</span> <span class="st">'x'</span>, len_max <span class="op">=</span> <span class="dv">2</span>)</span>
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ValueError: Argument `x` must have length 1 &lt;= n &lt;= 2, but has length 3.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>欠測値を含む引数に関する処理として、初期設定では引数の要素に欠測値が含まれるとエラーを出力しますが、<code>any_missing = True</code> を指定した場合、欠測値を除外した上でアサーションを実施します。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>l <span class="op">=</span> [<span class="dv">1</span>, <span class="dv">2</span>, <span class="va">None</span>]</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>build.assert_numeric(l, arg_name <span class="op">=</span> <span class="st">'l'</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ValueError: Argument `l` contains missing values (element '2').</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>build.assert_numeric(l, arg_name <span class="op">=</span> <span class="st">'l'</span>, any_missing <span class="op">=</span> <span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>また、引数に <code>None</code> が指定されると初期設定ではエラーを出力しますが、<code>nullable = True</code> で <code>None</code> を許容することができます。この場合、<code>nullable = True</code> で <code>arg</code> に <code>None</code> が代入された場合、引数の型や値に関するアサーションは省略されます。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>build.assert_numeric(<span class="va">None</span>, arg_name <span class="op">=</span> <span class="st">'x'</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ValueError: Argument `x` contains only missing values.</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>build.assert_numeric(<span class="va">None</span>, arg_name <span class="op">=</span> <span class="st">'x'</span>, nullable <span class="op">=</span> <span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="参照" class="level2">
 <h2 class="anchored" data-anchor-id="参照">参照</h2>
