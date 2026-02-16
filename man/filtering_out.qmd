@@ -11,6 +11,7 @@
 ```python
 filtering_out(
     data: IntoFrameT,
+    *args: Union[str, List[str], narwhals.Expr, narwhals.selectors.Selector], 
     contains: Optional[str] = None,
     starts_with: Optional[str] = None,
     ends_with: Optional[str] = None,
