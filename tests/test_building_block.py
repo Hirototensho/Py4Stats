@@ -2,6 +2,7 @@
 import pytest
 import pandas as pd
 import polars as pl
+import numpy as np
 
 from py4stats import building_block as build
 from contextlib import nullcontext
@@ -261,6 +262,21 @@ def test_assert_count_requires_nonnegative_integer():
     build.assert_count([0, 1, 10], arg_name="n")
     with pytest.raises(ValueError):
         build.assert_count([-1, 1], arg_name="n")
+
+# =========================================================
+# assert_function
+# =========================================================
+
+@pytest.mark.parametrize("arg, expectation", [
+    pytest.param(max,  nullcontext()),
+    pytest.param(np.mean,  nullcontext()),
+    pytest.param(1,  pytest.raises(TypeError, match=r"must be of type 'Callable'")),
+    pytest.param([1, 2, 3],  pytest.raises(TypeError, match=r"must be of type 'Callable'")),
+])
+
+def test_assert_function(arg, expectation):
+    with expectation:
+        build.assert_function(arg)
 
 # =========================================================
 # assert_literal

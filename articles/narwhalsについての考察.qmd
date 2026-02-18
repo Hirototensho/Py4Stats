@@ -1,5 +1,108 @@
 # narwhals についての考察
 
+## `nw.from_native()` を用いた型変換のオーバーヘッド
+
+narwhals の公式ドキュメント [Overhead](https://narwhals-dev.github.io/narwhals/overhead/) には、narwhals を経由したデータフレームを操作することによるパフォーマンス上のオーバーヘッドは僅かなものだと報告されています。
+
+一方で、最低限必要な回数以上に `nw.from_native()` 関数が呼び出された場合はどうでしょうか。具体的には、次のコードのようにある関数が内部で依存している関数もまた `nw.from_native()` を呼び出しているというケースです。これは `eda_tools` モジュールの各所で見られます。
+
+``` python
+def f(data):
+    data_nw = nw.from_native(data)
+    return data_nw.implementation
+
+def g(data):
+    data_nw = nw.from_native(data)
+    return f(data_nw)
+
+def h(data):
+    data_nw = nw.from_native(data)
+    return g(data_nw)
+```
+
+seaborn ライブラリの `diamonds` データを例に上記の関数を実行してみると、結果は次のとおりで私の実行環境では 0.3〜0.4 μs 程度のオーバーヘッドがあることが分かります。
+
+``` python
+diamonds = sns.load_dataset('diamonds')
+
+%timeit f(diamonds)
+#> 10.3 µs ± 48.9 ns per loop (mean ± std. dev. of 7 runs, 100,000 loops each)
+%timeit g(diamonds)
+#> 10.7 µs ± 14.2 ns per loop (mean ± std. dev. of 7 runs, 100,000 loops each)
+%timeit h(diamonds)
+#> 11 µs ± 40 ns per loop (mean ± std. dev. of 7 runs, 100,000 loops each)
+```
+
+このオーバーヘッドは `eda_tools` モジュールで実装している集計・可視化処理の実行時間全体から見ると僅かなものだと思います。僅かなオーバーヘッドを避けるために、ユーザー関数から呼び出される関数（上記の例で言えば `f()`）を `nw.DataFrame` 専用の関数として実装するよりは、オーバーヘッドを受け入れて、単体でもバックエンドを問わずに実行できる関数として実装しておく方が保守性とユーザビリティの面で有益だと思われます。
+
+## narwhals 互換データフレームの変換
+
+### `py4stats.eda_tools` モジュールにおける `nw.from_native()` と `.to_native()` の使用方法
+
+`py4stats.eda_tools` モジュールでは、[`diagnose()`](../man/diagnose.qmd) に代表される DataFrame を受け取り DataFrame を返す関数の全てで、処理の冒頭で `nw.from_native()` 関数で受け取ったデータフレームを nw.DataFrame に変換し、最後に `.to_native()` メソッドで引数として代入されたデータフレームの型（以下, native 型）に変換してから、出力する処理を行なっています。
+
+出力時に native 型への変換を行うかどうかについては、`to_native` という(そのまんまな名前の) bool 型の引数を使った if 文で制御できるようにしており、これは返り値の型を nw.DataFrame に固定することで `foo()` 関数を内部実装として再利用する際に、nw.DataFrame 型のメソッドを確実に使用できるようにするためです。
+
+``` python
+def foo(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
+    data_nw = nw.from_native(data)          # nw.DataFrame への変換
+
+    ... # 何かしらの処理
+    
+    if to_native: return result.to_native() # native 型への変換
+    return result
+``` 
+
+
+### `to_native()` の使用を if 文で制御するコスト
+
+前述の通り、`py4stats.eda_tools` モジュールの関数では、返り値を native 型のデータフレームとして返すかどうかを if 文で制御していますが、この実装方法は理になかっているでしょうか。具体的には、
+`nw.from_native()` のオーバーヘッドが十分に小さいなら `nw.from_native(foo(data))` のように書けばよく、if 文による制御コストの方が上回ってしまうのではないでしょうか。また、narwhals で提供されているデコレーター `@nw.narwhalify` を使った場合と違いはあるでしょうか。
+
+結論としては、毎回 `nw.from_native()` / `df.to_native()`　を使っても、デコレーターを使っても、あるいは if 文で制御してもパフォーマンス上の大きな違いはありません。
+
+以下のコードではこれを実際に検証しています。
+
+``` python 
+def f(data):
+    data_nw = nw.from_native(data)
+    result = data_nw.select(ncs.numeric())
+    return result.to_native()
+
+def g(data, to_native = True):
+    data_nw = nw.from_native(data)
+    result = data_nw.select(ncs.numeric())
+    if to_native: return result.to_native()
+    return result
+
+def h(data_nw):
+    result = data_nw.select(nw.all().mean())
+    return result
+
+@nw.narwhalify
+def f2(data):
+    result = data.select(ncs.numeric())
+    return result
+
+@nw.narwhalify
+def h2(data_nw):
+    result = data_nw.select(nw.all().mean())
+    return result
+```
+
+``` python
+diamonds = sns.load_dataset('diamonds')
+
+%timeit h(nw.from_native(f(diamonds)))      # (1) 常に to_native を使う
+#> 773 μs ± 11.5 μs per loop (mean ± std. dev. of 7 runs, 1,000 loops each)
+
+%timeit h((g(diamonds, to_native = False))) # (2) to_native の使用を if 文で制御する
+#> 753 μs ± 1.51 μs per loop (mean ± std. dev. of 7 runs, 1,000 loops each)
+
+%timeit h2(f2(diamonds))                    # (3) @nw.narwhalify で変換する
+#> 779 μs ± 3.38 μs per loop (mean ± std. dev. of 7 runs, 1,000 loops each)
+``` 
+
 ## narwhals での再現が難しい Pandas の機能
 
 ### 異なるデータフレーム間の二項演算
@@ -22,7 +125,6 @@ data_nw.group_by(nw.col(group)).agg(nw.col('x').mean())
 
 という形でグループ別の集計がサポートされているものの、ここで使用できる集計関数は narwhals で実装されているものに限定されるようで、次のような方法で自作関数を使用することはできません。
 
-
 ``` python
 data_nw.group_by(nw.col(group)).agg(nw.col('x').my_func())
 data_nw.group_by(nw.col(group)).agg(my_func(nw.col('x')))
@@ -43,6 +145,170 @@ stat_values = [
 また、上記の回避策のもう1つの問題として、`data_nw.filter(nw.col(group) == g)` では、複数の変数に基づくグループ化に対応できないことも挙げられます。`make_rank_table()` 関数については、`Pareto_plot()` 関数でパレート図を作図するときに横軸になる `group` が多変数だと対応できないので、`group` が1変数（= 引数として1つの文字列だけを受け付ける）とすることで妥協しています。
 
 ただ、現時点で [`narwhals.GroupBy`](https://narwhals-dev.github.io/narwhals/api-reference/group_by/) クラスに実装されているメソッドは `.agg()` しかなく、開発が進めばより柔軟な関数適用が可能になるのではないかと期待しています。
+
+### 追記（2026年2月18日）
+
+nw.DataFrame で任意の関数を使った集計を実現する方法として、Py4Stats v0.5.0 では [`group_map()`](../man/tabyl.qmd) 関数と [`group_modify()`](../man/tabyl.qmd) 関数を新たに導入しました。これらの関数は、データフレームを変数を基準としたグループに分割した上で、その部分集合に対して個別に任意の関数を適用するという単純なもので、パフォーマンス面では必ずしも最適化されていません。したがって、下記のような `pd.DataFrame.groupby()` や  `nw.DataFrame.group_by()` で実現できる範疇のシンプルな集計操作なら、これらの既存のメソッドを用いた方が高速なのが実情です。
+
+``` python
+diamonds = sns.load_dataset('diamonds')
+diamonds_nw = nw.from_native(diamonds)
+
+%timeit -r 10 -n 10 diamonds.groupby('cut', observed = True)['price'].mean()
+#> 814 μs ± 157 μs per loop (mean ± std. dev. of 10 runs, 10 loops each)
+
+%timeit -r 10 -n 10  diamonds_nw.group_by('cut').agg(nw.col('price').mean())
+#> The slowest run took 4.80 times longer than the fastest. This could mean that an intermediate result is being cached.
+#> 1.58 ms ± 1.12 ms per loop (mean ± std. dev. of 10 runs, 10 loops each)
+
+# Py4Stats の関数
+%timeit -r 10 -n 10 py4st.group_map(diamonds, 'cut', func = lambda df: df['price'].mean())
+#> 9.7 ms ± 1.99 ms per loop (mean ± std. dev. of 10 runs, 10 loops each)
+
+%timeit -r 10 -n 10 py4st.group_modify(diamonds, 'cut', func = lambda df: df['price'].mean())
+#> 17.1 ms ± 4.99 ms per loop (mean ± std. dev. of 10 runs, 10 loops each)
+``` 
+
+## narwhals 独自の UI が露出することの是非
+
+本節の前提として、`py4stats.eda_tools` の関数を実装するに当たり、ユーザーに内部実装に関する知識や narwhals に関する知識を要求しないために、narwhals 独自 UI の使用をユーザーに強制するような関数の実装は避けたいと考えています。
+
+例えば、データフレームの列を選択した上で、何かしらの処理を加える次のような関数を考えてみましょう。
+
+``` python
+def transform(
+    data: IntoFrameT, 
+    *exprs: IntoExpr | Iterable[IntoExpr],
+    **named_exprs: IntoExpr
+):
+    data_nw = nw.from_native(data)
+    result = data_nw.with_columns(exprs, **named_exprs)
+    ...
+
+    return result.to_native()
+```
+
+この関数は `nw.DataFrame.with_columns()` メソッドでデータフレームに列変換を加えた上で、追加の処理を行う関数です。
+
+`transform()` 関数の問題点の1つは、`*exprs` や `**named_exprs` 引数に nw.Expr クラスや nw.Selector クラスのオブジェクトを代入する必要があり、ユーザーに narwhals の仕様に関する知識を要求してしまうことです。narwhals に慣れたユーザーにとってはバックエンドを問わず同じ UI で列変換を行えることは便利ですが、Pandas や polars といった特定のバックエンドには慣れているものの、narwhals については全く知らないという大部分のユーザーにとっては慣れた操作が通用しない、非直感的なものに感じられるでしょう。したがって、引数に nw.Expr クラスや nw.Selector クラスのオブジェクトを代入しないと利用出来ない関数の実装は避けるべきだと考えています。
+
+
+`py4stats.eda_tools` モジュールにおいても、[`relocate()`](../man/relocate.qmd) 関数や [`filtering_out()`](../man/filtering_out.qmd) 関数の `*args` 引数は nw.Expr や nw.Selector を受け入れられるようになっていますが、文字列や文字列のリストも指定できて nw.Expr や nw.Selector の使用は必須ではないため、許容範囲内ではないかと考えています。
+
+## Narwhals DataFrame に列を代入する方法
+
+``` python
+from plotnine.data import mtcars
+data_nw = nw.from_native(mtcars.iloc[:4, :3])
+data_nw
+#> ┌────────────────────────────┐
+#> |     Narwhals DataFrame     |
+#> |----------------------------|
+#> |             name   mpg  cyl|
+#> |0       Mazda RX4  21.0    6|
+#> |1   Mazda RX4 Wag  21.0    6|
+#> |2      Datsun 710  22.8    4|
+#> |3  Hornet 4 Drive  21.4    6|
+#> └────────────────────────────┘
+```
+
+narwhals DataFrame への列の代入には、次のような特徴があります。
+
+1. `df['col'] = value` 形式の代入は使えない
+2. `.with_columns()` メソッドでの代入
+3. `nw.Series.from_iterable()` を使った nw.Series への変換
+
+### 1. `df['col'] = value` 形式の代入は使えない
+
+前節でも取り上げた通り、narwhals DataFrame では `df['col'] = value` 形式の代入をサポートしていないため、これを実行しようとすると次のようなエラーが出力されます。
+
+``` python
+data_nw['const'] = 1
+#> TypeError: 'DataFrame' object does not support item assignment
+data_nw['cyl6'] = data_nw['cyl'] == 6
+#> TypeError: 'DataFrame' object does not support item assignment
+```
+
+### 2. `.with_columns()` メソッドでの代入
+
+`nw.DataFrame.with_columns()` メソッドを使うことで、既存列から算出された変数や定数の代入を行うことができます。
+
+``` python
+data_nw.with_columns(
+    (2 * nw.col('mpg')).alias('mpg2'),
+    cyl6 = (nw.col('cyl') == 6),
+    const = nw.lit(1)
+)
+#> ┌────────────────────────────────────────────────┐
+#> |               Narwhals DataFrame               |
+#> |------------------------------------------------|
+#> |             name   mpg  cyl  mpg2   cyl6  const|
+#> |0       Mazda RX4  21.0    6  42.0   True      1|
+#> |1   Mazda RX4 Wag  21.0    6  42.0   True      1|
+#> |2      Datsun 710  22.8    4  45.6  False      1|
+#> |3  Hornet 4 Drive  21.4    6  42.8   True      1|
+#> └────────────────────────────────────────────────┘
+```
+
+また、`.with_columns()` メソッドを使うことで Series オブジェクトを列として代入することができ、nw.Series を出力する関数の結果を列に代入することもできます。
+
+``` python
+mpg2 = data_nw['mpg'] / 10
+
+def sq(s): return (s**2).mean() 
+
+data_nw.with_columns(
+    mpg2 = mpg2,
+    mpg_sq = sq(nw.col('mpg')),
+    mpg_sc = py4st.scale(data_nw['mpg'], to_native = False)
+)
+#> ┌────────────────────────────────────────────────────┐
+#> |                 Narwhals DataFrame                 |
+#> |----------------------------------------------------|
+#> |             name   mpg  cyl  mpg2  mpg_sq    mpg_sc|
+#> |0       Mazda RX4  21.0    6  2.10  464.95 -0.643726|
+#> |1   Mazda RX4 Wag  21.0    6  2.10  464.95 -0.643726|
+#> |2      Datsun 710  22.8    4  2.28  464.95  1.463014|
+#> |3  Hornet 4 Drive  21.4    6  2.14  464.95 -0.175562|
+#> └────────────────────────────────────────────────────┘
+```
+
+ただし、`.with_columns()` メソッドに代入して列定義に使えるものは、`nw.col()` や `nw.lit()` で作成された nw.Expr や `ncs.numeric()` で作成された nw.Selector オブジェクト、もしくは nw.Series に限定されるため、nw.Series 以外の iterable オブジェクトを代入するには工夫が必要です。
+
+### 3. `nw.Series.from_iterable()` を使った nw.Series への変換
+
+前述の通り、`.with_columns()` メソッドに代入できるオブジェクトは nw.Expr や nw.Series に限定され、pd.Series や np.ndarray、list といったオブジェクトを直接代入することはできません。これらのオブジェクトを代入しようとすると、それぞれ次のようなエラーが出力されます。
+
+``` python
+mpg_pd = data_nw['mpg'].to_pandas() / 10
+data_nw.with_columns(mpg_pd)
+#> TypeError: Expected Narwhals class or scalar, got: 'pandas.core.series.Series'.
+
+mpg_np = data_nw['mpg'].to_numpy() / 10
+data_nw.with_columns(mpg_np)
+# #> InvalidIntoExprError: Expected an object which can be converted into an expression ...
+```
+
+これらの iterable オブジェクトを nw.DataFrame の列に追加したい場合には、`nw.Series.from_iterable()` 関数を使って nw.Series に変換すると `.with_columns()` メソッドで代入できるようになります。
+
+``` python
+mpg_np = nw.Series.from_iterable(
+    'mpg_np', mpg_np,
+    backend = data_nw.implementation
+)
+data_nw.with_columns(mpg_np)
+#> ┌────────────────────────────────────┐
+#> |         Narwhals DataFrame         |
+#> |------------------------------------|
+#> |             name   mpg  cyl  mpg_np|
+#> |0       Mazda RX4  21.0    6    2.10|
+#> |1   Mazda RX4 Wag  21.0    6    2.10|
+#> |2      Datsun 710  22.8    4    2.28|
+#> |3  Hornet 4 Drive  21.4    6    2.14|
+#> └────────────────────────────────────┘
+``` 
+
+この方法については nw.Expr や nw.Selector を使った場合と比べて計算コストが増加しているのではないかと思われます。
 
 ## narwhals におけるバックエンドとその書き換え
 
@@ -179,8 +445,3 @@ print(result.implementation)
 result.schema
 #> Schema([('species', Categorical), ('island', Categorical)])
 ```
-
-
-
-
-

@@ -168,6 +168,7 @@ import varname
 import collections
 import textwrap
 import warnings
+from functools import singledispatch
 # from functools import partial
 
 
@@ -208,7 +209,7 @@ ArrayLike = Union[NumberLike, Sequence[NumberLike], np.ndarray, pd.Series]
 # StrArrayLike = Union[str, list[str], np.ndarray, pd.Series]
 
 # p-value などは 0..1 の数値配列として扱うことが多い
-# Sequence[int, float, np.number] = ArrayLike
+# Sequence[int, float, np.number] = Sequence[int, float, np.number]
 
 
 
@@ -504,6 +505,9 @@ def match_arg(arg: str, values: list[str], arg_name: str = "argument") -> str:
     Returns:
     - The matched arg if found in values (partially), otherwise raises an ArgumentError.
     """
+    if(arg_name is None):
+        arg_name = varname.argname('arg')
+
     if(arg in values):
       return arg
     else:
@@ -1185,33 +1189,121 @@ def num_percent(x: NumberLike, digits: int = 2) -> str:
 
 
 
-def style_number(x: ArrayLike, digits: int = 2, big_mark: str = ",") -> pd.Series:
+def style_number(x: Sequence[int, float, np.number], digits: int = 2, big_mark: str = ",") -> pd.Series:
+  """
+  Format numeric sequences into human-readable strings.
+
+  These functions convert a sequence of numeric values into a
+  `pandas.Series` of formatted strings for presentation purposes.
+  All functions validate inputs and return a new Series without
+  modifying the original data.
+
+  The three variants differ only in their formatting rules:
+
+  - ``style_number()``:
+      Format values as fixed-point numbers with optional thousands
+      separators.
+
+  - ``style_currency()``:
+      Format values as currency strings by adding a prefix symbol
+      (e.g., "$") and applying fixed-point formatting.
+
+  - ``style_percent()``:
+      Scale values by a specified unit (default: 100) and append
+      a suffix symbol (e.g., "%") for percentage-style display.
+
+  Args:
+      x (Sequence[Union[int, float, numpy.number]]):
+          A sequence of numeric values to be formatted. The input is
+          internally converted to a ``pandas.Series``.
+      digits (int, optional):
+          Number of digits after the decimal point. Defaults vary by
+          function:
+
+          - ``style_number()``: 2
+          - ``style_currency()``: 0
+          - ``style_percent()``: 2
+
+      big_mark (str, optional):
+          Thousands separator used in ``style_number()`` and
+          ``style_currency()``. Must be one of {",", "_", ""}.
+          Defaults to ",".
+
+      symbol (str, optional):
+          Symbol added to the formatted output.
+
+          - In ``style_currency()``, this is a prefix (default: "$").
+          - In ``style_percent()``, this is a suffix (default: "%").
+
+      unit (float, optional):
+          Scaling factor applied before formatting in
+          ``style_percent()``. Defaults to 100.
+
+  Returns:
+      pandas.Series:
+          A Series of formatted string representations.
+
+  Raises:
+      TypeError:
+          If ``x`` contains non-numeric values, or if numeric
+          parameters are invalid.
+      ValueError:
+          If arguments such as ``big_mark`` are not among the
+          allowed choices.
+
+  Examples:
+      >>> from py4stats import building_block as build
+      >>> x = [1000, 100, 0.5, 0.11, 0.123]
+
+      >>> print(build.style_number(x).to_list())
+      ['1,000.00', '100.00', '0.50', '0.11', '0.12']
+
+      >>> print(build.style_currency(x).to_list())
+      ['$1,000', '$100', '$0', '$0', '$0']
+
+      >>> pct = [0.11, 0.06, 0.05, 0.01, 0.00234]
+
+      >>> print(build.style_percent(pct).to_list())
+      ['11.00%', '6.00%', '5.00%', '1.00%', '0.23%']
+
+      >>> print(build.style_percent(pct, unit=1000, symbol='‰').to_list())
+      ['110.00‰', '60.00‰', '50.00‰', '10.00‰', '2.34‰']
+  """
+
   x = pd.Series(x)
 
   assert_numeric(x, arg_name = 'x')
-  assert_count(digits, arg_name = 'digits')
-
+  assert_count(digits, arg_name = 'digits', len_arg = 1)
   arg_match(big_mark, [',', '_', ''], arg_name = 'big_mark')
 
   return x.apply(lambda v: f'{v:{big_mark}.{digits}f}')
 
-def style_currency(x: ArrayLike, symbol: str = "$", digits: int = 0, big_mark: str = ",") -> pd.Series:
+
+
+
+def style_currency(x: Sequence[int, float, np.number], digits: int = 0, symbol: str = "$", big_mark: str = ",") -> pd.Series:
   x = pd.Series(x)
 
   assert_numeric(x, arg_name = 'x')
-  assert_count(digits, arg_name = 'digits')
+  assert_count(digits, arg_name = 'digits', len_arg = 1)
+  assert_character(symbol, arg_name = 'symbol', len_arg = 1)
 
   arg_match(big_mark, [',', '_', ''], arg_name = 'big_mark')
 
   return x.apply(lambda v: f'{symbol}{v:{big_mark}.{digits}f}')
 
-def style_percent(x: ArrayLike, digits: int = 2, unit: float = 100, symbol: str = "%") -> pd.Series:
+def style_percent(x: Sequence[int, float, np.number], digits: int = 2, unit: Union[int, float] = 100, symbol: str = "%") -> pd.Series:
   x = pd.Series(x)
 
   assert_numeric(x, arg_name = 'x')
-  assert_count(digits, arg_name = 'digits')
+  assert_count(digits, arg_name = 'digits', len_arg = 1)
+  assert_numeric(unit, arg_name = 'unit', len_arg = 1)
+  assert_character(symbol, arg_name = 'symbol', len_arg = 1)
 
   return x.apply(lambda v: f'{v*unit:.{digits}f}{symbol}')
+
+style_currency.__doc__ = style_number.__doc__
+style_percent.__doc__ = style_number.__doc__
 
 
 

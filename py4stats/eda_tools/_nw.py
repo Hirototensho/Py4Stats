@@ -246,7 +246,7 @@ import itertools
 import narwhals
 import narwhals as nw
 import narwhals.selectors as ncs
-from narwhals.typing import FrameT, IntoFrameT, SeriesT, IntoSeriesT
+from narwhals.typing import FrameT, IntoFrameT, SeriesT, IntoSeriesT, IntoExpr
 
 import pandas_flavor as pf
 
@@ -294,6 +294,17 @@ DataLike = Union[pd.Series, pd.DataFrame]
 def is_intoframe(obj: object) -> bool:
     try:
         _ = nw.from_native(obj)
+        return True
+    except Exception:
+        return False
+
+
+# In[ ]:
+
+
+def is_intoseries(obj: object) -> bool:
+    try:
+        _ = nw.from_native(obj, series_only = True)
         return True
     except Exception:
         return False
@@ -387,30 +398,51 @@ def as_nw_series(arg: Any, arg_name: str = 'data', **keywargs):
 # In[ ]:
 
 
-def assign_nw(data_nw: nw.DataFrame, assignment: Mapping[str, Iterable]):
+def _cast_assignment(key, value, backend):
+    if isinstance(value, nw.expr.Expr) : return value
+    if is_intoseries(value): return nw.from_native(value, series_only = True)
+    if isinstance(value, Iterable) : 
+        result = nw.Series.from_iterable(
+            key, value, backend = backend
+        )
+        return result
+
+def assign_nw(
+        data: nw.DataFrame, 
+        *exprs: IntoExpr | Iterable[IntoExpr],
+        **named_exprs: Mapping[str, Iterable]
+        ):
     """Narwhals DataFrame の列に Iterable オブジェクトを代入する
-    >>> data_nw = nw.from_native(load_penguins())
-    >>> penguins_nw.pipe(assign_nw,{
-    ...    'body_mass_kg': data_nw['body_mass_g'] / 1000,
-    ...    'bill_length_mm': pd.cut(data_nw['bill_length_mm'], bins = 10, labels = False)
-    ...    }).select(ncs.matches('bill|body')).head(2)
-        ┌───────────────────────────────────────────────────────────┐
-        |                    Narwhals DataFrame                     |
-        |-----------------------------------------------------------|
-        |   bill_length_mm  bill_depth_mm  body_mass_g  body_mass_kg|
-        |0             2.0           18.7       3750.0          3.75|
-        |1             2.0           17.4       3800.0          3.80|
-        └───────────────────────────────────────────────────────────┘
+    data_nw = nw.from_native(load_penguins())
+    data_nw.pipe(assign_nw,
+        nw.lit(1).alias('const'),
+        nw.col('body_mass_g') / 1000,
+        bill_size = nw.col('bill_length_mm') * nw.col('bill_depth_mm'),
+        heavy = nw.col('body_mass_g') > 4000,
+        cutted = pd.cut(data_nw['bill_length_mm'], bins = 10, labels = False),
+    ).select(ncs.matches('bill|body|heavy|cutted|const')).head(2)
+    #> ┌───────────────────────────────────────────────┐
+    #> |              Narwhals DataFrame               |
+    #> |-----------------------------------------------|
+    #> |   body_mass_g  const  bill_size  heavy  cutted|
+    #> |0         3.75      1     731.17  False     2.0|
+    #> |1         3.80      1     687.30  False     2.0|
+    #> └───────────────────────────────────────────────┘
     """
-    result = data_nw.clone()
-    for key, val in zip(assignment.keys(), assignment.values()):
+    data_nw = as_nw_datarame(data)
 
-        val_nw = nw.Series.from_iterable(
-            key, values = val, 
-            backend = data_nw.implementation
-            )
+    exprs = [
+        as_nw_series(value) if is_intoseries(value)
+        else value
+        for value in exprs
+    ]
 
-        result = result.with_columns(val_nw.alias(key))
+    named_exprs = {
+        key: _cast_assignment(key, value, data_nw.implementation)
+        for key, value in zip(named_exprs.keys(), named_exprs.values())
+    }
+
+    result = data_nw.with_columns(exprs, **named_exprs)
 
     return result
 
@@ -2876,8 +2908,8 @@ def is_constant(data: IntoSeriesT, dropna: bool = True) -> bool:
 def remove_constant(
     data: IntoFrameT,
     quiet: bool = True,
-    to_native: bool = True,
     dropna = False,
+    to_native: bool = True,
     **kwargs: Any
 ) -> IntoFrameT:
     """Remove constant columns (columns with only one unique value).

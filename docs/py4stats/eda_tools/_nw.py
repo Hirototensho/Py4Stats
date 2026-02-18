@@ -387,13 +387,13 @@ def as_nw_series(arg: Any, arg_name: str = 'data', **keywargs):
 # In[ ]:
 
 
-def assign_nw(data_nw: nw.DataFrame, assignment: Mapping[str, Iterable]):
+def assign_nw(data_nw: nw.DataFrame, **assignment: Mapping[str, Iterable]):
     """Narwhals DataFrame の列に Iterable オブジェクトを代入する
     >>> data_nw = nw.from_native(load_penguins())
-    >>> penguins_nw.pipe(assign_nw,{
-    ...    'body_mass_kg': data_nw['body_mass_g'] / 1000,
-    ...    'bill_length_mm': pd.cut(data_nw['bill_length_mm'], bins = 10, labels = False)
-    ...    }).select(ncs.matches('bill|body')).head(2)
+    >>> data_nw.pipe(assign_nw,
+    ...    body_mass_kg = data_nw['body_mass_g'] / 1000,
+    ...    bill_length_mm = pd.cut(data_nw['bill_length_mm'], bins = 10, labels = False)
+    ...    ).select(ncs.matches('bill|body')).head(2)
         ┌───────────────────────────────────────────────────────────┐
         |                    Narwhals DataFrame                     |
         |-----------------------------------------------------------|
@@ -2876,8 +2876,8 @@ def is_constant(data: IntoSeriesT, dropna: bool = True) -> bool:
 def remove_constant(
     data: IntoFrameT,
     quiet: bool = True,
-    to_native: bool = True,
     dropna = False,
+    to_native: bool = True,
     **kwargs: Any
 ) -> IntoFrameT:
     """Remove constant columns (columns with only one unique value).

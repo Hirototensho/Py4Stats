@@ -6,7 +6,7 @@
 
 ## 概要
 
-`relocate()` 関数は、データフレームに含まれる列を削除することなく並び替えるための関数です。指定した列（1 列または複数列）を、先頭・特定の列の前・特定の列の後に移動させることができます。本関数は、R の [`dplyr:relocate()`](https://dplyr.tidyverse.org/reference/relocate.html) に近い操作感を Python で提供することを目的としています。列の指定には、列名（文字列）だけでなく、`narwhals` の式（Expr）や `Selector` を利用でき、柔軟な列選択
+`relocate()` 関数は、データフレームに含まれる列を削除することなく並び替えるための関数です。指定した列（1 列または複数列）を、先頭・特定の列の前・特定の列の後に移動させることができます。本関数は、R の [`dplyr:relocate()`](https://dplyr.tidyverse.org/reference/relocate.html) に近い操作感を Python で提供することを目的としています。列の指定には、列名（文字列）だけでなく、`narwhals` の式（Expr）や nw.Selector を用いた柔軟な列選択にも対応しています。
 
 ``` python
 relocate(

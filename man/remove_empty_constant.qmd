@@ -22,8 +22,8 @@ remove_empty(
 remove_constant(
     data: IntoFrameT,
     quiet: bool = True,
-    to_native: bool = True,
     dropna = False,
+    to_native: bool = True,
     **kwargs: Any
 )
 ```
