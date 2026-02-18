@@ -195,7 +195,30 @@ GT(compare_tab.reset_index())
 
 ![compare_ols() で作成した回帰分析の表](image/group_map_compare_ols.png)
 
-## Note 
+## 注意点 Note 
+
+これらの関数は、データフレームを変数を基準としたグループに分割した上で、その部分集合に対して個別に任意の関数を適用するという単純なもので、パフォーマンス面では必ずしも最適化されていません。したがって、下記のような `pd.DataFrame.groupby()` や  `nw.DataFrame.group_by()` で実現できる範疇のシンプルな集計操作であれば、既存のメソッドを用いた方が高速なのが実情です。
+
+``` python
+diamonds = sns.load_dataset('diamonds')
+diamonds_nw = nw.from_native(diamonds)
+
+%timeit -r 10 -n 10 diamonds.groupby('cut', observed = True)['price'].mean()
+#> 814 μs ± 157 μs per loop (mean ± std. dev. of 10 runs, 10 loops each)
+
+%timeit -r 10 -n 10  diamonds_nw.group_by('cut').agg(nw.col('price').mean())
+#> The slowest run took 4.80 times longer than the fastest. This could mean that an intermediate result is being cached.
+#> 1.58 ms ± 1.12 ms per loop (mean ± std. dev. of 10 runs, 10 loops each)
+
+# Py4Stats の関数
+%timeit -r 10 -n 10 py4st.group_map(diamonds, 'cut', func = lambda df: df['price'].mean())
+#> 9.7 ms ± 1.99 ms per loop (mean ± std. dev. of 10 runs, 10 loops each)
+
+%timeit -r 10 -n 10 py4st.group_modify(diamonds, 'cut', func = lambda df: df['price'].mean())
+#> 17.1 ms ± 4.99 ms per loop (mean ± std. dev. of 10 runs, 10 loops each)
+``` 
+
+## 参考
 
 本節の関数を実装するにあたり、関数名や機能について [`dplyr`](https://dplyr.tidyverse.org/index.html) パッケージの [`group_split()`](https://dplyr.tidyverse.org/reference/group_split.html)、[`group_map()`](https://dplyr.tidyverse.org/reference/group_map.html) および [`group_modify()`](https://dplyr.tidyverse.org/reference/group_map.html) を参考にしました。
 

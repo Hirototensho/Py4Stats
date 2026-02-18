@@ -479,7 +479,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#返り値-value" id="toc-返り値-value" class="nav-link" data-scroll-target="#返り値-value">返り値 Value</a></li>
   </ul></li>
   <li><a href="#使用例-example" id="toc-使用例-example" class="nav-link" data-scroll-target="#使用例-example">使用例 Example</a></li>
-  <li><a href="#note" id="toc-note" class="nav-link" data-scroll-target="#note">Note</a></li>
+  <li><a href="#注意点-note" id="toc-注意点-note" class="nav-link" data-scroll-target="#注意点-note">注意点 Note</a></li>
+  <li><a href="#参考" id="toc-参考" class="nav-link" data-scroll-target="#参考">参考</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/main/man/grouped_operation.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></nav>
     </div>
@@ -679,8 +680,28 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </figure>
 </div>
 </section>
-<section id="note" class="level2">
-<h2 class="anchored" data-anchor-id="note">Note</h2>
+<section id="注意点-note" class="level2">
+<h2 class="anchored" data-anchor-id="注意点-note">注意点 Note</h2>
+<p>これらの関数は、データフレームを変数を基準としたグループに分割した上で、その部分集合に対して個別に任意の関数を適用するという単純なもので、パフォーマンス面では必ずしも最適化されていません。したがって、下記のような <code>pd.DataFrame.groupby()</code> や <code>nw.DataFrame.group_by()</code> で実現できる範疇のシンプルな集計操作であれば、既存のメソッドを用いた方が高速なのが実情です。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>diamonds <span class="op">=</span> sns.load_dataset(<span class="st">'diamonds'</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>diamonds_nw <span class="op">=</span> nw.from_native(diamonds)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>timeit <span class="op">-</span>r <span class="dv">10</span> <span class="op">-</span>n <span class="dv">10</span> diamonds.groupby(<span class="st">'cut'</span>, observed <span class="op">=</span> <span class="va">True</span>)[<span class="st">'price'</span>].mean()</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 814 μs ± 157 μs per loop (mean ± std. dev. of 10 runs, 10 loops each)</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>timeit <span class="op">-</span>r <span class="dv">10</span> <span class="op">-</span>n <span class="dv">10</span>  diamonds_nw.group_by(<span class="st">'cut'</span>).agg(nw.col(<span class="st">'price'</span>).mean())</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; The slowest run took 4.80 times longer than the fastest. This could mean that an intermediate result is being cached.</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1.58 ms ± 1.12 ms per loop (mean ± std. dev. of 10 runs, 10 loops each)</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Py4Stats の関数</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>timeit <span class="op">-</span>r <span class="dv">10</span> <span class="op">-</span>n <span class="dv">10</span> py4st.group_map(diamonds, <span class="st">'cut'</span>, func <span class="op">=</span> <span class="kw">lambda</span> df: df[<span class="st">'price'</span>].mean())</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 9.7 ms ± 1.99 ms per loop (mean ± std. dev. of 10 runs, 10 loops each)</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>timeit <span class="op">-</span>r <span class="dv">10</span> <span class="op">-</span>n <span class="dv">10</span> py4st.group_modify(diamonds, <span class="st">'cut'</span>, func <span class="op">=</span> <span class="kw">lambda</span> df: df[<span class="st">'price'</span>].mean())</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 17.1 ms ± 4.99 ms per loop (mean ± std. dev. of 10 runs, 10 loops each)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="参考" class="level2">
+<h2 class="anchored" data-anchor-id="参考">参考</h2>
 <p>本節の関数を実装するにあたり、関数名や機能について <a href="https://dplyr.tidyverse.org/index.html"><code>dplyr</code></a> パッケージの <a href="https://dplyr.tidyverse.org/reference/group_split.html"><code>group_split()</code></a>、<a href="https://dplyr.tidyverse.org/reference/group_map.html"><code>group_map()</code></a> および <a href="https://dplyr.tidyverse.org/reference/group_map.html"><code>group_modify()</code></a> を参考にしました。</p>
 <hr>
 <p><a href="../reference.html">Return to <strong>Function reference</strong>.</a></p>

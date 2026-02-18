@@ -472,11 +472,24 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#narwhals-での再現が難しい-pandas-の機能" id="toc-narwhals-での再現が難しい-pandas-の機能" class="nav-link active" data-scroll-target="#narwhals-での再現が難しい-pandas-の機能">narwhals での再現が難しい Pandas の機能</a>
+  <li><a href="#nw.from_native-を用いた型変換のオーバーヘッド" id="toc-nw.from_native-を用いた型変換のオーバーヘッド" class="nav-link active" data-scroll-target="#nw.from_native-を用いた型変換のオーバーヘッド"><code>nw.from_native()</code> を用いた型変換のオーバーヘッド</a></li>
+  <li><a href="#narwhals-互換データフレームの変換" id="toc-narwhals-互換データフレームの変換" class="nav-link" data-scroll-target="#narwhals-互換データフレームの変換">narwhals 互換データフレームの変換</a>
+  <ul class="collapse">
+  <li><a href="#py4stats.eda_tools-モジュールにおける-nw.from_native-と-.to_native-の使用方法" id="toc-py4stats.eda_tools-モジュールにおける-nw.from_native-と-.to_native-の使用方法" class="nav-link" data-scroll-target="#py4stats.eda_tools-モジュールにおける-nw.from_native-と-.to_native-の使用方法"><code>py4stats.eda_tools</code> モジュールにおける <code>nw.from_native()</code> と <code>.to_native()</code> の使用方法</a></li>
+  <li><a href="#to_native-の使用を-if-文で制御するコスト" id="toc-to_native-の使用を-if-文で制御するコスト" class="nav-link" data-scroll-target="#to_native-の使用を-if-文で制御するコスト"><code>to_native()</code> の使用を if 文で制御するコスト</a></li>
+  </ul></li>
+  <li><a href="#narwhals-での再現が難しい-pandas-の機能" id="toc-narwhals-での再現が難しい-pandas-の機能" class="nav-link" data-scroll-target="#narwhals-での再現が難しい-pandas-の機能">narwhals での再現が難しい Pandas の機能</a>
   <ul class="collapse">
   <li><a href="#異なるデータフレーム間の二項演算" id="toc-異なるデータフレーム間の二項演算" class="nav-link" data-scroll-target="#異なるデータフレーム間の二項演算">異なるデータフレーム間の二項演算</a></li>
   <li><a href="#データフレームへの値の代入" id="toc-データフレームへの値の代入" class="nav-link" data-scroll-target="#データフレームへの値の代入">データフレームへの値の代入</a></li>
   <li><a href="#任意の関数でグループ別集計を行う" id="toc-任意の関数でグループ別集計を行う" class="nav-link" data-scroll-target="#任意の関数でグループ別集計を行う">任意の関数でグループ別集計を行う</a></li>
+  <li><a href="#追記2026年2月18日" id="toc-追記2026年2月18日" class="nav-link" data-scroll-target="#追記2026年2月18日">追記（2026年2月18日）</a></li>
+  </ul></li>
+  <li><a href="#narwhals-dataframe-に列を代入する方法" id="toc-narwhals-dataframe-に列を代入する方法" class="nav-link" data-scroll-target="#narwhals-dataframe-に列を代入する方法">Narwhals DataFrame に列を代入する方法</a>
+  <ul class="collapse">
+  <li><a href="#dfcol-value-形式の代入は使えない" id="toc-dfcol-value-形式の代入は使えない" class="nav-link" data-scroll-target="#dfcol-value-形式の代入は使えない">1. <code>df['col'] = value</code> 形式の代入は使えない</a></li>
+  <li><a href="#with_columns-メソッドでの代入" id="toc-with_columns-メソッドでの代入" class="nav-link" data-scroll-target="#with_columns-メソッドでの代入">2. <code>.with_columns()</code> メソッドでの代入</a></li>
+  <li><a href="#nw.series.from_iterable-を使った-nw.series-への変換" id="toc-nw.series.from_iterable-を使った-nw.series-への変換" class="nav-link" data-scroll-target="#nw.series.from_iterable-を使った-nw.series-への変換">3. <code>nw.Series.from_iterable()</code> を使った nw.Series への変換</a></li>
   </ul></li>
   <li><a href="#narwhals-におけるバックエンドとその書き換え" id="toc-narwhals-におけるバックエンドとその書き換え" class="nav-link" data-scroll-target="#narwhals-におけるバックエンドとその書き換え">narwhals におけるバックエンドとその書き換え</a>
   <ul class="collapse">
@@ -508,6 +521,87 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
+<section id="nw.from_native-を用いた型変換のオーバーヘッド" class="level2">
+<h2 class="anchored" data-anchor-id="nw.from_native-を用いた型変換のオーバーヘッド"><code>nw.from_native()</code> を用いた型変換のオーバーヘッド</h2>
+<p>narwhals の公式ドキュメント <a href="https://narwhals-dev.github.io/narwhals/overhead/">Overhead</a> には、narwhals を経由したデータフレームを操作することによるパフォーマンス上のオーバーヘッドは僅かなものだと報告されています。</p>
+<p>一方で、最低限必要な回数以上に <code>nw.from_native()</code> 関数が呼び出された場合はどうでしょうか。具体的には、次のコードのようにある関数が内部で依存している関数もまた <code>nw.from_native()</code> を呼び出しているというケースです。これは <code>eda_tools</code> モジュールの各所で見られます。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> f(data):</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    data_nw <span class="op">=</span> nw.from_native(data)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> data_nw.implementation</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> g(data):</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    data_nw <span class="op">=</span> nw.from_native(data)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> f(data_nw)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> h(data):</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    data_nw <span class="op">=</span> nw.from_native(data)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> g(data_nw)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>seaborn ライブラリの <code>diamonds</code> データを例に上記の関数を実行してみると、結果は次のとおりで私の実行環境では 0.3〜0.4 μs 程度のオーバーヘッドがあることが分かります。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>diamonds <span class="op">=</span> sns.load_dataset(<span class="st">'diamonds'</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>timeit f(diamonds)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10.3 µs ± 48.9 ns per loop (mean ± std. dev. of 7 runs, 100,000 loops each)</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>timeit g(diamonds)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10.7 µs ± 14.2 ns per loop (mean ± std. dev. of 7 runs, 100,000 loops each)</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>timeit h(diamonds)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 11 µs ± 40 ns per loop (mean ± std. dev. of 7 runs, 100,000 loops each)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>このオーバーヘッドは <code>eda_tools</code> モジュールで実装している集計・可視化処理の実行時間全体から見ると僅かなものだと思います。僅かなオーバーヘッドを避けるために、ユーザー関数から呼び出される関数（上記の例で言えば <code>f()</code>）を <code>nw.DataFrame</code> 専用の関数として実装するよりは、オーバーヘッドを受け入れて、単体でもバックエンドを問わずに実行できる関数として実装しておく方が保守性とユーザビリティの面で有益だと思われます。</p>
+</section>
+<section id="narwhals-互換データフレームの変換" class="level2">
+<h2 class="anchored" data-anchor-id="narwhals-互換データフレームの変換">narwhals 互換データフレームの変換</h2>
+<section id="py4stats.eda_tools-モジュールにおける-nw.from_native-と-.to_native-の使用方法" class="level3">
+<h3 class="anchored" data-anchor-id="py4stats.eda_tools-モジュールにおける-nw.from_native-と-.to_native-の使用方法"><code>py4stats.eda_tools</code> モジュールにおける <code>nw.from_native()</code> と <code>.to_native()</code> の使用方法</h3>
+<p><code>py4stats.eda_tools</code> モジュールでは、<a href="../man/diagnose.html"><code>diagnose()</code></a> に代表される DataFrame を受け取り DataFrame を返す関数の全てで、処理の冒頭で <code>nw.from_native()</code> 関数で受け取ったデータフレームを nw.DataFrame に変換し、最後に <code>.to_native()</code> メソッドで引数として代入されたデータフレームの型（以下, native 型）に変換してから、出力する処理を行なっています。</p>
+<p>出力時に native 型への変換を行うかどうかについては、<code>to_native</code> という(そのまんまな名前の) bool 型の引数を使った if 文で制御できるようにしており、これは返り値の型を nw.DataFrame に固定することで <code>foo()</code> 関数を内部実装として再利用する際に、nw.DataFrame 型のメソッドを確実に使用できるようにするためです。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> foo(data: IntoFrameT, to_native: <span class="bu">bool</span> <span class="op">=</span> <span class="va">True</span>) <span class="op">-&gt;</span> IntoFrameT:</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    data_nw <span class="op">=</span> nw.from_native(data)          <span class="co"># nw.DataFrame への変換</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    ... <span class="co"># 何かしらの処理</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> to_native: <span class="cf">return</span> result.to_native() <span class="co"># native 型への変換</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> result</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="to_native-の使用を-if-文で制御するコスト" class="level3">
+<h3 class="anchored" data-anchor-id="to_native-の使用を-if-文で制御するコスト"><code>to_native()</code> の使用を if 文で制御するコスト</h3>
+<p>前述の通り、<code>py4stats.eda_tools</code> モジュールの関数では、返り値を native 型のデータフレームとして返すかどうかを if 文で制御していますが、この実装方法は理になかっているでしょうか。具体的には、 <code>nw.from_native()</code> のオーバーヘッドが十分に小さいなら <code>nw.from_native(foo(data))</code> のように書けばよく、if 文による制御コストの方が上回ってしまうのではないでしょうか。また、narwhals で提供されているデコレーター <code>@nw.narwhalify</code> を使った場合と違いはあるでしょうか。</p>
+<p>結論としては、毎回 <code>nw.from_native()</code> / <code>df.to_native()</code>　を使っても、デコレーターを使っても、あるいは if 文で制御してもパフォーマンス上の大きな違いはありません。</p>
+<p>以下のコードではこれを実際に検証しています。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> f(data):</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    data_nw <span class="op">=</span> nw.from_native(data)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> data_nw.select(ncs.numeric())</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> result.to_native()</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> g(data, to_native <span class="op">=</span> <span class="va">True</span>):</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    data_nw <span class="op">=</span> nw.from_native(data)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> data_nw.select(ncs.numeric())</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> to_native: <span class="cf">return</span> result.to_native()</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> result</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> h(data_nw):</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> data_nw.select(nw.<span class="bu">all</span>().mean())</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> result</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="at">@nw.narwhalify</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> f2(data):</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> data.select(ncs.numeric())</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> result</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="at">@nw.narwhalify</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> h2(data_nw):</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> data_nw.select(nw.<span class="bu">all</span>().mean())</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> result</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>diamonds <span class="op">=</span> sns.load_dataset(<span class="st">'diamonds'</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>timeit h(nw.from_native(f(diamonds)))      <span class="co"># (1) 常に to_native を使う</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 773 μs ± 11.5 μs per loop (mean ± std. dev. of 7 runs, 1,000 loops each)</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>timeit h((g(diamonds, to_native <span class="op">=</span> <span class="va">False</span>))) <span class="co"># (2) to_native の使用を if 文で制御する</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 753 μs ± 1.51 μs per loop (mean ± std. dev. of 7 runs, 1,000 loops each)</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>timeit h2(f2(diamonds))                    <span class="co"># (3) @nw.narwhalify で変換する</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 779 μs ± 3.38 μs per loop (mean ± std. dev. of 7 runs, 1,000 loops each)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
 <section id="narwhals-での再現が難しい-pandas-の機能" class="level2">
 <h2 class="anchored" data-anchor-id="narwhals-での再現が難しい-pandas-の機能">narwhals での再現が難しい Pandas の機能</h2>
 <section id="異なるデータフレーム間の二項演算" class="level3">
@@ -522,20 +616,134 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="任意の関数でグループ別集計を行う" class="level3">
 <h3 class="anchored" data-anchor-id="任意の関数でグループ別集計を行う">任意の関数でグループ別集計を行う</h3>
 <p>自作関数を使ってグループ別集計を行いたい場合、Pandas であれば <code>df.groupby(group)[x].agg(my_func)</code> で行うことができます。同じく narwhals でも</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>data_nw.group_by(nw.col(group)).agg(nw.col(<span class="st">'x'</span>).mean())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>data_nw.group_by(nw.col(group)).agg(nw.col(<span class="st">'x'</span>).mean())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>という形でグループ別の集計がサポートされているものの、ここで使用できる集計関数は narwhals で実装されているものに限定されるようで、次のような方法で自作関数を使用することはできません。</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>data_nw.group_by(nw.col(group)).agg(nw.col(<span class="st">'x'</span>).my_func())</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>data_nw.group_by(nw.col(group)).agg(my_func(nw.col(<span class="st">'x'</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>data_nw.group_by(nw.col(group)).agg(nw.col(<span class="st">'x'</span>).my_func())</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>data_nw.group_by(nw.col(group)).agg(my_func(nw.col(<span class="st">'x'</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>例えば Py4Stats では、<a href="../man/Pareto_plot.html"><code>Pareto_plot()</code></a> 関数の内部実装に使用している <a href="../py4stats/eda_tools/_nw.py"><code>make_rank_table()</code></a> 関数において、任意の関数をグループ別集計に使うために、サブセッティングを使って <code>group_by()</code> メソッドの使用を回避するという変則的（かつ、おそらく非効率 ）な実装を行なっています。</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>stat_values <span class="op">=</span> [</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>            aggfunc(</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>                data_nw.<span class="bu">filter</span>(nw.col(group) <span class="op">==</span> g)[values]</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>                .drop_nulls().to_native()</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>                ) </span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> g <span class="kw">in</span> group_value</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>            ]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>stat_values <span class="op">=</span> [</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>            aggfunc(</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>                data_nw.<span class="bu">filter</span>(nw.col(group) <span class="op">==</span> g)[values]</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>                .drop_nulls().to_native()</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>                ) </span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> g <span class="kw">in</span> group_value</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>            ]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>また、上記の回避策のもう1つの問題として、<code>data_nw.filter(nw.col(group) == g)</code> では、複数の変数に基づくグループ化に対応できないことも挙げられます。<code>make_rank_table()</code> 関数については、<code>Pareto_plot()</code> 関数でパレート図を作図するときに横軸になる <code>group</code> が多変数だと対応できないので、<code>group</code> が1変数（= 引数として1つの文字列だけを受け付ける）とすることで妥協しています。</p>
 <p>ただ、現時点で <a href="https://narwhals-dev.github.io/narwhals/api-reference/group_by/"><code>narwhals.GroupBy</code></a> クラスに実装されているメソッドは <code>.agg()</code> しかなく、開発が進めばより柔軟な関数適用が可能になるのではないかと期待しています。</p>
+</section>
+<section id="追記2026年2月18日" class="level3">
+<h3 class="anchored" data-anchor-id="追記2026年2月18日">追記（2026年2月18日）</h3>
+<p>nw.DataFrame で任意の関数を使った集計を実現する方法として、Py4Stats v0.5.0 では <a href="../man/tabyl.html"><code>group_map()</code></a> 関数と <a href="../man/tabyl.html"><code>group_modify()</code></a> 関数を新たに導入しました。これらの関数は、データフレームを変数を基準としたグループに分割した上で、その部分集合に対して個別に任意の関数を適用するという単純なもので、パフォーマンス面では必ずしも最適化されていません。したがって、下記のような <code>pd.DataFrame.groupby()</code> や <code>nw.DataFrame.group_by()</code> で実現できる範疇のシンプルな集計操作なら、これらの既存のメソッドを用いた方が高速なのが実情です。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>diamonds <span class="op">=</span> sns.load_dataset(<span class="st">'diamonds'</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>diamonds_nw <span class="op">=</span> nw.from_native(diamonds)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>timeit <span class="op">-</span>r <span class="dv">10</span> <span class="op">-</span>n <span class="dv">10</span> diamonds.groupby(<span class="st">'cut'</span>, observed <span class="op">=</span> <span class="va">True</span>)[<span class="st">'price'</span>].mean()</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 814 μs ± 157 μs per loop (mean ± std. dev. of 10 runs, 10 loops each)</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>timeit <span class="op">-</span>r <span class="dv">10</span> <span class="op">-</span>n <span class="dv">10</span>  diamonds_nw.group_by(<span class="st">'cut'</span>).agg(nw.col(<span class="st">'price'</span>).mean())</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; The slowest run took 4.80 times longer than the fastest. This could mean that an intermediate result is being cached.</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1.58 ms ± 1.12 ms per loop (mean ± std. dev. of 10 runs, 10 loops each)</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Py4Stats の関数</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>timeit <span class="op">-</span>r <span class="dv">10</span> <span class="op">-</span>n <span class="dv">10</span> py4st.group_map(diamonds, <span class="st">'cut'</span>, func <span class="op">=</span> <span class="kw">lambda</span> df: df[<span class="st">'price'</span>].mean())</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 9.7 ms ± 1.99 ms per loop (mean ± std. dev. of 10 runs, 10 loops each)</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>timeit <span class="op">-</span>r <span class="dv">10</span> <span class="op">-</span>n <span class="dv">10</span> py4st.group_modify(diamonds, <span class="st">'cut'</span>, func <span class="op">=</span> <span class="kw">lambda</span> df: df[<span class="st">'price'</span>].mean())</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 17.1 ms ± 4.99 ms per loop (mean ± std. dev. of 10 runs, 10 loops each)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="narwhals-dataframe-に列を代入する方法" class="level2">
+<h2 class="anchored" data-anchor-id="narwhals-dataframe-に列を代入する方法">Narwhals DataFrame に列を代入する方法</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> plotnine.data <span class="im">import</span> mtcars</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>data_nw <span class="op">=</span> nw.from_native(mtcars.iloc[:<span class="dv">4</span>, :<span class="dv">3</span>])</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>data_nw</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ┌────────────────────────────┐</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |     Narwhals DataFrame     |</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |----------------------------|</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |             name   mpg  cyl|</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |0       Mazda RX4  21.0    6|</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |1   Mazda RX4 Wag  21.0    6|</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |2      Datsun 710  22.8    4|</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |3  Hornet 4 Drive  21.4    6|</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; └────────────────────────────┘</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>narwhals DataFrame への列の代入には、次のような特徴があります。</p>
+<ol type="1">
+<li><code>df['col'] = value</code> 形式の代入は使えない</li>
+<li><code>.with_columns()</code> メソッドでの代入</li>
+<li><code>nw.Series.from_iterable()</code> を使った nw.Series への変換</li>
+</ol>
+<section id="dfcol-value-形式の代入は使えない" class="level3">
+<h3 class="anchored" data-anchor-id="dfcol-value-形式の代入は使えない">1. <code>df['col'] = value</code> 形式の代入は使えない</h3>
+<p>前節でも取り上げた通り、narwhals DataFrame では <code>df['col'] = value</code> 形式の代入をサポートしていないため、これを実行しようとすると次のようなエラーが出力されます。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>data_nw[<span class="st">'const'</span>] <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; TypeError: 'DataFrame' object does not support item assignment</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>data_nw[<span class="st">'cyl6'</span>] <span class="op">=</span> data_nw[<span class="st">'cyl'</span>] <span class="op">==</span> <span class="dv">6</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; TypeError: 'DataFrame' object does not support item assignment</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="with_columns-メソッドでの代入" class="level3">
+<h3 class="anchored" data-anchor-id="with_columns-メソッドでの代入">2. <code>.with_columns()</code> メソッドでの代入</h3>
+<p><code>nw.DataFrame.with_columns()</code> メソッドを使うことで、既存列から算出された変数や定数の代入を行うことができます。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>data_nw.with_columns(</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    (<span class="dv">2</span> <span class="op">*</span> nw.col(<span class="st">'mpg'</span>)).alias(<span class="st">'mpg2'</span>),</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    cyl6 <span class="op">=</span> (nw.col(<span class="st">'cyl'</span>) <span class="op">==</span> <span class="dv">6</span>),</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    const <span class="op">=</span> nw.lit(<span class="dv">1</span>)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ┌────────────────────────────────────────────────┐</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |               Narwhals DataFrame               |</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |------------------------------------------------|</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |             name   mpg  cyl  mpg2   cyl6  const|</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |0       Mazda RX4  21.0    6  42.0   True      1|</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |1   Mazda RX4 Wag  21.0    6  42.0   True      1|</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |2      Datsun 710  22.8    4  45.6  False      1|</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |3  Hornet 4 Drive  21.4    6  42.8   True      1|</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; └────────────────────────────────────────────────┘</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>また、<code>.with_columns()</code> メソッドを使うことで Series オブジェクトを列として代入することができ、nw.Series を出力する関数の結果を列に代入することもできます。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>mpg2 <span class="op">=</span> data_nw[<span class="st">'mpg'</span>] <span class="op">/</span> <span class="dv">10</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> sq(s): <span class="cf">return</span> (s<span class="op">**</span><span class="dv">2</span>).mean() </span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>data_nw.with_columns(</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    mpg2 <span class="op">=</span> mpg2,</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    mpg_sq <span class="op">=</span> sq(nw.col(<span class="st">'mpg'</span>)),</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    mpg_sc <span class="op">=</span> py4st.scale(data_nw[<span class="st">'mpg'</span>], to_native <span class="op">=</span> <span class="va">False</span>)</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ┌────────────────────────────────────────────────────┐</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |                 Narwhals DataFrame                 |</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |----------------------------------------------------|</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |             name   mpg  cyl  mpg2  mpg_sq    mpg_sc|</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |0       Mazda RX4  21.0    6  2.10  464.95 -0.643726|</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |1   Mazda RX4 Wag  21.0    6  2.10  464.95 -0.643726|</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |2      Datsun 710  22.8    4  2.28  464.95  1.463014|</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |3  Hornet 4 Drive  21.4    6  2.14  464.95 -0.175562|</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; └────────────────────────────────────────────────────┘</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>ただし、<code>.with_columns()</code> メソッドに代入して列定義に使えるものは、<code>nw.col()</code> や <code>nw.lit()</code> で作成された nw.Expr や <code>ncs.numeric()</code> で作成された nw.Selector オブジェクト、もしくは nw.Series に限定されるため、nw.Series 以外の iterable オブジェクトを代入するには工夫が必要です。</p>
+</section>
+<section id="nw.series.from_iterable-を使った-nw.series-への変換" class="level3">
+<h3 class="anchored" data-anchor-id="nw.series.from_iterable-を使った-nw.series-への変換">3. <code>nw.Series.from_iterable()</code> を使った nw.Series への変換</h3>
+<p>前述の通り、<code>.with_columns()</code> メソッドに代入できるオブジェクトは nw.Expr や nw.Series に限定され、pd.Series や np.ndarray、list といったオブジェクトを直接代入することはできません。これらのオブジェクトを代入しようとすると、それぞれ次のようなエラーが出力されます。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>mpg_pd <span class="op">=</span> data_nw[<span class="st">'mpg'</span>].to_pandas() <span class="op">/</span> <span class="dv">10</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>data_nw.with_columns(mpg_pd)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; TypeError: Expected Narwhals class or scalar, got: 'pandas.core.series.Series'.</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>mpg_np <span class="op">=</span> data_nw[<span class="st">'mpg'</span>].to_numpy() <span class="op">/</span> <span class="dv">10</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>data_nw.with_columns(mpg_np)</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co"># #&gt; InvalidIntoExprError: Expected an object which can be converted into an expression ...</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>これらの iterable オブジェクトを nw.DataFrame の列に追加したい場合には、<code>nw.Series.from_iterable()</code> 関数を使って nw.Series に変換すると <code>.with_columns()</code> メソッドで代入できるようになります。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>mpg_np <span class="op">=</span> nw.Series.from_iterable(</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'mpg_np'</span>, mpg_np,</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    backend <span class="op">=</span> data_nw.implementation</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>data_nw.with_columns(mpg_np)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ┌────────────────────────────────────┐</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |         Narwhals DataFrame         |</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |------------------------------------|</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |             name   mpg  cyl  mpg_np|</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |0       Mazda RX4  21.0    6    2.10|</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |1   Mazda RX4 Wag  21.0    6    2.10|</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |2      Datsun 710  22.8    4    2.28|</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |3  Hornet 4 Drive  21.4    6    2.14|</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; └────────────────────────────────────┘</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>この方法については nw.Expr や nw.Selector を使った場合と比べて計算コストが増加しているのではないかと思われます。</p>
 </section>
 </section>
 <section id="narwhals-におけるバックエンドとその書き換え" class="level2">
@@ -544,14 +752,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h3 class="anchored" data-anchor-id="バックエンドの基本的な理解">バックエンドの基本的な理解</h3>
 <p>narwhals におけるバックエンドによる型変換の基本的な理解として（不正確かもしれませんが）、<code>nw.from_native(data)</code> の実行時に <code>data</code> の型に応じて backend が記録され、<code>.to_native()</code> メソッドを呼び出すと、記録された backend に応じて元の型に変換されます。</p>
 <p>backend の情報は <code>.select()</code> <code>.filter()</code> などのメソッドを使って <code>data_nw</code> を加工しても保持され、これによって入力された <code>input_pd</code> と同じ型のデータフレームを返すことが可能になっています。</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>data_nw <span class="op">=</span> nw.from_native(input_pd) <span class="co"># ここで backend が記録される</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>data_nw.implementation       <span class="co"># -&gt; Pandas</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> data_nw.to_native() <span class="co"># -&gt; pd.DataFrame が出力される</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>data_nw <span class="op">=</span> nw.from_native(input_pd) <span class="co"># ここで backend が記録される</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>data_nw.implementation       <span class="co"># -&gt; Pandas</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> data_nw.to_native() <span class="co"># -&gt; pd.DataFrame が出力される</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>一方で、処理の途中で pd.DataFrame や pl.DataFrame などの native オブジェクトを経由した場合、改めて <code>nw.from_native()</code> を使って nw.DataFrame に変換し直したとしても、その時点で backend が上書きされるので、<code>.to_native()</code> メソッドを使用しても引数として入力された <code>input_pd</code> と同じ型に復元される保証はありません。</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>data_nw <span class="op">=</span> nw.from_native(input_pd)              <span class="co"># ここで backend が記録される</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>data_nw2 <span class="op">=</span> nw.from_native(data_nw.to_polars())  <span class="co"># ここで backend が上書きされる</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>data_nw2.implementation                         <span class="co"># -&gt; polars</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> data_nw2.to_native()                   <span class="co"># -&gt; pl.DataFrame が出力される</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>data_nw <span class="op">=</span> nw.from_native(input_pd)              <span class="co"># ここで backend が記録される</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>data_nw2 <span class="op">=</span> nw.from_native(data_nw.to_polars())  <span class="co"># ここで backend が上書きされる</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>data_nw2.implementation                         <span class="co"># -&gt; polars</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> data_nw2.to_native()                   <span class="co"># -&gt; pl.DataFrame が出力される</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>従って、<code>result</code> が <code>input_pd</code> と同じ型をもつことを保証するには、<code>data_nw</code> を nw.DataFrame クラスのまま維持する（≒ narwhals ベースのメソッドだけで処理を書く）必要があり、これが narwhals ベースの実装としてのあるべき姿だと思われます。</p>
 <p>一方で、一部の処理が特定のバックエンド（e.g.&nbsp;Pandas）に依存している場合にはどうするべきでしょうか。これには次のような2つの選択肢があると考えています。</p>
 <ol type="1">
@@ -564,61 +772,61 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h3 class="anchored" data-anchor-id="バックエンドの書き換え-非推奨">バックエンドの書き換え (非推奨)</h3>
 <p>いま、<code>some_computation()</code> として実装された処理の一部が Pandas に依存しており、結果が <code>result_pd</code> という pd.DataFrame 型のオブジェクトとして得られているとします。このとき、<code>result_pd</code> をもとのデータフレーム <code>data_pl</code> と同型にする方法の1つとして、<code>result_pd</code> を <code>pd.Series.to_dict()</code> などを使って辞書のリスト（list of dict）に変換したのち、<code>nw.from_dicts()</code> を使って <code>data_pl</code> と同じバックエンドをもつ <code>nw.DataFrame</code> に変換するという方法があります。</p>
 <p>以上の変換の実例を見てみましょう。</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>data_pl <span class="op">=</span> pl.from_pandas(load_penguins())[:<span class="dv">10</span>, :<span class="dv">2</span>]</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>data_pl <span class="op">=</span> data_pl.with_columns(</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>        pl.<span class="bu">all</span>().cast(pl.Categorical)</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">type</span>(data_pl))</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;class 'polars.dataframe.frame.DataFrame'&gt;</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(data_pl.schema)</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Schema({'species': Categorical, 'island': Categorical})</span></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>data_nw_pl <span class="op">=</span> nw.from_native(data_pl) <span class="co"># ここでバックエンドを記録、後ほど復元に使います。</span></span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="co"># 何かしらの処理の結果 pd.DataFrame に変換されたとする</span></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>result_pd <span class="op">=</span> data_nw_pl.to_pandas()</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">type</span>(result_pd))</span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;class 'pandas.core.frame.DataFrame'&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>data_pl <span class="op">=</span> pl.from_pandas(load_penguins())[:<span class="dv">10</span>, :<span class="dv">2</span>]</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>data_pl <span class="op">=</span> data_pl.with_columns(</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>        pl.<span class="bu">all</span>().cast(pl.Categorical)</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">type</span>(data_pl))</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;class 'polars.dataframe.frame.DataFrame'&gt;</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(data_pl.schema)</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Schema({'species': Categorical, 'island': Categorical})</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>data_nw_pl <span class="op">=</span> nw.from_native(data_pl) <span class="co"># ここでバックエンドを記録、後ほど復元に使います。</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a><span class="co"># 何かしらの処理の結果 pd.DataFrame に変換されたとする</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>result_pd <span class="op">=</span> data_nw_pl.to_pandas()</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">type</span>(result_pd))</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;class 'pandas.core.frame.DataFrame'&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>次に、pl.DataFrame 型をもつ <code>result_pd</code> を pl.DataFrame に変換します。</p>
 <p>ここでポイントとなるのが、<code>nw.from_dicts()</code> 関数の引数の (1)<code>schema</code> 引数と、(2)<code>backend</code>引数に、それぞれ <code>data_nw_pl</code> から取得した値を入力することで、<code>result_pl</code> の列が <code>data_pl</code> と同じく <code>Categorical</code> 型になるようにしています(指定しないと String 型として解釈されてしまいます)。</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Pandas -&gt; polars の変換</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>dict_list <span class="op">=</span> [result_pd.loc[i, :].to_dict() <span class="cf">for</span> i <span class="kw">in</span> result_pd.index]</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>result_nw_pl <span class="op">=</span> nw.from_dicts(</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    dict_list, </span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    schema <span class="op">=</span> data_nw_pl.schema,         <span class="co"># (1)</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    backend <span class="op">=</span> data_nw_pl.implementation <span class="co"># (2)</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>result_pl <span class="op">=</span> result_nw_pl.to_native()</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">type</span>(result_pl))</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;class 'polars.dataframe.frame.DataFrame'&gt;</span></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(result_pl.schema)</span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Schema({'species': Categorical, 'island': Categorical})</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Pandas -&gt; polars の変換</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>dict_list <span class="op">=</span> [result_pd.loc[i, :].to_dict() <span class="cf">for</span> i <span class="kw">in</span> result_pd.index]</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>result_nw_pl <span class="op">=</span> nw.from_dicts(</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    dict_list, </span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    schema <span class="op">=</span> data_nw_pl.schema,         <span class="co"># (1)</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    backend <span class="op">=</span> data_nw_pl.implementation <span class="co"># (2)</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>result_pl <span class="op">=</span> result_nw_pl.to_native()</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">type</span>(result_pl))</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;class 'polars.dataframe.frame.DataFrame'&gt;</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(result_pl.schema)</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Schema({'species': Categorical, 'island': Categorical})</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>また、Series については、<code>nw.Series.from_iterable()</code> 関数を使うことで、次のようにバックエンドを書き換えることができます。</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>x_pl <span class="op">=</span> data_pl[<span class="st">'island'</span>]</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">type</span>(x_pl))</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;class 'polars.series.series.Series'&gt;</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(x_pl.dtype)</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Categorical</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>x_nw <span class="op">=</span> nw.from_native(x_pl, allow_series <span class="op">=</span> <span class="va">True</span>)</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>x_pd <span class="op">=</span> x_nw.to_pandas()</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">type</span>(x_pd))</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;class 'pandas.core.series.Series'&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>x_pl2 <span class="op">=</span> nw.Series.from_iterable(</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    name <span class="op">=</span> x_pd.name,</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    values <span class="op">=</span> x_pd.to_list(),</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    backend <span class="op">=</span> x_nw.implementation,</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    dtype <span class="op">=</span> x_nw.dtype</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>).to_native()</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">type</span>(x_pl2))</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;class 'polars.series.series.Series'&gt;</span></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(x_pl2.dtype)</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Categorical</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>x_pl <span class="op">=</span> data_pl[<span class="st">'island'</span>]</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">type</span>(x_pl))</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;class 'polars.series.series.Series'&gt;</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(x_pl.dtype)</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Categorical</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>x_nw <span class="op">=</span> nw.from_native(x_pl, allow_series <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>x_pd <span class="op">=</span> x_nw.to_pandas()</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">type</span>(x_pd))</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;class 'pandas.core.series.Series'&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>x_pl2 <span class="op">=</span> nw.Series.from_iterable(</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    name <span class="op">=</span> x_pd.name,</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    values <span class="op">=</span> x_pd.to_list(),</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    backend <span class="op">=</span> x_nw.implementation,</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    dtype <span class="op">=</span> x_nw.dtype</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>).to_native()</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">type</span>(x_pl2))</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;class 'polars.series.series.Series'&gt;</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(x_pl2.dtype)</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Categorical</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>narwhals の仕様を迂回してバックエンドを書き換えることは可能ですが、この方法には次のような問題があります。 ただし、以上のような方法でバックエンドの書き換えは可能ですが、</p>
 <ol type="1">
 <li>小さいデータフレームでない限り時間がかかる
@@ -632,16 +840,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="追記2026年2月12日" class="level4">
 <h4 class="anchored" data-anchor-id="追記2026年2月12日">追記(2026年2月12日)</h4>
 <p><code>nw.DataFrame.to_dict()</code> メソッドと <code>nw.from_dict()</code> 関数を使った次の方法でも、データの型を維持しながらバックエンドを書き換えられることが分かりました。</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>result_pd_nw <span class="op">=</span> nw.from_native(result_pd)</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(result_pd_nw.implementation)</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; pandas</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> nw.from_dict(result_pd_nw.to_dict(), backend <span class="op">=</span> <span class="st">'polars'</span>)</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(result.implementation)</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; polars</span></span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>result.schema</span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Schema([('species', Categorical), ('island', Categorical)])</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>result_pd_nw <span class="op">=</span> nw.from_native(result_pd)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(result_pd_nw.implementation)</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; pandas</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> nw.from_dict(result_pd_nw.to_dict(), backend <span class="op">=</span> <span class="st">'polars'</span>)</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(result.implementation)</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; polars</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>result.schema</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Schema([('species', Categorical), ('island', Categorical)])</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 
 
 </section>
