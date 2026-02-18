@@ -512,7 +512,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>データフレームの列を削除することなく並び替える関数</p>
 <section id="概要" class="level2">
 <h2 class="anchored" data-anchor-id="概要">概要</h2>
-<p><code>relocate()</code> 関数は、データフレームに含まれる列を削除することなく並び替えるための関数です。指定した列（1 列または複数列）を、先頭・特定の列の前・特定の列の後に移動させることができます。本関数は、R の <a href="https://dplyr.tidyverse.org/reference/relocate.html"><code>dplyr:relocate()</code></a> に近い操作感を Python で提供することを目的としています。列の指定には、列名（文字列）だけでなく、<code>narwhals</code> の式（Expr）や <code>Selector</code> を利用でき、柔軟な列選択</p>
+<p><code>relocate()</code> 関数は、データフレームに含まれる列を削除することなく並び替えるための関数です。指定した列（1 列または複数列）を、先頭・特定の列の前・特定の列の後に移動させることができます。本関数は、R の <a href="https://dplyr.tidyverse.org/reference/relocate.html"><code>dplyr:relocate()</code></a> に近い操作感を Python で提供することを目的としています。列の指定には、列名（文字列）だけでなく、<code>narwhals</code> の式（Expr）や nw.Selector を用いた柔軟な列選択にも対応しています。</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>relocate(</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>      data: IntoFrameT, </span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>      <span class="op">*</span>args: Union[<span class="bu">str</span>, List[<span class="bu">str</span>], narwhals.Expr, narwhals.selectors.Selector], </span>

@@ -473,7 +473,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#py4stats-ライブラリのモジュール構成" id="toc-py4stats-ライブラリのモジュール構成" class="nav-link active" data-scroll-target="#py4stats-ライブラリのモジュール構成">Py4Stats ライブラリのモジュール構成</a></li>
+  <li><a href="#py4stats-の設計指針" id="toc-py4stats-の設計指針" class="nav-link active" data-scroll-target="#py4stats-の設計指針">Py4Stats の設計指針</a></li>
+  <li><a href="#py4stats-ライブラリのモジュール構成" id="toc-py4stats-ライブラリのモジュール構成" class="nav-link" data-scroll-target="#py4stats-ライブラリのモジュール構成">Py4Stats ライブラリのモジュール構成</a></li>
   <li><a href="#py4stats-ライブラリのインポート" id="toc-py4stats-ライブラリのインポート" class="nav-link" data-scroll-target="#py4stats-ライブラリのインポート">Py4Stats ライブラリのインポート</a></li>
   <li><a href="#リポジトリのディレクトリ構成" id="toc-リポジトリのディレクトリ構成" class="nav-link" data-scroll-target="#リポジトリのディレクトリ構成">リポジトリのディレクトリ構成</a></li>
   <li><a href="#リポジトリの運用方針" id="toc-リポジトリの運用方針" class="nav-link" data-scroll-target="#リポジトリの運用方針">リポジトリの運用方針</a></li>
@@ -517,6 +518,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
+<section id="py4stats-の設計指針" class="level2">
+<h2 class="anchored" data-anchor-id="py4stats-の設計指針">Py4Stats の設計指針</h2>
+<ul>
+<li>Do with Py4Stats
+<ol type="1">
+<li>探索的データ分析および回帰分析の結果レポートティングを円滑化・簡略化するためのユーティリティを提供する</li>
+<li>基本的には1つの関数で完結する処理を実装する</li>
+<li>ユーザーフレンドリーな UI を重視する
+<ol type="1">
+<li>引数関連のエラーメッセージには、ユーザーが取るべきアクションが分かるようなメッセージを提供する</li>
+</ol></li>
+</ol></li>
+<li>Not do with Py4Stats
+<ol type="1">
+<li>有力な既存の Python ライブラリで提供されている機能は実装しない</li>
+<li>ユーザーに既存のワークフローの変更を求めない</li>
+<li>ユーザーに内部実装などに関する知識を要求しない</li>
+</ol></li>
+</ul>
+</section>
 <section id="py4stats-ライブラリのモジュール構成" class="level2">
 <h2 class="anchored" data-anchor-id="py4stats-ライブラリのモジュール構成">Py4Stats ライブラリのモジュール構成</h2>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>py4stats</span>

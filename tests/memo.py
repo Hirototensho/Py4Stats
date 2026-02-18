@@ -133,3 +133,17 @@ list_backend = ['pd', 'pl', 'pa']
 # =========================================================
 # テスト用関数の定義
 # =========================================================
+# =========================================================
+# assert_literal
+# =========================================================
+
+@pytest.mark.parametrize("arg, expectation", [
+    pytest.param(max,  nullcontext()),
+    pytest.param(np.mean,  nullcontext()),
+    pytest.param(1,  pytest.raises(TypeError, match=r"must be of type 'Callable'")),
+    pytest.param([1, 2, 3],  pytest.raises(TypeError, match=r"must be of type 'Callable'")),
+])
+
+def test_assert_function(arg, expectation):
+    with expectation:
+        build.assert_function(arg)

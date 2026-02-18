@@ -1,35 +1,60 @@
 # building_block.style_number, _currency, _percent
 
-数字のフォーマットを変更する関数
+数値のシーケンスを、可読性の高い文字列表現に整形します。
 
 ## 概要
 
+- `style_number()`: 固定小数点形式で数値を整形します。桁区切り記号を指定できます。
+- `style_currency()`: 固定小数点形式で整形した数値の前に通貨記号を付与します（例: "$"）。
+- `style_percent()`: 値を指定した倍率（既定値: 100）でスケーリングした後、パーセント記号などの単位記号を末尾に付与します。
+
+
 ``` python
-style_number(x, digits = 2, big_mark = ',')
+style_number(
+    x: Sequence[int, float, np.number], 
+    digits: int = 2, 
+    big_mark: str = ","
+    ) -> pd.Series
 
-style_currency(x, symbol = '$', digits = 0, big_mark = ',')
+style_currency(
+    x: Sequence[int, float, np.number], 
+    digits: int = 0, 
+    symbol: str = "$", 
+    big_mark: str = ","
+    ) -> pd.Series
 
-style_percent(x, digits = 2, unit = 100, symbol = '%')
-```
+style_percent(
+    x: Sequence[int, float, np.number], 
+    digits: int = 2, 
+    unit: Union[int, float] = 100,
+    symbol: str = "%"
+    ) -> pd.Series
+``` 
 
 ## 引数 Argument
 
 - `x`：**scalar or array-like of int or float**</br>
-- `p_value`：**scalar or array-like of int or float**</br>
+  整形対象となる数値の list もしくは pd.Series
 - `digits`：**int**</br>
-小数点以下の桁数
+  小数点以下の桁数。初期設定は以下の通りです。</br>
+    - `style_number()`: 2
+    - `style_currency()`: 0
+    - `style_percent()`: 2
 - `big_mark`：**int**</br>
-3桁毎の桁区切りに使用する記号。カンマ `','`, アンダーバー `'_'`, もしくは 非表示 `''` から選ぶことができます。
+   3桁毎の桁区切りに使用する記号。カンマ `','`, アンダーバー `'_'`, もしくは 非表示 `''` から選ぶことができます。</br>
 - `symbol`：**str**</br>
-　貨幣記号を表す文字列
+　貨幣記号を表す文字列</br>
+- `unit`：**int or float**</br>
+    `style_percent()` において、整形前に値へ掛ける倍率。既定値は 100 です。
+
 
 ## 返り値 Value
 
 　以下の値をもつ `pd.Series` を返します。
 
-- `building_block.style_number()`： 任意の数値に対して、小数点以下を桁数 `digits` に丸め、3桁区切り記号を通過した値を文字列として返します。f-string によるフォーマット `f'{x:{big_mark}.{digits}f}'` を用いて実装されています。
-- `building_block.style_currency()`： `build.style_number()` と同じく任意の数値に対して、小数点以下を桁数 `digits` に丸め、3桁区切り記号を通過した値を文字列として返しますが、さらに貨幣記号を追加します。f-string によるフォーマット `f'{symbol}{x:{big_mark}.{digits}f}'` を用いて実装されています。
-- `building_block.style_percent()`： 任意の数値をパーセンテージ表示に変換した値を文字列として返します。f-string によるフォーマット `f'{x:,.{digits}%}'` を用いて実装されています。
+- `building_block.style_number()`： 任意の数値に対して、小数点以下を桁数 `digits` に丸め、3桁区切り記号を追加した値を文字列として返します。f-string によるフォーマット `f'{x:{big_mark}.{digits}f}'` を用いて実装されています。
+- `building_block.style_currency()`： `build.style_number()` と同じく任意の数値に対して、小数点以下を桁数 `digits` に丸め、3桁区切り記号と貨幣記号を追加した文字列を返します。f-string によるフォーマット `f'{symbol}{x:{big_mark}.{digits}f}'` を用いて実装されています。
+- `building_block.style_percent()`： 任意の数値をパーセンテージ表示に変換した値を文字列として返します。f-string によるフォーマット `f'{x*unit:.{digits}f}{symbol}'` を用いて実装されています。
 
 ## 使用例 Examples
 

@@ -169,6 +169,32 @@ diamonds_nw = nw.from_native(diamonds)
 #> 17.1 ms ± 4.99 ms per loop (mean ± std. dev. of 10 runs, 10 loops each)
 ``` 
 
+## narwhals 独自の UI が露出することの是非
+
+本節の前提として、`py4stats.eda_tools` の関数を実装するに当たり、ユーザーに内部実装に関する知識や narwhals に関する知識を要求しないために、narwhals 独自 UI の使用をユーザーに強制するような関数の実装は避けたいと考えています。
+
+例えば、データフレームの列を選択した上で、何かしらの処理を加える次のような関数を考えてみましょう。
+
+``` python
+def transform(
+    data: IntoFrameT, 
+    *exprs: IntoExpr | Iterable[IntoExpr],
+    **named_exprs: IntoExpr
+):
+    data_nw = nw.from_native(data)
+    result = data_nw.with_columns(exprs, **named_exprs)
+    ...
+
+    return result.to_native()
+```
+
+この関数は `nw.DataFrame.with_columns()` メソッドでデータフレームに列変換を加えた上で、追加の処理を行う関数です。
+
+`transform()` 関数の問題点の1つは、`*exprs` や `**named_exprs` 引数に nw.Expr クラスや nw.Selector クラスのオブジェクトを代入する必要があり、ユーザーに narwhals の仕様に関する知識を要求してしまうことです。narwhals に慣れたユーザーにとってはバックエンドを問わず同じ UI で列変換を行えることは便利ですが、Pandas や polars といった特定のバックエンドには慣れているものの、narwhals については全く知らないという大部分のユーザーにとっては慣れた操作が通用しない、非直感的なものに感じられるでしょう。したがって、引数に nw.Expr クラスや nw.Selector クラスのオブジェクトを代入しないと利用出来ない関数の実装は避けるべきだと考えています。
+
+
+`py4stats.eda_tools` モジュールにおいても、[`relocate()`](../man/relocate.qmd) 関数や [`filtering_out()`](../man/filtering_out.qmd) 関数の `*args` 引数は nw.Expr や nw.Selector を受け入れられるようになっていますが、文字列や文字列のリストも指定できて nw.Expr や nw.Selector の使用は必須ではないため、許容範囲内ではないかと考えています。
+
 ## Narwhals DataFrame に列を代入する方法
 
 ``` python

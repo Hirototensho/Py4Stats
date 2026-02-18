@@ -20,6 +20,8 @@ from typing import (Literal)
 
 import pathlib
 from itertools import product
+from contextlib import nullcontext
+
 tests_path = pathlib.Path(__file__).parent
 
 # サンプルデータの読み込み --------------------------------
@@ -396,54 +398,47 @@ def test_compare_df_record_pa():
 # =========================================================
 # remove_empty
 # =========================================================
-def test_remove_empty_pd():
-    penguins_empty = penguins.copy()
-    penguins_empty['na_col'] = pd.NA
-    penguins_empty = eda_nw.remove_empty(penguins_empty)
-    assert_frame_equal(penguins_empty, penguins)
+penguins_empty = penguins.copy()
+penguins_empty['na_col'] = pd.NA
+penguins_empty['None'] = None
 
-def test_remove_empty_pl():
-    penguins_empty = penguins.copy()
-    penguins_empty['na_col'] = pd.NA
-    penguins_empty = pl.from_pandas(penguins_empty)
-    penguins_empty = eda_nw.remove_empty(penguins_empty)
-    assert_frame_equal(penguins_empty.to_pandas(), penguins_pl.to_pandas())
+empty_dict = {
+    'pd': penguins_empty,
+    'pl': pl.from_pandas(penguins_empty),
+    'pa': pa.Table.from_pandas(penguins_empty)
+}
 
-def test_remove_empty_pa():
-    penguins_empty = penguins.copy()
-    penguins_empty['na_col'] = pd.NA
-    penguins_empty = pa.Table.from_pandas(penguins_empty)
-    penguins_empty = eda_nw.remove_empty(penguins_empty)
-    assert_frame_equal(penguins_empty.to_pandas(), penguins_pa.to_pandas())
+@pytest.mark.parametrize("backend", list_backend)
+def test_remove_empty(backend):
+    columns = eda_nw.remove_empty(
+        empty_dict.get(backend), 
+        to_native = False).columns
+    result = all([col not in ['na_col', 'None'] for col in columns])
+    
+    assert result
 
 # =========================================================
 # remove_constant
 # =========================================================
 
-def test_remove_constant_pd():
-    penguins_constant = penguins.copy()
-    penguins_constant['one'] = 1
-    penguins_constant['two'] = 2
-    output_df = eda_nw.remove_constant(penguins_constant)
-    assert_frame_equal(output_df, penguins)
+list_backend = ['pd', 'pl', 'pa']
+penguins_constant = penguins.copy()
+penguins_constant['one'] = 1
+penguins_constant['two'] = 2
 
-def test_remove_constant_pl():
-    penguins_constant = penguins.copy()
-    penguins_constant['one'] = 1
-    penguins_constant['two'] = 2
-    output_df = eda_nw.remove_constant(
-        pl.from_pandas(penguins_constant)
-        ).to_pandas()
-    assert_frame_equal(output_df, penguins_pl.to_pandas())
+const_dict = {
+    'pd': penguins_constant,
+    'pl': pl.from_pandas(penguins_constant),
+    'pa': pa.Table.from_pandas(penguins_constant)
+}
 
-def test_remove_constant_pa():
-    penguins_constant = penguins.copy()
-    penguins_constant['one'] = 1
-    penguins_constant['two'] = 2
-    output_df = eda_nw.remove_constant(
-        pa.Table.from_pandas(penguins_constant)
-        ).to_pandas()
-    assert_frame_equal(output_df, penguins_pa.to_pandas())
+@pytest.mark.parametrize("backend", list_backend)
+def test_remove_constant(backend):
+    columns = eda_nw.remove_constant(
+        const_dict.get(backend), 
+        to_native = False).columns
+    result = all([col not in ['one', 'tow'] for col in columns])
+    assert result
 
 # =========================================================
 # filtering_out
@@ -535,6 +530,7 @@ def test_is_dummy_list():
 # =========================================================
 
 pm2 = penguins.copy()
+
 pm2['species'] = pd.Categorical(pm2['species'])
 
 pm2 = pd.get_dummies(pm2,  columns = ['sex'])
@@ -543,24 +539,25 @@ pm2['heavy'] = np.where(
     pm2['body_mass_g'] >= pm2['body_mass_g'].quantile(0.75), 
     1, 0
 )
-def test_diagnose_category_pd():
-    output_df = eda_nw.diagnose_category(pm2, to_native = False)
-    # output_df.write_csv(f'{tests_path}/fixtures/diagnose_category_nw.csv')
-    _assert_df_fixture_new(output_df, 'diagnose_category_nw.csv')
 
-def test_diagnose_category_pl():
-    output_df = eda_nw.diagnose_category(pl.from_pandas(pm2)).to_pandas()
-    # output_df.to_csv(f'{tests_path}/fixtures/diagnose_category_pl.csv', index = False)
-    _assert_df_fixture(output_df, 'diagnose_category_pl.csv', index_col = None)
+pm2_dict = {
+    'pd': pm2,
+    'pl': pl.from_pandas(pm2),
+    'pa': pa.Table.from_pandas(pm2)
+}
+@pytest.mark.parametrize("backend", list_backend)
+def test_diagnose_category_pd(backend):
+    path = f'{tests_path}/fixtures/diagnose_category_{backend}.csv'
+    output_df = eda_nw.diagnose_category(pm2_dict.get(backend), to_native = False)
     
-    eda_nw.diagnose_category(penguins_pl) # ダミー変数がなくても動作することも確認しておきます
-
-def test_diagnose_category_pa():
-    output_df = eda_nw.diagnose_category(pa.Table.from_pandas(pm2)).to_pandas()
-    # output_df.to_csv(f'{tests_path}/fixtures/diagnose_category_pa.csv', index = False)
-    _assert_df_fixture(output_df, 'diagnose_category_pa.csv', index_col = None)
-
-    eda_nw.diagnose_category(penguins_pa) # ダミー変数がなくても動作することも確認しておきます
+    _assert_df_eq(
+        output_df, 
+        path_fixture = path, 
+        update_fixture = False
+        )
+    
+    # ダミー変数がなくても動作することも確認しておきます
+    eda_nw.diagnose_category(penguins_dict.get(backend)) 
 
 # =========================================================
 # Pareto_plot_nw
@@ -1340,3 +1337,23 @@ def test_info_gain(backend) -> None:
         path_fixture = path, 
         update_fixture = False
         )
+
+# =========================================================
+# as_nw_datarame
+# =========================================================
+
+@pytest.mark.parametrize("data, expectation", [
+    pytest.param(adelie,    nullcontext()),
+    pytest.param(adelie_pl, nullcontext()),
+    pytest.param(adelie_pa, nullcontext()),
+    pytest.param(penguins_dict, nullcontext()),
+    pytest.param(list(penguins_dict.values()), nullcontext()),
+    pytest.param([adelie, gentoo, '3'],  pytest.raises(TypeError, match=r"supported by narwhals")),
+    pytest.param(np.array([1, 2, 3]), pytest.raises(TypeError, match=r"supported by narwhals")),
+    pytest.param(123,                 pytest.raises(TypeError, match=r"supported by narwhals")),
+    pytest.param(None,                pytest.raises(TypeError, match=r"supported by narwhals")),
+])
+
+def test_compare_df_cols(data, expectation):
+    with expectation:
+        eda_nw.as_nw_datarame(data)

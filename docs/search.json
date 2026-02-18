@@ -523,7 +523,7 @@
     "href": "man/remove_empty_constant.html#概要",
     "title": "remove_empty, remove_constant",
     "section": "",
-    "text": "remove_empty(\n    data: IntoFrameT,\n    cols: bool = True,\n    rows: bool = True,\n    cutoff: float = 1.0,\n    quiet: bool = True,\n    to_native: bool = True,\n    **kwargs: Any\n) \n\nremove_constant(\n    data: IntoFrameT,\n    quiet: bool = True,\n    to_native: bool = True,\n    dropna = False,\n    **kwargs: Any\n)",
+    "text": "remove_empty(\n    data: IntoFrameT,\n    cols: bool = True,\n    rows: bool = True,\n    cutoff: float = 1.0,\n    quiet: bool = True,\n    to_native: bool = True,\n    **kwargs: Any\n) \n\nremove_constant(\n    data: IntoFrameT,\n    quiet: bool = True,\n    dropna = False,\n    to_native: bool = True,\n    **kwargs: Any\n)",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>12</span>  <span class='chapter-title'>remove_empty, remove_constant</span>"
@@ -589,7 +589,7 @@
     "href": "man/filtering_out.html#使用例-example",
     "title": "filtering_out",
     "section": "使用例 Example",
-    "text": "使用例 Example\nimport py4stats as py4st\nimport pandas as pd\nimport narwhals.selectors as ncs\nfrom palmerpenguins import load_penguins\n\npenguins = load_penguins().head(3) # サンプルデータの読み込み\n\nprint(penguins)\n#&gt;   species     island  bill_length_mm  bill_depth_mm  flipper_length_mm  body_mass_g     sex  year  female\n#&gt; 0  Adelie  Torgersen            39.1           18.7              181.0       3750.0    male  2007       0\n#&gt; 1  Adelie  Torgersen            39.5           17.4              186.0       3800.0  female  2007       1\n#&gt; 2  Adelie  Torgersen            40.3           18.0              195.0       3250.0  female  2007       1\n# *args で列名を直接指定\nprint(py4st.filtering_out(penguins, 'year', 'island', 'sex'))\n#&gt;   species  bill_length_mm  bill_depth_mm  flipper_length_mm  body_mass_g\n#&gt; 0  Adelie            39.1           18.7              181.0       3750.0\n#&gt; 1  Adelie            39.5           17.4              186.0       3800.0\n#&gt; 2  Adelie            40.3           18.0              195.0       3250.0\n\n# narwhals.selector の使用例 文字列型の変数を除外\nprint(py4st.filtering_out(penguins, ncs.string()))\n#&gt;    bill_length_mm  bill_depth_mm  flipper_length_mm  body_mass_g  year\n#&gt; 0            39.1           18.7              181.0       3750.0  2007\n#&gt; 1            39.5           17.4              186.0       3800.0  2007\n#&gt; 2            40.3           18.0              195.0       3250.0  2007\n\n# 列名に 'length' を含む列を除外\nprint(py4st.filtering_out(penguins, contains = 'length'))\n#&gt;   species     island  bill_depth_mm  body_mass_g     sex  year  female\n#&gt; 0  Adelie  Torgersen           18.7       3750.0    male  2007       0\n#&gt; 1  Adelie  Torgersen           17.4       3800.0  female  2007       1\n#&gt; 2  Adelie  Torgersen           18.0       3250.0  female  2007       1\n\n# 列名が 'bill' から始まる列を除外\nprint(py4st.filtering_out(penguins, starts_with = 'bill'))\n#&gt;   species     island  flipper_length_mm  body_mass_g     sex  year  female\n#&gt; 0  Adelie  Torgersen              181.0       3750.0    male  2007       0\n#&gt; 1  Adelie  Torgersen              186.0       3800.0  female  2007       1\n#&gt; 2  Adelie  Torgersen              195.0       3250.0  female  2007       1\n\n# 列名が '_mm' で終わる列を除外\nprint(py4st.filtering_out(penguins, ends_with = '_mm'))\n#&gt;   species     island  body_mass_g     sex  year  female\n#&gt; 0  Adelie  Torgersen       3750.0    male  2007       0\n#&gt; 1  Adelie  Torgersen       3800.0  female  2007       1\n#&gt; 2  Adelie  Torgersen       3250.0  female  2007       1\npd.DataFrame を使用する場合、axis = 'index' を指定することで、index に基づく行の除外を行うことができます。\ndf = pd.DataFrame(\n    {'x': [1, 2, 3, 4]}, \n    index=['keep', 'drop_me', 'drop_you', 'save']\n    )\n\nprint(py4st.filtering_out(\n  df, starts_with = 'drop', axis = 'index'\n  ))\n#&gt;       x\n#&gt; keep  1\n#&gt; save  4",
+    "text": "使用例 Example\nimport py4stats as py4st\nimport pandas as pd\nimport narwhals.selectors as ncs\nfrom palmerpenguins import load_penguins\n\npenguins = load_penguins().head(3) # サンプルデータの読み込み\n\nprint(penguins)\n#&gt;   species     island  bill_length_mm  bill_depth_mm  flipper_length_mm  body_mass_g     sex  year  female\n#&gt; 0  Adelie  Torgersen            39.1           18.7              181.0       3750.0    male  2007       0\n#&gt; 1  Adelie  Torgersen            39.5           17.4              186.0       3800.0  female  2007       1\n#&gt; 2  Adelie  Torgersen            40.3           18.0              195.0       3250.0  female  2007       1\n# *args で列名を直接指定\nprint(py4st.filtering_out(penguins, 'year', 'island', 'sex'))\n#&gt;   species  bill_length_mm  bill_depth_mm  flipper_length_mm  body_mass_g\n#&gt; 0  Adelie            39.1           18.7              181.0       3750.0\n#&gt; 1  Adelie            39.5           17.4              186.0       3800.0\n#&gt; 2  Adelie            40.3           18.0              195.0       3250.0\n\n# narwhals.selector の使用例 文字列型の変数を除外\nprint(py4st.filtering_out(penguins, ncs.string()))\n#&gt;    bill_length_mm  bill_depth_mm  flipper_length_mm  body_mass_g  year\n#&gt; 0            39.1           18.7              181.0       3750.0  2007\n#&gt; 1            39.5           17.4              186.0       3800.0  2007\n#&gt; 2            40.3           18.0              195.0       3250.0  2007\n\n# 列名に 'length' を含む列を除外\nprint(py4st.filtering_out(penguins, contains = 'length'))\n#&gt;   species     island  bill_depth_mm  body_mass_g     sex  year  female\n#&gt; 0  Adelie  Torgersen           18.7       3750.0    male  2007       0\n#&gt; 1  Adelie  Torgersen           17.4       3800.0  female  2007       1\n#&gt; 2  Adelie  Torgersen           18.0       3250.0  female  2007       1\n\n# 列名が 'bill' から始まる列を除外\nprint(py4st.filtering_out(penguins, starts_with = 'bill'))\n#&gt;   species     island  flipper_length_mm  body_mass_g     sex  year  female\n#&gt; 0  Adelie  Torgersen              181.0       3750.0    male  2007       0\n#&gt; 1  Adelie  Torgersen              186.0       3800.0  female  2007       1\n#&gt; 2  Adelie  Torgersen              195.0       3250.0  female  2007       1\n\n# 列名が '_mm' で終わる列を除外\nprint(py4st.filtering_out(penguins, ends_with = '_mm'))\n#&gt;   species     island  body_mass_g     sex  year  female\n#&gt; 0  Adelie  Torgersen       3750.0    male  2007       0\n#&gt; 1  Adelie  Torgersen       3800.0  female  2007       1\n#&gt; 2  Adelie  Torgersen       3250.0  female  2007       1\npd.DataFrame を使用する場合、axis = 'index' を指定することで、index に基づく行の除外を行うことができます。\ndf = pd.DataFrame(\n    {'x': [1, 2, 3, 4]}, \n    index=['keep', 'drop_me', 'drop_us', 'save']\n    )\n\nprint(py4st.filtering_out(\n  df, starts_with = 'drop', axis = 'index'\n  ))\n#&gt;       x\n#&gt; keep  1\n#&gt; save  4",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>13</span>  <span class='chapter-title'>filtering_out</span>"
@@ -611,7 +611,7 @@
     "href": "man/relocate.html",
     "title": "relocate",
     "section": "",
-    "text": "概要\nデータフレームの列を削除することなく並び替える関数\nrelocate() 関数は、データフレームに含まれる列を削除することなく並び替えるための関数です。指定した列（1 列または複数列）を、先頭・特定の列の前・特定の列の後に移動させることができます。本関数は、R の dplyr:relocate() に近い操作感を Python で提供することを目的としています。列の指定には、列名（文字列）だけでなく、narwhals の式（Expr）や Selector を利用でき、柔軟な列選択",
+    "text": "概要\nデータフレームの列を削除することなく並び替える関数\nrelocate() 関数は、データフレームに含まれる列を削除することなく並び替えるための関数です。指定した列（1 列または複数列）を、先頭・特定の列の前・特定の列の後に移動させることができます。本関数は、R の dplyr:relocate() に近い操作感を Python で提供することを目的としています。列の指定には、列名（文字列）だけでなく、narwhals の式（Expr）や nw.Selector を用いた柔軟な列選択にも対応しています。",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>14</span>  <span class='chapter-title'>relocate</span>"
@@ -2525,7 +2525,18 @@
     "href": "articles/project_guide.html",
     "title": "Project Guide",
     "section": "",
-    "text": "Py4Stats ライブラリのモジュール構成",
+    "text": "Py4Stats の設計指針",
+    "crumbs": [
+      "**Contributing Notes**",
+      "<span class='chapter-number'>47</span>  <span class='chapter-title'>Project Guide</span>"
+    ]
+  },
+  {
+    "objectID": "articles/project_guide.html#py4stats-の設計指針",
+    "href": "articles/project_guide.html#py4stats-の設計指針",
+    "title": "Project Guide",
+    "section": "",
+    "text": "Do with Py4Stats\n\n探索的データ分析および回帰分析の結果レポートティングを円滑化・簡略化するためのユーティリティを提供する\n基本的には1つの関数で完結する処理を実装する\nユーザーフレンドリーな UI を重視する\n\n引数関連のエラーメッセージには、ユーザーが取るべきアクションが分かるようなメッセージを提供する\n\n\nNot do with Py4Stats\n\n有力な既存の Python ライブラリで提供されている機能は実装しない\nユーザーに既存のワークフローの変更を求めない\nユーザーに内部実装などに関する知識を要求しない",
     "crumbs": [
       "**Contributing Notes**",
       "<span class='chapter-number'>47</span>  <span class='chapter-title'>Project Guide</span>"
@@ -2535,8 +2546,8 @@
     "objectID": "articles/project_guide.html#py4stats-ライブラリのモジュール構成",
     "href": "articles/project_guide.html#py4stats-ライブラリのモジュール構成",
     "title": "Project Guide",
-    "section": "",
-    "text": "py4stats\n├ メインモジュール               # Import py4stats で直接読み込み\n│ ├ eda_tools                   # 探索的データ解析と前処理\n│ │ ├ _.nw                         # narwhals ベースの現行実装\n│ │ └ _.pandas                     # Pandas ベースの旧実装（廃止予定）\n│ └ regression_tools            # 回帰分析の可視化と表作成\n└ サブモジュール                 # Import py4stats では読み込まれない\n　 ├ heckit_helper               #regression_tools の追加メソッド\n　 └ building_block              # 内部実装用のアサーション関数とユーティリティ関数を提供",
+    "section": "Py4Stats ライブラリのモジュール構成",
+    "text": "Py4Stats ライブラリのモジュール構成\npy4stats\n├ メインモジュール               # Import py4stats で直接読み込み\n│ ├ eda_tools                   # 探索的データ解析と前処理\n│ │ ├ _.nw                         # narwhals ベースの現行実装\n│ │ └ _.pandas                     # Pandas ベースの旧実装（廃止予定）\n│ └ regression_tools            # 回帰分析の可視化と表作成\n└ サブモジュール                 # Import py4stats では読み込まれない\n　 ├ heckit_helper               #regression_tools の追加メソッド\n　 └ building_block              # 内部実装用のアサーション関数とユーティリティ関数を提供",
     "crumbs": [
       "**Contributing Notes**",
       "<span class='chapter-number'>47</span>  <span class='chapter-title'>Project Guide</span>"
@@ -2702,6 +2713,17 @@
     "title": "narwhals についての考察",
     "section": "narwhals での再現が難しい Pandas の機能",
     "text": "narwhals での再現が難しい Pandas の機能\n\n異なるデータフレーム間の二項演算\nPandas の場合、2つのデータフレーム df1 と df2 が共通の columns と index をもつ限り、df3 = df1 + df2 によって二項演算を行うことができ、このとき、columns と index をもつ要素同士が加算されます。しかし、narwhals には Pandas のような index が存在しないため、この計算は再現が困難です。\n\n\nデータフレームへの値の代入\nPandas の場合、df.loc[i, j] = x という形でデータフレーム df の i, j 要素に値 x を代入することができますが、narwhals ではこれに相当する演算 df[i, j] = x は禁止されています。\n異なるデータフレーム間の二項演算に制約があること、そしてデータフレームへの値の代入が難しいことから、tabyl() 関数では、集計後の作表処理の一部を Pandas に依存しています。\n\n\n任意の関数でグループ別集計を行う\n自作関数を使ってグループ別集計を行いたい場合、Pandas であれば df.groupby(group)[x].agg(my_func) で行うことができます。同じく narwhals でも\ndata_nw.group_by(nw.col(group)).agg(nw.col('x').mean())\nという形でグループ別の集計がサポートされているものの、ここで使用できる集計関数は narwhals で実装されているものに限定されるようで、次のような方法で自作関数を使用することはできません。\ndata_nw.group_by(nw.col(group)).agg(nw.col('x').my_func())\ndata_nw.group_by(nw.col(group)).agg(my_func(nw.col('x')))\n例えば Py4Stats では、Pareto_plot() 関数の内部実装に使用している make_rank_table() 関数において、任意の関数をグループ別集計に使うために、サブセッティングを使って group_by() メソッドの使用を回避するという変則的（かつ、おそらく非効率 ）な実装を行なっています。\nstat_values = [\n            aggfunc(\n                data_nw.filter(nw.col(group) == g)[values]\n                .drop_nulls().to_native()\n                ) \n            for g in group_value\n            ]\nまた、上記の回避策のもう1つの問題として、data_nw.filter(nw.col(group) == g) では、複数の変数に基づくグループ化に対応できないことも挙げられます。make_rank_table() 関数については、Pareto_plot() 関数でパレート図を作図するときに横軸になる group が多変数だと対応できないので、group が1変数（= 引数として1つの文字列だけを受け付ける）とすることで妥協しています。\nただ、現時点で narwhals.GroupBy クラスに実装されているメソッドは .agg() しかなく、開発が進めばより柔軟な関数適用が可能になるのではないかと期待しています。\n\n\n追記（2026年2月18日）\nnw.DataFrame で任意の関数を使った集計を実現する方法として、Py4Stats v0.5.0 では group_map() 関数と group_modify() 関数を新たに導入しました。これらの関数は、データフレームを変数を基準としたグループに分割した上で、その部分集合に対して個別に任意の関数を適用するという単純なもので、パフォーマンス面では必ずしも最適化されていません。したがって、下記のような pd.DataFrame.groupby() や nw.DataFrame.group_by() で実現できる範疇のシンプルな集計操作なら、これらの既存のメソッドを用いた方が高速なのが実情です。\ndiamonds = sns.load_dataset('diamonds')\ndiamonds_nw = nw.from_native(diamonds)\n\n%timeit -r 10 -n 10 diamonds.groupby('cut', observed = True)['price'].mean()\n#&gt; 814 μs ± 157 μs per loop (mean ± std. dev. of 10 runs, 10 loops each)\n\n%timeit -r 10 -n 10  diamonds_nw.group_by('cut').agg(nw.col('price').mean())\n#&gt; The slowest run took 4.80 times longer than the fastest. This could mean that an intermediate result is being cached.\n#&gt; 1.58 ms ± 1.12 ms per loop (mean ± std. dev. of 10 runs, 10 loops each)\n\n# Py4Stats の関数\n%timeit -r 10 -n 10 py4st.group_map(diamonds, 'cut', func = lambda df: df['price'].mean())\n#&gt; 9.7 ms ± 1.99 ms per loop (mean ± std. dev. of 10 runs, 10 loops each)\n\n%timeit -r 10 -n 10 py4st.group_modify(diamonds, 'cut', func = lambda df: df['price'].mean())\n#&gt; 17.1 ms ± 4.99 ms per loop (mean ± std. dev. of 10 runs, 10 loops each)",
+    "crumbs": [
+      "**Contributing Notes**",
+      "<span class='chapter-number'>49</span>  <span class='chapter-title'>narwhals についての考察</span>"
+    ]
+  },
+  {
+    "objectID": "articles/narwhalsについての考察.html#narwhals-独自の-ui-が露出することの是非",
+    "href": "articles/narwhalsについての考察.html#narwhals-独自の-ui-が露出することの是非",
+    "title": "narwhals についての考察",
+    "section": "narwhals 独自の UI が露出することの是非",
+    "text": "narwhals 独自の UI が露出することの是非\n本節の前提として、py4stats.eda_tools の関数を実装するに当たり、ユーザーに内部実装に関する知識や narwhals に関する知識を要求しないために、narwhals 独自 UI の使用をユーザーに強制するような関数の実装は避けたいと考えています。\n例えば、データフレームの列を選択した上で、何かしらの処理を加える次のような関数を考えてみましょう。\ndef transform(\n    data: IntoFrameT, \n    *exprs: IntoExpr | Iterable[IntoExpr],\n    **named_exprs: IntoExpr\n):\n    data_nw = nw.from_native(data)\n    result = data_nw.with_columns(exprs, **named_exprs)\n    ...\n\n    return result.to_native()\nこの関数は nw.DataFrame.with_columns() メソッドでデータフレームに列変換を加えた上で、追加の処理を行う関数です。\ntransform() 関数の問題点の1つは、*exprs や **named_exprs 引数に nw.Expr クラスや nw.Selector クラスのオブジェクトを代入する必要があり、ユーザーに narwhals の仕様に関する知識を要求してしまうことです。narwhals に慣れたユーザーにとってはバックエンドを問わず同じ UI で列変換を行えることは便利ですが、Pandas や polars といった特定のバックエンドには慣れているものの、narwhals については全く知らないという大部分のユーザーにとっては慣れた操作が通用しない、非直感的なものに感じられるでしょう。したがって、引数に nw.Expr クラスや nw.Selector クラスのオブジェクトを代入しないと利用出来ない関数の実装は避けるべきだと考えています。\npy4stats.eda_tools モジュールにおいても、relocate() 関数や filtering_out() 関数の *args 引数は nw.Expr や nw.Selector を受け入れられるようになっていますが、文字列や文字列のリストも指定できて nw.Expr や nw.Selector の使用は必須ではないため、許容範囲内ではないかと考えています。",
     "crumbs": [
       "**Contributing Notes**",
       "<span class='chapter-number'>49</span>  <span class='chapter-title'>narwhals についての考察</span>"

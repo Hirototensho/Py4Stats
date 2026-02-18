@@ -104,7 +104,7 @@ pd.DataFrame を使用する場合、`axis = 'index'` を指定することで�
 ```python
 df = pd.DataFrame(
     {'x': [1, 2, 3, 4]}, 
-    index=['keep', 'drop_me', 'drop_you', 'save']
+    index=['keep', 'drop_me', 'drop_us', 'save']
     )
 
 print(py4st.filtering_out(
