@@ -1109,8 +1109,8 @@ def coefplot_regression(
     build.assert_character(palette, arg_name = 'palette')
 
     # 回帰係数の表を抽出
-    tidy_ci_high = tidy(mod, conf_level = conf_level[0])
-    tidy_ci_row = tidy(mod, conf_level = conf_level[1])
+    tidy_ci_row = tidy(mod, conf_level = conf_level[0])
+    tidy_ci_high = tidy(mod, conf_level = conf_level[1])
 
     # subset が指定されていれば、回帰係数の部分集合を抽出する
     if subset is not None:
@@ -1130,21 +1130,21 @@ def coefplot_regression(
 def coef_dot(
     tidy_ci_high: pd.DataFrame,
     tidy_ci_low: pd.DataFrame,
-    ax: Optional[Axes] = None,
     show_Intercept: bool = False,
     show_vline: bool = True,
     palette: Sequence[str] = ("#1b69af", "#629CE7"),
     estimate: str = "estimate",
     conf_lower: str = "conf_lower",
     conf_higher: str = "conf_higher",
+    ax: Optional[Axes] = None,
 ) -> None:
     """Draw coefficient dots and confidence intervals from tidy tables.
 
     Args:
         tidy_ci_high (pandas.DataFrame):
-            Tidy table for the higher confidence level (typically narrower line).
+            Tidy table for the higher confidence level (typically wider line).
         tidy_ci_low (pandas.DataFrame):
-            Tidy table for the lower confidence level (typically wider line).
+            Tidy table for the lower confidence level (typically narrower line).
         ax (matplotlib.axes.Axes | None):
             Axes to draw on. If None, a new figure/axes is created.
         show_Intercept (bool):
@@ -1198,15 +1198,17 @@ def coef_dot(
 
     # エラーバーの作図
     ax.hlines(
-        y = tidy_ci_low.index, xmin = tidy_ci_low[conf_lower], xmax = tidy_ci_low[conf_higher],
+        y = tidy_ci_high.index, xmin = tidy_ci_high[conf_lower], xmax = tidy_ci_high[conf_higher],
         linewidth = 1.5,
         color = palette[1]
     )
+
     ax.hlines(
-        y = tidy_ci_high.index, xmin = tidy_ci_high[conf_lower], xmax = tidy_ci_high[conf_higher],
+        y = tidy_ci_low.index, xmin = tidy_ci_low[conf_lower], xmax = tidy_ci_low[conf_higher],
         linewidth = 3,
         color = palette[0]
     )
+
 
     # 回帰係数の推定値を表す点の作図
     ax.scatter(
@@ -1512,10 +1514,10 @@ def mfxplot(
     # ==============================================================
 
     # 回帰係数の表を抽出
-    tidy_ci_high = tidy_mfx(
+    tidy_ci_row = tidy_mfx(
         mod, at = at, method = method, dummy = dummy, conf_level = conf_level[0]
         )
-    tidy_ci_row =  tidy_mfx(
+    tidy_ci_high =  tidy_mfx(
         mod, at = at, method = method, dummy = dummy, conf_level = conf_level[1]
         )
 
@@ -1624,7 +1626,7 @@ def Blinder_Oaxaca(
             - unobserved_diff
     """
     assert_reg_reuslt(model1, arg_name = 'model1')
-    assert_reg_reuslt(model2, arg_name = 'model1')
+    assert_reg_reuslt(model2, arg_name = 'model2')
 
     X_1 = pd.DataFrame(model1.model.exog, columns = model1.model.exog_names)
     X_2 = pd.DataFrame(model2.model.exog, columns = model2.model.exog_names)
@@ -1668,8 +1670,13 @@ def plot_Blinder_Oaxaca(
   Returns:
       None
   """
+  assert_reg_reuslt(model1, arg_name = 'model1')
+  assert_reg_reuslt(model2, arg_name = 'model2')
+
   diff_type = build.arg_match(
-      diff_type, ['observed_diff', 'unobserved_diff'],
+      diff_type, 
+      values = ['observed_diff', 'unobserved_diff'],
+      arg_name = 'diff_type',
       multiple = True
       )
   fig = None
