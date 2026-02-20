@@ -49,10 +49,11 @@ py4stats
 import py4stats as py4st
 
 # サブモジュールの読み込み
+from py4stats import eda_tools as eda
 from py4stats import heckit_helper
 from py4stats import building_block as build 
 
-# eda_tools のバックエンド別実装の明示的な読み込み
+# eda_tools のバックエンド別実装の明示的な読み込み（近く変更の可能性あり）
 from py4stats.eda_tools import _nw as eda_nw
 from py4stats.eda_tools import _pandas as eda_pd
 ```
