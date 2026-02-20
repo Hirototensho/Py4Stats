@@ -1,4 +1,8 @@
 # tests/test_eda_tools.py
+from py4stats import building_block as build
+from py4stats.eda_tools import _nw as eda_nw
+# from py4stats import eda_tools as eda_nw
+
 import pytest
 import pandas as pd
 import numpy as np
@@ -12,9 +16,6 @@ import pyarrow as pa
 import narwhals
 import narwhals as nw
 import narwhals.selectors as ncs
-
-from py4stats.eda_tools import _nw as eda_nw
-from py4stats import building_block as build # py4stats のプログラミングを補助する関数群
 
 from typing import (Literal)
 

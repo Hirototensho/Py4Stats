@@ -53,7 +53,7 @@
 #     weighted_mean
 # )
 
-from .opration import (
+from .operation import (
     Pareto_plot,
     bind_rows,
     compare_df_cols,

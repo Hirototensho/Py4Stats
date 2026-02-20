@@ -71,7 +71,7 @@ from .regression_tools import (
 #     weighted_mean
 # )
 
-from .eda_tools.opration import (
+from .eda_tools.operation import (
     Pareto_plot,
     bind_rows,
     compare_df_cols,
