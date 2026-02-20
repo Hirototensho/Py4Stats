@@ -1700,7 +1700,7 @@
     "href": "man/Blinder_Oaxaca.html",
     "title": "Blinder_Oaxaca, plot_Blinder_Oaxaca",
     "section": "",
-    "text": "概要\n2つのサブサンプルを用いた回帰分析の推定結果に対して、Blinder-Oaxaca分解を行います。\nいま、ある変数 \\(s\\) を用いて \\(s = m\\) と \\(s = f\\) の2つのサブグループからなるデータセットがあるとし、次のような回帰式を仮定します。\n\\[\n\\begin{aligned}\nY_{i}^s = \\boldsymbol{X}_i^s\\boldsymbol{\\beta}^s + \\epsilon_i^s, &&\ns = m, f\n\\end{aligned}\n\\tag{1}\n\\]\nここで、\\(\\boldsymbol{X}_i^s\\) サブグループ \\(s\\) に属する個人 \\(i\\) についての説明変数からなる行列で、\\(\\boldsymbol{\\beta}^s\\) はサブグループ \\(s\\) のについての回帰係数、\\(\\epsilon_i^s\\) は誤差項です。 　さらに、サブグループ \\(s\\) の被説明変数の平均値を \\(\\bar{Y}^s\\) とし、説明変数の平均値を \\(\\bar{\\boldsymbol{X}}^s\\) とするとき、Blinder-Oaxaca分解は2つのグループにおける被説明変数の平均値の差 \\(\\bar{Y}^m - \\bar{Y}^f\\) を次のように分解します。\n\\[\n\\begin{aligned}\n\\bar{Y}^m - \\bar{Y}^f = (\\bar{\\boldsymbol{X}}^m - \\bar{\\boldsymbol{X}}^f)\\boldsymbol{\\beta}^m + \\bar{\\boldsymbol{X}}^f(\\boldsymbol{\\beta}^m - \\boldsymbol{\\beta}^f)\n\\end{aligned}\n\\tag{2}\n\\]\nこのとき、式(2)右辺の各項は、それぞれ次のような意味を持ちます。\n式(1)および式(2)については朝井(2014, p.9)を参照しました。",
+    "text": "概要\n2つのサブサンプルを用いた回帰分析の推定結果に対して、Blinder-Oaxaca分解を行います。",
     "crumbs": [
       "**Regression**",
       "<span class='chapter-number'>33</span>  <span class='chapter-title'>Blinder_Oaxaca, plot_Blinder_Oaxaca</span>"
@@ -1711,7 +1711,7 @@
     "href": "man/Blinder_Oaxaca.html#概要",
     "title": "Blinder_Oaxaca, plot_Blinder_Oaxaca",
     "section": "",
-    "text": "Blinder_Oaxaca(model1, model2)\n\nplot_Blinder_Oaxaca(\n    model1, model2,\n    diff_type = ['observed_diff', 'unobserved_diff'],\n    ax = None, \n)\n\n\n\n\n\n\n\\((\\bar{\\boldsymbol{X}}^m - \\bar{\\boldsymbol{X}}^f)\\boldsymbol{\\beta}^m\\)：2つのグループの観測可能な属性の差に起因する被説明変数の差 observed_diff\n\\(\\bar{\\boldsymbol{X}}^f(\\boldsymbol{\\beta}^m - \\boldsymbol{\\beta}^f)\\)：2つのグループの観測できない要因の違いに起因する被説明変数の差 unobserved_diff",
+    "text": "Blinder_Oaxaca(\n    model1: RegressionResultsWrapper,\n    model2: RegressionResultsWrapper,\n)\n\nplot_Blinder_Oaxaca(\n    model1: RegressionResultsWrapper,\n    model2: RegressionResultsWrapper,\n    diff_type: Union[str, Sequence[str]] = (\"observed_diff\", \"unobserved_diff\"),\n    ax: Optional[Union[Axes, Sequence[Axes]]] = None,\n)",
     "crumbs": [
       "**Regression**",
       "<span class='chapter-number'>33</span>  <span class='chapter-title'>Blinder_Oaxaca, plot_Blinder_Oaxaca</span>"
@@ -1723,6 +1723,17 @@
     "title": "Blinder_Oaxaca, plot_Blinder_Oaxaca",
     "section": "引数 Argument",
     "text": "引数 Argument\n\nmodel1：statsmodels で作成した回帰分析の結果（必須）。\nmodel2：statsmodels で作成した回帰分析の結果（必須）。\ndiff_type （plot_Blinder_Oaxaca()のみ）list of str or str  　グラフの描画に使用する要約統計量の種類。初期設定では observed_diff と unobserved_diff の両方を表示します。\nax：matplotlib の ax オブジェクト。複数のグラフを並べる場合などに使用します。 　 ## 使用例 Examples\n\nimport pandas as pd\nimport statsmodels.formula.api as smf\nimport py4stats as py4st\n\nwage1 = wooldridge.data('wage1')\n\nfit_female = smf.ols(\n    'lwage ~ educ + exper + expersq + tenure + tenursq + married', \n    data = wage1.query('female == 1')\n    ).fit()\n\nfit_male = smf.ols(\n    'lwage ~ educ + exper + expersq + tenure + tenursq + married', \n    data = wage1.query('female == 0')\n    ).fit()\npy4st.compare_ols(\n    list_models = [fit_female, fit_male],\n    model_name = ['female', 'male']\n    )\n\n\n\nterm\nfemale\nmale\n\n\n\n\nIntercept\n0.3159 **(0.1401)\n0.2255 *(0.1302)\n\n\neduc\n0.0737 ***(0.0104)\n0.0830 ***(0.0089)\n\n\nexper\n0.0200 ***(0.0072)\n0.0329 ***(0.0076)\n\n\nexpersq\n-0.0004 ***(0.0002)\n-0.0006 ***(0.0002)\n\n\ntenure\n0.0391 ***(0.0117)\n0.0301 ***(0.0089)\n\n\ntenursq\n-0.0014 ***(0.0005)\n-0.0005 *(0.0003)\n\n\nmarried\n-0.0548 (0.0539)\n0.1718 ***(0.0595)\n\n\nrsquared_adj\n0.2446\n0.4509\n\n\nnobs\n252\n274\n\n\ndf\n6\n6\n\n\n\nwage_decomp = py4st.Blinder_Oaxaca(\n    model1 = fit_female,\n    model2 = fit_male\n)\nwage_decomp\n\n\n\nterms\nobserved_diff\nunobserved_diff\n\n\n\n\nIntercept\n0\n-0.0903337\n\n\neduc\n0.0390661\n0.114713\n\n\nexper\n0.0371577\n0.211177\n\n\nexpersq\n-0.0216026\n-0.0962631\n\n\ntenure\n0.0859831\n-0.0327949\n\n\ntenursq\n-0.0342727\n0.0378497\n\n\nmarried\n0.0278806\n0.118657\n\n\n\npy4st.plot_Blinder_Oaxaca(\n    model1 = fit_female,\n    model2 = fit_male\n)\n\n\n\nplot_Blinder_Oaxaca1\n\n\ndiff_type を指定することで、一方の統計量だけを表示することもできます。\npy4st.plot_Blinder_Oaxaca(\n    model1 = fit_female,\n    model2 = fit_male,\n    diff_type = 'unobserved_diff'\n)\n\n\n\nplot_Blinder_Oaxaca2\n\n\nグラフのサイズや解像度を指定するには、次のように行います。\nfig, ax = plt.subplots(1, 2, figsize = (1.1 * 2 * 4, 4), sharey = True, dpi = 200)\n\npy4st.plot_Blinder_Oaxaca(\n    model1 = fit_female,\n    model2 = fit_male,\n    ax = ax\n)\nfig.tight_layout()",
+    "crumbs": [
+      "**Regression**",
+      "<span class='chapter-number'>33</span>  <span class='chapter-title'>Blinder_Oaxaca, plot_Blinder_Oaxaca</span>"
+    ]
+  },
+  {
+    "objectID": "man/Blinder_Oaxaca.html#note",
+    "href": "man/Blinder_Oaxaca.html#note",
+    "title": "Blinder_Oaxaca, plot_Blinder_Oaxaca",
+    "section": "Note",
+    "text": "Note\n　いま、ある変数 \\(s\\) を用いて \\(s = m\\) と \\(s = f\\) の2つのサブグループからなるデータセットがあるとし、次のような回帰式を仮定します。\n\\[\n\\begin{aligned}\nY_{i}^s = \\boldsymbol{X}_i^s\\boldsymbol{\\beta}^s + \\epsilon_i^s, &&\ns = m, f\n\\end{aligned}\n\\tag{1}\n\\]\n　ここで、\\(\\boldsymbol{X}_i^s\\) サブグループ \\(s\\) に属する個人 \\(i\\) についての説明変数からなる行列で、\\(\\boldsymbol{\\beta}^s\\) はサブグループ \\(s\\) のについての回帰係数、\\(\\epsilon_i^s\\) は誤差項です。 　さらに、サブグループ \\(s\\) の被説明変数の平均値を \\(\\bar{Y}^s\\) とし、説明変数の平均値を \\(\\bar{\\boldsymbol{X}}^s\\) とするとき、Blinder-Oaxaca分解は2つのグループにおける被説明変数の平均値の差 \\(\\bar{Y}^m - \\bar{Y}^f\\) を次のように分解します。\n\\[\n\\begin{aligned}\n\\bar{Y}^m - \\bar{Y}^f = (\\bar{\\boldsymbol{X}}^m - \\bar{\\boldsymbol{X}}^f)\\boldsymbol{\\beta}^m + \\bar{\\boldsymbol{X}}^f(\\boldsymbol{\\beta}^m - \\boldsymbol{\\beta}^f)\n\\end{aligned}\n\\tag{2}\n\\]\nこのとき、式(2)右辺の各項は、それぞれ次のような意味を持ちます。\n\n\\((\\bar{\\boldsymbol{X}}^m - \\bar{\\boldsymbol{X}}^f)\\boldsymbol{\\beta}^m\\)：2つのグループの観測可能な属性の差に起因する被説明変数の差 observed_diff\n\\(\\bar{\\boldsymbol{X}}^f(\\boldsymbol{\\beta}^m - \\boldsymbol{\\beta}^f)\\)：2つのグループの観測できない要因の違いに起因する被説明変数の差 unobserved_diff\n\n　式(1)および式(2)については朝井(2014, p.9)を参照しました。",
     "crumbs": [
       "**Regression**",
       "<span class='chapter-number'>33</span>  <span class='chapter-title'>Blinder_Oaxaca, plot_Blinder_Oaxaca</span>"
@@ -2118,7 +2129,7 @@
     "href": "man/miscellaneous.html",
     "title": "building_block.style_number, _currency, _percent",
     "section": "",
-    "text": "概要\n数字のフォーマットを変更する関数",
+    "text": "概要\n数値のシーケンスを、可読性の高い文字列表現に整形します。",
     "crumbs": [
       "**building_block**",
       "<span class='chapter-number'>40</span>  <span class='chapter-title'>building_block.style_number, _currency, _percent</span>"
@@ -2129,7 +2140,7 @@
     "href": "man/miscellaneous.html#概要",
     "title": "building_block.style_number, _currency, _percent",
     "section": "",
-    "text": "style_number(x, digits = 2, big_mark = ',')\n\nstyle_currency(x, symbol = '$', digits = 0, big_mark = ',')\n\nstyle_percent(x, digits = 2, unit = 100, symbol = '%')",
+    "text": "style_number(): 固定小数点形式で数値を整形します。桁区切り記号を指定できます。\nstyle_currency(): 固定小数点形式で整形した数値の前に通貨記号を付与します（例: “$”）。\nstyle_percent(): 値を指定した倍率（既定値: 100）でスケーリングした後、パーセント記号などの単位記号を末尾に付与します。\n\nstyle_number(\n    x: Sequence[int, float, np.number], \n    digits: int = 2, \n    big_mark: str = \",\"\n    ) -&gt; pd.Series\n\nstyle_currency(\n    x: Sequence[int, float, np.number], \n    digits: int = 0, \n    symbol: str = \"$\", \n    big_mark: str = \",\"\n    ) -&gt; pd.Series\n\nstyle_percent(\n    x: Sequence[int, float, np.number], \n    digits: int = 2, \n    unit: Union[int, float] = 100,\n    symbol: str = \"%\"\n    ) -&gt; pd.Series",
     "crumbs": [
       "**building_block**",
       "<span class='chapter-number'>40</span>  <span class='chapter-title'>building_block.style_number, _currency, _percent</span>"
@@ -2140,7 +2151,7 @@
     "href": "man/miscellaneous.html#引数-argument",
     "title": "building_block.style_number, _currency, _percent",
     "section": "引数 Argument",
-    "text": "引数 Argument\n\nx：scalar or array-like of int or float\np_value：scalar or array-like of int or float\ndigits：int 小数点以下の桁数\nbig_mark：int 3桁毎の桁区切りに使用する記号。カンマ ',', アンダーバー '_', もしくは 非表示 '' から選ぶことができます。\nsymbol：str 　貨幣記号を表す文字列",
+    "text": "引数 Argument\n\nx：scalar or array-like of int or float 整形対象となる数値の list もしくは pd.Series\ndigits：int 小数点以下の桁数。初期設定は以下の通りです。\n\nstyle_number(): 2\nstyle_currency(): 0\nstyle_percent(): 2\n\nbig_mark：int 3桁毎の桁区切りに使用する記号。カンマ ',', アンダーバー '_', もしくは 非表示 '' から選ぶことができます。\nsymbol：str 　貨幣記号を表す文字列\nunit：int or float style_percent() において、整形前に値へ掛ける倍率。既定値は 100 です。",
     "crumbs": [
       "**building_block**",
       "<span class='chapter-number'>40</span>  <span class='chapter-title'>building_block.style_number, _currency, _percent</span>"
@@ -2151,7 +2162,7 @@
     "href": "man/miscellaneous.html#返り値-value",
     "title": "building_block.style_number, _currency, _percent",
     "section": "返り値 Value",
-    "text": "返り値 Value\n　以下の値をもつ pd.Series を返します。\n\nbuilding_block.style_number()： 任意の数値に対して、小数点以下を桁数 digits に丸め、3桁区切り記号を通過した値を文字列として返します。f-string によるフォーマット f'{x:{big_mark}.{digits}f}' を用いて実装されています。\nbuilding_block.style_currency()： build.style_number() と同じく任意の数値に対して、小数点以下を桁数 digits に丸め、3桁区切り記号を通過した値を文字列として返しますが、さらに貨幣記号を追加します。f-string によるフォーマット f'{symbol}{x:{big_mark}.{digits}f}' を用いて実装されています。\nbuilding_block.style_percent()： 任意の数値をパーセンテージ表示に変換した値を文字列として返します。f-string によるフォーマット f'{x:,.{digits}%}' を用いて実装されています。",
+    "text": "返り値 Value\n　以下の値をもつ pd.Series を返します。\n\nbuilding_block.style_number()： 任意の数値に対して、小数点以下を桁数 digits に丸め、3桁区切り記号を追加した値を文字列として返します。f-string によるフォーマット f'{x:{big_mark}.{digits}f}' を用いて実装されています。\nbuilding_block.style_currency()： build.style_number() と同じく任意の数値に対して、小数点以下を桁数 digits に丸め、3桁区切り記号と貨幣記号を追加した文字列を返します。f-string によるフォーマット f'{symbol}{x:{big_mark}.{digits}f}' を用いて実装されています。\nbuilding_block.style_percent()： 任意の数値をパーセンテージ表示に変換した値を文字列として返します。f-string によるフォーマット f'{x*unit:.{digits}f}{symbol}' を用いて実装されています。",
     "crumbs": [
       "**building_block**",
       "<span class='chapter-number'>40</span>  <span class='chapter-title'>building_block.style_number, _currency, _percent</span>"
@@ -2525,7 +2536,7 @@
     "href": "articles/project_guide.html",
     "title": "Project Guide",
     "section": "",
-    "text": "Py4Stats の設計指針",
+    "text": "Py4Stats の設計指針\nPy4Stats ライブラリでは、次のような設計方針で開発を進めています。\n上記の設計方針を実現するために、次のような取り組みを行なっています。",
     "crumbs": [
       "**Contributing Notes**",
       "<span class='chapter-number'>47</span>  <span class='chapter-title'>Project Guide</span>"
@@ -2536,7 +2547,7 @@
     "href": "articles/project_guide.html#py4stats-の設計指針",
     "title": "Project Guide",
     "section": "",
-    "text": "Do with Py4Stats\n\n探索的データ分析および回帰分析の結果レポートティングを円滑化・簡略化するためのユーティリティを提供する\n基本的には1つの関数で完結する処理を実装する\nユーザーフレンドリーな UI を重視する\n\n引数関連のエラーメッセージには、ユーザーが取るべきアクションが分かるようなメッセージを提供する\n\n\nNot do with Py4Stats\n\n有力な既存の Python ライブラリで提供されている機能は実装しない\nユーザーに既存のワークフローの変更を求めない\nユーザーに内部実装などに関する知識を要求しない",
+    "text": "Python を用いたデータ分析の初心者から中級者をユーザー層として想定する\nユーザーが分析ワークフローの大きな変更を強いられることなく利用できること\nPython や統計学に関する高度な知識を要求しないこと\n必要最小限のコードで使用できること\n\n\n\nTo do with Py4Stats\n\n探索的データ分析および回帰分析の結果レポートティングを円滑化・簡略化するためのユーティリティを提供する\n基本的には1つの関数で完結する処理を実装する\nユーザーフレンドリーな UI を重視する\n\nドキュメントを充実させる\n不適切な入力でエラーが生じた場合、その理由や適切な値の候補を提示すること\ndocstring や API ドキュメントページでは、機能面の説明に加えてすぐにコピーして使える使用例を提示する\n\n\nNot do with Py4Stats\n\n既存の Python ライブラリで良い実装が提供されている機能は実装しない",
     "crumbs": [
       "**Contributing Notes**",
       "<span class='chapter-number'>47</span>  <span class='chapter-title'>Project Guide</span>"
@@ -2547,7 +2558,7 @@
     "href": "articles/project_guide.html#py4stats-ライブラリのモジュール構成",
     "title": "Project Guide",
     "section": "Py4Stats ライブラリのモジュール構成",
-    "text": "Py4Stats ライブラリのモジュール構成\npy4stats\n├ メインモジュール               # Import py4stats で直接読み込み\n│ ├ eda_tools                   # 探索的データ解析と前処理\n│ │ ├ _.nw                         # narwhals ベースの現行実装\n│ │ └ _.pandas                     # Pandas ベースの旧実装（廃止予定）\n│ └ regression_tools            # 回帰分析の可視化と表作成\n└ サブモジュール                 # Import py4stats では読み込まれない\n　 ├ heckit_helper               #regression_tools の追加メソッド\n　 └ building_block              # 内部実装用のアサーション関数とユーティリティ関数を提供",
+    "text": "Py4Stats ライブラリのモジュール構成\n2026年2月20日時点で、Py4Stats ライブラリのモジュールは次のように構成されています。\npy4stats\n├ メインモジュール               # Import py4stats で直接読み込み\n│ ├ eda_tools                   # 探索的データ解析と前処理\n│ │ ├ _.nw                         # narwhals ベースの現行実装\n│ │ └ _.pandas                     # Pandas ベースの旧実装（廃止予定）\n│ └ regression_tools            # 回帰分析の可視化と表作成\n└ サブモジュール                 # Import py4stats では読み込まれない\n　 ├ heckit_helper               #regression_tools の追加メソッド\n　 └ building_block              # 内部実装用のアサーション関数とユーティリティ関数を提供\nまた、各モジュールの実装は次の図のような依存関係を持っています。 このように building_block モジュールは eda_tools や regression_tools を実装する上での基盤という位置付けとなっています。Py4Stats ライブラリの実装においては、逆方向の依存関係を発生させないことを前提としています。\n\n\n\nPy4Statsライブラリ内部の依存関係",
     "crumbs": [
       "**Contributing Notes**",
       "<span class='chapter-number'>47</span>  <span class='chapter-title'>Project Guide</span>"

@@ -502,32 +502,56 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>数字のフォーマットを変更する関数</p>
+<p>数値のシーケンスを、可読性の高い文字列表現に整形します。</p>
 <section id="概要" class="level2">
 <h2 class="anchored" data-anchor-id="概要">概要</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>style_number(x, digits <span class="op">=</span> <span class="dv">2</span>, big_mark <span class="op">=</span> <span class="st">','</span>)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>style_currency(x, symbol <span class="op">=</span> <span class="st">'$'</span>, digits <span class="op">=</span> <span class="dv">0</span>, big_mark <span class="op">=</span> <span class="st">','</span>)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>style_percent(x, digits <span class="op">=</span> <span class="dv">2</span>, unit <span class="op">=</span> <span class="dv">100</span>, symbol <span class="op">=</span> <span class="st">'%'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li><code>style_number()</code>: 固定小数点形式で数値を整形します。桁区切り記号を指定できます。</li>
+<li><code>style_currency()</code>: 固定小数点形式で整形した数値の前に通貨記号を付与します（例: “$”）。</li>
+<li><code>style_percent()</code>: 値を指定した倍率（既定値: 100）でスケーリングした後、パーセント記号などの単位記号を末尾に付与します。</li>
+</ul>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>style_number(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    x: Sequence[<span class="bu">int</span>, <span class="bu">float</span>, np.number], </span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    digits: <span class="bu">int</span> <span class="op">=</span> <span class="dv">2</span>, </span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    big_mark: <span class="bu">str</span> <span class="op">=</span> <span class="st">","</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    ) <span class="op">-&gt;</span> pd.Series</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>style_currency(</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    x: Sequence[<span class="bu">int</span>, <span class="bu">float</span>, np.number], </span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    digits: <span class="bu">int</span> <span class="op">=</span> <span class="dv">0</span>, </span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    symbol: <span class="bu">str</span> <span class="op">=</span> <span class="st">"$"</span>, </span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    big_mark: <span class="bu">str</span> <span class="op">=</span> <span class="st">","</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    ) <span class="op">-&gt;</span> pd.Series</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>style_percent(</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    x: Sequence[<span class="bu">int</span>, <span class="bu">float</span>, np.number], </span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    digits: <span class="bu">int</span> <span class="op">=</span> <span class="dv">2</span>, </span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    unit: Union[<span class="bu">int</span>, <span class="bu">float</span>] <span class="op">=</span> <span class="dv">100</span>,</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    symbol: <span class="bu">str</span> <span class="op">=</span> <span class="st">"%"</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    ) <span class="op">-&gt;</span> pd.Series</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="引数-argument" class="level2">
 <h2 class="anchored" data-anchor-id="引数-argument">引数 Argument</h2>
 <ul>
-<li><code>x</code>：<strong>scalar or array-like of int or float</strong><br></li>
-<li><code>p_value</code>：<strong>scalar or array-like of int or float</strong><br></li>
-<li><code>digits</code>：<strong>int</strong><br> 小数点以下の桁数</li>
-<li><code>big_mark</code>：<strong>int</strong><br> 3桁毎の桁区切りに使用する記号。カンマ <code>','</code>, アンダーバー <code>'_'</code>, もしくは 非表示 <code>''</code> から選ぶことができます。</li>
-<li><code>symbol</code>：<strong>str</strong><br> 　貨幣記号を表す文字列</li>
+<li><code>x</code>：<strong>scalar or array-like of int or float</strong><br> 整形対象となる数値の list もしくは pd.Series</li>
+<li><code>digits</code>：<strong>int</strong><br> 小数点以下の桁数。初期設定は以下の通りです。<br>
+<ul>
+<li><code>style_number()</code>: 2</li>
+<li><code>style_currency()</code>: 0</li>
+<li><code>style_percent()</code>: 2</li>
+</ul></li>
+<li><code>big_mark</code>：<strong>int</strong><br> 3桁毎の桁区切りに使用する記号。カンマ <code>','</code>, アンダーバー <code>'_'</code>, もしくは 非表示 <code>''</code> から選ぶことができます。<br></li>
+<li><code>symbol</code>：<strong>str</strong><br> 　貨幣記号を表す文字列<br></li>
+<li><code>unit</code>：<strong>int or float</strong><br> <code>style_percent()</code> において、整形前に値へ掛ける倍率。既定値は 100 です。</li>
 </ul>
 </section>
 <section id="返り値-value" class="level2">
 <h2 class="anchored" data-anchor-id="返り値-value">返り値 Value</h2>
 <p>　以下の値をもつ <code>pd.Series</code> を返します。</p>
 <ul>
-<li><code>building_block.style_number()</code>： 任意の数値に対して、小数点以下を桁数 <code>digits</code> に丸め、3桁区切り記号を通過した値を文字列として返します。f-string によるフォーマット <code>f'{x:{big_mark}.{digits}f}'</code> を用いて実装されています。</li>
-<li><code>building_block.style_currency()</code>： <code>build.style_number()</code> と同じく任意の数値に対して、小数点以下を桁数 <code>digits</code> に丸め、3桁区切り記号を通過した値を文字列として返しますが、さらに貨幣記号を追加します。f-string によるフォーマット <code>f'{symbol}{x:{big_mark}.{digits}f}'</code> を用いて実装されています。</li>
-<li><code>building_block.style_percent()</code>： 任意の数値をパーセンテージ表示に変換した値を文字列として返します。f-string によるフォーマット <code>f'{x:,.{digits}%}'</code> を用いて実装されています。</li>
+<li><code>building_block.style_number()</code>： 任意の数値に対して、小数点以下を桁数 <code>digits</code> に丸め、3桁区切り記号を追加した値を文字列として返します。f-string によるフォーマット <code>f'{x:{big_mark}.{digits}f}'</code> を用いて実装されています。</li>
+<li><code>building_block.style_currency()</code>： <code>build.style_number()</code> と同じく任意の数値に対して、小数点以下を桁数 <code>digits</code> に丸め、3桁区切り記号と貨幣記号を追加した文字列を返します。f-string によるフォーマット <code>f'{symbol}{x:{big_mark}.{digits}f}'</code> を用いて実装されています。</li>
+<li><code>building_block.style_percent()</code>： 任意の数値をパーセンテージ表示に変換した値を文字列として返します。f-string によるフォーマット <code>f'{x*unit:.{digits}f}{symbol}'</code> を用いて実装されています。</li>
 </ul>
 </section>
 <section id="使用例-examples" class="level2">

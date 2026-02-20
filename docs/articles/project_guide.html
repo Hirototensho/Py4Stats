@@ -520,26 +520,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="py4stats-の設計指針" class="level2">
 <h2 class="anchored" data-anchor-id="py4stats-の設計指針">Py4Stats の設計指針</h2>
+<p>Py4Stats ライブラリでは、次のような設計方針で開発を進めています。</p>
 <ul>
-<li>Do with Py4Stats
+<li>Python を用いたデータ分析の初心者から中級者をユーザー層として想定する</li>
+<li>ユーザーが分析ワークフローの大きな変更を強いられることなく利用できること</li>
+<li>Python や統計学に関する高度な知識を要求しないこと</li>
+<li>必要最小限のコードで使用できること</li>
+</ul>
+<p>上記の設計方針を実現するために、次のような取り組みを行なっています。</p>
+<ul>
+<li>To do with Py4Stats
 <ol type="1">
 <li>探索的データ分析および回帰分析の結果レポートティングを円滑化・簡略化するためのユーティリティを提供する</li>
 <li>基本的には1つの関数で完結する処理を実装する</li>
 <li>ユーザーフレンドリーな UI を重視する
 <ol type="1">
-<li>引数関連のエラーメッセージには、ユーザーが取るべきアクションが分かるようなメッセージを提供する</li>
+<li>ドキュメントを充実させる</li>
+<li>不適切な入力でエラーが生じた場合、その理由や適切な値の候補を提示すること</li>
+<li>docstring や API ドキュメントページでは、機能面の説明に加えてすぐにコピーして使える使用例を提示する</li>
 </ol></li>
 </ol></li>
 <li>Not do with Py4Stats
 <ol type="1">
-<li>有力な既存の Python ライブラリで提供されている機能は実装しない</li>
-<li>ユーザーに既存のワークフローの変更を求めない</li>
-<li>ユーザーに内部実装などに関する知識を要求しない</li>
+<li>既存の Python ライブラリで良い実装が提供されている機能は実装しない</li>
 </ol></li>
 </ul>
 </section>
 <section id="py4stats-ライブラリのモジュール構成" class="level2">
 <h2 class="anchored" data-anchor-id="py4stats-ライブラリのモジュール構成">Py4Stats ライブラリのモジュール構成</h2>
+<p>2026年2月20日時点で、Py4Stats ライブラリのモジュールは次のように構成されています。</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>py4stats</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>├ メインモジュール               <span class="co"># Import py4stats で直接読み込み</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>│ ├ eda_tools                   <span class="co"># 探索的データ解析と前処理</span></span>
@@ -549,6 +558,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>└ サブモジュール                 <span class="co"># Import py4stats では読み込まれない</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>　 ├ heckit_helper               <span class="co">#regression_tools の追加メソッド</span></span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>　 └ building_block              <span class="co"># 内部実装用のアサーション関数とユーティリティ関数を提供</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>また、各モジュールの実装は次の図のような依存関係を持っています。 このように <code>building_block</code> モジュールは <code>eda_tools</code> や <code>regression_tools</code> を実装する上での基盤という位置付けとなっています。Py4Stats ライブラリの実装においては、逆方向の依存関係を発生させないことを前提としています。</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="./image/Py4Statsライブラリ内部の依存関係.png" class="img-fluid figure-img"></p>
+<figcaption>Py4Statsライブラリ内部の依存関係</figcaption>
+</figure>
+</div>
 </section>
 <section id="py4stats-ライブラリのインポート" class="level2">
 <h2 class="anchored" data-anchor-id="py4stats-ライブラリのインポート">Py4Stats ライブラリのインポート</h2>

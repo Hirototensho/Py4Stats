@@ -24,6 +24,8 @@ Py4Stats ライブラリでは、次のような設計方針で開発を進め�
 
 ## Py4Stats ライブラリのモジュール構成
 
+2026年2月20日時点で、Py4Stats ライブラリのモジュールは次のように構成されています。
+
 ```python
 py4stats
 ├ メインモジュール               # Import py4stats で直接読み込み
@@ -35,6 +37,10 @@ py4stats
 　 ├ heckit_helper               #regression_tools の追加メソッド
 　 └ building_block              # 内部実装用のアサーション関数とユーティリティ関数を提供
  ```
+
+ また、各モジュールの実装は次の図のような依存関係を持っています。 このように `building_block` モジュールは  `eda_tools` や `regression_tools` を実装する上での基盤という位置付けとなっています。Py4Stats ライブラリの実装においては、逆方向の依存関係を発生させないことを前提としています。
+
+ ![Py4Statsライブラリ内部の依存関係](./image/Py4Statsライブラリ内部の依存関係.png)
 
 ## Py4Stats ライブラリのインポート
 
