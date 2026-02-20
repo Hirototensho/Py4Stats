@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[ ]:
 
 
 from __future__ import annotations
@@ -9,227 +8,6 @@ from __future__ import annotations
 
 # # `eda_tools`：データセットを要約する関数群 `narwhals` ライブラリを使った実装
 
-# `eda_tools._nw` モジュールに実装された主要な関数の依存関係
-# 
-# ``` python
-# ## 1. 基本診断（欠測・ユニーク数など）
-# 
-# diagnose()                                   # 各列の dtype / 欠測 / ユニーク数を要約
-# ├─ build.assert_logical()                    # 引数チェック
-# ├─ get_dtypes()                              # 列ごとの dtype 抽出（backend非依存）
-# └─ narwhals 集計処理
-# 
-# get_dtypes()                                 # DataFrame の dtype を Series として取得
-# 
-# ## 2. 欠測値の可視化
-# 
-# plot_miss_var()                              # 変数別欠測率・欠測数の横棒グラフ
-# ├─ build.arg_match()                         # values 引数の選択検証
-# ├─ build.assert_logical()
-# ├─ diagnose()                                # 欠測統計の計算
-# └─ matplotlib barh 描画
-# 
-# ## 3. DataFrame 間の比較（構造・統計）
-# 
-# ### 列構造（dtype）比較
-# 
-# compare_df_cols()                            # 複数DF間で列 dtype を比較
-# ├─ is_FrameT()                               # DataFrame 互換判定
-# ├─ build.arg_match()                         # return_match 指定
-# ├─ build.assert_logical()
-# ├─ get_dtypes()
-# └─ pandas.concat / nunique
-# 
-# is_FrameT()                                  # narwhals.from_native 可否判定
-# 
-# ### 統計量の近接性比較
-# 
-# compare_df_stats()                           # 平均などの統計量の近さで比較
-# ├─ is_FrameT()
-# ├─ build.arg_match()
-# ├─ _compute_stats()                          # 数値列の統計量計算
-# ├─ itertools.combinations()                  # DF ペア生成
-# └─ numpy.isclose()
-# 
-# _compute_stats()                             # 数値列のみを選び stats を計算
-# 
-# ### レコード単位比較
-# 
-# compare_df_record()                          # 行×列レベルで df1 と df2 を比較
-# ├─ build.assert_logical()
-# ├─ build.arg_match()                         # columns = 'all' / 'common'
-# ├─ build.oxford_comma_and()                  # エラーメッセージ整形
-# ├─ numpy.isclose()                           # 数値列比較
-# └─ 等値比較（非数値）
-# 
-# ## 4. グループ間比較（平均・中央値）
-# 
-# compare_group_means()                        # グループ平均と差分指標
-# ├─ build.assert_character()
-# ├─ remove_constant()                         # 定数列除去
-# ├─ narwhals.mean / var
-# └─ 差分指標（norm / abs / rel）
-# 
-# compare_group_median()                       # グループ中央値と差分
-# ├─ build.assert_character()
-# ├─ remove_constant()
-# └─ abs / rel 差分計算
-# 
-# plot_mean_diff()                             # 平均差のステムプロット
-# ├─ build.arg_match()
-# ├─ compare_group_means()
-# └─ matplotlib stem
-# 
-# plot_median_diff()                           # 中央値差のステムプロット
-# ├─ build.arg_match()
-# ├─ compare_group_median()
-# └─ matplotlib stem
-# 
-# 
-# ## 5. クロス集計・度数表
-# 
-# crosstab()                                   # backend非依存クロス集計
-# ├─ build.assert_logical()
-# ├─ build.arg_match()                         # normalize
-# ├─ narwhals.pivot()
-# └─ 周辺合計・正規化処理
-# 
-# freq_table()                                 # 度数・割合・累積度数表
-# ├─ build.arg_match()                         # sort_by
-# ├─ build.assert_logical()
-# ├─ FutureWarning 処理（sort）
-# └─ group_by + 集計
-# 
-# tabyl()                                      # janitor::tabyl 風クロス集計
-# ├─ build.assert_*()
-# ├─ crosstab()                                # 分割表
-# ├─ build.style_number()
-# ├─ build.style_percent()
-# └─ 文字列結合（"count (xx%)"）
-# 
-# ## 6. カテゴリー変数の診断
-# 
-# diagnose_category()                          # カテゴリー変数専用サマリ
-# ├─ build.assert_logical()
-# ├─ is_dummy()                                # ダミー変数検出
-# ├─ freq_table()                              # モード算出
-# ├─ std_entropy()                             # 標準化エントロピー
-# └─ narwhals 集計
-# 
-# is_dummy()                                   # ダミー変数判定（汎用）
-# ├─ is_dummy_series()                         # Series 用
-# └─ is_dummy_data_frame()                     # DataFrame 用
-# 
-# entropy()                                    # Shannon エントロピー
-# └─ scipy.stats.entropy
-# 
-# std_entropy()                                # 正規化エントロピー
-# └─ entropy()
-# 
-# ## 7. 欠測・定数・不要列の除去
-# 
-# missing_percent()                            # 行・列ごとの欠測率
-# 
-# remove_empty()                               # 空白行・列の除去
-# ├─ missing_percent()
-# ├─ build.assert_*()
-# └─ 条件付きフィルタ
-# 
-# remove_constant()                            # 定数列の除去
-# ├─ build.assert_logical()
-# └─ n_unique 判定
-# 
-# filtering_out()                              # 列名・行名のパターン除外
-# ├─ build.arg_match()                         # axis
-# ├─ build.assert_character()
-# └─ pandas.str.contains 系
-# 
-# ## 8. 数値変換・スケーリング
-# 
-# weighted_mean()                              # 重み付き平均
-# ├─ build.assert_numeric()
-# └─ sum(x*w)/sum(w)
-# 
-# scale()                                     # Z-score 標準化
-# ├─ build.assert_count()
-# ├─ build.assert_numeric()
-# └─ mean / std
-# 
-# min_max()                                   # Min-Max 正規化
-# ├─ build.assert_numeric()
-# └─ (x-min)/(max-min)
-# 
-# ## 9. パレート図
-# Pareto_plot()                               # パレート図（頻度 or 集計）
-# ├─ build.assert_*()
-# ├─ freq_table() / make_rank_table()
-# ├─ make_Pareto_plot()
-# └─ matplotlib 描画
-# 
-# make_rank_table()                           # 集計→順位→累積比率
-# 
-# make_Pareto_plot()                          # パレート図描画専用
-# 
-# ## 10. カテゴリー積み上げ棒グラフ
-# 
-# plot_category()                             # カテゴリー積み上げ棒
-# ├─ build.arg_match()
-# ├─ make_table_to_plot()                     # 描画用テーブル作成
-# ├─ make_categ_barh()                        # 描画処理
-# └─ seaborn / matplotlib
-# 
-# make_table_to_plot()                        # freq_table を縦結合
-# ├─ freq_table()
-# ├─ relocate()
-# └─ 累積比率計算
-# 
-# make_categ_barh()                           # 積み上げ棒描画
-# └─ matplotlib + seaborn
-# 
-# ## 11. 区間推定（QI / CI）
-# 
-# mean_qi()                                  # 平均 + 分位区間
-# ├─ build.assert_numeric()
-# ├─ build.arg_match()
-# ├─ mean_qi_data_frame()
-# └─ mean_qi_series()
-# 
-# median_qi()                                # 中央値 + 分位区間
-# ├─ build.assert_numeric()
-# ├─ build.arg_match()
-# ├─ median_qi_data_frame()
-# └─ median_qi_series()
-# 
-# mean_ci()                                  # 平均 + t信頼区間
-# ├─ build.assert_numeric()
-# ├─ mean_ci_data_frame()
-# └─ mean_ci_series()
-# 
-# ## 12. ルールベース検証
-# 
-# check_that()                               # ルール評価の要約
-# └─ check_that_pandas()
-# 
-# check_viorate()                            # 行ごとの違反判定
-# └─ check_viorate_pandas()
-# 
-# is_complete()                            # 欠損のない行を判定
-# 
-# Sum(), Mean(), Max(), Min(), Median()  # 行方向の合計・平均・中央値などを計算
-# └─ pd.concat(...).sum() など
-# 
-# ## 13. 列操作ユーティリティ
-# 
-# relocate()                                 # 列順の再配置
-# ├─ arrange_colnames()
-# ├─ build.assert_character()
-# └─ narwhals.select()
-# 
-# arrange_colnames()                         # 列名リストの並び替えロジック
-# 
-# ```
-
-# In[ ]:
 
 
 from py4stats import building_block as build # py4stats のプログラミングを補助する関数群
@@ -259,7 +37,6 @@ import scipy.stats as st
 from collections import namedtuple
 
 
-# In[ ]:
 
 
 from typing import (
@@ -288,7 +65,6 @@ except Exception:  # notebook等で未importでも落ちないように
 DataLike = Union[pd.Series, pd.DataFrame]
 
 
-# In[ ]:
 
 
 def is_intoframe(obj: object) -> bool:
@@ -299,7 +75,6 @@ def is_intoframe(obj: object) -> bool:
         return False
 
 
-# In[ ]:
 
 
 def is_intoseries(obj: object) -> bool:
@@ -310,7 +85,6 @@ def is_intoseries(obj: object) -> bool:
         return False
 
 
-# In[ ]:
 
 
 @singledispatch
@@ -325,7 +99,6 @@ def as_nw_datarame(arg: Any, arg_name: str = 'data'):
         ) from None
 
 
-# In[ ]:
 
 
 @as_nw_datarame.register(list)
@@ -351,7 +124,6 @@ def as_nw_datarame_list(arg: List[Any], arg_name: str = 'df_list', max_items: in
         ) from None
 
 
-# In[ ]:
 
 
 @as_nw_datarame.register(dict)
@@ -380,7 +152,6 @@ def as_nw_datarame_dict(arg: Mapping[str, Any], arg_name: str = 'df_dict', max_i
         ) from None
 
 
-# In[ ]:
 
 
 def as_nw_series(arg: Any, arg_name: str = 'data', **keywargs):
@@ -395,7 +166,6 @@ def as_nw_series(arg: Any, arg_name: str = 'data', **keywargs):
         ) from None
 
 
-# In[ ]:
 
 
 def _cast_assignment(key, value, backend):
@@ -449,7 +219,6 @@ def assign_nw(
 
 # # `diagnose()`
 
-# In[ ]:
 
 
 def get_dtypes(data: IntoFrameT) -> pd.Series:
@@ -477,7 +246,6 @@ def get_dtypes(data: IntoFrameT) -> pd.Series:
     return list_dtypes
 
 
-# In[ ]:
 
 
 @pf.register_dataframe_method
@@ -530,7 +298,6 @@ def diagnose(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
     return result
 
 
-# In[ ]:
 
 
 @pf.register_dataframe_method
@@ -632,7 +399,6 @@ def plot_miss_var(
 
 # ### 異なるデータフレームの列を比較する関数
 
-# In[ ]:
 
 
 def _join_comparsion(result_list, on):
@@ -652,7 +418,6 @@ def _join_comparsion(result_list, on):
     return result
 
 
-# In[ ]:
 
 
 def compare_df_cols(
@@ -780,7 +545,6 @@ def compare_df_cols(
 
 # ### 平均値などの統計値の近接性で比較するバージョン
 
-# In[ ]:
 
 
 def compare_df_stats(
@@ -947,7 +711,6 @@ def _compute_stats(df, stats, name):
 
 # ## 2つのデータフレームをレコード単位で比較する関数
 
-# In[ ]:
 
 
 # レコード毎の近接性（数値の場合）または一致性（数値以外）で評価する関数
@@ -1107,7 +870,6 @@ def compare_df_record(
 
 # ## enframe
 
-# In[ ]:
 
 
 @singledispatch
@@ -1194,7 +956,6 @@ def enframe(
     raise NotImplementedError(f'enframe mtethod for object {type(data)} is not implemented.')
 
 
-# In[ ]:
 
 
 @enframe.register(nw.DataFrame)
@@ -1232,7 +993,6 @@ def enframe_table(
     return result
 
 
-# In[ ]:
 
 
 @enframe.register(Union[list, tuple])
@@ -1262,7 +1022,6 @@ def enframe_iterable(
     return result
 
 
-# In[ ]:
 
 
 @enframe.register(Union[int, float, bool, None, str, pd._libs.missing.NAType])
@@ -1291,7 +1050,6 @@ def enframe_atomic(
     return result
 
 
-# In[ ]:
 
 
 @enframe.register(nw.typing.IntoSeries)
@@ -1326,7 +1084,6 @@ def enframe_series(
     return enframe_iterable(data, **args_dict)
 
 
-# In[ ]:
 
 
 @enframe.register(dict)
@@ -1358,7 +1115,6 @@ def enframe_dict(
 
 # ## グループ別平均（中央値）の比較
 
-# In[ ]:
 
 
 def compare_group_means(
@@ -1504,7 +1260,6 @@ def compare_group_means(
 
 
 
-# In[ ]:
 
 
 def compare_group_median(
@@ -1620,7 +1375,6 @@ def compare_group_median(
 
 
 
-# In[ ]:
 
 
 def plot_mean_diff(
@@ -1668,7 +1422,6 @@ def plot_mean_diff(
     ax.invert_yaxis();
 
 
-# In[ ]:
 
 
 def plot_median_diff(
@@ -1717,7 +1470,6 @@ def plot_median_diff(
 
 # ## クロス集計表ほか
 
-# In[ ]:
 
 
 def crosstab(
@@ -1819,7 +1571,6 @@ def crosstab(
     return result
 
 
-# In[ ]:
 
 
 @pf.register_dataframe_method
@@ -1930,7 +1681,6 @@ def freq_table(
 
 # <!-- ## `diagnose_category()`：カテゴリー変数専用の要約関数 -->
 
-# In[ ]:
 
 
 @pf.register_dataframe_method
@@ -2050,7 +1800,6 @@ def tabyl(
 # ## カテゴリー変数の要約
 # ### is_dummy
 
-# In[ ]:
 
 
 @pf.register_dataframe_method
@@ -2118,7 +1867,6 @@ def is_dummy(
     
 
 
-# In[ ]:
 
 
 @is_dummy.register(nw.Series)
@@ -2187,7 +1935,6 @@ def is_dummy_list(
 
 # ### entropy
 
-# In[ ]:
 
 
 import scipy as sp
@@ -2216,7 +1963,6 @@ def normalized_entropy(x: IntoSeriesT, dropna: bool = True) -> float:
     return result
 
 
-# In[ ]:
 
 
 @pf.register_dataframe_method
@@ -2363,7 +2109,6 @@ def diagnose_category(data: IntoFrameT, dropna: bool = True, to_native: bool = T
 
 # ### info_gain: 情報理論の指標に基づいたカテゴリー変数間の相関分析（実験的実装）
 
-# In[ ]:
 
 
 def binning_for_ig(data, col, max_unique:int = 20, n_bins: Optional[int] = None):
@@ -2386,7 +2131,6 @@ def binning_for_ig(data, col, max_unique:int = 20, n_bins: Optional[int] = None)
     return data_nw
 
 
-# In[ ]:
 
 
 # from collections import namedtuple
@@ -2428,7 +2172,6 @@ def binning_for_ig(data, col, max_unique:int = 20, n_bins: Optional[int] = None)
 #     return IGResult(h_before, h_after, info_gain, ig_ratio)
 
 
-# In[ ]:
 
 
 from collections import namedtuple
@@ -2474,7 +2217,6 @@ def ig_compute(
     return result
 
 
-# In[ ]:
 
 
 def info_gain(
@@ -2594,7 +2336,6 @@ def info_gain(
 
 # ## その他の補助関数
 
-# In[ ]:
 
 
 def weighted_mean(x: IntoSeriesT, w: IntoSeriesT, dropna: bool = False) -> float:
@@ -2642,7 +2383,6 @@ def weighted_mean(x: IntoSeriesT, w: IntoSeriesT, dropna: bool = False) -> float
   return wmean
 
 
-# In[ ]:
 
 
 @singledispatch
@@ -2714,7 +2454,6 @@ def scale_pandas(x: pd.DataFrame, ddof: int = 1, to_native: bool = True) -> Into
     return nw.from_native(z, allow_series = True)
 
 
-# In[ ]:
 
 
 @singledispatch
@@ -2777,7 +2516,6 @@ def min_max_pandas(x: pd.DataFrame, to_native: bool = True) -> IntoSeriesT:
 
 # ## 完全な空白列 and / or 行の除去
 
-# In[ ]:
 
 
 def missing_percent(
@@ -2811,7 +2549,6 @@ def missing_percent(
         return miss_pct
 
 
-# In[ ]:
 
 
 @pf.register_dataframe_method
@@ -2890,7 +2627,6 @@ def remove_empty(
     return data_nw
 
 
-# In[ ]:
 
 
 def is_constant(data: IntoSeriesT, dropna: bool = True) -> bool:
@@ -2901,7 +2637,6 @@ def is_constant(data: IntoSeriesT, dropna: bool = True) -> bool:
         return data.n_unique() == 1
 
 
-# In[ ]:
 
 
 @pf.register_dataframe_method
@@ -2963,7 +2698,6 @@ def remove_constant(
 
 # ## 列名や行名に特定の文字列を含む列や行を除外する関数
 
-# In[ ]:
 
 
 def _assert_selectors(*args, arg_name = '*args', nullable = False):
@@ -2989,7 +2723,6 @@ def _assert_selectors(*args, arg_name = '*args', nullable = False):
         raise ValueError(message)
 
 
-# In[ ]:
 
 
 # 列名や行名に特定の文字列を含む列や行を除外する関数
@@ -3123,7 +2856,6 @@ def filtering_out(
 
 # ## パレート図を作図する関数
 
-# In[ ]:
 
 
 def Pareto_plot(
@@ -3218,7 +2950,6 @@ def Pareto_plot(
     make_Pareto_plot(**args_dict)
 
 
-# In[ ]:
 
 
 def make_rank_table(
@@ -3261,7 +2992,6 @@ def make_rank_table(
         return rank_table
 
 
-# In[ ]:
 
 
 def make_Pareto_plot(
@@ -3308,7 +3038,6 @@ def make_Pareto_plot(
 
 # ## 代表値 + 区間推定関数
 
-# In[ ]:
 
 
 Interpolation = Literal[
@@ -3328,7 +3057,6 @@ interpolation_values = [
 
 # ### mean_qi 
 
-# In[ ]:
 
 
 @pf.register_dataframe_method
@@ -3368,7 +3096,6 @@ def mean_qi(
     raise NotImplementedError(f'mean_qi mtethod for object {type(data)} is not implemented.')
 
 
-# In[ ]:
 
 
 @mean_qi.register(nw.DataFrame)
@@ -3404,7 +3131,6 @@ def mean_qi_data_frame(
     return result
 
 
-# In[ ]:
 
 
 @mean_qi.register(nw.Series)
@@ -3440,7 +3166,6 @@ def mean_qi_series(
 
 # ### median_qi
 
-# In[ ]:
 
 
 @pf.register_dataframe_method
@@ -3480,7 +3205,6 @@ def median_qi(
     raise NotImplementedError(f'median_qi mtethod for object {type(data)} is not implemented.')
 
 
-# In[ ]:
 
 
 @median_qi.register(nw.DataFrame)
@@ -3551,7 +3275,6 @@ def median_qi_series(
 
 # ### mean_ci
 
-# In[ ]:
 
 
 from scipy.stats import t
@@ -3594,7 +3317,6 @@ def mean_ci(
     raise NotImplementedError(f'mean_ci mtethod for object {type(data)} is not implemented.')
 
 
-# In[ ]:
 
 
 @mean_ci.register(nw.DataFrame)
@@ -3657,60 +3379,8 @@ def mean_ci_series(
     return result
 
 
-# In[ ]:
-
-
-def plot_dot_line(
-    data: IntoFrameT,
-    x: str, y: str,
-    lower: str = 'lower',
-    upper: str = 'upper',
-    ax: Optional[Axes] = None,
-    color: Sequence[str] = "#1b69af",
-    **keywargs
-) -> None:
-    data_nw = as_nw_datarame(data)
-    # 引数のアサーション ==============================================
-    build.assert_character(color, arg_name = 'color')
-    
-    columne_name = data_nw.columns
-    x = build.arg_match(
-        x, arg_name = 'x', values = columne_name
-    )
-    y = build.arg_match(
-        y, arg_name = 'y', values = columne_name
-    )
-    lower = build.arg_match(
-        lower, arg_name = 'lower', values = columne_name
-    )
-    upper = build.arg_match(
-        upper, arg_name = 'upper', values = columne_name
-    )
-    # ==============================================================    
-    if ax is None:
-        fig, ax = plt.subplots()
-
-    # 図の描画 -----------------------------
-    # エラーバーの作図
-    ax.hlines(
-        y = data_nw[y], xmin = data_nw[lower], xmax = data_nw[upper],
-        linewidth = 1.5,
-        color = color
-        )
-    # 点推定値の作図
-    ax.scatter(
-      x = data_nw[x],
-      y = data_nw[y],
-      c = color,
-      s = 60
-    )
-    ax.invert_yaxis()
-    ax.set_ylabel(y);
-
-
 # ## 正規表現と文字列関連の論理関数
 
-# In[ ]:
 
 
 @pf.register_series_method
@@ -3752,7 +3422,6 @@ def is_kanzi(data:IntoSeriesT, na_default:bool = True, to_native: bool = True) -
 
 
 
-# In[ ]:
 
 
 @pf.register_series_method
@@ -3797,7 +3466,6 @@ def is_ymd(data:IntoSeriesT, na_default:bool = True, to_native: bool = True) -> 
     return result
 
 
-# In[ ]:
 
 
 @pf.register_series_method
@@ -3843,7 +3511,6 @@ def is_ymd_like(data:IntoSeriesT, na_default:bool = True, to_native: bool = True
     return result
 
 
-# In[ ]:
 
 
 @pf.register_series_method
@@ -3919,7 +3586,6 @@ def is_number(data:IntoSeriesT, na_default:bool = True, to_native: bool = True) 
 
 # ## 簡易なデータバリデーションツール
 
-# In[ ]:
 
 
 @pf.register_dataframe_method
@@ -4019,7 +3685,6 @@ def check_that(
     return result
 
 
-# In[ ]:
 
 
 @pf.register_dataframe_method
@@ -4116,7 +3781,6 @@ def check_viorate(
 
 # ### helper function for pandas `DataFrame.eval()`
 
-# In[ ]:
 
 
 def implies_exper(P, Q):
@@ -4131,7 +3795,6 @@ def _(*arg: pd.Series) -> pd.Series:
   return pd.concat(arg, axis = 'columns').notna().all(axis = 'columns')
 
 
-# In[ ]:
 
 
 def Sum(*arg: List[pd.Series]): 
@@ -4148,7 +3811,6 @@ def Median(*arg: List[pd.Series]):
 
 # ## set missing values in Series
 
-# In[ ]:
 
 
 @pf.register_series_method
@@ -4321,7 +3983,6 @@ def set_miss(
 
 # # `relocate()`
 
-# In[ ]:
 
 
 def arrange_colnames(
@@ -4353,7 +4014,6 @@ def arrange_colnames(
         return col_pre + selected + col_behind
 
 
-# In[ ]:
 
 
 def _is_before_after_selected(selected: list[str], value:Optional[str] = None):
@@ -4363,7 +4023,6 @@ def _is_before_after_selected(selected: list[str], value:Optional[str] = None):
     return result
 
 
-# In[ ]:
 
 
 @pf.register_dataframe_method
@@ -4521,7 +4180,6 @@ def relocate(
 
 # # カテゴリー変数の積み上げ棒グラフ
 
-# In[ ]:
 
 
 def make_table_to_plot(
@@ -4557,7 +4215,6 @@ def make_table_to_plot(
     return table_to_plot
 
 
-# In[ ]:
 
 
 import seaborn as sns
@@ -4632,7 +4289,6 @@ def make_categ_barh(
         plt.legend(handles = patch_list, frameon = False, **arg_dict);
 
 
-# In[ ]:
 
 
 @pf.register_dataframe_method
@@ -4784,7 +4440,6 @@ def plot_category(
 
 # ### `review_wrangling()`
 
-# In[ ]:
 
 
 def _assert_same_backend(data1, data2, funcname = 'review_wrangling', data_name = ['before', 'after']):
@@ -4796,7 +4451,6 @@ def _assert_same_backend(data1, data2, funcname = 'review_wrangling', data_name 
         )
 
 
-# In[ ]:
 
 
 def review_casting(before: IntoFrameT, after: IntoFrameT) -> str:
@@ -4849,7 +4503,6 @@ def review_casting(before: IntoFrameT, after: IntoFrameT) -> str:
     return cast_message
 
 
-# In[ ]:
 
 
 def review_col_addition(
@@ -4930,7 +4583,6 @@ def review_col_addition(
     else: return 'No columns were added or removed.'
 
 
-# In[ ]:
 
 
 def format_missing_lines(miss_table):
@@ -4961,7 +4613,6 @@ def format_missing_lines(miss_table):
     return col_miss
 
 
-# In[ ]:
 
 
 def review_missing(before: IntoFrameT, after: IntoFrameT) -> str:
@@ -5030,7 +4681,6 @@ def review_missing(before: IntoFrameT, after: IntoFrameT) -> str:
     return result
 
 
-# In[ ]:
 
 
 def shape_change(before: int, after: int) -> str:
@@ -5039,7 +4689,6 @@ def shape_change(before: int, after: int) -> str:
     return f" (No change)"
 
 
-# In[ ]:
 
 
 def review_shape(before: IntoFrameT, after: IntoFrameT) -> str:
@@ -5073,7 +4722,6 @@ def review_shape(before: IntoFrameT, after: IntoFrameT) -> str:
     return shpe_message
 
 
-# In[ ]:
 
 
 def review_category(
@@ -5181,7 +4829,6 @@ def review_category(
 
 # ### review_numeric の実験的実装
 
-# In[ ]:
 
 
 import numpy as np
@@ -5237,7 +4884,6 @@ def draw_ascii_boxplot(data, range_min = None, range_max = None, width = 30):
     return "".join(plot)
 
 
-# In[ ]:
 
 
 def make_boxplot_with_label(before, after, col, space_left = 7, space_right = 7, width = 30, digits = 2):
@@ -5265,7 +4911,6 @@ def make_boxplot_with_label(before, after, col, space_left = 7, space_right = 7,
     return result
 
 
-# In[ ]:
 
 
 def review_numeric(
@@ -5387,7 +5032,6 @@ def review_numeric(
     return '\n'.join(review)
 
 
-# In[ ]:
 
 
 def make_header(text: str, title: str) -> str:
@@ -5398,7 +5042,6 @@ def make_header(text: str, title: str) -> str:
 
 # ### review_wrangling の本体
 
-# In[ ]:
 
 
 def review_wrangling(
@@ -5579,7 +5222,6 @@ def review_wrangling(
 
 # # grouped operation
 
-# In[ ]:
 
 
 GroupSplitResult = namedtuple('GroupSplitResult', ['data', 'groups'])
@@ -5690,7 +5332,6 @@ def group_split(
     return result
 
 
-# In[ ]:
 
 
 GroupMapResult = namedtuple('GroupSplitResult', ['mapped', 'groups'])
@@ -5779,7 +5420,6 @@ def group_map(
     return result
 
 
-# In[ ]:
 
 
 def group_modify(
@@ -5899,7 +5539,6 @@ def group_modify(
 
 # ## bind_rows
 
-# In[ ]:
 
 
 def _assert_unique_backend(args, arg_name: str = 'args'):
@@ -5915,7 +5554,6 @@ def _assert_unique_backend(args, arg_name: str = 'args'):
         raise TypeError(message)
 
 
-# In[ ]:
 
 
 @singledispatch
@@ -6026,7 +5664,6 @@ def bind_rows(
     raise NotImplementedError(f'bind_rows mtethod for object {type(args)} is not implemented.')
 
 
-# In[ ]:
 
 
 @bind_rows.register(Union[nw.typing.IntoDataFrame, list])
@@ -6062,7 +5699,6 @@ def bind_rows_df(
     return result
 
 
-# In[ ]:
 
 
 @bind_rows.register(dict)
