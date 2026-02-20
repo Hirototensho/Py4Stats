@@ -13,7 +13,6 @@ modules = [
     'py4stats.heckit_helper',
     'py4stats.eda_tools._nw',
     'py4stats.eda_tools._pandas',
-    # 'py4stats.eda_tools._not',
 ]
 
 @pytest.mark.parametrize('module_name', modules)
@@ -22,6 +21,7 @@ def test_import_modules(module_name):
 
 # =========================================================
 # 公開 API 関数群のインポートテスト
+# ただ、このテスト
 # =========================================================
 PUBLIC_API = [
     # regression_tools ======================================
@@ -96,4 +96,70 @@ PUBLIC_API = [
 @pytest.mark.parametrize('name', PUBLIC_API)
 def test_public_api_import(name):
     module = importlib.import_module('py4stats')
+    getattr(module, name)
+
+# =========================================================
+# building_block API のインポートテスト
+# =========================================================
+
+function_list = [
+    'add_big_mark',
+    'annotations',
+    'arg_match',
+    'arg_match0',
+    'assert_character',
+    'assert_count',
+    'assert_float',
+    'assert_function',
+    'assert_integer',
+    'assert_length',
+    'assert_literal',
+    'assert_literal_kyes',
+    'assert_logical',
+    'assert_missing',
+    'assert_numeric',
+    'assert_numeric_dtype',
+    'assert_same_type',
+    'assert_scalar',
+    'assert_value_range',
+    'collections',
+    'is_character',
+    'is_float',
+    'is_function',
+    'is_integer',
+    'is_logical',
+    'is_missing',
+    'is_numeric',
+    'is_pl_null',
+    'length',
+    'list_diff',
+    'list_dropnulls',
+    'list_dupricated',
+    'list_flatten',
+    'list_intersect',
+    'list_replace',
+    'list_subset',
+    'list_union',
+    'list_unique',
+    'list_xor',
+    'make_assert_numeric',
+    'make_assert_type',
+    'make_range_message',
+    'match_arg',
+    'oxford_comma',
+    'oxford_comma_and',
+    'oxford_comma_or',
+    'oxford_comma_shorten',
+    'p_stars',
+    'pad_zero',
+    'style_currency',
+    'style_number',
+    'style_percent',
+    'style_pvalue',
+    'which'
+ ]
+
+@pytest.mark.parametrize('name', function_list)
+def test_building_block_import(name):
+    module = importlib.import_module('py4stats.building_block')
     getattr(module, name)
