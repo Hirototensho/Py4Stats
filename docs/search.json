@@ -2283,40 +2283,29 @@
     "href": "articles/release_notes.html",
     "title": "Release Notes",
     "section": "",
-    "text": "Py4Stats v0.5.0 2026-02-16",
+    "text": "Py4Stats v0.5.1 2026-02-21",
     "crumbs": [
       "**Articles**",
       "<span class='chapter-number'>43</span>  <span class='chapter-title'>Release Notes</span>"
     ]
   },
   {
-    "objectID": "articles/release_notes.html#概要summary",
-    "href": "articles/release_notes.html#概要summary",
+    "objectID": "articles/release_notes.html#py4stats-v0.5.1-2026-02-21",
+    "href": "articles/release_notes.html#py4stats-v0.5.1-2026-02-21",
     "title": "Release Notes",
-    "section": "概要（Summary）",
-    "text": "概要（Summary）\nこのリリースでは4つの関数 group_split(), group_map(), group_modify() および、bind_rows() を追加し、既存関数のリファクタリングとバグ修正を行いました。",
+    "section": "",
+    "text": "概要（Summary）\neda_tools 内部のディレクトリ構造を再構築するリファクタリングを実施しました。\n\n\n🛠 修正と改善（Fixes /Improvements）\n\neda_tools モジュール内部のディレクトリ構造を再構築するリファクタリングを実施し、eda_tools/_nw.py を以下のサブモジュールに分割しました。\n\n_utils.py\noperation.py\nvisualize.py\nreviewing.py\n\n公開APIの変更はなく、引き続き import py4stats で eda_tools モジュールの関数を使用できます。\n今回の変更によって、以下のようなサブモジュール単位でのインポートが可能になりました。\n\nfrom py4stats.eda_tools import operation\nfrom py4stats.eda_tools import visualize\nfrom py4stats.eda_tools import reviewing\n\n既存のテストは全て通過おり、実装済みの関数の動作変更はありません。\neda_tools を含む Py4Stats ライブラリ全体のディレクトリ構造の詳細については Project Guide を参照してください。",
     "crumbs": [
       "**Articles**",
       "<span class='chapter-number'>43</span>  <span class='chapter-title'>Release Notes</span>"
     ]
   },
   {
-    "objectID": "articles/release_notes.html#主な新機能-new-features",
-    "href": "articles/release_notes.html#主な新機能-new-features",
+    "objectID": "articles/release_notes.html#py4stats-v0.5.0-2026-02-16",
+    "href": "articles/release_notes.html#py4stats-v0.5.0-2026-02-16",
     "title": "Release Notes",
-    "section": "✨ 主な新機能 （New Features）",
-    "text": "✨ 主な新機能 （New Features）\n\ngroup_split(), group_map(), group_modify() の追加\n\nデータフレームに対して、変数を基準としたグループへの分割・関数適用・結果の統合を行います。\n\nbind_rows() 関数の追加\n\n複数のデータフレームを行方向に結合（縦方向に連結）し、必要に応じて出所情報を付与します。\n\ninfo_gain() 関数の追加\n\n複数の目的変数と特徴量の組み合わせに対して情報利得などの情報理論に基づく指標を計算します。",
-    "crumbs": [
-      "**Articles**",
-      "<span class='chapter-number'>43</span>  <span class='chapter-title'>Release Notes</span>"
-    ]
-  },
-  {
-    "objectID": "articles/release_notes.html#修正と改善fixes-improvements",
-    "href": "articles/release_notes.html#修正と改善fixes-improvements",
-    "title": "Release Notes",
-    "section": "🛠 修正と改善（Fixes /Improvements）",
-    "text": "🛠 修正と改善（Fixes /Improvements）\n\neda_tools モジュールの関数全体について、エラーメッセージを改善を行いました。\n\ndiagnose() 関数の data など、narwhals が受け入れ可能な DataFrame 互換オブジェクトもしくは Series 互換オブジェクトが代入されることを想定した引数に、list, dict, int などの非互換オブジェクトが代入された場合のエラーメッセージを改善しました。\n\nPareto_plot() 関数のリファクタリングを実施し、型ヒントを改善しました。\nassert_character() 関数や assert_numeric() で、引数の最小要素数を指定する len_min の設定が正常に反映されない問題を修正しました。",
+    "section": "Py4Stats v0.5.0 2026-02-16",
+    "text": "Py4Stats v0.5.0 2026-02-16\n\n概要（Summary）\nこのリリースでは4つの関数 group_split(), group_map(), group_modify() および、bind_rows() を追加し、既存関数のリファクタリングとバグ修正を行いました。\n\n\n✨ 主な新機能 （New Features）\n\ngroup_split(), group_map(), group_modify() の追加\n\nデータフレームに対して、変数を基準としたグループへの分割・関数適用・結果の統合を行います。\n\nbind_rows() 関数の追加\n\n複数のデータフレームを行方向に結合（縦方向に連結）し、必要に応じて出所情報を付与します。\n\ninfo_gain() 関数の追加\n\n複数の目的変数と特徴量の組み合わせに対して情報利得などの情報理論に基づく指標を計算します。\n\n\n\n\n🛠 修正と改善（Fixes /Improvements）\n\neda_tools モジュールの関数全体について、エラーメッセージを改善を行いました。\n\ndiagnose() 関数の data など、narwhals が受け入れ可能な DataFrame 互換オブジェクトもしくは Series 互換オブジェクトが代入されることを想定した引数に、list, dict, int などの非互換オブジェクトが代入された場合のエラーメッセージを改善しました。\n\nPareto_plot() 関数のリファクタリングを実施し、型ヒントを改善しました。\nassert_character() 関数や assert_numeric() で、引数の最小要素数を指定する len_min の設定が正常に反映されない問題を修正しました。",
     "crumbs": [
       "**Articles**",
       "<span class='chapter-number'>43</span>  <span class='chapter-title'>Release Notes</span>"
