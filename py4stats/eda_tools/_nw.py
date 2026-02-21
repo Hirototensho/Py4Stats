@@ -49,10 +49,9 @@ from .operation import(
     is_number,
     is_ymd,
     is_ymd_like,
-    make_Pareto_plot,
-    make_categ_barh,
-    make_rank_table,
-    make_table_to_plot,
+    # make_categ_barh,
+    # make_table_to_plot,
+    # plot_category,
     mean_ci,
     mean_ci_data_frame,
     mean_ci_series,
@@ -67,12 +66,7 @@ from .operation import(
     min_max_series,
     missing_percent,
     normalized_entropy,
-    Pareto_plot,
-    plot_category,
     plot_dot_line,
-    plot_mean_diff,
-    plot_median_diff,
-    plot_miss_var,
     reduce,
     relocate,
     remove_constant,
@@ -83,6 +77,12 @@ from .operation import(
     set_miss,
     tabyl,
     weighted_mean
+    # make_Pareto_plot,
+    # make_rank_table,
+    # Pareto_plot,
+    # plot_mean_diff,
+    # plot_median_diff,
+    # plot_miss_var,
 )
 
 from .reviewing import(
@@ -107,4 +107,17 @@ from .reviewing import(
     review_shape,
     review_wrangling,
     shape_change,
+)
+
+
+from .visualize import(
+    make_Pareto_plot,
+    make_rank_table,
+    Pareto_plot,
+    plot_mean_diff,
+    plot_median_diff,
+    plot_miss_var,
+    make_categ_barh,
+    make_table_to_plot,
+    plot_category,
 )

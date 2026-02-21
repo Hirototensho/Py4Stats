@@ -54,7 +54,6 @@
 # )
 
 from .operation import (
-    Pareto_plot,
     bind_rows,
     compare_df_cols,
     compare_df_record,
@@ -78,10 +77,6 @@ from .operation import (
     mean_qi,
     median_qi,
     min_max,
-    plot_category,
-    plot_mean_diff,
-    plot_median_diff,
-    plot_miss_var,
     scale,
     set_miss,
     relocate,
@@ -89,21 +84,6 @@ from .operation import (
     remove_empty,
     tabyl,
     weighted_mean
-    # Max,
-    # Mean,
-    # Median,
-    # Min,
-    # Sum,
-    # implies_exper,
-    # check_that,
-    # check_viorate,
-    # review_wrangling,
-    # review_shape,
-    # review_col_addition,
-    # review_casting,
-    # review_missing,
-    # review_category,
-    # review_numeric,
 )
 from .reviewing import (
     Max,
@@ -122,6 +102,15 @@ from .reviewing import (
     check_that,
     check_viorate,
 )
+
+from .visualize import (
+    Pareto_plot,
+    plot_category,
+    plot_mean_diff,
+    plot_median_diff,
+    plot_miss_var,
+)
+
 
 __all__ = [
     # eda_tools --------------------------------------------

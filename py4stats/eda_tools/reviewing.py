@@ -8,9 +8,6 @@ from __future__ import annotations
 
 
 
-# from py4stats import building_block as build # py4stats のプログラミングを補助する関数群
-# from py4stats.eda_tools import _utils as eda_utils
-# from py4stats.eda_tools import operation as eda_ops
 from .. import building_block as build
 from . import _utils as eda_utils
 from . import operation as eda_ops

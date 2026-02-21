@@ -72,7 +72,7 @@ from .regression_tools import (
 # )
 
 from .eda_tools.operation import (
-    Pareto_plot,
+    # Pareto_plot,
     bind_rows,
     compare_df_cols,
     compare_df_record,
@@ -96,10 +96,6 @@ from .eda_tools.operation import (
     mean_qi,
     median_qi,
     min_max,
-    plot_category,
-    plot_mean_diff,
-    plot_median_diff,
-    plot_miss_var,
     scale,
     set_miss,
     relocate,
@@ -107,22 +103,8 @@ from .eda_tools.operation import (
     remove_empty,
     tabyl,
     weighted_mean
-    # Max,
-    # Mean,
-    # Median,
-    # Min,
-    # Sum,
-    # implies_exper,
-    # check_that,
-    # check_viorate,
-    # review_wrangling,
-    # review_shape,
-    # review_col_addition,
-    # review_casting,
-    # review_missing,
-    # review_category,
-    # review_numeric,
 )
+
 from .eda_tools.reviewing import (
     Max,
     Mean,
@@ -139,6 +121,14 @@ from .eda_tools.reviewing import (
     review_numeric,
     check_that,
     check_viorate,
+)
+
+from .eda_tools.visualize import (
+    Pareto_plot,
+    plot_category,
+    plot_mean_diff,
+    plot_median_diff,
+    plot_miss_var,
 )
 
 __all__ = [
