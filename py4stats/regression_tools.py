@@ -6,52 +6,7 @@
 from __future__ import annotations
 
 
-# # `reg_tools`：回帰分析の結果を要約する関数群
-
-# `regression_tools` モジュールに実装された主要な関数の依存関係
-# 
-# ``` python
-# compare_ols()                     # 複数のOLSモデルの係数を比較する表を作成
-# ├─ tidy()                        # モデルから係数情報を抽出（RegressionResultsWrapper用）
-# ├─ gazer()                       # 整形して見やすい形式に加工（係数＋統計量）
-# ├─ lineup_models()              # モデル名を列にして横方向に整形
-# └─ make_glance_tab()            # 各モデルの当てはまり指標（rsquared等）を整形
-# 
-# compare_mfx()                     # 複数のロジット系モデルの限界効果を比較
-# ├─ tidy_mfx()                   # モデルから限界効果（dydxなど）を抽出
-# │  └─ build.arg_match()         # 引数検証（method, at など）
-# ├─ gazer()                      # 結果の整形
-# ├─ lineup_models()             # モデル名を列にして整形
-# └─ make_glance_tab()           # モデル当てはまり指標を整形（上と共通）
-# 
-# gazer()                           # tidyデータを人間が読みやすい文字列形式に整形
-# ├─ build.arg_match()             # 統計量・表形式の引数検証
-# ├─ build.p_stars()              # 有意性を表すアスタリスク付与
-# └─ build.style_number()         # 数値整形
-# 
-# make_glance_tab()                 # glance情報（rsq, AICなど）を縦表に整形
-# ├─ glance()                     # モデルごとの指標を抽出（singledispatch）
-# └─ build.arg_match()            # stats_glance の妥当性チェック
-# 
-# lineup_models()                   # モデル比較表の列統合
-# （依存なし）
-# 
-# tidy()                            # 結果を tidy形式のDataFrame に変換（dispatch対応）
-# tidy_mfx()                        # 限界効果を tidy形式に変換
-# 
-# coefplot()                        # 回帰係数のエラーバーグラフ作成
-# └─ coef_dot()                   # 実際のプロットを作成
-# 
-# mfxplot()                         # 限界効果のプロット
-# └─ tidy_mfx(), coef_dot()
-# 
-# Blinder_Oaxaca()                  # Oaxaca-Blinder 分解
-# └─ assert_reg_result()
-# 
-# plot_Blinder_Oaxaca()             # Oaxaca 分解の結果をプロット
-# ├─ Blinder_Oaxaca()
-# └─ build.arg_match()
-# ```
+# # `regression_tools`： 回帰分析の結果を要約する関数群
 
 
 
@@ -293,7 +248,7 @@ def tidy_test(
   # 引数のアサーション ----------------------------------------------------------------------------------
   build.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither', arg_name = 'conf_level')
   # --------------------------------------------------------------------------------------------------
-
+  
   if(x.distribution == 'F'):
     tidied = pd.DataFrame({
     'statistics':x.statistic,
@@ -674,9 +629,9 @@ def assert_reg_reuslt(arg: Any, arg_name: str = 'list_models') -> None:
     if(arg_name is None):
         arg_name = varname.argname('arg')
     arg = pd.Series(arg)
-
+    
     condition =  arg.apply(lambda x: isinstance(x, (RegressionResultsWrapper)))
-
+    
     not_sutisfy = arg[~condition].index.astype(str).to_list()
     if not condition.all():
         raise ValueError(
@@ -754,7 +709,7 @@ def compare_ols(
     # --------------------------------------------------------------------------------------------------
     if not pandas.api.types.is_list_like(list_models):
             raise ValueError("Argument `list_models` is must be a list of models.")
-
+    
     assert_reg_reuslt(list_models, arg_name = 'list_models')
 
     tidy_list = [tidy(mod) for mod in list_models]
@@ -1109,8 +1064,8 @@ def coefplot_regression(
     build.assert_character(palette, arg_name = 'palette')
 
     # 回帰係数の表を抽出
-    tidy_ci_high = tidy(mod, conf_level = conf_level[0])
-    tidy_ci_row = tidy(mod, conf_level = conf_level[1])
+    tidy_ci_row = tidy(mod, conf_level = conf_level[0])
+    tidy_ci_high = tidy(mod, conf_level = conf_level[1])
 
     # subset が指定されていれば、回帰係数の部分集合を抽出する
     if subset is not None:
@@ -1130,21 +1085,21 @@ def coefplot_regression(
 def coef_dot(
     tidy_ci_high: pd.DataFrame,
     tidy_ci_low: pd.DataFrame,
-    ax: Optional[Axes] = None,
     show_Intercept: bool = False,
     show_vline: bool = True,
     palette: Sequence[str] = ("#1b69af", "#629CE7"),
     estimate: str = "estimate",
     conf_lower: str = "conf_lower",
     conf_higher: str = "conf_higher",
+    ax: Optional[Axes] = None,
 ) -> None:
     """Draw coefficient dots and confidence intervals from tidy tables.
 
     Args:
         tidy_ci_high (pandas.DataFrame):
-            Tidy table for the higher confidence level (typically narrower line).
+            Tidy table for the higher confidence level (typically wider line).
         tidy_ci_low (pandas.DataFrame):
-            Tidy table for the lower confidence level (typically wider line).
+            Tidy table for the lower confidence level (typically narrower line).
         ax (matplotlib.axes.Axes | None):
             Axes to draw on. If None, a new figure/axes is created.
         show_Intercept (bool):
@@ -1166,7 +1121,7 @@ def coef_dot(
     # 引数のアサーション ==============================================
     build.assert_logical(show_Intercept, arg_name = 'show_Intercept')
     build.assert_logical(show_vline, arg_name = 'show_vline')
-
+    
     columne_name = tidy_ci_high.columns
     estimate = build.arg_match(
         estimate, arg_name = 'estimate', values = columne_name
@@ -1178,7 +1133,7 @@ def coef_dot(
         conf_higher, arg_name = 'conf_higher', values = columne_name
     )
     # ==============================================================
-
+    
     tidy_ci_high = tidy_ci_high.copy()
     tidy_ci_low = tidy_ci_low.copy()
 
@@ -1198,15 +1153,17 @@ def coef_dot(
 
     # エラーバーの作図
     ax.hlines(
-        y = tidy_ci_low.index, xmin = tidy_ci_low[conf_lower], xmax = tidy_ci_low[conf_higher],
+        y = tidy_ci_high.index, xmin = tidy_ci_high[conf_lower], xmax = tidy_ci_high[conf_higher],
         linewidth = 1.5,
         color = palette[1]
     )
+
     ax.hlines(
-        y = tidy_ci_high.index, xmin = tidy_ci_high[conf_lower], xmax = tidy_ci_high[conf_higher],
+        y = tidy_ci_low.index, xmin = tidy_ci_low[conf_lower], xmax = tidy_ci_low[conf_higher],
         linewidth = 3,
         color = palette[0]
     )
+
 
     # 回帰係数の推定値を表す点の作図
     ax.scatter(
@@ -1238,7 +1195,7 @@ def assert_glm_with_get_margeff(arg: Any, arg_name: str = 'list_models') -> None
     if(arg_name is None):
         arg_name = varname.argname('arg')
     arg = pd.Series(arg)
-
+    
     condition =  arg.apply(
         lambda x: isinstance(x, BinaryResultsWrapper) & hasattr(x, 'get_margeff')
         )
@@ -1295,7 +1252,7 @@ def tidy_mfx(
   assert_glm_with_get_margeff(x, arg_name = 'x') 
   build.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither', arg_name = 'conf_level')
   build.assert_logical(dummy, arg_name = 'dummy')
-
+  
   at = build.arg_match(
     at, arg_name = 'at',
     values = ['overall', 'mean', 'median', 'zero']
@@ -1399,12 +1356,12 @@ def compare_mfx(
         # 引数のアサーション ==============================================
         if not pandas.api.types.is_list_like(list_models):
             raise ValueError("Argument `list_models` is must be a list of models.")
-
+        
         assert_glm_with_get_margeff(list_models, arg_name = 'list_models')
-
+        
         build.assert_character(model_name, arg_name = 'model_name', nullable = True)
         build.assert_count(digits, arg_name = 'digits')
-
+        
         stats = build.arg_match(
             stats,  arg_name = 'stats',
             values = ["std_err", "statistics", "p_value", "conf_int"],
@@ -1510,12 +1467,12 @@ def mfxplot(
     # 引数のアサーション ==============================================
     assert_glm_with_get_margeff(mod, arg_name = 'mod')
     # ==============================================================
-
+    
     # 回帰係数の表を抽出
-    tidy_ci_high = tidy_mfx(
+    tidy_ci_row = tidy_mfx(
         mod, at = at, method = method, dummy = dummy, conf_level = conf_level[0]
         )
-    tidy_ci_row =  tidy_mfx(
+    tidy_ci_high =  tidy_mfx(
         mod, at = at, method = method, dummy = dummy, conf_level = conf_level[1]
         )
 
@@ -1624,7 +1581,7 @@ def Blinder_Oaxaca(
             - unobserved_diff
     """
     assert_reg_reuslt(model1, arg_name = 'model1')
-    assert_reg_reuslt(model2, arg_name = 'model1')
+    assert_reg_reuslt(model2, arg_name = 'model2')
 
     X_1 = pd.DataFrame(model1.model.exog, columns = model1.model.exog_names)
     X_2 = pd.DataFrame(model2.model.exog, columns = model2.model.exog_names)
@@ -1668,8 +1625,13 @@ def plot_Blinder_Oaxaca(
   Returns:
       None
   """
+  assert_reg_reuslt(model1, arg_name = 'model1')
+  assert_reg_reuslt(model2, arg_name = 'model2')
+
   diff_type = build.arg_match(
-      diff_type, ['observed_diff', 'unobserved_diff'],
+      diff_type, 
+      values = ['observed_diff', 'unobserved_diff'],
+      arg_name = 'diff_type',
       multiple = True
       )
   fig = None

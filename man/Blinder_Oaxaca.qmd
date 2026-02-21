@@ -5,41 +5,18 @@
 　2つのサブサンプルを用いた回帰分析の推定結果に対して、Blinder-Oaxaca分解を行います。
 
 ```python
-Blinder_Oaxaca(model1, model2)
+Blinder_Oaxaca(
+    model1: RegressionResultsWrapper,
+    model2: RegressionResultsWrapper,
+)
 
 plot_Blinder_Oaxaca(
-    model1, model2,
-    diff_type = ['observed_diff', 'unobserved_diff'],
-    ax = None, 
+    model1: RegressionResultsWrapper,
+    model2: RegressionResultsWrapper,
+    diff_type: Union[str, Sequence[str]] = ("observed_diff", "unobserved_diff"),
+    ax: Optional[Union[Axes, Sequence[Axes]]] = None,
 )
 ```
-
-　いま、ある変数 $s$ を用いて $s = m$ と $s = f$ の2つのサブグループからなるデータセットがあるとし、次のような回帰式を仮定します。
-
-$$
-\begin{aligned}
-Y_{i}^s = \boldsymbol{X}_i^s\boldsymbol{\beta}^s + \epsilon_i^s, &&
-s = m, f
-\end{aligned}
-\tag{1}
-$$
-
-　ここで、$\boldsymbol{X}_i^s$ サブグループ $s$ に属する個人 $i$ についての説明変数からなる行列で、$\boldsymbol{\beta}^s$ はサブグループ $s$ のについての回帰係数、$\epsilon_i^s$ は誤差項です。
-　さらに、サブグループ $s$ の被説明変数の平均値を $\bar{Y}^s$ とし、説明変数の平均値を $\bar{\boldsymbol{X}}^s$ とするとき、Blinder-Oaxaca分解は2つのグループにおける被説明変数の平均値の差 $\bar{Y}^m - \bar{Y}^f$ を次のように分解します。
-
-$$
-\begin{aligned}
-\bar{Y}^m - \bar{Y}^f = (\bar{\boldsymbol{X}}^m - \bar{\boldsymbol{X}}^f)\boldsymbol{\beta}^m + \bar{\boldsymbol{X}}^f(\boldsymbol{\beta}^m - \boldsymbol{\beta}^f)
-\end{aligned}
-\tag{2}
-$$
-
-このとき、式(2)右辺の各項は、それぞれ次のような意味を持ちます。
-
-- $(\bar{\boldsymbol{X}}^m - \bar{\boldsymbol{X}}^f)\boldsymbol{\beta}^m$：2つのグループの観測可能な属性の差に起因する被説明変数の差 `observed_diff`
-- $\bar{\boldsymbol{X}}^f(\boldsymbol{\beta}^m - \boldsymbol{\beta}^f)$：2つのグループの観測できない要因の違いに起因する被説明変数の差 `unobserved_diff`
-
-　式(1)および式(2)については朝井(2014, p.9)を参照しました。
 
 ## 引数 Argument
 
@@ -139,6 +116,36 @@ py4st.plot_Blinder_Oaxaca(
 )
 fig.tight_layout()
 ```
+
+
+## Note
+
+　いま、ある変数 $s$ を用いて $s = m$ と $s = f$ の2つのサブグループからなるデータセットがあるとし、次のような回帰式を仮定します。
+
+$$
+\begin{aligned}
+Y_{i}^s = \boldsymbol{X}_i^s\boldsymbol{\beta}^s + \epsilon_i^s, &&
+s = m, f
+\end{aligned}
+\tag{1}
+$$
+
+　ここで、$\boldsymbol{X}_i^s$ サブグループ $s$ に属する個人 $i$ についての説明変数からなる行列で、$\boldsymbol{\beta}^s$ はサブグループ $s$ のについての回帰係数、$\epsilon_i^s$ は誤差項です。
+　さらに、サブグループ $s$ の被説明変数の平均値を $\bar{Y}^s$ とし、説明変数の平均値を $\bar{\boldsymbol{X}}^s$ とするとき、Blinder-Oaxaca分解は2つのグループにおける被説明変数の平均値の差 $\bar{Y}^m - \bar{Y}^f$ を次のように分解します。
+
+$$
+\begin{aligned}
+\bar{Y}^m - \bar{Y}^f = (\bar{\boldsymbol{X}}^m - \bar{\boldsymbol{X}}^f)\boldsymbol{\beta}^m + \bar{\boldsymbol{X}}^f(\boldsymbol{\beta}^m - \boldsymbol{\beta}^f)
+\end{aligned}
+\tag{2}
+$$
+
+このとき、式(2)右辺の各項は、それぞれ次のような意味を持ちます。
+
+- $(\bar{\boldsymbol{X}}^m - \bar{\boldsymbol{X}}^f)\boldsymbol{\beta}^m$：2つのグループの観測可能な属性の差に起因する被説明変数の差 `observed_diff`
+- $\bar{\boldsymbol{X}}^f(\boldsymbol{\beta}^m - \boldsymbol{\beta}^f)$：2つのグループの観測できない要因の違いに起因する被説明変数の差 `unobserved_diff`
+
+　式(1)および式(2)については朝井(2014, p.9)を参照しました。
 
 ## 参考文献
 

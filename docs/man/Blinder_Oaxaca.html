@@ -504,6 +504,7 @@ window.Quarto = {
   <ul>
   <li><a href="#概要" id="toc-概要" class="nav-link active" data-scroll-target="#概要">概要</a></li>
   <li><a href="#引数-argument" id="toc-引数-argument" class="nav-link" data-scroll-target="#引数-argument">引数 Argument</a></li>
+  <li><a href="#note" id="toc-note" class="nav-link" data-scroll-target="#note">Note</a></li>
   <li><a href="#参考文献" id="toc-参考文献" class="nav-link" data-scroll-target="#参考文献">参考文献</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/main/man/Blinder_Oaxaca.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></nav>
@@ -533,34 +534,17 @@ window.Quarto = {
 <section id="概要" class="level2">
 <h2 class="anchored" data-anchor-id="概要">概要</h2>
 <p>　2つのサブサンプルを用いた回帰分析の推定結果に対して、Blinder-Oaxaca分解を行います。</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>Blinder_Oaxaca(model1, model2)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>plot_Blinder_Oaxaca(</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    model1, model2,</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    diff_type <span class="op">=</span> [<span class="st">'observed_diff'</span>, <span class="st">'unobserved_diff'</span>],</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    ax <span class="op">=</span> <span class="va">None</span>, </span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>　いま、ある変数 <span class="math inline">\(s\)</span> を用いて <span class="math inline">\(s = m\)</span> と <span class="math inline">\(s = f\)</span> の2つのサブグループからなるデータセットがあるとし、次のような回帰式を仮定します。</p>
-<p><span class="math display">\[
-\begin{aligned}
-Y_{i}^s = \boldsymbol{X}_i^s\boldsymbol{\beta}^s + \epsilon_i^s, &amp;&amp;
-s = m, f
-\end{aligned}
-\tag{1}
-\]</span></p>
-<p>　ここで、<span class="math inline">\(\boldsymbol{X}_i^s\)</span> サブグループ <span class="math inline">\(s\)</span> に属する個人 <span class="math inline">\(i\)</span> についての説明変数からなる行列で、<span class="math inline">\(\boldsymbol{\beta}^s\)</span> はサブグループ <span class="math inline">\(s\)</span> のについての回帰係数、<span class="math inline">\(\epsilon_i^s\)</span> は誤差項です。 　さらに、サブグループ <span class="math inline">\(s\)</span> の被説明変数の平均値を <span class="math inline">\(\bar{Y}^s\)</span> とし、説明変数の平均値を <span class="math inline">\(\bar{\boldsymbol{X}}^s\)</span> とするとき、Blinder-Oaxaca分解は2つのグループにおける被説明変数の平均値の差 <span class="math inline">\(\bar{Y}^m - \bar{Y}^f\)</span> を次のように分解します。</p>
-<p><span class="math display">\[
-\begin{aligned}
-\bar{Y}^m - \bar{Y}^f = (\bar{\boldsymbol{X}}^m - \bar{\boldsymbol{X}}^f)\boldsymbol{\beta}^m + \bar{\boldsymbol{X}}^f(\boldsymbol{\beta}^m - \boldsymbol{\beta}^f)
-\end{aligned}
-\tag{2}
-\]</span></p>
-<p>このとき、式(2)右辺の各項は、それぞれ次のような意味を持ちます。</p>
-<ul>
-<li><span class="math inline">\((\bar{\boldsymbol{X}}^m - \bar{\boldsymbol{X}}^f)\boldsymbol{\beta}^m\)</span>：2つのグループの観測可能な属性の差に起因する被説明変数の差 <code>observed_diff</code></li>
-<li><span class="math inline">\(\bar{\boldsymbol{X}}^f(\boldsymbol{\beta}^m - \boldsymbol{\beta}^f)\)</span>：2つのグループの観測できない要因の違いに起因する被説明変数の差 <code>unobserved_diff</code></li>
-</ul>
-<p>　式(1)および式(2)については朝井(2014, p.9)を参照しました。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>Blinder_Oaxaca(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    model1: RegressionResultsWrapper,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    model2: RegressionResultsWrapper,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>plot_Blinder_Oaxaca(</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    model1: RegressionResultsWrapper,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    model2: RegressionResultsWrapper,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    diff_type: Union[<span class="bu">str</span>, Sequence[<span class="bu">str</span>]] <span class="op">=</span> (<span class="st">"observed_diff"</span>, <span class="st">"unobserved_diff"</span>),</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    ax: Optional[Union[Axes, Sequence[Axes]]] <span class="op">=</span> <span class="va">None</span>,</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="引数-argument" class="level2">
 <h2 class="anchored" data-anchor-id="引数-argument">引数 Argument</h2>
@@ -732,6 +716,30 @@ s = m, f
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    ax <span class="op">=</span> ax</span>
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="note" class="level2">
+<h2 class="anchored" data-anchor-id="note">Note</h2>
+<p>　いま、ある変数 <span class="math inline">\(s\)</span> を用いて <span class="math inline">\(s = m\)</span> と <span class="math inline">\(s = f\)</span> の2つのサブグループからなるデータセットがあるとし、次のような回帰式を仮定します。</p>
+<p><span class="math display">\[
+\begin{aligned}
+Y_{i}^s = \boldsymbol{X}_i^s\boldsymbol{\beta}^s + \epsilon_i^s, &amp;&amp;
+s = m, f
+\end{aligned}
+\tag{1}
+\]</span></p>
+<p>　ここで、<span class="math inline">\(\boldsymbol{X}_i^s\)</span> サブグループ <span class="math inline">\(s\)</span> に属する個人 <span class="math inline">\(i\)</span> についての説明変数からなる行列で、<span class="math inline">\(\boldsymbol{\beta}^s\)</span> はサブグループ <span class="math inline">\(s\)</span> のについての回帰係数、<span class="math inline">\(\epsilon_i^s\)</span> は誤差項です。 　さらに、サブグループ <span class="math inline">\(s\)</span> の被説明変数の平均値を <span class="math inline">\(\bar{Y}^s\)</span> とし、説明変数の平均値を <span class="math inline">\(\bar{\boldsymbol{X}}^s\)</span> とするとき、Blinder-Oaxaca分解は2つのグループにおける被説明変数の平均値の差 <span class="math inline">\(\bar{Y}^m - \bar{Y}^f\)</span> を次のように分解します。</p>
+<p><span class="math display">\[
+\begin{aligned}
+\bar{Y}^m - \bar{Y}^f = (\bar{\boldsymbol{X}}^m - \bar{\boldsymbol{X}}^f)\boldsymbol{\beta}^m + \bar{\boldsymbol{X}}^f(\boldsymbol{\beta}^m - \boldsymbol{\beta}^f)
+\end{aligned}
+\tag{2}
+\]</span></p>
+<p>このとき、式(2)右辺の各項は、それぞれ次のような意味を持ちます。</p>
+<ul>
+<li><span class="math inline">\((\bar{\boldsymbol{X}}^m - \bar{\boldsymbol{X}}^f)\boldsymbol{\beta}^m\)</span>：2つのグループの観測可能な属性の差に起因する被説明変数の差 <code>observed_diff</code></li>
+<li><span class="math inline">\(\bar{\boldsymbol{X}}^f(\boldsymbol{\beta}^m - \boldsymbol{\beta}^f)\)</span>：2つのグループの観測できない要因の違いに起因する被説明変数の差 <code>unobserved_diff</code></li>
+</ul>
+<p>　式(1)および式(2)については朝井(2014, p.9)を参照しました。</p>
 </section>
 <section id="参考文献" class="level2">
 <h2 class="anchored" data-anchor-id="参考文献">参考文献</h2>

@@ -2,19 +2,29 @@
 
 ## Py4Stats の設計指針
 
-- Do with Py4Stats
+Py4Stats ライブラリでは、次のような設計方針で開発を進めています。
+
+- Python を用いたデータ分析の初心者から中級者をユーザー層として想定する
+- ユーザーが分析ワークフローの大きな変更を強いられることなく利用できること
+- Python や統計学に関する高度な知識を要求しないこと
+- 必要最小限のコードで使用できること
+
+上記の設計方針を実現するために、次のような取り組みを行なっています。
+
+- To do with Py4Stats
   1. 探索的データ分析および回帰分析の結果レポートティングを円滑化・簡略化するためのユーティリティを提供する
   2. 基本的には1つの関数で完結する処理を実装する
   3. ユーザーフレンドリーな UI を重視する
-     1. 引数関連のエラーメッセージには、ユーザーが取るべきアクションが分かるようなメッセージを提供する
+     1. ドキュメントを充実させる
+     2. 不適切な入力でエラーが生じた場合、その理由や適切な値の候補を提示すること
+     3. docstring や API ドキュメントページでは、機能面の説明に加えてすぐにコピーして使える使用例を提示する
 
 - Not do with Py4Stats
-  1. 有力な既存の Python ライブラリで提供されている機能は実装しない
-  2. ユーザーに既存のワークフローの変更を求めない
-  3. ユーザーに内部実装などに関する知識を要求しない
-
+  1. 既存の Python ライブラリで良い実装が提供されている機能は実装しない
 
 ## Py4Stats ライブラリのモジュール構成
+
+2026年2月20日時点で、Py4Stats ライブラリのモジュールは次のように構成されています。
 
 ```python
 py4stats
@@ -28,6 +38,10 @@ py4stats
 　 └ building_block              # 内部実装用のアサーション関数とユーティリティ関数を提供
  ```
 
+ また、各モジュールの実装は次の図のような依存関係を持っています。 このように `building_block` モジュールは  `eda_tools` や `regression_tools` を実装する上での基盤という位置付けとなっています。Py4Stats ライブラリの実装においては、逆方向の依存関係を発生させないことを前提としています。
+
+ ![Py4Statsライブラリ内部の依存関係](./image/Py4Statsライブラリ内部の依存関係.png)
+
 ## Py4Stats ライブラリのインポート
 
 ``` python
@@ -35,10 +49,11 @@ py4stats
 import py4stats as py4st
 
 # サブモジュールの読み込み
+from py4stats import eda_tools as eda
 from py4stats import heckit_helper
 from py4stats import building_block as build 
 
-# eda_tools のバックエンド別実装の明示的な読み込み
+# eda_tools のバックエンド別実装の明示的な読み込み（近く変更の可能性あり）
 from py4stats.eda_tools import _nw as eda_nw
 from py4stats.eda_tools import _pandas as eda_pd
 ```
