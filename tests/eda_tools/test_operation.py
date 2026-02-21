@@ -1,4 +1,15 @@
+
 # tests/test_eda_tools.py
+
+# ↓ テストコード実装の補助関数の読み込み
+import setup_test_function as tfun
+
+from py4stats.eda_tools import _utils as eda_util
+from py4stats.eda_tools import operation as eda_ops
+from py4stats.eda_tools import reviewing as eda_review
+from py4stats.eda_tools import visualize as eda_vis
+from py4stats import building_block as build # py4stats のプログラミングを補助する関数群
+
 import pytest
 import pandas as pd
 import numpy as np
@@ -13,8 +24,6 @@ import narwhals
 import narwhals as nw
 import narwhals.selectors as ncs
 
-from py4stats.eda_tools import _nw as eda_nw
-from py4stats import building_block as build # py4stats のプログラミングを補助する関数群
 
 from typing import (Literal)
 
@@ -22,7 +31,7 @@ import pathlib
 from itertools import product
 from contextlib import nullcontext
 
-tests_path = pathlib.Path(__file__).parent
+tests_path = pathlib.Path(__file__).parent.parent
 
 # サンプルデータの読み込み --------------------------------
 
@@ -71,96 +80,6 @@ gentoo_dict = {
 list_backend = ['pd', 'pl', 'pa']
 
 # =========================================================
-# テスト用関数の定義
-# =========================================================
-
-def _assert_df_fixture(output_df, fixture_csv: str, check_dtype: bool = False, index_col = 0, **kwarg) -> None:
-    if hasattr(output_df, 'to_pandas'):
-        output_df = output_df.to_pandas()
-    expected_df = pd.read_csv(f'{tests_path}/fixtures/{fixture_csv}', index_col = index_col, **kwarg)
-    # バックエンド差で dtype が微妙に変わりやすいので、基本は dtype を厳密に見ない運用が安定
-    assert_frame_equal(output_df, expected_df, check_dtype=check_dtype)
-
-def _assert_df_fixture_new(
-        output_df,  fixture_csv: str,  
-        check_dtype: bool = False, reset_index: bool = True, 
-        **kwarg
-        ) -> None:
-    expected_df = nw.read_csv(
-        f'{tests_path}/fixtures/{fixture_csv}',
-        backend = output_df.implementation
-        )
-    
-    output_df = output_df.to_pandas()
-    expected_df = expected_df.to_pandas()
-
-    if reset_index:
-        output_df = output_df.reset_index(drop = True)
-        expected_df = expected_df.reset_index(drop = True)
-
-    assert_frame_equal(output_df, expected_df, check_dtype = check_dtype)
-
-def _assert_df_record(output_df, fixture_csv: str, index_col = 0, **kwarg) -> None:
-    if hasattr(output_df, 'to_pandas'):
-        output_df = output_df.to_pandas()
-    expected_df = pd.read_csv(f'{tests_path}/fixtures/{fixture_csv}', index_col = index_col, **kwarg)
-    
-    result = eda_nw.compare_df_record(output_df, expected_df).all().all()
-
-    assert result
-
-# =========================================================
-# 実験的実装
-# =========================================================
-from narwhals import testing as nw_test
-
-def _assert_df_eq(
-        output_df,  path_fixture: str,  
-        check_dtype: bool = False, 
-        reset_index: bool = True, 
-        update_fixture: bool = False,
-        read_by: Literal['narwhals', 'pandas'] = 'narwhals',
-        write_by: Literal['narwhals', 'pandas'] = 'narwhals',
-        **kwarg
-        ) -> None:
-    
-    if not isinstance(output_df, nw.DataFrame):
-        output_df = nw.from_native(output_df)
-
-    if update_fixture:
-        if write_by == 'narwhals':
-            output_df.write_csv(path_fixture)
-        elif write_by == 'pandas':
-            if hasattr(output_df, 'to_pandas'): output_df = output_df.to_pandas()
-            output_df.to_csv(path_fixture, index = False)
-
-    
-    if read_by == 'narwhals':
-        expected_df = nw.read_csv(path_fixture, backend = output_df.implementation)
-        expected_df = expected_df.to_pandas()
-    elif read_by == 'pandas':
-        expected_df = pd.read_csv(path_fixture)
-    
-    if hasattr(expected_df, 'to_pandas'): expected_df = expected_df.to_pandas()
-    if hasattr(output_df, 'to_pandas'): output_df = output_df.to_pandas()
-
-    if reset_index:
-        output_df = output_df.reset_index(drop = True)
-        expected_df = expected_df.reset_index(drop = True)
-
-    assert_frame_equal(output_df, expected_df, check_dtype = check_dtype)
-
-# 私の手元にある環境では、`narwhals.testing.assert_frame_equal()` が読み込めないので、
-# 以下のコードはまだ使えません。
-
-#     nw_test.assert_frame_equal(
-#         left = output_df, 
-#         right = expected_df, 
-#         check_dtype = check_dtype,
-#         **kwarg
-#         )
-
-# =========================================================
 # diagnose
 # =========================================================
 
@@ -168,9 +87,9 @@ def _assert_df_eq(
 def test_diagnose(backend) -> None:
     path = f'{tests_path}/fixtures/diagnose_{backend}.csv'
     
-    output_df = eda_nw.diagnose(penguins_dict.get(backend), to_native = False)
+    output_df = eda_ops.diagnose(penguins_dict.get(backend), to_native = False)
     
-    _assert_df_eq(
+    tfun._assert_df_eq(
         output_df, 
         path_fixture = path, 
         update_fixture = False
@@ -184,12 +103,12 @@ def test_diagnose(backend) -> None:
 def test_freq_table(backend) -> None:
     path = f'{tests_path}/fixtures/freq_table_{backend}.csv'
     
-    output_df = eda_nw.freq_table(
+    output_df = eda_ops.freq_table(
         penguins_dict.get(backend), 
         'species', to_native = False
         )
     
-    _assert_df_eq(
+    tfun._assert_df_eq(
         output_df, 
         path_fixture = path, 
         update_fixture = False
@@ -200,63 +119,63 @@ def test_freq_table(backend) -> None:
 # =========================================================
 
 def test_crosstab_pd():
-    output_df1 = eda_nw.crosstab(penguins, 'island', 'species', margins = True, normalize = 'all')
+    output_df1 = eda_ops.crosstab(penguins, 'island', 'species', margins = True, normalize = 'all')
     # output_df1.to_csv(f'{tests_path}/fixtures/crosstab_nw1.csv')
     expected_df1 = pd.read_csv(f'{tests_path}/fixtures/crosstab_nw1.csv', index_col = 0)
-    test_result1 = eda_nw.compare_df_record(output_df1, expected_df1).all().all()
+    test_result1 = eda_ops.compare_df_record(output_df1, expected_df1).all().all()
 
-    output_df2 = eda_nw.crosstab(penguins, 'island', 'species', margins = True, normalize = 'columns')
+    output_df2 = eda_ops.crosstab(penguins, 'island', 'species', margins = True, normalize = 'columns')
     # output_df2.to_csv(f'{tests_path}/fixtures/crosstab_nw2.csv')
     expected_df2 = pd.read_csv(f'{tests_path}/fixtures/crosstab_nw2.csv', index_col = 0)
-    test_result2 = eda_nw.compare_df_record(output_df2, expected_df2).all().all()
+    test_result2 = eda_ops.compare_df_record(output_df2, expected_df2).all().all()
 
-    output_df3 = eda_nw.crosstab(penguins, 'island', 'species', margins = True, normalize = 'index')
+    output_df3 = eda_ops.crosstab(penguins, 'island', 'species', margins = True, normalize = 'index')
     # output_df3.to_csv(f'{tests_path}/fixtures/crosstab_nw3.csv')
     expected_df3 = pd.read_csv(f'{tests_path}/fixtures/crosstab_nw3.csv', index_col = 0)
-    test_result3 = eda_nw.compare_df_record(output_df3, expected_df3).all().all()
+    test_result3 = eda_ops.compare_df_record(output_df3, expected_df3).all().all()
 
     assert test_result1 and test_result2 and test_result3
 
 
 def test_crosstab_pl():
-    output_df1 = eda_nw.crosstab(penguins_pl, 'island', 'species', margins = True, normalize = 'all')
+    output_df1 = eda_ops.crosstab(penguins_pl, 'island', 'species', margins = True, normalize = 'all')
     output_df1 = output_df1.to_pandas()
     # output_df1.to_csv(f'{tests_path}/fixtures/crosstab_pl1.csv')
     expected_df1 = pd.read_csv(f'{tests_path}/fixtures/crosstab_pl1.csv', index_col = 0)
-    test_result1 = eda_nw.compare_df_record(output_df1, expected_df1).all().all()
+    test_result1 = eda_ops.compare_df_record(output_df1, expected_df1).all().all()
 
-    output_df2 = eda_nw.crosstab(penguins_pl, 'island', 'species', margins = True, normalize = 'columns')
+    output_df2 = eda_ops.crosstab(penguins_pl, 'island', 'species', margins = True, normalize = 'columns')
     output_df2 = output_df2.to_pandas()
     # output_df2.to_csv(f'{tests_path}/fixtures/crosstab_pl2.csv')
     expected_df2 = pd.read_csv(f'{tests_path}/fixtures/crosstab_pl2.csv', index_col = 0)
-    test_result2 = eda_nw.compare_df_record(output_df2, expected_df2).all().all()
+    test_result2 = eda_ops.compare_df_record(output_df2, expected_df2).all().all()
 
-    output_df3 = eda_nw.crosstab(penguins_pl, 'island', 'species', margins = True, normalize = 'index')
+    output_df3 = eda_ops.crosstab(penguins_pl, 'island', 'species', margins = True, normalize = 'index')
     output_df3 = output_df3.to_pandas()
     # output_df3.to_csv(f'{tests_path}/fixtures/crosstab_pl3.csv')
     expected_df3 = pd.read_csv(f'{tests_path}/fixtures/crosstab_pl3.csv', index_col = 0)
-    test_result3 = eda_nw.compare_df_record(output_df3, expected_df3).all().all()
+    test_result3 = eda_ops.compare_df_record(output_df3, expected_df3).all().all()
 
     assert test_result1 and test_result2 and test_result3
 
 def test_crosstab_pa():
-    output_df1 = eda_nw.crosstab(penguins_pa, 'island', 'species', margins = True, normalize = 'all')
+    output_df1 = eda_ops.crosstab(penguins_pa, 'island', 'species', margins = True, normalize = 'all')
     output_df1 = output_df1.to_pandas()
     # output_df1.to_csv(f'{tests_path}/fixtures/crosstab_pa1.csv')
     expected_df1 = pd.read_csv(f'{tests_path}/fixtures/crosstab_pa1.csv', index_col = 0)
-    test_result1 = eda_nw.compare_df_record(output_df1, expected_df1).all().all()
+    test_result1 = eda_ops.compare_df_record(output_df1, expected_df1).all().all()
 
-    output_df2 = eda_nw.crosstab(penguins_pa, 'island', 'species', margins = True, normalize = 'columns')
+    output_df2 = eda_ops.crosstab(penguins_pa, 'island', 'species', margins = True, normalize = 'columns')
     output_df2 = output_df2.to_pandas()
     # output_df2.to_csv(f'{tests_path}/fixtures/crosstab_pa2.csv')
     expected_df2 = pd.read_csv(f'{tests_path}/fixtures/crosstab_pa2.csv', index_col = 0)
-    test_result2 = eda_nw.compare_df_record(output_df2, expected_df2).all().all()
+    test_result2 = eda_ops.compare_df_record(output_df2, expected_df2).all().all()
 
-    output_df3 = eda_nw.crosstab(penguins_pa, 'island', 'species', margins = True, normalize = 'index')
+    output_df3 = eda_ops.crosstab(penguins_pa, 'island', 'species', margins = True, normalize = 'index')
     output_df3 = output_df3.to_pandas()
     # output_df3.to_csv(f'{tests_path}/fixtures/crosstab_pa3.csv')
     expected_df3 = pd.read_csv(f'{tests_path}/fixtures/crosstab_pa3.csv', index_col = 0)
-    test_result3 = eda_nw.compare_df_record(output_df3, expected_df3).all().all()
+    test_result3 = eda_ops.compare_df_record(output_df3, expected_df3).all().all()
 
     assert test_result1 and test_result2 and test_result3
 
@@ -265,36 +184,36 @@ def test_crosstab_pa():
 # =========================================================
 
 def test_tabyl_pd():
-    output_df = eda_nw.tabyl(penguins, 'island', 'species', normalize = 'index')
+    output_df = eda_ops.tabyl(penguins, 'island', 'species', normalize = 'index')
     # output_df.to_csv(f'{tests_path}/fixtures/tabyl_nw.csv', index = True)
-    _assert_df_record(output_df, 'tabyl_nw.csv', dtype = {'All':str})
+    tfun._assert_df_record(output_df, 'tabyl_nw.csv', dtype = {'All':str})
 
 
 def test_tabyl_pl():
-    output_df = eda_nw.tabyl(
+    output_df = eda_ops.tabyl(
             penguins_pl, 'island', 'species', 
             normalize = 'index', to_native = False
         ).to_pandas()
     # output_df.to_csv(f'{tests_path}/fixtures/tabyl_pl.csv', index = True)
-    _assert_df_record(output_df, 'tabyl_pl.csv', dtype = {'All':str})
+    tfun._assert_df_record(output_df, 'tabyl_pl.csv', dtype = {'All':str})
 
 def test_tabyl_pa():
-    output_df = eda_nw.tabyl(
+    output_df = eda_ops.tabyl(
         penguins_pa, 'island', 'species', 
         normalize = 'index', to_native = False
     ).to_pandas()
     # output_df.to_csv(f'{tests_path}/fixtures/tabyl_pa.csv', index = True)
-    _assert_df_record(output_df, 'tabyl_pa.csv', dtype = {'All':str})
+    tfun._assert_df_record(output_df, 'tabyl_pa.csv', dtype = {'All':str})
 
 def test_tabyl_with_boolen_col_pd():
     pm2 = penguins.copy()
     pm2['heavy'] = pm2['body_mass_g'] >= pm2['body_mass_g'].quantile(0.50)
 
-    output_df = eda_nw.tabyl(pm2, 'heavy', 'species', normalize = 'columns')
+    output_df = eda_ops.tabyl(pm2, 'heavy', 'species', normalize = 'columns')
     # output_df.to_csv(f'{tests_path}/fixtures/tabyl_nw_with_boolen.csv')
     expected_df = pd.read_csv(f'{tests_path}/fixtures/tabyl_nw_with_boolen.csv', index_col = 0)
 
-    test_result = eda_nw.compare_df_record(
+    test_result = eda_ops.compare_df_record(
         output_df.astype(str), 
         expected_df.astype(str)
         )\
@@ -307,13 +226,13 @@ def test_tabyl_with_boolen_col_pd():
 @pytest.mark.parametrize("backend", list_backend)
 def test_compare_df_cols(backend):
 
-    output_df = eda_nw.compare_df_cols(
+    output_df = eda_ops.compare_df_cols(
         [adelie_dict.get(backend), gentoo_dict.get(backend)],
         return_match = 'match',
         to_native = False
     )
     path = f'{tests_path}/fixtures/compare_df_cols_{backend}.csv'
-    _assert_df_eq(output_df, path, update_fixture = False)
+    tfun._assert_df_eq(output_df, path, update_fixture = False)
 
 # =========================================================
 # compare_df_stats
@@ -322,40 +241,40 @@ def test_compare_df_cols(backend):
 def test_compare_df_stats_pd():
     penguins_modify = penguins.copy()
     penguins_modify['body_mass_g'] = penguins_modify['body_mass_g'] / 1000
-    penguins_modify['bill_length_mm'] = eda_nw.scale(penguins_modify['bill_length_mm'])
+    penguins_modify['bill_length_mm'] = eda_ops.scale(penguins_modify['bill_length_mm'])
 
-    output_df = eda_nw.compare_df_stats(
+    output_df = eda_ops.compare_df_stats(
         [penguins, penguins_modify]
         )
 
     # output_df.to_csv(f'{tests_path}/fixtures/compare_df_stats_nw.csv')
-    _assert_df_fixture(output_df, 'compare_df_stats_nw.csv')
+    tfun._assert_df_fixture(output_df, 'compare_df_stats_nw.csv')
 
 def test_compare_df_stats_pl():
     penguins_modify = penguins.copy()
     penguins_modify['body_mass_g'] = penguins_modify['body_mass_g'] / 1000
-    penguins_modify['bill_length_mm'] = eda_nw.scale(penguins_modify['bill_length_mm'])
+    penguins_modify['bill_length_mm'] = eda_ops.scale(penguins_modify['bill_length_mm'])
 
-    output_df = eda_nw.compare_df_stats(
+    output_df = eda_ops.compare_df_stats(
         [penguins_pl, pl.from_pandas(penguins_modify)],
         to_native = False
         ).to_pandas()
 
     # output_df.to_csv(f'{tests_path}/fixtures/compare_df_stats_pl.csv')
-    _assert_df_fixture(output_df, 'compare_df_stats_pl.csv')
+    tfun._assert_df_fixture(output_df, 'compare_df_stats_pl.csv')
 
 def test_compare_df_stats_pa():
     penguins_modify = penguins.copy()
     penguins_modify['body_mass_g'] = penguins_modify['body_mass_g'] / 1000
-    penguins_modify['bill_length_mm'] = eda_nw.scale(penguins_modify['bill_length_mm'])
+    penguins_modify['bill_length_mm'] = eda_ops.scale(penguins_modify['bill_length_mm'])
 
-    output_df = eda_nw.compare_df_stats(
+    output_df = eda_ops.compare_df_stats(
         [penguins_pa, pa.Table.from_pandas(penguins_modify)],
         to_native = False 
         ).to_pandas()
 
     # output_df.to_csv(f'{tests_path}/fixtures/compare_df_stats_pa.csv')
-    _assert_df_fixture(output_df, 'compare_df_stats_pa.csv')
+    tfun._assert_df_fixture(output_df, 'compare_df_stats_pa.csv')
 
 # =========================================================
 # compare_df_record
@@ -365,35 +284,35 @@ def test_compare_df_record_pd():
     penguins_copy.loc[200:250, 'flipper_length_mm'] = \
         2 * penguins_copy.loc[200:250, 'flipper_length_mm'] 
 
-    output_df = eda_nw.compare_df_record(penguins, penguins_copy)
+    output_df = eda_ops.compare_df_record(penguins, penguins_copy)
 
     # output_df.to_csv(f'{tests_path}/fixtures/compare_df_record_nw.csv')
-    _assert_df_fixture(output_df, 'compare_df_record_nw.csv')
+    tfun._assert_df_fixture(output_df, 'compare_df_record_nw.csv')
 
 def test_compare_df_record_pl():
     penguins_copy = penguins.copy()
     penguins_copy.loc[200:250, 'flipper_length_mm'] = \
         2 * penguins_copy.loc[200:250, 'flipper_length_mm'] 
 
-    output_df = eda_nw.compare_df_record(
+    output_df = eda_ops.compare_df_record(
         penguins_pl, pl.from_pandas(penguins_copy),
         to_native = False
         )
     # output_df.write_csv(f'{tests_path}/fixtures/compare_df_record_pl.csv')
-    _assert_df_fixture_new(output_df, 'compare_df_record_pl.csv')
+    tfun._assert_df_fixture_new(output_df, 'compare_df_record_pl.csv')
 
 def test_compare_df_record_pa():
     penguins_copy = penguins.copy()
     penguins_copy.loc[200:250, 'flipper_length_mm'] = \
         2 * penguins_copy.loc[200:250, 'flipper_length_mm'] 
 
-    output_df = eda_nw.compare_df_record(
+    output_df = eda_ops.compare_df_record(
         penguins_pa, pa.Table.from_pandas(penguins_copy),
         to_native = False
         )
 
     # output_df.write_csv(f'{tests_path}/fixtures/compare_df_record_pa.csv')
-    _assert_df_fixture_new(output_df, 'compare_df_record_pa.csv')
+    tfun._assert_df_fixture_new(output_df, 'compare_df_record_pa.csv')
 
 # =========================================================
 # remove_empty
@@ -410,7 +329,7 @@ empty_dict = {
 
 @pytest.mark.parametrize("backend", list_backend)
 def test_remove_empty(backend):
-    columns = eda_nw.remove_empty(
+    columns = eda_ops.remove_empty(
         empty_dict.get(backend), 
         to_native = False).columns
     result = all([col not in ['na_col', 'None'] for col in columns])
@@ -434,7 +353,7 @@ const_dict = {
 
 @pytest.mark.parametrize("backend", list_backend)
 def test_remove_constant(backend):
-    columns = eda_nw.remove_constant(
+    columns = eda_ops.remove_constant(
         const_dict.get(backend), 
         to_native = False).columns
     result = all([col not in ['one', 'tow'] for col in columns])
@@ -445,12 +364,12 @@ def test_remove_constant(backend):
 # =========================================================
 def test_filtering_out_columns_pd() -> None:
     df = pd.DataFrame({"foo_x": [1], "foo_y": [2], "bar": [3]})
-    out = eda_nw.filtering_out(df, contains="foo", axis="columns")
+    out = eda_ops.filtering_out(df, contains="foo", axis="columns")
     assert list(out.columns) == ["bar"]
 
 def test_filtering_out_index_pd() -> None:
     df = pd.DataFrame({"x": [1, 2, 3]}, index=["keep", "drop_me", "drop_you"])
-    out = eda_nw.filtering_out(df, starts_with="drop", axis="index")
+    out = eda_ops.filtering_out(df, starts_with="drop", axis="index")
     assert list(out.index) == ["keep"]
 
     df = pd.DataFrame({
@@ -458,7 +377,7 @@ def test_filtering_out_index_pd() -> None:
         },index = mroz.columns[:8]
     )
 
-    res = eda_nw.filtering_out(
+    res = eda_ops.filtering_out(
         df, ['inlf'], 'hours',
         starts_with = 'kid',
         ends_with = 'wage',
@@ -470,25 +389,25 @@ def test_filtering_out_index_pd() -> None:
 def test_filtering_out_columns_pl() -> None:
     df = pd.DataFrame({"foo_x": [1], "foo_y": [2], "bar": [3]})
     df = pl.from_pandas(df)
-    out = eda_nw.filtering_out(df, contains="foo", axis="columns")
+    out = eda_ops.filtering_out(df, contains="foo", axis="columns")
     assert list(out.columns) == ["bar"]
 
 def test_filtering_out_columns_pa() -> None:
     df = pd.DataFrame({"foo_x": [1], "foo_y": [2], "bar": [3]})
     df = pa.Table.from_pandas(df)
-    out = eda_nw.filtering_out(df, contains="foo", axis="columns")
+    out = eda_ops.filtering_out(df, contains="foo", axis="columns")
     assert list(out.to_pandas().columns) == ["bar"]
 
 @pytest.mark.parametrize("backend", list_backend)
 def test_filtering_out_cols(backend) -> None:
     path = f'{tests_path}/fixtures/filtering_out_{backend}.csv'
 
-    output_df = eda_nw.filtering_out(
+    output_df = eda_ops.filtering_out(
         penguins_dict.get(backend), 'year', starts_with = 'bill', 
         contains = 'is', ends_with = '_g', to_native = False
     ).drop_nulls().head()
     
-    _assert_df_eq(
+    tfun._assert_df_eq(
             output_df, path_fixture = path, 
             update_fixture = False
         )
@@ -499,18 +418,18 @@ def test_filtering_out_cols(backend) -> None:
 
 @pytest.mark.parametrize("backend", list_backend)
 def test_is_dummy_series(backend) -> None:
-    assert eda_nw.is_dummy(mroz_dict.get(backend)['inlf']) 
+    assert eda_ops.is_dummy(mroz_dict.get(backend)['inlf']) 
 
-    assert not eda_nw.is_dummy(mroz_dict.get(backend)['educ'])
+    assert not eda_ops.is_dummy(mroz_dict.get(backend)['educ'])
     
-    assert eda_nw.is_dummy(
+    assert eda_ops.is_dummy(
         mroz_dict.get(backend)['kidslt6'],
         cording = [0, 1, 2, 3]
     )
 
 @pytest.mark.parametrize("backend", list_backend)
 def test_is_dummy_nw_dataframe(backend) -> None:
-    result = eda_nw.is_dummy(mroz_dict.get(backend), to_native = False)
+    result = eda_ops.is_dummy(mroz_dict.get(backend), to_native = False)
 
     expected = [
         True, False, False, False, False, False, False, False, False, 
@@ -521,9 +440,9 @@ def test_is_dummy_nw_dataframe(backend) -> None:
     assert list(result) == expected 
 
 def test_is_dummy_list():
-    assert eda_nw.is_dummy([0, 1, 1, 0])
-    assert not eda_nw.is_dummy([0, 1, 1, 2])
-    assert eda_nw.is_dummy([1, 2, 1, 2], cording = (1, 2))
+    assert eda_ops.is_dummy([0, 1, 1, 0])
+    assert not eda_ops.is_dummy([0, 1, 1, 2])
+    assert eda_ops.is_dummy([1, 2, 1, 2], cording = (1, 2))
 
 # =========================================================
 # diagnose_category
@@ -548,73 +467,17 @@ pm2_dict = {
 @pytest.mark.parametrize("backend", list_backend)
 def test_diagnose_category_pd(backend):
     path = f'{tests_path}/fixtures/diagnose_category_{backend}.csv'
-    output_df = eda_nw.diagnose_category(pm2_dict.get(backend), to_native = False)
+    output_df = eda_ops.diagnose_category(pm2_dict.get(backend), to_native = False)
     
-    _assert_df_eq(
+    tfun._assert_df_eq(
         output_df, 
         path_fixture = path, 
         update_fixture = False
         )
     
     # ダミー変数がなくても動作することも確認しておきます
-    eda_nw.diagnose_category(penguins_dict.get(backend)) 
+    eda_ops.diagnose_category(penguins_dict.get(backend)) 
 
-# =========================================================
-# Pareto_plot_nw
-# (plot は「落ちないこと」と最低限の構造だけ確認)
-# =========================================================
-
-def test_Pareto_plot() -> None:
-    penguins_modify = penguins.copy()
-    penguins_modify['group'] = penguins_modify['species'] + '\n' + penguins_modify['island']
-    
-    fig, ax = plt.subplots()
-    
-    eda_nw.Pareto_plot(penguins_modify, group = 'group', ax = ax)
-    assert len(ax.patches) > 0
-
-    fig, ax = plt.subplots()
-    eda_nw.Pareto_plot(
-        penguins_modify, group = 'group', 
-        values = 'bill_length_mm',
-        palette = ['#FF6F91', '#252525'],
-        ax = ax
-        )
-    assert len(ax.patches) > 0
-
-    fig, ax = plt.subplots()
-    eda_nw.Pareto_plot(
-        penguins_modify, 
-        values = 'bill_length_mm',
-        group = 'group',
-        aggfunc = lambda x: x.std(),
-        ax = ax
-        )
-    assert len(ax.patches) > 0
-
-def test_make_rank_table_nw_error_on_non_exist_col():
-    with pytest.raises(ValueError) as excinfo:
-        eda_nw.make_rank_table(penguins, 'non_exists', 'body_mass_g')
-    # 仕様：候補があると "Did you mean ..." を含む
-    assert "must be one of" in str(excinfo.value)
-
-def test_Pareto_plot_pl() -> None:
-    penguins_modify = penguins.copy()
-    penguins_modify['group'] = penguins_modify['species'] + '\n' + penguins_modify['island']
-    
-    fig, ax = plt.subplots()
-
-    eda_nw.Pareto_plot(pl.from_pandas(penguins_modify), group = 'group', ax = ax)
-    assert len(ax.patches) > 0
-
-def test_Pareto_plot_pa() -> None:
-    penguins_modify = penguins.copy()
-    penguins_modify['group'] = penguins_modify['species'] + '\n' + penguins_modify['island']
-    
-    fig, ax = plt.subplots()
-
-    eda_nw.Pareto_plot(pa.Table.from_pandas(penguins_modify), group = 'group', ax = ax)
-    assert len(ax.patches) > 0
 
 # ================================================================
 # compare_group_means / compare_group_median
@@ -624,13 +487,13 @@ def test_Pareto_plot_pa() -> None:
 def test_compare_group_means(backend) -> None:
     path = f'{tests_path}/fixtures/compare_group_means_{backend}.csv'
 
-    output_df = eda_nw.compare_group_means(
+    output_df = eda_ops.compare_group_means(
         adelie_dict.get(backend), 
         gentoo_dict.get(backend), 
         to_native = False
         ) # -> pd.DataFrame
     
-    _assert_df_eq(
+    tfun._assert_df_eq(
             output_df, path_fixture = path, 
             update_fixture = False
         )
@@ -639,59 +502,18 @@ def test_compare_group_means(backend) -> None:
 def test_compare_group_median(backend) -> None:
     path = f'{tests_path}/fixtures/compare_group_median_{backend}.csv'
 
-    output_df = eda_nw.compare_group_median(
+    output_df = eda_ops.compare_group_median(
         adelie_dict.get(backend), 
         gentoo_dict.get(backend), 
         to_native = False
         ) # -> pd.DataFrame
     
-    _assert_df_eq(
+    tfun._assert_df_eq(
             output_df, path_fixture = path, 
             update_fixture = False
         )
     
-# ================================================================
-# plot_mean_diff / plot_median_diff
-# ================================================================
 
-@pytest.mark.parametrize(
-    "backend, stats_diff",
-    [
-        ('pd', 'norm_diff'),
-        ('pl', 'abs_diff'),
-        ('pa', 'rel_diff'),
-    ],
-)
-
-def test_plot_mean_diff(backend, stats_diff) -> None:
-    fig, ax = plt.subplots()
-    eda_nw.plot_mean_diff(
-        adelie_dict.get(backend), 
-        gentoo_dict.get(backend),
-        stats_diff = stats_diff,
-        ax = ax
-    );
-    assert len(ax.get_lines()) > 0 and len(ax.collections) > 0
-
-
-@pytest.mark.parametrize(
-    "backend, stats_diff",
-    [
-        ('pd', 'abs_diff'),
-        ('pl', 'abs_diff'),
-        ('pa', 'rel_diff'),
-    ],
-)
-
-def test_plot_median_diff(backend, stats_diff) -> None:
-    fig, ax = plt.subplots()
-    eda_nw.plot_median_diff(
-        adelie_dict.get(backend), 
-        gentoo_dict.get(backend),
-        stats_diff = stats_diff,
-        ax = ax
-    );
-    assert len(ax.get_lines()) > 0 and len(ax.collections) > 0
 
 # ================================================================
 # mean_qi / median_qi / mean_ci (DataFrame)
@@ -703,9 +525,9 @@ def test_mean_qi(backend) -> None:
     
     path = f'{tests_path}/fixtures/mean_qi_{backend}.csv'
     
-    output_df = eda_nw.mean_qi(penguins_dict.get(backend), to_native = False)
+    output_df = eda_ops.mean_qi(penguins_dict.get(backend), to_native = False)
     
-    _assert_df_eq(
+    tfun._assert_df_eq(
             output_df, path_fixture = path, 
             update_fixture = False
         )
@@ -715,9 +537,9 @@ def test_median_qi(backend) -> None:
     
     path = f'{tests_path}/fixtures/median_qi_{backend}.csv'
     
-    output_df = eda_nw.median_qi(penguins_dict.get(backend), to_native = False)
+    output_df = eda_ops.median_qi(penguins_dict.get(backend), to_native = False)
     
-    _assert_df_eq(
+    tfun._assert_df_eq(
             output_df, path_fixture = path, 
             update_fixture = False
         )
@@ -727,9 +549,9 @@ def test_mean_ci(backend) -> None:
     
     path = f'{tests_path}/fixtures/mean_ci_{backend}.csv'
     
-    output_df = eda_nw.mean_ci(penguins_dict.get(backend), to_native = False)
+    output_df = eda_ops.mean_ci(penguins_dict.get(backend), to_native = False)
     
-    _assert_df_eq(
+    tfun._assert_df_eq(
             output_df, path_fixture = path, 
             update_fixture = False
         )
@@ -744,9 +566,9 @@ def test_mean_qi_series(backend) -> None:
     
     path = f'{tests_path}/fixtures/mean_qi_series_{backend}.csv'
     
-    output_df = eda_nw.mean_qi(penguins_dict.get(backend)['body_mass_g'], to_native = False)
+    output_df = eda_ops.mean_qi(penguins_dict.get(backend)['body_mass_g'], to_native = False)
     
-    _assert_df_eq(
+    tfun._assert_df_eq(
             output_df, path_fixture = path, 
             update_fixture = False
         )
@@ -756,9 +578,9 @@ def test_median_qi_series(backend) -> None:
     
     path = f'{tests_path}/fixtures/median_qi_series_{backend}.csv'
     
-    output_df = eda_nw.median_qi(penguins_dict.get(backend)['body_mass_g'], to_native = False)
+    output_df = eda_ops.median_qi(penguins_dict.get(backend)['body_mass_g'], to_native = False)
     
-    _assert_df_eq(
+    tfun._assert_df_eq(
             output_df, path_fixture = path, 
             update_fixture = False
         )
@@ -768,29 +590,13 @@ def test_mean_ci_series(backend) -> None:
     
     path = f'{tests_path}/fixtures/mean_ci_series_{backend}.csv'
     
-    output_df = eda_nw.mean_ci(penguins_dict.get(backend)['body_mass_g'], to_native = False)
+    output_df = eda_ops.mean_ci(penguins_dict.get(backend)['body_mass_g'], to_native = False)
     
-    _assert_df_eq(
+    tfun._assert_df_eq(
             output_df, path_fixture = path, 
             update_fixture = False
         )
-# =======================================================================
-# plot_miss_var
-# =======================================================================
-def test_plot_miss_var_pd() -> None:
-    fig, ax = plt.subplots()
-    eda_nw.plot_miss_var(penguins, ax = ax)
-    assert len(ax.patches) > 0
 
-def test_plot_miss_var_pl() -> None:
-    fig, ax = plt.subplots()
-    eda_nw.plot_miss_var(penguins_pl, ax = ax)
-    assert len(ax.patches) > 0
-
-def test_plot_miss_var_pa() -> None:
-    fig, ax = plt.subplots()
-    eda_nw.plot_miss_var(penguins_pa, ax = ax)
-    assert len(ax.patches) > 0
 
 # =======================================================================
 # string/regex helpers: is_number / is_ymd / is_ymd_like
@@ -798,17 +604,17 @@ def test_plot_miss_var_pa() -> None:
 
 def test_is_ymd_and_like_pd() -> None:
     s = pd.Series(["2025-12-30", "2025-1-2", "abc", None])
-    out = eda_nw.is_ymd(s, na_default=True)
+    out = eda_ops.is_ymd(s, na_default=True)
     assert list(out[:3]) == [True, True, False]
     assert out.iloc[3]
 
     s2 = pd.Series(["2025年12月30日", "2025-12-30", "nope"])
-    out2 = eda_nw.is_ymd_like(s2)
+    out2 = eda_ops.is_ymd_like(s2)
     assert list(out2) == [True, True, False]
 
 def test_is_number_nw_basic_pd() -> None:
     s = pd.Series(["123", "12E+3", "abc", "2025-12-30", None])
-    out = eda_nw.is_number(s, na_default=False)
+    out = eda_ops.is_number(s, na_default=False)
     assert out.iloc[0]
     assert out.iloc[1]
     assert not out.iloc[2]
@@ -844,10 +650,10 @@ s_pa = pa.Table.from_pandas(s_pd.to_frame(name = 'string'))['string']
 @pytest.mark.parametrize(
     "func, expect",
     [
-        (eda_nw.is_kanzi, expect_is_kanzi),
-        (eda_nw.is_ymd, expect_is_ymd),
-        (eda_nw.is_ymd_like, expect_is_ymd_like),
-        (eda_nw.is_number, expect_is_number),
+        (eda_ops.is_kanzi, expect_is_kanzi),
+        (eda_ops.is_ymd, expect_is_ymd),
+        (eda_ops.is_ymd_like, expect_is_ymd_like),
+        (eda_ops.is_number, expect_is_number),
     ],
 )
 def test_predicate_str_pd(func, expect) -> None:
@@ -858,10 +664,10 @@ def test_predicate_str_pd(func, expect) -> None:
 @pytest.mark.parametrize(
     "func, expect",
     [
-        (eda_nw.is_kanzi, expect_is_kanzi),
-        (eda_nw.is_ymd, expect_is_ymd),
-        (eda_nw.is_ymd_like, expect_is_ymd_like),
-        (eda_nw.is_number, expect_is_number),
+        (eda_ops.is_kanzi, expect_is_kanzi),
+        (eda_ops.is_ymd, expect_is_ymd),
+        (eda_ops.is_ymd_like, expect_is_ymd_like),
+        (eda_ops.is_number, expect_is_number),
     ],
 )
 def test_predicate_str_pl(func, expect) -> None:
@@ -872,181 +678,34 @@ def test_predicate_str_pl(func, expect) -> None:
 @pytest.mark.parametrize(
     "func, expect",
     [
-        (eda_nw.is_kanzi, expect_is_kanzi),
-        (eda_nw.is_ymd, expect_is_ymd),
-        (eda_nw.is_ymd_like, expect_is_ymd_like),
-        (eda_nw.is_number, expect_is_number),
+        (eda_ops.is_kanzi, expect_is_kanzi),
+        (eda_ops.is_ymd, expect_is_ymd),
+        (eda_ops.is_ymd_like, expect_is_ymd_like),
+        (eda_ops.is_number, expect_is_number),
     ],
 )
 def test_predicate_str_pa(func, expect) -> None:
     res = func(s_pa).to_pylist()
     assert (res == expect)
 
-# =========================================================
-# check_that
-# =========================================================
-
-def test_check_that_basic() -> None:
-    d = pd.DataFrame({"x": [1, 2, 3], "y": [1, 0, 1]})
-    rules = {"x_pos": "x > 0", "y_is1": "y == 1"}
-    out = eda_nw.check_that(d, rules)
-    assert set(out.columns) == {'rule', "item", "passes", "fails", "countna", "expression"}
-    out = out.set_index('rule')
-    assert out.loc["x_pos", "fails"] == 0
-    assert out.loc["y_is1", "fails"] == 1
-
-def test_check_viorate_flags_rows() -> None:
-    d = pd.DataFrame({"x": [1, -1, 2]})
-    rules = {"x_pos": "x > 0"}
-    out = eda_nw.check_viorate(d, rules)
-    assert out["x_pos"].tolist() == [False, True, False]
-    assert out["any"].tolist() == [False, True, False]
-    assert out["all"].tolist() == [False, True, False]
-
-
-# URL = 'https://raw.githubusercontent.com/data-cleaning/validate/master/pkg/data/retailers.csv'
-# retailers = pd.read_csv(URL, sep = ';')
-# retailers.columns = retailers.columns.to_series().str.replace('.', '_', regex = False)
-retailers = pd.read_csv(f'{tests_path}/fixtures/retailers.csv', index_col = 0)
-retailers_pl = pl.from_pandas(retailers)
-retailers_pa = pa.Table.from_pandas(retailers)
-
-rule_dict =  {
-    'to':'turnover > 0',                                     # 売上高は厳密に正である
-    'sc':'staff_costs / staff < 50',                         # 従業員1人当たりの人件費は50,000ギルダー未満である
-    'cd1':'staff_costs > 0 | ~(staff > 0)',                  # 従業員がいる場合、人件費は厳密に正である
-    'cd2':eda_nw.implies_exper('staff > 0', 'staff_costs > 0'), # 従業員がいる場合、人件費は厳密に正である
-    'bs':'turnover + other_rev == total_rev',                # 売上高とその他の収入の合計は総収入に等しい
-    'mn':'profit.mean() > 0'                                 # セクター全体の平均的な利益はゼロよりも大きい
-    }
-
-def test_check_that_pd() -> None:
-    output_df = eda_nw.check_that(retailers, rule_dict)
-    # output_df.to_csv(f'{tests_path}/fixtures/check_that_nw.csv')
-    expected_df = pd.read_csv(f'{tests_path}/fixtures/check_that_nw.csv', index_col = 0)
-    assert_frame_equal(output_df, expected_df)
-
-def test_check_that_pl() -> None:
-    output_df = eda_nw.check_that(retailers_pl, rule_dict, to_native = False)
-    # output_df.write_csv(f'{tests_path}/fixtures/check_that_pl.csv')
-    _assert_df_fixture_new(output_df, 'check_that_pl.csv')
-
-def test_check_that_pa() -> None:
-    output_df = eda_nw.check_that(retailers_pa, rule_dict, to_native = False)
-    # output_df.write_csv(f'{tests_path}/fixtures/check_that_pa.csv')
-    _assert_df_fixture_new(output_df, 'check_that_pa.csv')
-
-# =========================================================
-# check_that
-# =========================================================
-
-def test_check_viorate_pd() -> None:
-    output_df = eda_nw.check_viorate(retailers, rule_dict)
-    # output_df.to_csv(f'{tests_path}/fixtures/check_viorate_nw.csv')
-    expected_df = pd.read_csv(f'{tests_path}/fixtures/check_viorate_nw.csv', index_col = 0)
-    assert_frame_equal(output_df, expected_df)
-
-def test_check_viorate_pl() -> None:
-    output_df = eda_nw.check_viorate(retailers_pl, rule_dict, to_native = False)
-    # output_df.write_csv(f'{tests_path}/fixtures/check_viorate_pl.csv')
-    _assert_df_fixture_new(output_df, 'check_viorate_pl.csv')
-
-def test_check_viorate_pa() -> None:
-    output_df = eda_nw.check_viorate(retailers_pa, rule_dict, to_native = False)
-    # output_df.write_csv(f'{tests_path}/fixtures/check_viorate_pa.csv')
-    _assert_df_fixture_new(output_df, 'check_viorate_pa.csv')
-
-# ================================================================
-# implies_exper / is_complete / reducers (Sum/Mean/Max/Min/Median)
-# ================================================================
-
-def test_implies_exper_string() -> None:
-    assert eda_nw.implies_exper("A", "B") == "B | ~(A)"
-
-def test_is_complete_dataframe_and_series() -> None:
-    df = pd.DataFrame({"a": [1, None], "b": [2, 3]})
-    out_df = eda_nw.is_complete(df)
-    assert out_df.tolist() == [True, False]
-
-    s1 = pd.Series([1, None])
-    s2 = pd.Series([2, 3])
-    out_s = eda_nw.is_complete(s1, s2)
-    assert out_s.tolist() == [True, False]
-
-def test_reducers() -> None:
-    a = pd.Series([1, 2, np.nan])
-    b = pd.Series([10, 20, 30])
-    assert eda_nw.Sum(a, b).tolist() == [11, 22, 30]
-    assert eda_nw.Mean(a, b).iloc[0] == pytest.approx(5.5)
-    assert eda_nw.Max(a, b).tolist() == [10, 20, 30]
-    assert eda_nw.Min(a, b).tolist() == [1, 2, 30]  # nan は無視される
-    assert eda_nw.Median(a, b).iloc[0] == pytest.approx(5.5)
-
-# ================================================================
-# plot_category
-# ================================================================
-import itertools
-Q1 = [70 * ['Strongly agree'], 200 * ['Agree'], 235 * ['Disagree'], 149 * ['Strongly disagree']]
-Q2 = [74 * ['Strongly agree'], 209 * ['Agree'], 238 * ['Disagree'], 133 * ['Strongly disagree']]
-Q3 = [59 * ['Strongly agree'], 235 * ['Agree'], 220 * ['Disagree'], 140 * ['Strongly disagree']]
-Q4 = [40 * ['Strongly agree'], 72 * ['Agree'], 266 * ['Disagree'], 276 * ['Strongly disagree']]
-
-categ_list = ['Strongly disagree', 'Disagree', 'Agree', 'Strongly agree']
-data = pd.DataFrame({
-    'I read only if I have to.':list(itertools.chain.from_iterable(Q1)),
-    'Reading is one of my favorite hobbies.':list(itertools.chain.from_iterable(Q2)),
-    'I like talking about books with other people.':list(itertools.chain.from_iterable(Q3)),
-    'For me, reading is a waste of time.':list(itertools.chain.from_iterable(Q4))
-})
-
-def test_plot_category_pd() -> None:
-
-    data_pd = data.apply(pd.Categorical, categories = categ_list)
-
-    fig, ax = plt.subplots()
-    eda_nw.plot_category(data_pd, ax = ax)
-
-    assert len(ax.patches) > 0
-
-def test_plot_category_pl() -> None:
-
-    data_pl = pl.from_pandas(data)\
-    .with_columns(
-        pl.all().cast(pl.Enum(categ_list))
-    )
-
-    fig, ax = plt.subplots()
-    eda_nw.plot_category(data_pl, ax = ax)
-
-    assert len(ax.patches) > 0
-
-def test_plot_category_pa() -> None:
-
-    data_pa = pa.Table.from_pandas(data)
-
-    fig, ax = plt.subplots()
-    eda_nw.plot_category(data_pa, sort_by = 'frequency', ax = ax)
-
-    assert len(ax.patches) > 0
-
 # ================================================================
 # relocate
 # ================================================================
 
 def test_relocate_basic():
-    result1 = eda_nw.relocate(penguins, 'year', 'sex').columns.to_list()
+    result1 = eda_ops.relocate(penguins, 'year', 'sex').columns.to_list()
     expect1 = ['year', 'sex', 'species', 'island', 'bill_length_mm', 
             'bill_depth_mm', 'flipper_length_mm', 'body_mass_g']
     assert result1 == expect1
 
 def test_relocate_ncs():
-    result2 = eda_nw.relocate(penguins_pl, ncs.numeric()).columns
+    result2 = eda_ops.relocate(penguins_pl, ncs.numeric()).columns
     expect2 = ['bill_length_mm', 'bill_depth_mm', 'flipper_length_mm', 'body_mass_g',
             'year', 'species', 'island', 'sex']
     assert result2 == expect2
 
 def test_relocate_before():
-    result3 = eda_nw.relocate(
+    result3 = eda_ops.relocate(
         penguins_pa, 'year', before = 'island', to_native = False
         ).columns
     expect3 = ['species', 'year', 'island', 'bill_length_mm', 'bill_depth_mm',
@@ -1054,7 +713,7 @@ def test_relocate_before():
     assert result3 == expect3
 
 def test_relocate_after():    
-    result4 = eda_nw.relocate(penguins, 'year', after = 'island').columns.to_list()
+    result4 = eda_ops.relocate(penguins, 'year', after = 'island').columns.to_list()
     expect4 = ['species', 'island', 'year', 'bill_length_mm', 'bill_depth_mm',
                 'flipper_length_mm', 'body_mass_g', 'sex']
 
@@ -1062,7 +721,7 @@ def test_relocate_after():
 
 def test_relocate_error_on_invalid_selector():
     with pytest.raises(ValueError) as excinfo:
-        eda_nw.relocate(penguins, 0, True)
+        eda_ops.relocate(penguins, 0, True)
     # 仕様：候補があると "Did you mean ..." を含む
     assert "Argument `*args` must be of type" in str(excinfo.value)
     assert "'0' and 'True' cannot be accepted" in str(excinfo.value)
@@ -1094,7 +753,7 @@ def test_relocate_error_on_invalid_selector():
 )
 def test_relocate_error_on_duplicated_args(arg, before, after, place, expectation):
     with expectation:
-        eda_nw.relocate(
+        eda_ops.relocate(
             penguins, arg, 
             before = before, 
             after = after,
@@ -1110,12 +769,12 @@ grand_mean = penguins['bill_length_mm'].mean()
 
 
 def test_weighted_mean_pd():
-    assert np.isclose(eda_nw.weighted_mean(x, w), grand_mean)
+    assert np.isclose(eda_ops.weighted_mean(x, w), grand_mean)
 
 def test_weighted_mean_pl():
     x_pl = pl.from_pandas(x)
     w_pl = pl.from_pandas(w)
-    assert np.isclose(eda_nw.weighted_mean(x_pl, w_pl), grand_mean)
+    assert np.isclose(eda_ops.weighted_mean(x_pl, w_pl), grand_mean)
 
 def test_weighted_mean_pa():
     data_pa = pa.Table.from_pydict({
@@ -1123,25 +782,25 @@ def test_weighted_mean_pa():
         'w':w.to_list()
     })
 
-    assert np.isclose(eda_nw.weighted_mean(data_pa['x'], data_pa['w']), grand_mean)
+    assert np.isclose(eda_ops.weighted_mean(data_pa['x'], data_pa['w']), grand_mean)
 
 # ================================================================
 # scale
 # ================================================================
 
 def test_scale_pd():
-    res = eda_nw.scale(penguins.select_dtypes('number'))
+    res = eda_ops.scale(penguins.select_dtypes('number'))
     assert all(np.isclose(res.mean(), 0) & np.isclose(res.std(), 1))
 
-    res = eda_nw.scale(penguins['body_mass_g'])
+    res = eda_ops.scale(penguins['body_mass_g'])
     assert np.isclose(res.mean(), 0) & np.isclose(res.std(), 1)
 
 def test_scale_pl():
-    res = eda_nw.scale(penguins_pl['body_mass_g']).to_pandas()
+    res = eda_ops.scale(penguins_pl['body_mass_g']).to_pandas()
     assert np.isclose(res.mean(), 0) & np.isclose(res.std(), 1)
 
 def test_scale_pa():
-    res = eda_nw.scale(penguins_pa['body_mass_g']).to_pandas()
+    res = eda_ops.scale(penguins_pa['body_mass_g']).to_pandas()
     assert np.isclose(res.mean(), 0) & np.isclose(res.std(), 1)
 
 # ================================================================
@@ -1149,18 +808,18 @@ def test_scale_pa():
 # ================================================================
 
 def test_min_max_pd():
-    res = eda_nw.min_max(penguins.select_dtypes('number'))
+    res = eda_ops.min_max(penguins.select_dtypes('number'))
     assert all(np.isclose(res.min(), 0) & np.isclose(res.max(), 1))
 
-    res = eda_nw.min_max(penguins['body_mass_g'])
+    res = eda_ops.min_max(penguins['body_mass_g'])
     assert np.isclose(res.min(), 0) & np.isclose(res.max(), 1)
 
 def test_min_max_pl():
-    res = eda_nw.min_max(penguins_pl['body_mass_g']).to_pandas()
+    res = eda_ops.min_max(penguins_pl['body_mass_g']).to_pandas()
     assert np.isclose(res.min(), 0) & np.isclose(res.max(), 1)
 
 def test_min_max_pa():
-    res = eda_nw.min_max(penguins_pa['body_mass_g']).to_pandas()
+    res = eda_ops.min_max(penguins_pa['body_mass_g']).to_pandas()
     assert np.isclose(res.min(), 0) & np.isclose(res.max(), 1)
 
 # =========================================================
@@ -1170,74 +829,24 @@ def test_min_max_pa():
 def test_set_miss(backend):
     x = penguins_dict.get(backend)['body_mass_g']
     y = penguins_dict.get(backend)['bill_length_mm']
-    miss_n = eda_nw.set_miss(x, n = 100, random_state = 123, to_native = False)
-    miss_prop = eda_nw.set_miss(y, prop = 0.3, random_state = 123, to_native = False)
+    miss_n = eda_ops.set_miss(x, n = 100, random_state = 123, to_native = False)
+    miss_prop = eda_ops.set_miss(y, prop = 0.3, random_state = 123, to_native = False)
 
     assert build.is_missing(miss_n).sum() == 100
     assert np.isclose(build.is_missing(miss_prop).mean(), 0.3, atol = 0.001)
-
-# ================================================================
-# review_wrangling
-# ================================================================
-old = pd.read_csv(f'{tests_path}/fixtures/penguins.csv')
-new = penguins.copy().dropna()
-s = new['body_mass_g']
-new['heavy'] = np.where(s >= s.quantile(0.75), True, False)
-new['species'] = pd.Categorical(new['species'])
-new['year'] = new['year'].astype(float)
-new['const'] = 1
-new['flipper_length_mm'] = eda_nw.set_miss(
-    new['flipper_length_mm'], prop = 0.1,
-    random_state = 123
-    )
-
-df_modify = {
-    'pd':(old, new),
-    'pl':(pl.from_pandas(old), pl.from_pandas(new)),
-    'pa':(pa.Table.from_pandas(old), pa.Table.from_pandas(new))
-}
-update_fixture = False
-# update_fixture = False
-
-@pytest.mark.parametrize("backend", list_backend)
-def test_review_wrangling(backend):
-    output = eda_nw.review_wrangling(*df_modify.get(backend))
-
-    if update_fixture:
-        with open(f'{tests_path}/fixtures/review_wrangling_{backend}.txt', 'w', encoding='utf-8') as f:
-            f.write(output)
-    
-    with open(f'{tests_path}/fixtures/review_wrangling_{backend}.txt', 'r', encoding='utf-8') as f:
-            expected = f.read()
-    
-    assert output == expected
-
-
-@pytest.mark.parametrize("backend", list_backend)
-def test_review_numeric(backend):
-    output = eda_nw.review_numeric(*df_modify.get(backend))
-
-    if update_fixture:
-        with open(f'{tests_path}/fixtures/review_numeric_{backend}.txt', 'w', encoding='utf-8') as f:
-            f.write(output)
-    
-    with open(f'{tests_path}/fixtures/review_numeric_{backend}.txt', 'r', encoding='utf-8') as f:
-            expected = f.read()
-    
-    assert output == expected
 
 # ================================================================
 # group_split, group_map, group_modify
 # ================================================================
 @pytest.mark.parametrize("backend", list_backend)
 def test_group_split(backend):
-    res = eda_nw.group_split(penguins_dict.get(backend), "species", "island")
-    assert all([eda_nw.is_intoframe(df) for df in res.data])
+    res = eda_ops.group_split(penguins_dict.get(backend), "species", "island")
+    assert all([eda_util.is_intoframe(df) for df in res.data])
     assert sum([df.shape[0] for df in res.data]) == 344
 
 @pytest.mark.parametrize("backend", list_backend)
 def test_group_map(backend):
-    res = eda_nw.group_map(
+    res = eda_ops.group_map(
         penguins_dict.get(backend), 
         "species", "island", 
         func=lambda df: df.shape[0]
@@ -1248,14 +857,14 @@ def test_group_map(backend):
 def test_group_modify(backend) -> None:
     path = f'{tests_path}/fixtures/group_modify_{backend}.csv'
 
-    output_df = eda_nw.group_modify(
+    output_df = eda_ops.group_modify(
         penguins_dict.get(backend), 
         'species', 'sex',
-        func = eda_nw.median_qi,
+        func = eda_ops.median_qi,
         to_native = False
     )
     
-    _assert_df_eq(
+    tfun._assert_df_eq(
         output_df, 
         path_fixture = path, 
         update_fixture = False
@@ -1286,25 +895,25 @@ test_type = ['A', 'B', 'C', 'D']
 def test_bind_rows_backend(backend, test_type) -> None:
     path = f'{tests_path}/fixtures/bind_rows_{backend}_{test_type}.csv'
     match test_type:
-        case 'A': output_df = eda_nw.bind_rows(
+        case 'A': output_df = eda_ops.bind_rows(
             dict_table.get(backend)
             )
-        case 'B': output_df = eda_nw.bind_rows(
+        case 'B': output_df = eda_ops.bind_rows(
             dict_table.get(backend),
             names = ['table1', 'table2'], 
             id = 'sauce'
             )
-        case 'C': output_df = eda_nw.bind_rows(
+        case 'C': output_df = eda_ops.bind_rows(
             dict(zip(['table1', 'table2'], dict_table.get(backend))),
             id = 'sauce'
             )
-        case 'D': output_df = eda_nw.bind_rows(
+        case 'D': output_df = eda_ops.bind_rows(
             dict_table.get(backend)[0],
             dict_table.get(backend),
             id = None
             )
     
-    _assert_df_eq(
+    tfun._assert_df_eq(
             output_df, path_fixture = path, 
             update_fixture = False
         )
@@ -1313,10 +922,10 @@ def test_bind_rows_backend(backend, test_type) -> None:
 # ================================================================
 def test_bind_rows_mixed_backend():
     with pytest.raises(TypeError, match = "must share the same backend"):
-        eda_nw.bind_rows(penguins_dict)
+        eda_ops.bind_rows(penguins_dict)
     
     with pytest.raises(TypeError, match = "must share the same backend"):
-        eda_nw.bind_rows(list(mroz_dict.values()))
+        eda_ops.bind_rows(list(mroz_dict.values()))
 
 # ================================================================
 # info_gain
@@ -1326,34 +935,15 @@ def test_bind_rows_mixed_backend():
 def test_info_gain(backend) -> None:
     path = f'{tests_path}/fixtures/info_gain_{backend}.csv'
 
-    output_df = eda_nw.info_gain(
+    output_df = eda_ops.info_gain(
         penguins_dict.get(backend), 
         target = ['species', 'island'],
         features = ['island', 'sex', 'body_mass_g']
     )
     
-    _assert_df_eq(
+    tfun._assert_df_eq(
         output_df, 
         path_fixture = path, 
         update_fixture = False
         )
 
-# =========================================================
-# as_nw_datarame
-# =========================================================
-
-@pytest.mark.parametrize("data, expectation", [
-    pytest.param(adelie,    nullcontext()),
-    pytest.param(adelie_pl, nullcontext()),
-    pytest.param(adelie_pa, nullcontext()),
-    pytest.param(penguins_dict, nullcontext()),
-    pytest.param(list(penguins_dict.values()), nullcontext()),
-    pytest.param([adelie, gentoo, '3'],  pytest.raises(TypeError, match=r"supported by narwhals")),
-    pytest.param(np.array([1, 2, 3]), pytest.raises(TypeError, match=r"supported by narwhals")),
-    pytest.param(123,                 pytest.raises(TypeError, match=r"supported by narwhals")),
-    pytest.param(None,                pytest.raises(TypeError, match=r"supported by narwhals")),
-])
-
-def test_compare_df_cols(data, expectation):
-    with expectation:
-        eda_nw.as_nw_datarame(data)

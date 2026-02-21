@@ -11,8 +11,12 @@ modules = [
     'py4stats',
     'py4stats.building_block',
     'py4stats.heckit_helper',
-    'py4stats.eda_tools._nw',
-    'py4stats.eda_tools._pandas',
+    'py4stats.eda_tools._utils',
+    'py4stats.eda_tools.operation',
+    'py4stats.eda_tools.reviewing',
+    'py4stats.eda_tools.visualize',
+    # 'py4stats.eda_tools._nw',
+    # 'py4stats.eda_tools._pandas',
 ]
 
 @pytest.mark.parametrize('module_name', modules)

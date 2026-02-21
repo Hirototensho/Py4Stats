@@ -248,7 +248,7 @@ def tidy_test(
   # 引数のアサーション ----------------------------------------------------------------------------------
   build.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither', arg_name = 'conf_level')
   # --------------------------------------------------------------------------------------------------
-  
+
   if(x.distribution == 'F'):
     tidied = pd.DataFrame({
     'statistics':x.statistic,
@@ -629,9 +629,9 @@ def assert_reg_reuslt(arg: Any, arg_name: str = 'list_models') -> None:
     if(arg_name is None):
         arg_name = varname.argname('arg')
     arg = pd.Series(arg)
-    
+
     condition =  arg.apply(lambda x: isinstance(x, (RegressionResultsWrapper)))
-    
+
     not_sutisfy = arg[~condition].index.astype(str).to_list()
     if not condition.all():
         raise ValueError(
@@ -709,7 +709,7 @@ def compare_ols(
     # --------------------------------------------------------------------------------------------------
     if not pandas.api.types.is_list_like(list_models):
             raise ValueError("Argument `list_models` is must be a list of models.")
-    
+
     assert_reg_reuslt(list_models, arg_name = 'list_models')
 
     tidy_list = [tidy(mod) for mod in list_models]
@@ -1061,7 +1061,7 @@ def coefplot_regression(
         None
     """
     build.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither', arg_name = 'conf_level')
-    build.assert_character(palette, arg_name = 'palette')
+    build.assert_character(palette, arg_name = 'palette', len_arg = 2)
 
     # 回帰係数の表を抽出
     tidy_ci_row = tidy(mod, conf_level = conf_level[0])
@@ -1121,7 +1121,7 @@ def coef_dot(
     # 引数のアサーション ==============================================
     build.assert_logical(show_Intercept, arg_name = 'show_Intercept')
     build.assert_logical(show_vline, arg_name = 'show_vline')
-    
+
     columne_name = tidy_ci_high.columns
     estimate = build.arg_match(
         estimate, arg_name = 'estimate', values = columne_name
@@ -1133,7 +1133,7 @@ def coef_dot(
         conf_higher, arg_name = 'conf_higher', values = columne_name
     )
     # ==============================================================
-    
+
     tidy_ci_high = tidy_ci_high.copy()
     tidy_ci_low = tidy_ci_low.copy()
 
@@ -1195,7 +1195,7 @@ def assert_glm_with_get_margeff(arg: Any, arg_name: str = 'list_models') -> None
     if(arg_name is None):
         arg_name = varname.argname('arg')
     arg = pd.Series(arg)
-    
+
     condition =  arg.apply(
         lambda x: isinstance(x, BinaryResultsWrapper) & hasattr(x, 'get_margeff')
         )
@@ -1252,7 +1252,7 @@ def tidy_mfx(
   assert_glm_with_get_margeff(x, arg_name = 'x') 
   build.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither', arg_name = 'conf_level')
   build.assert_logical(dummy, arg_name = 'dummy')
-  
+
   at = build.arg_match(
     at, arg_name = 'at',
     values = ['overall', 'mean', 'median', 'zero']
@@ -1356,12 +1356,12 @@ def compare_mfx(
         # 引数のアサーション ==============================================
         if not pandas.api.types.is_list_like(list_models):
             raise ValueError("Argument `list_models` is must be a list of models.")
-        
+
         assert_glm_with_get_margeff(list_models, arg_name = 'list_models')
-        
+
         build.assert_character(model_name, arg_name = 'model_name', nullable = True)
         build.assert_count(digits, arg_name = 'digits')
-        
+
         stats = build.arg_match(
             stats,  arg_name = 'stats',
             values = ["std_err", "statistics", "p_value", "conf_int"],
@@ -1467,7 +1467,7 @@ def mfxplot(
     # 引数のアサーション ==============================================
     assert_glm_with_get_margeff(mod, arg_name = 'mod')
     # ==============================================================
-    
+
     # 回帰係数の表を抽出
     tidy_ci_row = tidy_mfx(
         mod, at = at, method = method, dummy = dummy, conf_level = conf_level[0]

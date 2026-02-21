@@ -167,12 +167,12 @@ def coefplot_Heckit(
     build.assert_character(palette, arg_name = 'palette', len_arg = 2)
 
     # 回帰係数の表を抽出
-    tidy_ci_high = reg.tidy(
+    tidy_ci_row = reg.tidy(
         mod, conf_level = conf_level[0], 
         name_selection = name_selection,
         name_outcome = name_outcome
         )
-    tidy_ci_row = reg.tidy(
+    tidy_ci_high = reg.tidy(
         mod, conf_level = conf_level[1],
         name_selection = name_selection,
         name_outcome = name_outcome

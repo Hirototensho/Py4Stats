@@ -548,16 +548,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="py4stats-ライブラリのモジュール構成" class="level2">
 <h2 class="anchored" data-anchor-id="py4stats-ライブラリのモジュール構成">Py4Stats ライブラリのモジュール構成</h2>
-<p>2026年2月20日時点で、Py4Stats ライブラリのモジュールは次のように構成されています。</p>
+<p>2026年2月21日時点で、Py4Stats ライブラリのモジュールは次のように構成されています。</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>py4stats</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>├ メインモジュール               <span class="co"># Import py4stats で直接読み込み</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>│ ├ eda_tools                   <span class="co"># 探索的データ解析と前処理</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>│ │ ├ _.nw                         <span class="co"># narwhals ベースの現行実装</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>│ │ └ _.pandas                     <span class="co"># Pandas ベースの旧実装（廃止予定）</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>│ └ regression_tools            <span class="co"># 回帰分析の可視化と表作成</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>└ サブモジュール                 <span class="co"># Import py4stats では読み込まれない</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>　 ├ heckit_helper               <span class="co">#regression_tools の追加メソッド</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>　 └ building_block              <span class="co"># 内部実装用のアサーション関数とユーティリティ関数を提供</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>│ │ ├ _utils                       <span class="co"># eda_tools 用の型変換とアサート関数</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>│ │ ├ operation                    <span class="co"># 前処理と記述統計</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>│ │ ├ visualize                    <span class="co"># 可視化関数</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>│ │ ├ reviewing                    <span class="co"># 前処理のレビュー</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>│ │ └ _.pandas                     <span class="co"># Pandas ベースの旧実装（廃止予定）</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>│ └ regression_tools            <span class="co"># 回帰分析の可視化と表作成</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>└ サブモジュール                 <span class="co"># Import py4stats では読み込まれない</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>　 ├ heckit_helper               <span class="co">#regression_tools の追加メソッド</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>　 └ building_block              <span class="co"># 内部実装用のアサーション関数とユーティリティ関数を提供</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>また、各モジュールの実装は次の図のような依存関係を持っています。 このように <code>building_block</code> モジュールは <code>eda_tools</code> や <code>regression_tools</code> を実装する上での基盤という位置付けとなっています。Py4Stats ライブラリの実装においては、逆方向の依存関係を発生させないことを前提としています。</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -571,17 +574,24 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ライブラリの読み込み（推奨）</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> py4stats <span class="im">as</span> py4st</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># サブモジュールの読み込み</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> py4stats <span class="im">import</span> heckit_helper</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> py4stats <span class="im">import</span> building_block <span class="im">as</span> build </span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># eda_tools のバックエンド別実装の明示的な読み込み</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> py4stats.eda_tools <span class="im">import</span> _nw <span class="im">as</span> eda_nw</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> py4stats.eda_tools <span class="im">import</span> _pandas <span class="im">as</span> eda_pd</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># モジュール単位の読み込み</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> py4stats <span class="im">import</span> eda_tools <span class="im">as</span> eda</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> py4stats <span class="im">import</span> regression_tools <span class="im">as</span> reg</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> py4stats <span class="im">import</span> heckit_helper</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> py4stats <span class="im">import</span> building_block <span class="im">as</span> build </span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># eda_tools のサブモジュールの読み込み</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> py4stats.eda_tools <span class="im">import</span> operation <span class="im">as</span> eda_ops</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> py4stats.eda_tools <span class="im">import</span> visualize <span class="im">as</span> eda_vis</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> py4stats.eda_tools <span class="im">import</span> reviewing <span class="im">as</span> eda_review</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co"># eda_tools のバックエンド別実装の明示的な読み込み（将来的に変更の可能性あり）</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> py4stats.eda_tools <span class="im">import</span> _nw <span class="im">as</span> eda_nw</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> py4stats.eda_tools <span class="im">import</span> _pandas <span class="im">as</span> eda_pd</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="リポジトリのディレクトリ構成" class="level2">
 <h2 class="anchored" data-anchor-id="リポジトリのディレクトリ構成">リポジトリのディレクトリ構成</h2>
-<p>2026年1月24日 現在</p>
+<p>2026年2月21日現在、Py4Stats リポジトリのディレクトリは、次のように構成されています。</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>Py4Stats </span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>├── README.md                           <span class="co"># GitHub リポジトリのトップページ用ファイル</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>├── index.qmd                           <span class="co"># APIドキュメント(Quarto Book)のトップページ</span></span>
@@ -598,21 +608,30 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>│   ├── building_block.py               <span class="co"># 引数のアサーションなどユーティリティモジュール</span></span>
 <span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>│   ├── eda_tools                       <span class="co"># 探索的データ解析</span></span>
 <span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>│   │   ├── <span class="fu">__init__</span>.py</span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>│   │   ├── _nw.py                      <span class="co"># バックエンドに narwhals を使用した実装</span></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>│   │   └── _pandas.py                  <span class="co"># バックエンドに pandas を使用した旧仕様</span></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>│   ├── heckit_helper.py</span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>│   └── regression_tools.py             <span class="co"># 回帰分析の可視化と作表</span></span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>├── pyproject.toml</span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>├── reference.md                        <span class="co"># man/ の関数ドキュメントへのリンク集</span></span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>├── setup.ipynb</span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>├── setup.py</span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>└── tests                              <span class="co"># APIのテストコード</span></span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    ├── fixtures                       <span class="co"># 自動テストで参照するデータ</span></span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    ├── test_building_block.py</span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    ├── test_eda_tools_nw.py</span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    ├── test_eda_tools_pandas.py</span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    ├── test_heckit_helper.py</span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    └── test_regression_tools.py</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>│   │   ├── _utils.py                   <span class="co"># eda_tools 用の型変換とアサート関数</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>│   │   ├── operation.py                <span class="co"># 前処理と記述統計</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>│   │   ├── visualize.py                <span class="co"># 可視化関数</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>│   │   ├── reviewing.py                <span class="co"># 前処理のレビュー</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>│   │   ├── _nw.py                      <span class="co"># 後方互換性のための読み込み窓口</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>│   │   └── _pandas.py                  <span class="co"># バックエンドに pandas を使用した旧仕様</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>│   ├── heckit_helper.py</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>│   └── regression_tools.py             <span class="co"># 回帰分析の可視化と作表</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>├── pyproject.toml</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>├── reference.md                        <span class="co"># man/ の関数ドキュメントへのリンク集</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>├── setup.ipynb</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>├── setup.py</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>└── tests                              <span class="co"># APIのテストコード</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    ├── fixtures                       <span class="co"># 自動テストで参照するデータ</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    ├── test_building_block.py</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    ├── eda_tools</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    │   ├── setup_test_function.py      <span class="co"># テストを円滑化するための関数を定義</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    │   ├── _utils.py</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>    │   ├── operation.py</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>    │   ├── visualize.py</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>    │   └── reviewing.py               </span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    ├── test_eda_tools_pandas.py</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>    ├── test_heckit_helper.py</span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>    └── test_regression_tools.py</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><strong>注意</strong>：<code>eda_tools._pandas.py</code> は 非推奨扱いで将来的に廃止する予定です。詳細は以下を参照してください。</p>
 <ul>
 <li><a href="../articles/narwhals_in_py4stats.html">Technical Notes</a></li>

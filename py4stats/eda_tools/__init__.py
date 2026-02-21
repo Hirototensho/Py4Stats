@@ -1,14 +1,7 @@
 # -*- coding: utf-8 -*-
-from ._nw import (
-    Max,
-    Mean,
-    Median,
-    Min,
-    Pareto_plot,
-    Sum,
+
+from .operation import (
     bind_rows,
-    check_that,
-    check_viorate,
     compare_df_cols,
     compare_df_record,
     compare_df_stats,
@@ -23,7 +16,6 @@ from ._nw import (
     group_map, 
     group_modify,
     info_gain,
-    implies_exper,
     is_dummy,
     is_number,
     is_ymd_like,
@@ -32,15 +24,22 @@ from ._nw import (
     mean_qi,
     median_qi,
     min_max,
-    plot_category,
-    plot_mean_diff,
-    plot_median_diff,
-    plot_miss_var,
     scale,
     set_miss,
     relocate,
     remove_constant,
     remove_empty,
+    tabyl,
+    weighted_mean
+)
+
+from .reviewing import (
+    Max,
+    Mean,
+    Median,
+    Min,
+    Sum,
+    implies_exper,
     review_wrangling,
     review_shape,
     review_col_addition,
@@ -48,55 +47,18 @@ from ._nw import (
     review_missing,
     review_category,
     review_numeric,
-    tabyl,
-    weighted_mean
+    check_that,
+    check_viorate,
 )
 
-# from ._pandas import (
-#     Max, 
-#     Mean, 
-#     Median, 
-#     Min, 
-#     Pareto_plot, 
-#     Sum, 
-#     check_that, 
-#     check_viorate, 
-#     compare_df_cols, 
-#     compare_df_record, 
-#     compare_df_stats, 
-#     compare_group_means, 
-#     compare_group_median, 
-#     crosstab2, 
-#     detect_Kanzi, 
-#     diagnose, 
-#     diagnose_category, 
-#     entropy, 
-#     filtering_out, 
-#     freq_mode, 
-#     freq_table, 
-#     implies_exper, 
-#     is_complet, 
-#     is_dummy, 
-#     is_number, 
-#     is_ymd, 
-#     is_ymd_like, 
-#     itertools, 
-#     mean_ci, 
-#     mean_qi, 
-#     median_qi, 
-#     min_max, 
-#     missing_percent, 
-#     plot_mean_diff, 
-#     plot_median_diff, 
-#     remove_constant, 
-#     remove_empty, 
-#     set_n_miss, 
-#     set_prop_miss, 
-#     singledispatch, 
-#     std_entropy, 
-#     tabyl , 
-#     weighted_mean
-#     )
+from .visualize import (
+    Pareto_plot,
+    plot_category,
+    plot_mean_diff,
+    plot_median_diff,
+    plot_miss_var,
+)
+
 
 __all__ = [
     # eda_tools --------------------------------------------

@@ -1,5 +1,67 @@
 # -*- coding: utf-8 -*-
 
+# eda_tools --------------------------------------------
+
+from .eda_tools.operation import (
+    bind_rows,
+    compare_df_cols,
+    compare_df_record,
+    compare_df_stats,
+    compare_group_means,
+    compare_group_median,
+    crosstab,
+    diagnose,
+    diagnose_category,
+    filtering_out,
+    freq_table,
+    group_split, 
+    group_map, 
+    group_modify,
+    info_gain,
+    is_dummy,
+    is_number,
+    is_ymd_like,
+    is_ymd,
+    mean_ci,
+    mean_qi,
+    median_qi,
+    min_max,
+    scale,
+    set_miss,
+    relocate,
+    remove_constant,
+    remove_empty,
+    tabyl,
+    weighted_mean
+)
+
+from .eda_tools.reviewing import (
+    Max,
+    Mean,
+    Median,
+    Min,
+    Sum,
+    implies_exper,
+    review_wrangling,
+    review_shape,
+    review_col_addition,
+    review_casting,
+    review_missing,
+    review_category,
+    review_numeric,
+    check_that,
+    check_viorate,
+)
+
+from .eda_tools.visualize import (
+    Pareto_plot,
+    plot_category,
+    plot_mean_diff,
+    plot_median_diff,
+    plot_miss_var,
+)
+
+## regression_tools --------------------------------------------
 from .regression_tools import (
     Blinder_Oaxaca, 
     add_one_sided_p_value, 
@@ -18,58 +80,6 @@ from .regression_tools import (
     tidy_to_jp
     )
 
-from .eda_tools._nw import (
-    Max,
-    Mean,
-    Median,
-    Min,
-    Pareto_plot,
-    Sum,
-    bind_rows,
-    check_that,
-    check_viorate,
-    compare_df_cols,
-    compare_df_record,
-    compare_df_stats,
-    compare_group_means,
-    compare_group_median,
-    crosstab,
-    diagnose,
-    diagnose_category,
-    filtering_out,
-    freq_table,
-    group_split, 
-    group_map, 
-    group_modify,
-    info_gain,
-    implies_exper,
-    is_dummy,
-    is_number,
-    is_ymd_like,
-    is_ymd,
-    mean_ci,
-    mean_qi,
-    median_qi,
-    min_max,
-    plot_category,
-    plot_mean_diff,
-    plot_median_diff,
-    plot_miss_var,
-    scale,
-    set_miss,
-    relocate,
-    remove_constant,
-    remove_empty,
-    review_wrangling,
-    review_shape,
-    review_col_addition,
-    review_casting,
-    review_missing,
-    review_category,
-    review_numeric,
-    tabyl,
-    weighted_mean
-)
 
 __all__ = [
     # 'load',
@@ -144,5 +154,5 @@ __all__ = [
     ]
 
 __author__ = 'Hiroto Tensho'
-__version__ = '0.5.0'
+__version__ = '0.5.1'
 __copyright__ = 'Copyright (c) 2024-2026 Hiroto Tensho'
