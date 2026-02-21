@@ -2584,56 +2584,6 @@ def mean_ci_series(
     return result
 
 
-
-
-def plot_dot_line(
-    data: IntoFrameT,
-    x: str, y: str,
-    lower: str = 'lower',
-    upper: str = 'upper',
-    ax: Optional[Axes] = None,
-    color: Sequence[str] = "#1b69af",
-    **keywargs
-) -> None:
-    data_nw = eda_utils.as_nw_datarame(data)
-    # 引数のアサーション ==============================================
-    build.assert_character(color, arg_name = 'color')
-
-    columne_name = data_nw.columns
-    x = build.arg_match(
-        x, arg_name = 'x', values = columne_name
-    )
-    y = build.arg_match(
-        y, arg_name = 'y', values = columne_name
-    )
-    lower = build.arg_match(
-        lower, arg_name = 'lower', values = columne_name
-    )
-    upper = build.arg_match(
-        upper, arg_name = 'upper', values = columne_name
-    )
-    # ==============================================================    
-    if ax is None:
-        fig, ax = plt.subplots()
-
-    # 図の描画 -----------------------------
-    # エラーバーの作図
-    ax.hlines(
-        y = data_nw[y], xmin = data_nw[lower], xmax = data_nw[upper],
-        linewidth = 1.5,
-        color = color
-        )
-    # 点推定値の作図
-    ax.scatter(
-      x = data_nw[x],
-      y = data_nw[y],
-      c = color,
-      s = 60
-    )
-    ax.invert_yaxis()
-    ax.set_ylabel(y);
-
-
 # ## 正規表現と文字列関連の論理関数
 
 
