@@ -1,78 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from .regression_tools import (
-    Blinder_Oaxaca, 
-    add_one_sided_p_value, 
-    coefplot, 
-    compare_mfx, 
-    compare_ols, 
-    glance, 
-    glance_glm, 
-    glance_ols, 
-    log_to_pct, 
-    mfxplot, 
-    overload, 
-    plot_Blinder_Oaxaca, 
-    tidy, 
-    tidy_mfx, 
-    tidy_to_jp
-    )
-
-# from .eda_tools._nw import (
-#     Max,
-#     Mean,
-#     Median,
-#     Min,
-#     Pareto_plot,
-#     Sum,
-#     bind_rows,
-#     check_that,
-#     check_viorate,
-#     compare_df_cols,
-#     compare_df_record,
-#     compare_df_stats,
-#     compare_group_means,
-#     compare_group_median,
-#     crosstab,
-#     diagnose,
-#     diagnose_category,
-#     filtering_out,
-#     freq_table,
-#     group_split, 
-#     group_map, 
-#     group_modify,
-#     info_gain,
-#     implies_exper,
-#     is_dummy,
-#     is_number,
-#     is_ymd_like,
-#     is_ymd,
-#     mean_ci,
-#     mean_qi,
-#     median_qi,
-#     min_max,
-#     plot_category,
-#     plot_mean_diff,
-#     plot_median_diff,
-#     plot_miss_var,
-#     scale,
-#     set_miss,
-#     relocate,
-#     remove_constant,
-#     remove_empty,
-#     review_wrangling,
-#     review_shape,
-#     review_col_addition,
-#     review_casting,
-#     review_missing,
-#     review_category,
-#     review_numeric,
-#     tabyl,
-#     weighted_mean
-# )
+# eda_tools --------------------------------------------
 
 from .eda_tools.operation import (
-    # Pareto_plot,
     bind_rows,
     compare_df_cols,
     compare_df_record,
@@ -130,6 +60,26 @@ from .eda_tools.visualize import (
     plot_median_diff,
     plot_miss_var,
 )
+
+## regression_tools --------------------------------------------
+from .regression_tools import (
+    Blinder_Oaxaca, 
+    add_one_sided_p_value, 
+    coefplot, 
+    compare_mfx, 
+    compare_ols, 
+    glance, 
+    glance_glm, 
+    glance_ols, 
+    log_to_pct, 
+    mfxplot, 
+    overload, 
+    plot_Blinder_Oaxaca, 
+    tidy, 
+    tidy_mfx, 
+    tidy_to_jp
+    )
+
 
 __all__ = [
     # 'load',

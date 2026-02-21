@@ -1,58 +1,5 @@
 # -*- coding: utf-8 -*-
 
-# from ._nw import (
-#     Max,
-#     Mean,
-#     Median,
-#     Min,
-#     Pareto_plot,
-#     Sum,
-#     bind_rows,
-#     check_that,
-#     check_viorate,
-#     compare_df_cols,
-#     compare_df_record,
-#     compare_df_stats,
-#     compare_group_means,
-#     compare_group_median,
-#     crosstab,
-#     diagnose,
-#     diagnose_category,
-#     filtering_out,
-#     freq_table,
-#     group_split, 
-#     group_map, 
-#     group_modify,
-#     info_gain,
-#     implies_exper,
-#     is_dummy,
-#     is_number,
-#     is_ymd_like,
-#     is_ymd,
-#     mean_ci,
-#     mean_qi,
-#     median_qi,
-#     min_max,
-#     plot_category,
-#     plot_mean_diff,
-#     plot_median_diff,
-#     plot_miss_var,
-#     scale,
-#     set_miss,
-#     relocate,
-#     remove_constant,
-#     remove_empty,
-#     review_wrangling,
-#     review_shape,
-#     review_col_addition,
-#     review_casting,
-#     review_missing,
-#     review_category,
-#     review_numeric,
-#     tabyl,
-#     weighted_mean
-# )
-
 from .operation import (
     bind_rows,
     compare_df_cols,
@@ -85,6 +32,7 @@ from .operation import (
     tabyl,
     weighted_mean
 )
+
 from .reviewing import (
     Max,
     Mean,
