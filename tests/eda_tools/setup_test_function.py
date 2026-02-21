@@ -17,7 +17,7 @@ from typing import (Literal)
 
 import pathlib
 
-tests_path = pathlib.Path(__file__).parent
+tests_path = pathlib.Path(__file__).parent.parent
 
 # =========================================================
 # テスト用関数の定義

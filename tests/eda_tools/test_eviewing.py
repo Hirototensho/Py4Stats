@@ -32,7 +32,7 @@ import pathlib
 from itertools import product
 from contextlib import nullcontext
 
-tests_path = pathlib.Path(__file__).parent
+tests_path = pathlib.Path(__file__).parent.parent
 
 # サンプルデータの読み込み --------------------------------
 

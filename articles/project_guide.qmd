@@ -30,7 +30,11 @@ Py4Stats ライブラリでは、次のような設計方針で開発を進め�
 py4stats
 ├ メインモジュール               # Import py4stats で直接読み込み
 │ ├ eda_tools                   # 探索的データ解析と前処理
-│ │ ├ _.nw                         # narwhals ベースの現行実装
+│ │ ├ _utils                       # eda_tools 用の型変換とアサート関数
+│ │ ├ operation                    # 前処理と記述統計
+│ │ ├ visualize                    # 可視化関数
+│ │ ├ reviewing                    # 前処理のレビュー
+│ │ ├ _.nw                         # 後方互換性のための読み込み窓口
 │ │ └ _.pandas                     # Pandas ベースの旧実装（廃止予定）
 │ └ regression_tools            # 回帰分析の可視化と表作成
 └ サブモジュール                 # Import py4stats では読み込まれない
@@ -48,10 +52,16 @@ py4stats
 # ライブラリの読み込み（推奨）
 import py4stats as py4st
 
-# サブモジュールの読み込み
+# モジュール単位の読み込み
 from py4stats import eda_tools as eda
+from py4stats import regression_tools as reg
 from py4stats import heckit_helper
 from py4stats import building_block as build 
+
+# eda_tools のサブモジュールの読み込み
+from py4stats.eda_tools import operation as eda_ops
+from py4stats.eda_tools import visualize as eda_vis
+from py4stats.eda_tools import reviewing as eda_review
 
 # eda_tools のバックエンド別実装の明示的な読み込み（近く変更の可能性あり）
 from py4stats.eda_tools import _nw as eda_nw
