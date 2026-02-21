@@ -96,3 +96,31 @@ list_backend = ['pd', 'pl', 'pa']
 def test_compare_df_cols(data, expectation):
     with expectation:
         eda_util.as_nw_datarame(data)
+
+# =========================================================
+# enframe
+# =========================================================
+data_list = [
+    1, 'a', True, None, 
+    [1, 2, 3],
+    (1, 2, 3),
+    pd.Series([1, 2, 3]),
+    pd.Series([1, 2, 3]).to_dict()
+]
+@pytest.mark.parametrize("data", data_list)
+
+def test_enframe(data):
+    res = eda_util.enframe(data)
+    assert type(res).__name__ == 'DataFrame'
+    assert 'name' in res.columns and 'value' in res.columns 
+
+@pytest.mark.parametrize("backend", list_backend)
+def test_enframe_table(backend):
+    tbl = nw.from_native(penguins_dict.get(backend))
+    
+    res = eda_util.enframe(
+        tbl.select(ncs.numeric().mean()),
+        to_native = False
+        )
+    assert type(res).__name__ == 'DataFrame'
+    assert 'name' in res.columns and 'value' in res.columns 
