@@ -1,6 +1,14 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# ============================================
+# re-export
+# ============================================
+
+# 後方互換性のためのに、
+# from py4stats.eda_tools import _nw as eda_nw 
+# による読み込みを維持するためのコードです
+
 from ._utils import(
     as_nw_datarame,
     as_nw_datarame_dict,
@@ -77,12 +85,6 @@ from .operation import(
     set_miss,
     tabyl,
     weighted_mean
-    # make_Pareto_plot,
-    # make_rank_table,
-    # Pareto_plot,
-    # plot_mean_diff,
-    # plot_median_diff,
-    # plot_miss_var,
 )
 
 from .reviewing import(
