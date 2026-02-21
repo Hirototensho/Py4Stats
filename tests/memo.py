@@ -138,17 +138,3 @@ list_backend = ['pd', 'pl', 'pa']
 # =========================================================
 # テスト用関数の定義
 # =========================================================
-
-import setup_test_function as tfun
-
-@pytest.mark.parametrize("backend", list_backend)
-def test_diagnose(backend) -> None:
-    path = f'{tests_path}/fixtures/diagnose_{backend}.csv'
-    
-    output_df = eda_ops.diagnose(penguins_dict.get(backend), to_native = False)
-    
-    tfun._assert_df_eq(
-        output_df, 
-        path_fixture = path, 
-        update_fixture = False
-        )
