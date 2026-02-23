@@ -173,11 +173,11 @@ def tidy_regression(
         AssertionError:
             If `conf_level` is not in (0, 1).
     """
-    # 引数のアサーション ----------------------------------------------------------------------------------
-    build.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither', arg_name = 'conf_level')
-    build.assert_logical(add_one_sided, arg_name = 'add_one_sided')
-    build.assert_logical(to_jp, arg_name = 'to_jp')
-    # --------------------------------------------------------------------------------------------------
+    # 引数のアサーション ==================================================================================
+    build.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither', arg_name = 'conf_level', len_arg = 1)
+    build.assert_logical(add_one_sided, arg_name = 'add_one_sided', len_arg = 1)
+    build.assert_logical(to_jp, arg_name = 'to_jp', len_arg = 1)
+    # ==================================================================================================
     tidied = summary_params_frame(x, alpha = 1 - conf_level, xname = name_of_term)
 
     tidied.index.name = 'term'
@@ -245,9 +245,9 @@ def tidy_test(
       AssertionError:
           If `conf_level` is not in (0, 1).
   """
-  # 引数のアサーション ----------------------------------------------------------------------------------
-  build.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither', arg_name = 'conf_level')
-  # --------------------------------------------------------------------------------------------------
+  # 引数のアサーション ==================================================================================
+  build.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither', arg_name = 'conf_level', len_arg = 1)
+  # ==================================================================================================
 
   if(x.distribution == 'F'):
     tidied = pd.DataFrame({
@@ -342,7 +342,9 @@ def tidy_one_sided_t_test(x: ContrastResults, conf_level: float = 0.95) -> pd.Da
       NotImplementedError:
           If `x.distribution` is not supported (not 't' or 'norm').
   """
-  build.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither', arg_name = 'conf_level')
+  # 引数のアサーション ==================================================================================
+  build.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither', arg_name = 'conf_level', len_arg = 1)
+  # ==================================================================================================
   tidied = tidy(x)
 
   # 仮説検定にt分布が用いられている場合
@@ -396,11 +398,10 @@ def tidy_one_sided_regression(
         AssertionError:
             If `conf_level` is not in (0, 1) or `null_hypotheses` is not numeric.
     """
-    # 引数のアサーション ----------------------------------------------------------------------------------
-    build.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither', arg_name = 'conf_level')
+    # 引数のアサーション ==================================================================================
+    build.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither', arg_name = 'conf_level', len_arg = 1)
     build.assert_numeric(null_hypotheses, arg_name = 'null_hypotheses')
-    # --------------------------------------------------------------------------------------------------
-
+    # ==================================================================================================
 
     tidied = tidy(x)
 
@@ -427,31 +428,34 @@ def tidy_one_sided_regression(
 
 from scipy.stats import t
 def tidy_to_jp(tidied: pd.DataFrame, conf_level: float = 0.95) -> pd.DataFrame:
-  """Rename tidy regression columns to Japanese labels.
+    """Rename tidy regression columns to Japanese labels.
 
-  Args:
-      tidied (pandas.DataFrame):
-          A tidy coefficient table produced by `tidy(...)`.
-      conf_level (float):
-          Confidence level used to label confidence interval columns.
+    Args:
+        tidied (pandas.DataFrame):
+            A tidy coefficient table produced by `tidy(...)`.
+        conf_level (float):
+            Confidence level used to label confidence interval columns.
 
-  Returns:
-      pandas.DataFrame:
-          A renamed DataFrame with Japanese column/index labels.
-  """
-  tidied = tidied\
-      .rename(columns = {
-          'term':'説明変数',
-          'estimate':'回帰係数', 'std_err':'標準誤差',
-          'statistics':'t-値', 'p_value':'p-値',
-          'conf_lower': str(int(conf_level*100)) + '%信頼区間下側',
-          'conf_higher': str(int(conf_level*100)) + '%信頼区間上側',
-          'one_sided_p_value':'片側p-値'
-          })
+    Returns:
+        pandas.DataFrame:
+            A renamed DataFrame with Japanese column/index labels.
+    """
+    # 引数のアサーション ==================================================================================
+    build.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither', arg_name = 'conf_level', len_arg = 1)
+    # ==================================================================================================
+    tidied = tidied\
+        .rename(columns = {
+            'term':'説明変数',
+            'estimate':'回帰係数', 'std_err':'標準誤差',
+            'statistics':'t-値', 'p_value':'p-値',
+            'conf_lower': str(int(conf_level*100)) + '%信頼区間下側',
+            'conf_higher': str(int(conf_level*100)) + '%信頼区間上側',
+            'one_sided_p_value':'片側p-値'
+            })
 
-  tidied.index.name = '説明変数'
+    tidied.index.name = '説明変数'
 
-  return tidied
+    return tidied
 
 def add_one_sided_p_value(x: RegressionResultsWrapper, tidied: pd.DataFrame) -> pd.DataFrame:
       """Add one-sided p-values column to a tidy regression table.
@@ -737,13 +741,14 @@ def compare_ols(
     res.index.name = 'term'
     # 表の下部にモデルの当てはまりに関する統計値を追加
     if stats_glance is not None: # もし stats_glance が None なら統計値を追加しない
-        res2 = make_glance_tab(
-            list_models,
-            model_name = model_name,
-            stats_glance = stats_glance,
-            digits = digits
-            )
-        res = pd.concat([res, res2])
+        if stats_glance:
+            res2 = make_glance_tab(
+                list_models,
+                model_name = model_name,
+                stats_glance = stats_glance,
+                digits = digits
+                )
+            res = pd.concat([res, res2])
 
     return res
 
@@ -1060,8 +1065,12 @@ def coefplot_regression(
     Returns:
         None
     """
-    build.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither', arg_name = 'conf_level')
+    # 引数のアサーション ==================================================================================
+    build.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither', arg_name = 'conf_level', len_arg = 2)
     build.assert_character(palette, arg_name = 'palette', len_arg = 2)
+    build.assert_logical(show_Intercept, arg_name = 'show_Intercept', len_arg = 1)
+    build.assert_logical(show_vline, arg_name = 'show_vline', len_arg = 1)
+    # ==================================================================================================
 
     # 回帰係数の表を抽出
     tidy_ci_row = tidy(mod, conf_level = conf_level[0])
@@ -1316,7 +1325,8 @@ def compare_mfx(
 
         This function is analogous to `compare_ols`, but compares either:
             - coefficients (when method='coef'), or
-            - marginal effects (otherwise) computed via `tidy_mfx`.
+            - marginal effects (otherwise) computed via `
+            `.
 
         Args:
             list_models:
@@ -1408,13 +1418,14 @@ def compare_mfx(
         res1.index.name = 'term'
         # 表の下部にモデルの当てはまりに関する統計値を追加
         if stats_glance is not None: # もし stats_glance が None なら統計値を追加しない
-            res2 = make_glance_tab(
-                list_models,
-                model_name = model_name,
-                stats_glance = stats_glance,
-                digits = digits
-                )
-            result = pd.concat([res1, res2])
+            if stats_glance:
+                res2 = make_glance_tab(
+                    list_models,
+                    model_name = model_name,
+                    stats_glance = stats_glance,
+                    digits = digits
+                    )
+                result = pd.concat([res1, res2])
 
         return result
 
@@ -1464,9 +1475,13 @@ def mfxplot(
     Returns:
         None
     """
-    # 引数のアサーション ==============================================
+    # 引数のアサーション ==================================================================================
     assert_glm_with_get_margeff(mod, arg_name = 'mod')
-    # ==============================================================
+    build.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither', arg_name = 'conf_level', len_arg = 2)
+    build.assert_character(palette, arg_name = 'palette', len_arg = 2)
+    build.assert_logical(show_Intercept, arg_name = 'show_Intercept', len_arg = 1)
+    build.assert_logical(show_vline, arg_name = 'show_vline', len_arg = 1)
+    # ==================================================================================================
 
     # 回帰係数の表を抽出
     tidy_ci_row = tidy_mfx(

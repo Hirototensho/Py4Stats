@@ -163,8 +163,12 @@ def coefplot_Heckit(
     Returns:
         None
     """
-    build.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither')
+    # 引数のアサーション ==================================================================================
+    build.assert_float(conf_level, lower = 0, upper = 1, inclusive = 'neither', arg_name = 'conf_level', len_arg = 2)
     build.assert_character(palette, arg_name = 'palette', len_arg = 2)
+    build.assert_logical(show_Intercept, arg_name = 'show_Intercept', len_arg = 1)
+    build.assert_logical(show_vline, arg_name = 'show_vline', len_arg = 1)
+    # ==================================================================================================
 
     # 回帰係数の表を抽出
     tidy_ci_row = reg.tidy(
