@@ -579,7 +579,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>my_faivarit2([<span class="st">'apple'</span>, <span class="st">'orang'</span>])</span>
 <span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ValueError: `fruits` must be one of 'apple', 'orange' or 'grape', not 'orang'.</span></span>
 <span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;              Did you mean 'orange'?</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>　<code>Py4Stats</code> では <a href="../man/compare_ols.html"><code>compare_ols()</code></a> 関数の <code>stats_glance</code> 引数のように、いくつかの選択肢から文字列で指定する引数のアサーションに <code>build.arg_match()</code> 関数を使用しています。</p>
+<p>　<code>Py4Stats</code> では <a href="../man/compare_ols.html"><code>compare_ols()</code></a> 関数の <code>stats_glance</code> 引数のように、いくつかの選択肢から文字列で指定する引数のアサーションに <code>build.arg_match()</code> 関数を使用することで、適切な値の選択肢を提示できるようにしています。</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> py4stats <span class="im">as</span> py4st</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> statsmodels.formula.api <span class="im">as</span> smf</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> palmerpenguins <span class="im">import</span> load_penguins</span>

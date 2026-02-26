@@ -3,7 +3,7 @@
 ![](https://img.shields.io/badge/lifecycle-experimental-orange){fig-align="left" fig-alt="badge of lifecycle experimental"}
 [![](https://img.shields.io/badge/Tested-Pandas_/_Polars_/_Pyarrow-blue){fig-align="left" fig-alt="badge of tested backend"}](../articles/eda_tools_development_status.qmd)
 
-指定した列のユニーク値の組み合わせ（直積）と、暗黙の欠測を明示化
+データフレームをもとに、指定した列のユニーク値の組み合わせ（直積）の作成と、暗黙の欠測の明示化を行います。
 
 ## 概要
 

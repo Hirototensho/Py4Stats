@@ -19,9 +19,11 @@
 | compare_df_stats     | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | compare_group_means  | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | compare_group_median | DataFrame        | ✅       | ✅       | ✅        |                                            |
+| complete             | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | crosstab             | DataFrame        | ✅       | ✅       | ⭕️        | Pyarrow は Polars 依存の実装                 |
 | diagnose             | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | diagnose_category    | DataFrame        | ✅       | ✅       | ✅        |                                            |
+| expand               | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | filtering_out        | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | freq_table           | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | group_split          | DataFrame        | ✅       | ✅       | ✅        |                                            |
