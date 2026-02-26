@@ -88,17 +88,21 @@ my_faivarit2(['apple', 'orang'])
 #>              Did you mean 'orange'?
 ```
 
-　`Py4Stats` では [`eda_tools.tabyl()`](./tabyl.qmd)や [`regression_tools.compare_ols()`](./compare_ols.qmd) など、文字列で指定する引数をもつ関数で、引数のアサーションに `build.arg_match()` を使用しています。
+　`Py4Stats` では [`compare_ols()`](./compare_ols.qmd) 関数の `stats_glance` 引数のように、いくつかの選択肢から文字列で指定する引数のアサーションに `build.arg_match()` 関数を使用しています。
 
 ```python
 import py4stats as py4st
-import pandas as pd
+import statsmodels.formula.api as smf
 from palmerpenguins import load_penguins
-penguins = load_penguins() # サンプルデータの読み込
+penguins = load_penguins() 
+fit1 = smf.ols('body_mass_g ~ bill_length_mm', data = penguins).fit()
 
-py4st.tabyl(penguins, 'island', 'species', normalize = 'ind')
-#> ValueError: `normalize` must be one of 'index', 'columns' or 'all', not 'ind'.
-#>              Did you mean 'index'?
+compare_tab1 = py4st.compare_ols(
+    list_models = [fit1],
+    stats_glance = ['rsq', 'nobs', 'df']
+    )
+#> ValueError: `stats_glance` must be one of 'rsquared', 'rsquared_adj', 'nobs', 'df', 'sigma', 'F_values', 'p_values', 'AIC' or 'BIC', not 'rsq'.
+#>              Did you mean 'rsquared' or 'rsquared_adj'?
 ```
 ***
 [Return to **Function reference**.](../reference.qmd)
