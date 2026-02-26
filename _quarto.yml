@@ -22,6 +22,7 @@ book:
       - man/filtering_out.qmd
       - man/relocate.qmd
       - man/bind_rows.qmd
+      - man/expand_complete.qmd
       - man/grouped_operation.qmd
       - man/compare_df_cols.qmd
       - man/review_wrangling.qmd

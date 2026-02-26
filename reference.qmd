@@ -26,7 +26,7 @@
 
 [`py4stats.info_gain()`](man/info_gain.qmd)
 
-### 数値変数の点推定と区間推定
+#### 数値変数の点推定と区間推定
 
 [`py4stats.mean_qi()`](man/point_range.qmd)
 [`py4stats.median_qi()`](man/point_range.qmd)
@@ -42,6 +42,11 @@
 #### データフレームの列の並べ替え
 
 [`py4stats.relocate()`](man/relocate.qmd)
+
+#### ユニーク値の直積と、　暗黙の欠測値明示化
+
+[`py4stats.expand()`](man/expand_complete.qmd)
+[`py4stats.complete()`](man/expand_complete.qmd)
 
 #### データフレームの縦結合
 

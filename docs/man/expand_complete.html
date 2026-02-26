@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>tidy_test – Py4Stats</title>
+<title>expand, complete – Py4Stats</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -65,8 +65,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../man/glance.html" rel="next">
-<link href="../man/tidy.html" rel="prev">
+<link href="../man/grouped_operation.html" rel="next">
+<link href="../man/bind_rows.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
@@ -106,35 +106,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
 
 <link rel="stylesheet" href="../theme.scss">
 </head>
@@ -148,7 +119,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../man/compare_ols.html"><strong>Regression</strong></a></li><li class="breadcrumb-item"><a href="../man/tidy_test.html"><span class="chapter-title">tidy_test</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../man/diagnose.html"><strong>EDA</strong></a></li><li class="breadcrumb-item"><a href="../man/expand_complete.html"><span class="chapter-title">expand, complete</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -267,7 +238,7 @@ window.Quarto = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/expand_complete.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">expand, complete</span></a>
+  <a href="../man/expand_complete.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">expand, complete</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -358,7 +329,7 @@ window.Quarto = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/tidy_test.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">tidy_test</span></a>
+  <a href="../man/tidy_test.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">tidy_test</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -508,18 +479,20 @@ window.Quarto = {
    
   <ul>
   <li><a href="#概要" id="toc-概要" class="nav-link active" data-scroll-target="#概要">概要</a></li>
-  <li><a href="#引数-argument" id="toc-引数-argument" class="nav-link" data-scroll-target="#引数-argument">引数 Argument</a></li>
+  <li><a href="#引数-argument" id="toc-引数-argument" class="nav-link" data-scroll-target="#引数-argument">引数 Argument</a>
+  <ul class="collapse">
   <li><a href="#返り値-value" id="toc-返り値-value" class="nav-link" data-scroll-target="#返り値-value">返り値 Value</a></li>
-  <li><a href="#使用例-examples" id="toc-使用例-examples" class="nav-link" data-scroll-target="#使用例-examples">使用例 Examples</a></li>
+  </ul></li>
+  <li><a href="#使用例-example" id="toc-使用例-example" class="nav-link" data-scroll-target="#使用例-example">使用例 Example</a></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy_test.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/main/man/expand_complete.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../man/compare_ols.html"><strong>Regression</strong></a></li><li class="breadcrumb-item"><a href="../man/tidy_test.html"><span class="chapter-title">tidy_test</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../man/diagnose.html"><strong>EDA</strong></a></li><li class="breadcrumb-item"><a href="../man/expand_complete.html"><span class="chapter-title">expand, complete</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-title">tidy_test</span></h1>
+<h1 class="title"><span class="chapter-title">expand, complete</span></h1>
 </div>
 
 
@@ -536,60 +509,141 @@ window.Quarto = {
 </header>
 
 
-<p><span class="math inline">\(t\)</span> 検定、<span class="math inline">\(F\)</span> 検定に対応した tidy メソッド</p>
+<p><img src="https://img.shields.io/badge/lifecycle-experimental-orange.png" class="img-fluid quarto-figure quarto-figure-left" alt="badge of lifecycle experimental"> <a href="../articles/eda_tools_development_status.html"><img src="https://img.shields.io/badge/Tested-Pandas_/_Polars_/_Pyarrow-blue.png" class="img-fluid quarto-figure quarto-figure-left" alt="badge of tested backend"></a></p>
+<p>指定した列のユニーク値の組み合わせ（直積）と、暗黙の欠測を明示化</p>
 <section id="概要" class="level2">
 <h2 class="anchored" data-anchor-id="概要">概要</h2>
-<p>　R言語の <a href="https://broom.tidymodels.org/reference/tidy.lm.html"><code>broom::tidy()</code></a> をオマージュした <a href="../man/tidy.html"><code>py4stats.tidy()</code></a> 関数のうち、<code>statsmodels</code> ライブラリのメソッド <a href="https://www.statsmodels.org/dev/generated/statsmodels.regression.linear_model.RegressionResults.t_test.html#statsmodels.regression.linear_model.RegressionResults.t_test"><code>RegressionResults.t_test()</code></a> もしくは <a href="https://www.statsmodels.org/dev/generated/statsmodels.regression.linear_model.RegressionResults.f_test.html#statsmodels.regression.linear_model.RegressionResults.f_test"><code>RegressionResults.f_test()</code></a> で作成された <code>statsmodels.stats.contrast.ContrastResults</code> クラスのオブジェクト専用のメソッドです。<a href="../man/tidy.html"><code>py4stats.tidy()</code></a>はジェネリック関数として実装されているため、<code>py4st.tidy(x)</code> としてご利用いただけます。</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>tidy_test(x, conf_level <span class="op">=</span> <span class="fl">0.95</span>, <span class="op">**</span>kwargs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>expand()</code> 関数は、指定した列それぞれの一意値を取得し、それらの直積（Cartesian product）持つデータフレームを作成します。<code>complete()</code> 関数は、<code>expand()</code> 関数のラッパー関数で、指定した列の組み合わせによって、もとのデータに存在しない組み合わせ（暗黙の欠測）を明示的な欠測値に変換します。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>expand(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>      data: IntoFrameT,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>      <span class="op">*</span>args: Union[<span class="bu">str</span>, List[<span class="bu">str</span>], narwhals.Expr, narwhals.selectors.Selector],  </span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>      to_native: <span class="bu">bool</span> <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>complete(</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>      data: IntoFrameT,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>      <span class="op">*</span>args: Union[<span class="bu">str</span>, List[<span class="bu">str</span>], narwhals.Expr, narwhals.selectors.Selector],  </span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>      fill: Optional[Mapping[<span class="bu">str</span>, Union[<span class="bu">int</span>, <span class="bu">float</span>, <span class="bu">str</span>, <span class="bu">bool</span>]]] <span class="op">=</span> <span class="va">None</span>,</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>      explicit: <span class="bu">bool</span> <span class="op">=</span> <span class="va">True</span>,</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>      to_native: <span class="bu">bool</span> <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>      )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="引数-argument" class="level2">
 <h2 class="anchored" data-anchor-id="引数-argument">引数 Argument</h2>
 <ul>
-<li><code>x</code>（必須）<br> 　<code>statsmodels</code> ライブラリのメソッド <code>RegressionResults.t_test()</code> もしくは<code>RegressionResults.f_test()</code> で作成された <code>statsmodels.stats.contrast.ContrastResults</code> クラスのオブジェクト。</li>
-<li><code>conf_level</code>：<strong>float</strong><br> 　信頼区間の計算に用いる信頼係数。ただし、<code>x</code> に代入されたオブジェクトが <code>f_test()</code> の結果である場合は、この引数は無視されます。</li>
+<li><code>data</code>：<strong>IntoFrameT</strong>（必須）<br> 入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト<br> （例：<code>pandas.DataFrame</code>、<code>polars.DataFrame</code>、<code>pyarrow.Table</code>）を指定できます。</li>
+<li><code>*args</code>（<strong>str / list[str] / narwhals.Expr / narwhals.Selector</strong>）<br> 組み合わせ生成に使用する列。指定方法は次のとおりです。
+<ul>
+<li>列名（例：<code>"x"</code>）</li>
+<li>列名のリスト（例：<code>["x", "y"]</code>）</li>
+<li>narwhals の式（<code>Expr</code>）（例：<code>nw.col("x")</code>）</li>
+<li>narwhals の <code>Selector</code> （例：<code>ncs.numeric()</code>）</li>
+</ul></li>
+<li><code>fill</code>: <strong>dict</strong><br> 補完後に欠測値を置換するための辞書。キーは列名、値は置換値です。デフォルトは None（置換しない）。</li>
+<li><code>explicit</code>: <strong>bool</strong><br> <code>fill</code> が指定された場合の欠測値の扱いを制御します。<br>
+<ul>
+<li><code>True</code>（デフォルト）の場合：もともと存在していた欠測値と、補完によって新たに生成された欠測値の両方を置換します。</li>
+<li>False の場合：補完によって新たに生成された暗黙の欠測値のみを置換し、元から存在していた欠測値は変更しません。</li>
+</ul></li>
+<li><code>to_native</code>: <strong>bool</strong><br> <code>True</code> の場合、入力と同じ型のデータフレーム（e.g.&nbsp;pandas / polars / pyarrow）を返します。<br> <code>False</code> の場合、<code>narwhals.DataFrame</code> を返します。デフォルトは <code>True</code> で、<code>to_native = False</code> は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。</li>
+</ul>
+<section id="返り値-value" class="level3">
+<h3 class="anchored" data-anchor-id="返り値-value">返り値 Value</h3>
+<ul>
+<li><strong>IntoFrameT</strong><br> 指定した列の全組み合わせを含むデータフレームを出力します。</li>
 </ul>
 </section>
-<section id="返り値-value" class="level2">
-<h2 class="anchored" data-anchor-id="返り値-value">返り値 Value</h2>
-<p>　引数 <code>x</code> に代入されたオブジェクトが <code>t_test()</code> の結果である場合、次の列を含む pands.DataFrame が出力されます。</p>
-<ul>
-<li><code>estimate</code><br> 　帰無仮説のもとでの回帰係数（の線型結合）の推定値</li>
-<li><code>std_err</code><br> 推定値 <code>estimate</code> の標準誤差</li>
-<li><code>statistics</code><br> 　仮説検定の標本検定統計量。</li>
-<li><code>p_value</code><br> 両側検定の標本p-値</li>
-<li><code>conf_lower</code><br> 　信頼区間の下側信頼限界</li>
-<li><code>conf_higher</code><br> 　信頼区間の上側信頼限界</li>
-</ul>
-<p>　一方で引数 <code>x</code> に代入されたオブジェクトが <code>f_test()</code> の結果である場合、次の列を含む pands.DataFrame が出力されます。</p>
-<ul>
-<li><code>statistics</code><br> 　仮説検定の標本検定統計量。</li>
-<li><code>p_value</code><br> 　F検定の標本p-値</li>
-<li><code>df_denom</code><br> 　モデルの残差自由度</li>
-<li><code>df_denom</code><br> 　帰無仮説のもとでの制約数</li>
-</ul>
 </section>
-<section id="使用例-examples" class="level2">
-<h2 class="anchored" data-anchor-id="使用例-examples">使用例 Examples</h2>
+<section id="使用例-example" class="level2">
+<h2 class="anchored" data-anchor-id="使用例-example">使用例 Example</h2>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> py4stats <span class="im">as</span> py4st</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> palmerpenguins <span class="im">import</span> load_penguins</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> statsmodels.formula.api <span class="im">as</span> smf</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>penguins <span class="op">=</span> load_penguins() <span class="co"># サンプルデータの読み込み</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>fit3 <span class="op">=</span> smf.ols(<span class="st">'body_mass_g ~ bill_length_mm + bill_depth_mm + species + sex'</span>, data <span class="op">=</span> penguins).fit()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>hypotheses <span class="op">=</span> <span class="st">'bill_length_mm = 20'</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(py4st.tidy(fit3.t_test(hypotheses)).<span class="bu">round</span>(<span class="dv">4</span>))</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       estimate  std_err  statistics  p_value  conf_lower  conf_higher</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; term                                                                 </span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; c0     26.5366   7.2436      0.9024   0.3675     12.2867      40.7866</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>hypotheses <span class="op">=</span> <span class="st">'species[T.Chinstrap] = 0, species[T.Gentoo] = 0'</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(py4st.tidy(fit3.f_test(hypotheses)).<span class="bu">round</span>(<span class="dv">4</span>))</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;           statistics  p_value  df_denom  df_num</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; term                                           </span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; contrast    210.9432      0.0       327       2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pl.DataFrame({</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'name'</span>: <span class="dv">3</span> <span class="op">*</span> [<span class="st">'A'</span>] <span class="op">+</span> <span class="dv">3</span> <span class="op">*</span> [<span class="st">'B'</span>],</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'time'</span>: [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">4</span>],</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'x'</span>: [<span class="fl">0.82</span>, <span class="fl">0.21</span>, <span class="fl">0.74</span>, <span class="fl">0.63</span>, <span class="fl">0.93</span>, <span class="va">None</span>]</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(data)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; shape: (6, 3)</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ┌──────┬──────┬──────┐</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ name ┆ time ┆ x    │</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ ---  ┆ ---  ┆ ---  │</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ str  ┆ i64  ┆ f64  │</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ╞══════╪══════╪══════╡</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ A    ┆ 1    ┆ 0.82 │</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ A    ┆ 2    ┆ 0.21 │</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ A    ┆ 3    ┆ 0.74 │</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ B    ┆ 1    ┆ 0.63 │</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ B    ┆ 3    ┆ 0.93 │</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ B    ┆ 4    ┆ null │</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; └──────┴──────┴──────┘</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 暗黙の欠測値を明示的な欠測値に変換</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> py4st.complete(data, <span class="st">'name'</span>, <span class="st">'time'</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(result)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; shape: (8, 3)</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ┌──────┬──────┬──────┐</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ name ┆ time ┆ x    │</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ ---  ┆ ---  ┆ ---  │</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ str  ┆ i64  ┆ f64  │</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ╞══════╪══════╪══════╡</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ A    ┆ 1    ┆ 0.82 │</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ A    ┆ 2    ┆ 0.21 │</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ A    ┆ 3    ┆ 0.74 │</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ A    ┆ 4    ┆ null │</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ B    ┆ 1    ┆ 0.63 │</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ B    ┆ 2    ┆ null │</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ B    ┆ 3    ┆ 0.93 │</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ B    ┆ 4    ┆ null │</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; └──────┴──────┴──────┘</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co"># 暗黙の欠測値を明示的な欠測値に変換した上で0で置換</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> py4st.complete(</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    data, <span class="st">'name'</span>, <span class="st">'time'</span>, </span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    fill <span class="op">=</span> {<span class="st">'x'</span>: <span class="dv">0</span>}</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(result)</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; shape: (8, 3)</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ┌──────┬──────┬──────┐</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ name ┆ time ┆ x    │</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ ---  ┆ ---  ┆ ---  │</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ str  ┆ i64  ┆ f64  │</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ╞══════╪══════╪══════╡</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ A    ┆ 1    ┆ 0.82 │</span></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ A    ┆ 2    ┆ 0.21 │</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ A    ┆ 3    ┆ 0.74 │</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ A    ┆ 4    ┆ 0.0  │</span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ B    ┆ 1    ┆ 0.63 │</span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ B    ┆ 2    ┆ 0.0  │</span></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ B    ┆ 3    ┆ 0.93 │</span></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ B    ┆ 4    ┆ 0.0  │</span></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; └──────┴──────┴──────┘</span></span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a><span class="co"># 暗黙の欠測値を明示的な欠測値に変換した上で、暗黙の欠測値のみ0で置換</span></span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> py4st.complete(</span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>    data, <span class="st">'name'</span>, <span class="st">'time'</span>, </span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>    fill <span class="op">=</span> {<span class="st">'x'</span>: <span class="dv">0</span>}, </span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>    explicit <span class="op">=</span> <span class="va">False</span>,</span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(result)</span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; shape: (8, 3)</span></span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ┌──────┬──────┬──────┐</span></span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ name ┆ time ┆ x    │</span></span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ ---  ┆ ---  ┆ ---  │</span></span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ str  ┆ i64  ┆ f64  │</span></span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ╞══════╪══════╪══════╡</span></span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ A    ┆ 1    ┆ 0.82 │</span></span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ A    ┆ 2    ┆ 0.21 │</span></span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ A    ┆ 3    ┆ 0.74 │</span></span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ A    ┆ 4    ┆ 0.0  │</span></span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ B    ┆ 1    ┆ 0.63 │</span></span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ B    ┆ 2    ┆ 0.0  │</span></span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ B    ┆ 3    ┆ 0.93 │</span></span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; │ B    ┆ 4    ┆ null │</span></span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; └──────┴──────┴──────┘</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <hr>
 <p><a href="../reference.html">Return to <strong>Function reference</strong>.</a></p>
 
@@ -999,13 +1053,13 @@ window.Quarto = {
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../man/tidy.html" class="pagination-link" aria-label="tidy, tidy_mfx">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">tidy, tidy_mfx</span></span>
+      <a href="../man/bind_rows.html" class="pagination-link" aria-label="bind_rows">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">bind_rows</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../man/glance.html" class="pagination-link" aria-label="glance">
-        <span class="nav-page-text"><span class="chapter-title">glance</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../man/grouped_operation.html" class="pagination-link" aria-label="group_split, group_map, group_modify">
+        <span class="nav-page-text"><span class="chapter-title">group_split, group_map, group_modify</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -1014,4 +1068,4 @@ window.Quarto = {
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/main/man/tidy_test.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/main/man/expand_complete.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></div></div></footer></body></html>

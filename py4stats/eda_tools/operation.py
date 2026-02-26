@@ -1545,47 +1545,6 @@ def binning_for_ig(data, col, max_unique:int = 20, n_bins: Optional[int] = None)
 
 
 
-# from collections import namedtuple
-# IGResult = namedtuple('IGResult', ['h_before', 'h_after', 'info_gain', 'ig_ratio'])
-
-# def ig_compute(
-#         data, target: str, 
-#         feature: str, 
-#         use_bining: bool = True,
-#         max_unique: int = 20,
-#         n_bins: Optional[int] = None,
-#         base: float = 2.0
-#         ):
-#     data_pd = eda_utils.as_nw_datarame(data).to_pandas().copy()
-
-#     if build.is_numeric(data_pd[feature]) and use_bining:
-#         n = data_pd.shape[0]
-
-#         if n_bins is None: n_bins = min(int(np.log2(1 + n)), max_unique)
-
-#         data_pd[feature] = pd.qcut(
-#             data_pd[feature], 
-#             q = n_bins, 
-#             labels = False,
-#             duplicates = 'drop'
-#             )
-
-#     entropy_b = partial(entropy, base = base)
-#     h_before = entropy_b(data_pd[target])
-
-#     res = data_pd\
-#         .groupby(feature, observed = True)[target]\
-#         .agg([entropy_b, 'count'])
-
-#     h_after = weighted_mean(res['entropy'], res['count'])
-#     info_gain = np.max([h_before - h_after, 0])
-#     ig_ratio = info_gain / h_before if h_before > 0 else np.nan
-
-#     return IGResult(h_before, h_after, info_gain, ig_ratio)
-
-
-
-
 from collections import namedtuple
 IGResult = namedtuple(
     'IGResult', 
@@ -2972,7 +2931,7 @@ def arrange_colnames(
         after: Optional[str] = None,
         place: Optional[Literal['first', 'last']] = None,
         ):
-    unselected = [i for i in colnames if i not in selected]
+    unselected = build.list_diff(colnames, selected)
     if before is None and after is None:
         if place is None: place = 'first' 
 
@@ -3141,9 +3100,9 @@ def relocate(
 
     # selected が複数の要素を持ち、befor/after 含まれるなら除外 ==================================
     if after is not None:
-        selected = [c for c in selected if c != after]
+        selected = build.list_diff(selected, [after])
     if before is not None:
-        selected = [c for c in selected if c != before]
+        selected = build.list_diff(selected, [before])
 
     # selected が空のリストになった場合の安全処置
     # selected = [] なら arrange_colnames() は colnames をそのまま返すと思いますが念のため。
@@ -3648,5 +3607,194 @@ def bind_rows_dict(
     ]
     result = nw.concat(tabl_list, how = "diagonal")\
         .pipe(relocate, id, to_native = to_native)
+    return result
+
+
+# ## `expand()` と `complete()`
+
+
+
+def _fill_implicit_missing(data_nw, fill):
+    fill_dict = {
+        col:nw.when(nw.col('__complete_index__').is_null())
+            .then(v).otherwise(nw.col(col))
+        for col, v in fill.items()
+    }
+
+    result = data_nw\
+        .with_columns(**fill_dict)
+
+    result = filtering_out(
+        result, 
+        '__complete_index__', 
+        to_native = False
+        )
+
+    return result
+
+
+
+
+def replace_na(data, replace, to_native: bool = True):
+    # 引数のアサーション ======================================
+    build.assert_logical(to_native, arg_name = 'to_native')
+    # ======================================================
+    data_nw = eda_utils.as_nw_datarame(data)
+
+    fill_dict = {
+        col: nw.col(col).fill_null(v)
+        for col, v in replace.items()
+    }
+    result = data_nw.with_columns(**fill_dict)
+    if to_native: return result.to_native()
+    return result
+
+
+
+
+def expand(
+        data: IntoFrameT,
+        *args: Union[str, List[str], narwhals.Expr, narwhals.selectors.Selector],  
+        to_native: bool = True
+        ):
+    """Generate all combinations of unique values for selected columns.
+
+    This function creates a Cartesian product of the unique values
+    of the specified columns. It is conceptually similar to
+    `tidyr::expand()` in the tidyverse.
+
+    The resulting DataFrame contains one row for each possible
+    combination of the selected variables, sorted by those columns.
+
+    Args:
+        data (IntoFrameT):
+            Input DataFrame. Any DataFrame type supported by narwhals
+            (e.g., pandas, polars, pyarrow) can be used.
+        *args (str, list[str], narwhals.Expr, narwhals.selectors.Selector):
+            Column names or selectors specifying the variables to expand.
+            Multiple arguments are flattened internally.
+        to_native (bool, optional):
+            If True, convert the result to the native DataFrame type
+            of the selected backend. If False, return a narwhals
+            DataFrame. Defaults to True.
+
+    Returns:
+        IntoFrameT:
+            A DataFrame containing all combinations of the unique
+            values of the selected columns.
+
+    Notes:
+        The number of rows in the output grows as the Cartesian
+        product of the unique values in each selected column.
+        Large numbers of unique values may result in substantial
+        memory usage.
+    """
+    # 引数のアサーション ======================================
+    args = list(build.list_flatten(args))
+    data_nw = eda_utils.as_nw_datarame(data)
+    build.assert_logical(to_native, arg_name = 'to_native')
+    # ======================================================
+
+    data_selected = data_nw.select(args)
+    selected_cols = data_selected.columns
+
+    unique_tuple = tuple(
+        [v.unique() for v in data_selected.iter_columns()]
+    )
+
+    product_list = itertools.product(*unique_tuple)
+
+    grid_list = [
+        dict(zip(selected_cols, v)) 
+        for v in product_list
+    ]
+
+    result = nw.from_dicts(
+        grid_list,
+        backend = data_nw.implementation
+    ).sort(selected_cols)
+
+    if to_native: return result.to_native()
+    return result
+
+
+
+
+def complete(
+        data: IntoFrameT,
+        *args: Union[str, List[str], narwhals.Expr, narwhals.selectors.Selector],  
+        fill: Optional[Mapping[str, Union[int, float, str, bool]]] = None,
+        explicit: bool = True,
+        to_native: bool = True
+        ):
+    """Turn implicit missing combinations into explicit rows.
+
+    This function expands the data to include all combinations of the
+    specified variables and performs a left join with the original
+    data. Missing combinations (implicit missing values) become
+    explicit rows with null values.
+
+    It is conceptually similar to `tidyr::complete()`.
+
+    Args:
+        data (IntoFrameT):
+            Input DataFrame. Any DataFrame type supported by narwhals
+            (e.g., pandas, polars, pyarrow) can be used.
+        *args (str, list[str], narwhals.Expr, narwhals.selectors.Selector):
+            Column names or selectors specifying the variables used
+            to generate combinations.
+        fill (Mapping[str, int | float | str | bool], optional):
+            A dictionary specifying replacement values for selected
+            columns after completion. Keys are column names and
+            values are the fill values. Defaults to None.
+        explicit (bool, optional):
+            Controls how missing values are filled when `fill` is provided.
+
+            - If True (default), both original null values and newly
+              created (implicit) missing values are replaced.
+            - If False, only newly created implicit missing values
+              (introduced by completion) are replaced, while original
+              null values remain unchanged.
+        to_native (bool, optional):
+            If True, convert the result to the native DataFrame type
+            of the selected backend. If False, return a narwhals
+            DataFrame. Defaults to True.
+
+    Returns:
+        IntoFrameT:
+            A completed DataFrame including all combinations of the
+            specified variables.
+
+    Notes:
+        When `explicit=False`, the function internally tracks which
+        rows were newly created during completion in order to
+        distinguish implicit missing values from pre-existing nulls.
+    """
+    # 引数のアサーション ======================================
+    args = list(build.list_flatten(args))
+    eda_utils._assert_selectors(*args, arg_name = 'args')
+    build.assert_logical(explicit, arg_name = 'explicit')
+    build.assert_logical(to_native, arg_name = 'to_native')
+    # ======================================================
+    data_nw = nw.from_native(data)
+
+    if fill is not None and not explicit:
+        data_nw = data_nw.with_row_index(name = '__complete_index__')
+
+    expanded = expand(data_nw, *args, to_native = False)
+
+    result = expanded.join(
+                data_nw, 
+                on = expanded.columns, 
+                how = 'left'
+                )
+
+    if fill is not None:
+        if explicit:
+            result = replace_na(result, fill, to_native = False)
+        else:
+            result = _fill_implicit_missing(result, fill)
+
+    if to_native: return result.to_native()
     return result
 

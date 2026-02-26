@@ -1,0 +1,151 @@
+# expand, complete
+
+![](https://img.shields.io/badge/lifecycle-experimental-orange){fig-align="left" fig-alt="badge of lifecycle experimental"}
+[![](https://img.shields.io/badge/Tested-Pandas_/_Polars_/_Pyarrow-blue){fig-align="left" fig-alt="badge of tested backend"}](../articles/eda_tools_development_status.qmd)
+
+指定した列のユニーク値の組み合わせ（直積）と、暗黙の欠測を明示化
+
+## 概要
+
+`expand()` 関数は、指定した列それぞれの一意値を取得し、それらの直積（Cartesian product）持つデータフレームを作成します。`complete()` 関数は、`expand()` 関数のラッパー関数で、指定した列の組み合わせによって、もとのデータに存在しない組み合わせ（暗黙の欠測）を明示的な欠測値に変換します。
+
+``` python
+expand(
+      data: IntoFrameT,
+      *args: Union[str, List[str], narwhals.Expr, narwhals.selectors.Selector],  
+      to_native: bool = True
+      )
+
+complete(
+      data: IntoFrameT,
+      *args: Union[str, List[str], narwhals.Expr, narwhals.selectors.Selector],  
+      fill: Optional[Mapping[str, Union[int, float, str, bool]]] = None,
+      explicit: bool = True,
+      to_native: bool = True
+      )
+```
+
+## 引数 Argument
+
+- `data`：**IntoFrameT**（必須）<br>
+  入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト<br>
+  （例：`pandas.DataFrame`、`polars.DataFrame`、`pyarrow.Table`）を指定できます。
+- `*args`（**str / list[str] / narwhals.Expr / narwhals.Selector**）<br>
+  組み合わせ生成に使用する列。指定方法は次のとおりです。
+  - 列名（例：`"x"`）
+  - 列名のリスト（例：`["x", "y"]`）
+  - narwhals の式（`Expr`）（例：`nw.col("x")`）
+  - narwhals の `Selector` （例：`ncs.numeric()`）
+- `fill`: **dict**<br>
+  補完後に欠測値を置換するための辞書。キーは列名、値は置換値です。デフォルトは None（置換しない）。
+- `explicit`: **bool**<br>
+ `fill` が指定された場合の欠測値の扱いを制御します。<br>
+   - `True`（デフォルト）の場合：もともと存在していた欠測値と、補完によって新たに生成された欠測値の両方を置換します。
+   - False の場合：補完によって新たに生成された暗黙の欠測値のみを置換し、元から存在していた欠測値は変更しません。
+- `to_native`: **bool**<br>
+  `True` の場合、入力と同じ型のデータフレーム（e.g. pandas / polars / pyarrow）を返します。<br>
+  `False` の場合、`narwhals.DataFrame` を返します。デフォルトは `True` で、`to_native = False` は、主にライブラリ内部での利用や、バックエンドに依存しない後続処理を行う場合を想定したオプションです。
+
+### 返り値 Value
+
+- **IntoFrameT**<br>
+  指定した列の全組み合わせを含むデータフレームを出力します。
+
+## 使用例 Example
+
+``` python
+import py4stats as py4st
+import polars as pl
+
+data = pl.DataFrame({
+    'name': 3 * ['A'] + 3 * ['B'],
+    'time': [1, 2, 3, 1, 3, 4],
+    'x': [0.82, 0.21, 0.74, 0.63, 0.93, None]
+})
+print(data)
+#> shape: (6, 3)
+#> ┌──────┬──────┬──────┐
+#> │ name ┆ time ┆ x    │
+#> │ ---  ┆ ---  ┆ ---  │
+#> │ str  ┆ i64  ┆ f64  │
+#> ╞══════╪══════╪══════╡
+#> │ A    ┆ 1    ┆ 0.82 │
+#> │ A    ┆ 2    ┆ 0.21 │
+#> │ A    ┆ 3    ┆ 0.74 │
+#> │ B    ┆ 1    ┆ 0.63 │
+#> │ B    ┆ 3    ┆ 0.93 │
+#> │ B    ┆ 4    ┆ null │
+#> └──────┴──────┴──────┘
+```
+
+``` python
+
+# 暗黙の欠測値を明示的な欠測値に変換
+result = py4st.complete(data, 'name', 'time')
+print(result)
+#> shape: (8, 3)
+#> ┌──────┬──────┬──────┐
+#> │ name ┆ time ┆ x    │
+#> │ ---  ┆ ---  ┆ ---  │
+#> │ str  ┆ i64  ┆ f64  │
+#> ╞══════╪══════╪══════╡
+#> │ A    ┆ 1    ┆ 0.82 │
+#> │ A    ┆ 2    ┆ 0.21 │
+#> │ A    ┆ 3    ┆ 0.74 │
+#> │ A    ┆ 4    ┆ null │
+#> │ B    ┆ 1    ┆ 0.63 │
+#> │ B    ┆ 2    ┆ null │
+#> │ B    ┆ 3    ┆ 0.93 │
+#> │ B    ┆ 4    ┆ null │
+#> └──────┴──────┴──────┘
+
+
+# 暗黙の欠測値を明示的な欠測値に変換した上で0で置換
+result = py4st.complete(
+    data, 'name', 'time', 
+    fill = {'x': 0}
+    )
+print(result)
+#> shape: (8, 3)
+#> ┌──────┬──────┬──────┐
+#> │ name ┆ time ┆ x    │
+#> │ ---  ┆ ---  ┆ ---  │
+#> │ str  ┆ i64  ┆ f64  │
+#> ╞══════╪══════╪══════╡
+#> │ A    ┆ 1    ┆ 0.82 │
+#> │ A    ┆ 2    ┆ 0.21 │
+#> │ A    ┆ 3    ┆ 0.74 │
+#> │ A    ┆ 4    ┆ 0.0  │
+#> │ B    ┆ 1    ┆ 0.63 │
+#> │ B    ┆ 2    ┆ 0.0  │
+#> │ B    ┆ 3    ┆ 0.93 │
+#> │ B    ┆ 4    ┆ 0.0  │
+#> └──────┴──────┴──────┘
+
+
+# 暗黙の欠測値を明示的な欠測値に変換した上で、暗黙の欠測値のみ0で置換
+result = py4st.complete(
+    data, 'name', 'time', 
+    fill = {'x': 0}, 
+    explicit = False,
+    )
+print(result)
+#> shape: (8, 3)
+#> ┌──────┬──────┬──────┐
+#> │ name ┆ time ┆ x    │
+#> │ ---  ┆ ---  ┆ ---  │
+#> │ str  ┆ i64  ┆ f64  │
+#> ╞══════╪══════╪══════╡
+#> │ A    ┆ 1    ┆ 0.82 │
+#> │ A    ┆ 2    ┆ 0.21 │
+#> │ A    ┆ 3    ┆ 0.74 │
+#> │ A    ┆ 4    ┆ 0.0  │
+#> │ B    ┆ 1    ┆ 0.63 │
+#> │ B    ┆ 2    ┆ 0.0  │
+#> │ B    ┆ 3    ┆ 0.93 │
+#> │ B    ┆ 4    ┆ null │
+#> └──────┴──────┴──────┘
+```
+
+***
+[Return to **Function reference**.](../reference.qmd)
