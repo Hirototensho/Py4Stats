@@ -3341,10 +3341,9 @@ def group_modify(
     This function is conceptually similar to `dplyr::group_modify()`.
 
     Args:
-        data:
-            A data-frame-like object supported by narwhals.
-        *group_cols:
-            Columns used to define groups.
+        data (IntoFrameT):
+            Input DataFrame. Any DataFrame type supported by narwhals
+            (e.g. pandas, polars, pyarrow) can be used.
         *group_cols (Union[str, List[str], narwhals.Expr, narwhals.Selector]):
             Columns used to define groups. Each element may be:
             - a column name (`str`)
@@ -3603,7 +3602,7 @@ def bind_rows_dict(
 
     tabl_list = [
         df.with_columns(nw.lit(key).alias(id))
-        for key, df in zip(args.keys(), args.values())
+        for key, df in args.items()
     ]
     result = nw.concat(tabl_list, how = "diagonal")\
         .pipe(relocate, id, to_native = to_native)
@@ -3669,14 +3668,18 @@ def expand(
     Args:
         data (IntoFrameT):
             Input DataFrame. Any DataFrame type supported by narwhals
-            (e.g., pandas, polars, pyarrow) can be used.
-        *args (str, list[str], narwhals.Expr, narwhals.selectors.Selector):
+            (e.g. pandas, polars, pyarrow) can be used.
+        *args
             Column names or selectors specifying the variables to expand.
-            Multiple arguments are flattened internally.
+            Each element may be:
+            - a column name (`str`)
+            - a list of column names
+            - a narwhals expression
+            - a narwhals selector
         to_native (bool, optional):
-            If True, convert the result to the native DataFrame type
-            of the selected backend. If False, return a narwhals
-            DataFrame. Defaults to True.
+            If True, convert the result to the native DataFrame type of the
+            selected backend. If False, return a narwhals DataFrame.
+            Defaults to True.
 
     Returns:
         IntoFrameT:
@@ -3739,10 +3742,14 @@ def complete(
     Args:
         data (IntoFrameT):
             Input DataFrame. Any DataFrame type supported by narwhals
-            (e.g., pandas, polars, pyarrow) can be used.
-        *args (str, list[str], narwhals.Expr, narwhals.selectors.Selector):
-            Column names or selectors specifying the variables used
-            to generate combinations.
+            (e.g. pandas, polars, pyarrow) can be used.
+        *args
+            Column names or selectors specifying the variables to expand.
+            Each element may be:
+            - a column name (`str`)
+            - a list of column names
+            - a narwhals expression
+            - a narwhals selector
         fill (Mapping[str, int | float | str | bool], optional):
             A dictionary specifying replacement values for selected
             columns after completion. Keys are column names and
@@ -3756,9 +3763,9 @@ def complete(
               (introduced by completion) are replaced, while original
               null values remain unchanged.
         to_native (bool, optional):
-            If True, convert the result to the native DataFrame type
-            of the selected backend. If False, return a narwhals
-            DataFrame. Defaults to True.
+            If True, convert the result to the native DataFrame type of the
+            selected backend. If False, return a narwhals DataFrame.
+            Defaults to True.
 
     Returns:
         IntoFrameT:

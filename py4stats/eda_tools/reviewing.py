@@ -901,7 +901,7 @@ def check_that(
     N = data_nw.shape[0]
 
     result_list = []
-    for name, rule in zip(rule_dict.keys(), rule_dict.values()):
+    for name, rule in rule_dict.items():
 
         passes = pd.Series(data_pd.eval(rule, **kwargs))
 
@@ -991,7 +991,7 @@ def check_viorate(
 
     result_dict = dict()
 
-    for name, rule in zip(rule_dict.keys(), rule_dict.values()):
+    for name, rule in rule_dict.items():
         violation = ~data_pd.eval(rule, **kwargs)
 
         # `rule` 評価結果がブール値ではない場合、エラーを出す。

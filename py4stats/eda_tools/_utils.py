@@ -129,12 +129,12 @@ def as_nw_datarame_dict(arg: Mapping[str, Any], arg_name: str = 'df_dict', max_i
     try:
         return {
             key: nw.from_native(df) for df in arg
-            for key, df in zip(arg.keys(), arg.values())
+            for key, df in arg.items()
             }
     except TypeError:
         not_sutisfy = [
             f"'{i}' ({type(v).__name__})" 
-            for i, v in zip(arg.keys(), arg.values())
+            for i, v in arg.items()
             if not is_intoframe(v)
             ]
 
@@ -207,7 +207,7 @@ def assign_nw(
 
     named_exprs = {
         key: _cast_assignment(key, value, data_nw.implementation)
-        for key, value in zip(named_exprs.keys(), named_exprs.values())
+        for key, value in named_exprs.items()
     }
 
     result = data_nw.with_columns(exprs, **named_exprs)
