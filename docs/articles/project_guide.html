@@ -105,6 +105,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<script src="../site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="../site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
 
 
 <link rel="stylesheet" href="../theme.scss">
@@ -540,7 +543,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>docstring や API ドキュメントページでは、機能面の説明に加えてすぐにコピーして使える使用例を提示する</li>
 </ol></li>
 </ol></li>
-<li>Not do with Py4Stats
+<li>Not to do with Py4Stats
 <ol type="1">
 <li>既存の Python ライブラリで良い実装が提供されている機能は実装しない</li>
 </ol></li>
@@ -550,24 +553,88 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="py4stats-ライブラリのモジュール構成">Py4Stats ライブラリのモジュール構成</h2>
 <p>2026年2月21日時点で、Py4Stats ライブラリのモジュールは次のように構成されています。</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>py4stats</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>├ メインモジュール               <span class="co"># Import py4stats で直接読み込み</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>│ ├ eda_tools                   <span class="co"># 探索的データ解析と前処理</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>│ │ ├ _utils                       <span class="co"># eda_tools 用の型変換とアサート関数</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>│ │ ├ operation                    <span class="co"># 前処理と記述統計</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>│ │ ├ visualize                    <span class="co"># 可視化関数</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>│ │ ├ reviewing                    <span class="co"># 前処理のレビュー</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>│ │ └ _.pandas                     <span class="co"># Pandas ベースの旧実装（廃止予定）</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>│ └ regression_tools            <span class="co"># 回帰分析の可視化と表作成</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>└ サブモジュール                 <span class="co"># Import py4stats では読み込まれない</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>　 ├ heckit_helper               <span class="co">#regression_tools の追加メソッド</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>　 └ building_block              <span class="co"># 内部実装用のアサーション関数とユーティリティ関数を提供</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>また、各モジュールの実装は次の図のような依存関係を持っています。 このように <code>building_block</code> モジュールは <code>eda_tools</code> や <code>regression_tools</code> を実装する上での基盤という位置付けとなっています。Py4Stats ライブラリの実装においては、逆方向の依存関係を発生させないことを前提としています。</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="./image/Py4Statsライブラリ内部の依存関係.png" class="img-fluid figure-img"></p>
-<figcaption>Py4Statsライブラリ内部の依存関係</figcaption>
-</figure>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>├ eda_tools                   <span class="co"># 探索的データ解析と前処理</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>│ ├ _utils                       <span class="co"># eda_tools 用の型変換とアサート関数</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>│ ├ operation                    <span class="co"># ✅ 前処理と記述統計</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>│ ├ visualize                    <span class="co"># ✅ 可視化関数</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>│ ├ reviewing                    <span class="co"># ✅ 前処理のレビュー</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>│ └ _.pandas                     <span class="co"># ▶️ Pandas ベースの旧実装（廃止予定）</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>├ regression_tools            <span class="co"># ✅ 回帰分析の可視化と表作成</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>├ heckit_helper               <span class="co"># ▶️ regression_tools の追加メソッド</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>└ building_block              <span class="co"># ▶️ 内部実装用のアサーション関数とユーティリティ関数を提供</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># ✅ Import py4stats で直接読み込まれる主要モジュール</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># ▶️ Import py4stats では読み込まれない補助モジュール</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>また、各モジュールの実装は次の図のような依存関係を持っています。<code>building_block</code> モジュールは <code>eda_tools</code> や <code>regression_tools</code> といった主要モジュールを実装する上での基盤という位置付けとなっており、ライブラリの実装にあたって逆方向の依存関係を発生させないことを前提としています。</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">%%{init: {'themeVariables': { 'fontSize': '30px'}}}%%
+graph LR
+    %% =========================
+    %% ノード（モジュール）
+    %% =========================
+    Py4Stats
+    eda_tools
+        _utils
+        operation 
+        visualize
+        reviewing
+    regression_tools
+    heckit_helper 
+    building_block 
+    %% =========================
+    %% 依存関係
+    %% =========================
+    Py4Stats --&gt; eda_tools
+    Py4Stats --&gt; regression_tools
+    Py4Stats --&gt; heckit_helper 
+    Py4Stats --&gt; building_block 
+   
+    eda_tools --&gt; _utils
+    eda_tools --&gt; operation 
+    eda_tools --&gt; visualize
+    eda_tools --&gt; reviewing
+    visualize --&gt; operation
+    reviewing --&gt; operation
+    operation --&gt; _utils
+    visualize --&gt; _utils
+    reviewing --&gt; _utils
+    
+    _utils --&gt; building_block
+    operation --&gt; building_block
+    visualize --&gt; building_block
+    reviewing --&gt; building_block
+    
+    regression_tools --&gt; building_block
+    heckit_helper --&gt; regression_tools
+    heckit_helper --&gt; building_block
+    %% =========================
+    %% ノードスタイルの設定
+    %% =========================   
+    style heckit_helper  color:#363636, fill:#FBFBFB;
+    style building_block color:#363636, fill:#FBFBFB;
+    %% =========================
+    %% リンクの設定
+    %% =========================   
+    click Py4Stats "https://github.com/Hirototensho/Py4Stats/tree/main/py4stats" "Py4Stats リポジトリへ移動"
+    click eda_tools "https://github.com/Hirototensho/Py4Stats/tree/main/py4stats/eda_tools" "eda_tools へ移動"
+    click regression_tools "https://github.com/Hirototensho/Py4Stats/tree/main/py4stats/regression_tools.py" "regression_tools へ移動"
+    click heckit_helper "https://github.com/Hirototensho/Py4Stats/tree/main/py4stats/heckit_helper.py" "heckit_helper へ移動"
+    click building_block "https://github.com/Hirototensho/Py4Stats/tree/main/py4stats/building_block.py" "building_blockへ移動"
+    click _utils "https://github.com/Hirototensho/Py4Stats/tree/main/py4stats/eda_tools/_utils.py" "_utilsへ移動"
+    click operation "https://github.com/Hirototensho/Py4Stats/tree/main/py4stats/eda_tools/operation.py" "operationへ移動"
+    click visualize "https://github.com/Hirototensho/Py4Stats/tree/main/py4stats/eda_tools/visualize.py" "visualizeへ移動"
+    click reviewing "https://github.com/Hirototensho/Py4Stats/tree/main/py4stats/eda_tools/reviewing.py" "reviewingへ移動"
+</pre>
 </div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<!-- ![Py4Statsライブラリ内部の依存関係](./image/Py4Statsライブラリ内部の依存関係.png) -->
 </section>
 <section id="py4stats-ライブラリのインポート" class="level2">
 <h2 class="anchored" data-anchor-id="py4stats-ライブラリのインポート">Py4Stats ライブラリのインポート</h2>

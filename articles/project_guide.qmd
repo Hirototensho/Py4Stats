@@ -28,22 +28,83 @@ Py4Stats ライブラリでは、次のような設計方針で開発を進め�
 
 ```python
 py4stats
-├ メインモジュール               # Import py4stats で直接読み込み
-│ ├ eda_tools                   # 探索的データ解析と前処理
-│ │ ├ _utils                       # eda_tools 用の型変換とアサート関数
-│ │ ├ operation                    # 前処理と記述統計
-│ │ ├ visualize                    # 可視化関数
-│ │ ├ reviewing                    # 前処理のレビュー
-│ │ └ _.pandas                     # Pandas ベースの旧実装（廃止予定）
-│ └ regression_tools            # 回帰分析の可視化と表作成
-└ サブモジュール                 # Import py4stats では読み込まれない
-　 ├ heckit_helper               #regression_tools の追加メソッド
-　 └ building_block              # 内部実装用のアサーション関数とユーティリティ関数を提供
+├ eda_tools                   # 探索的データ解析と前処理
+│ ├ _utils                       # eda_tools 用の型変換とアサート関数
+│ ├ operation                    # ✅ 前処理と記述統計
+│ ├ visualize                    # ✅ 可視化関数
+│ ├ reviewing                    # ✅ 前処理のレビュー
+│ └ _.pandas                     # ▶️ Pandas ベースの旧実装（廃止予定）
+├ regression_tools            # ✅ 回帰分析の可視化と表作成
+├ heckit_helper               # ▶️ regression_tools の追加メソッド
+└ building_block              # ▶️ 内部実装用のアサーション関数とユーティリティ関数を提供
+
+# ✅ Import py4stats で直接読み込まれる主要モジュール
+# ▶️ Import py4stats では読み込まれない補助モジュール
  ```
 
- また、各モジュールの実装は次の図のような依存関係を持っています。 このように `building_block` モジュールは  `eda_tools` や `regression_tools` を実装する上での基盤という位置付けとなっています。Py4Stats ライブラリの実装においては、逆方向の依存関係を発生させないことを前提としています。
+ また、各モジュールの実装は次の図のような依存関係を持っています。`building_block` モジュールは  `eda_tools` や `regression_tools` といった主要モジュールを実装する上での基盤という位置付けとなっており、ライブラリの実装にあたって逆方向の依存関係を発生させないことを前提としています。
 
- ![Py4Statsライブラリ内部の依存関係](./image/Py4Statsライブラリ内部の依存関係.png)
+```{mermaid}
+%%{init: {'themeVariables': { 'fontSize': '30px'}}}%%
+graph LR
+    %% =========================
+    %% ノード（モジュール）
+    %% =========================
+    Py4Stats
+    eda_tools
+        _utils
+        operation 
+        visualize
+        reviewing
+    regression_tools
+    heckit_helper 
+    building_block 
+    %% =========================
+    %% 依存関係
+    %% =========================
+    Py4Stats --> eda_tools
+    Py4Stats --> regression_tools
+    Py4Stats --> heckit_helper 
+    Py4Stats --> building_block 
+   
+    eda_tools --> _utils
+    eda_tools --> operation 
+    eda_tools --> visualize
+    eda_tools --> reviewing
+    visualize --> operation
+    reviewing --> operation
+    operation --> _utils
+    visualize --> _utils
+    reviewing --> _utils
+    
+    _utils --> building_block
+    operation --> building_block
+    visualize --> building_block
+    reviewing --> building_block
+    
+    regression_tools --> building_block
+    heckit_helper --> regression_tools
+    heckit_helper --> building_block
+    %% =========================
+    %% ノードスタイルの設定
+    %% =========================   
+    style heckit_helper  color:#363636, fill:#FBFBFB;
+    style building_block color:#363636, fill:#FBFBFB;
+    %% =========================
+    %% リンクの設定
+    %% =========================   
+    click Py4Stats "https://github.com/Hirototensho/Py4Stats/tree/main/py4stats" "Py4Stats リポジトリへ移動"
+    click eda_tools "https://github.com/Hirototensho/Py4Stats/tree/main/py4stats/eda_tools" "eda_tools へ移動"
+    click regression_tools "https://github.com/Hirototensho/Py4Stats/tree/main/py4stats/regression_tools.py" "regression_tools へ移動"
+    click heckit_helper "https://github.com/Hirototensho/Py4Stats/tree/main/py4stats/heckit_helper.py" "heckit_helper へ移動"
+    click building_block "https://github.com/Hirototensho/Py4Stats/tree/main/py4stats/building_block.py" "building_blockへ移動"
+    click _utils "https://github.com/Hirototensho/Py4Stats/tree/main/py4stats/eda_tools/_utils.py" "_utilsへ移動"
+    click operation "https://github.com/Hirototensho/Py4Stats/tree/main/py4stats/eda_tools/operation.py" "operationへ移動"
+    click visualize "https://github.com/Hirototensho/Py4Stats/tree/main/py4stats/eda_tools/visualize.py" "visualizeへ移動"
+    click reviewing "https://github.com/Hirototensho/Py4Stats/tree/main/py4stats/eda_tools/reviewing.py" "reviewingへ移動"
+```
+
+<!-- ![Py4Statsライブラリ内部の依存関係](./image/Py4Statsライブラリ内部の依存関係.png) -->
 
 ## Py4Stats ライブラリのインポート
 
