@@ -1192,6 +1192,28 @@ def list_diff(x: List[Any], y: List[Any]) -> List[Any]:
         - `list_dupricated(x)`: Dupricated elements of list `x`
         - `list_dropnulls(x)`: Drop missing values from list `x`
         - `list_subset(x, subset)`: A subset of list `x`
+
+    Examples:
+        from py4stats import building_block as build
+        list1 = ['a', 'b', 'c', 'd']
+        list2 = ['c', 'd', 'e', 'f']
+
+        print(build.list_diff(list1, list2))
+        #> ['a', 'b']
+        print(build.list_diff(list2, list1))
+        #> ['e', 'f']
+        print(build.list_intersect(list1, list2))
+        #> ['c', 'd']
+        print(build.list_union(list1, list2))
+        #> ['a', 'b', 'c', 'd', 'e', 'f']
+        print(build.list_xor(list1, list2))
+        #> ['a', 'b', 'e', 'f']
+
+        list3 = ['a', 'b', 'b', 'c', 'd', 'd']
+        print(build.list_unique(list3))
+        #> ['a', 'b', 'c', 'd']
+        print(build.list_dupricated(list3))
+        #> ['b', 'b', 'd', 'd']
     """
     return [v for v in x if v not in y]
 
