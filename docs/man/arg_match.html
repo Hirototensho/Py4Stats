@@ -579,15 +579,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>my_faivarit2([<span class="st">'apple'</span>, <span class="st">'orang'</span>])</span>
 <span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ValueError: `fruits` must be one of 'apple', 'orange' or 'grape', not 'orang'.</span></span>
 <span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;              Did you mean 'orange'?</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>　<code>Py4Stats</code> では <a href="../man/tabyl.html"><code>eda_tools.tabyl()</code></a>や <a href="../man/compare_ols.html"><code>regression_tools.compare_ols()</code></a> など、文字列で指定する引数をもつ関数で、引数のアサーションに <code>build.arg_match()</code> を使用しています。</p>
+<p>　<code>Py4Stats</code> では <a href="../man/compare_ols.html"><code>compare_ols()</code></a> 関数の <code>stats_glance</code> 引数のように、いくつかの選択肢から文字列で指定する引数のアサーションに <code>build.arg_match()</code> 関数を使用しています。</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> py4stats <span class="im">as</span> py4st</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> statsmodels.formula.api <span class="im">as</span> smf</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> palmerpenguins <span class="im">import</span> load_penguins</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>penguins <span class="op">=</span> load_penguins() <span class="co"># サンプルデータの読み込</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>py4st.tabyl(penguins, <span class="st">'island'</span>, <span class="st">'species'</span>, normalize <span class="op">=</span> <span class="st">'ind'</span>)</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ValueError: `normalize` must be one of 'index', 'columns' or 'all', not 'ind'.</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;              Did you mean 'index'?</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>penguins <span class="op">=</span> load_penguins() </span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>fit1 <span class="op">=</span> smf.ols(<span class="st">'body_mass_g ~ bill_length_mm'</span>, data <span class="op">=</span> penguins).fit()</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>compare_tab1 <span class="op">=</span> py4st.compare_ols(</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    list_models <span class="op">=</span> [fit1],</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    stats_glance <span class="op">=</span> [<span class="st">'rsq'</span>, <span class="st">'nobs'</span>, <span class="st">'df'</span>]</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ValueError: `stats_glance` must be one of 'rsquared', 'rsquared_adj', 'nobs', 'df', 'sigma', 'F_values', 'p_values', 'AIC' or 'BIC', not 'rsq'.</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;              Did you mean 'rsquared' or 'rsquared_adj'?</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <hr>
 <p><a href="../reference.html">Return to <strong>Function reference</strong>.</a></p>
 

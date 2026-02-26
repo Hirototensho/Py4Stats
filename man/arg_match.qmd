@@ -88,7 +88,7 @@ my_faivarit2(['apple', 'orang'])
 #>              Did you mean 'orange'?
 ```
 
-　`Py4Stats` では [`compare_ols()`](./compare_ols.qmd) 関数の `stats_glance` 引数のように、いくつかの選択肢から文字列で指定する引数のアサーションに `build.arg_match()` 関数を使用しています。
+　`Py4Stats` では [`compare_ols()`](./compare_ols.qmd) 関数の `stats_glance` 引数のように、いくつかの選択肢から文字列で指定する引数のアサーションに `build.arg_match()` 関数を使用することで、適切な値の選択肢を提示できるようにしています。
 
 ```python
 import py4stats as py4st

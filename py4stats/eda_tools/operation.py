@@ -3697,25 +3697,19 @@ def expand(
     data_nw = eda_utils.as_nw_datarame(data)
     build.assert_logical(to_native, arg_name = 'to_native')
     # ======================================================
+    selected_cols = data_nw.select(args).columns
 
-    data_selected = data_nw.select(args)
-    selected_cols = data_selected.columns
-
-    unique_tuple = tuple(
-        [v.unique() for v in data_selected.iter_columns()]
-    )
-
-    product_list = itertools.product(*unique_tuple)
-
-    grid_list = [
-        dict(zip(selected_cols, v)) 
-        for v in product_list
+    df_unique = [
+        data_nw.select(col).unique()
+        for col in selected_cols
     ]
 
-    result = nw.from_dicts(
-        grid_list,
-        backend = data_nw.implementation
-    ).sort(selected_cols)
+    result = reduce(
+        lambda df1, df2: df1.join(df2, how = 'cross'), 
+        df_unique
+        )
+
+    result = result.sort(selected_cols)
 
     if to_native: return result.to_native()
     return result
