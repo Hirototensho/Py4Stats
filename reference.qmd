@@ -151,7 +151,7 @@
 `py4stats` ライブラリの実装に使用するアサーション関数やユーティリティ関数を提供します。
 `building_block` モジュール自体は外部から呼び出すことなく内部実装に使用することを想定しています。
 
-### 引数のアサーション関数
+#### 引数のアサーション関数
 
 [`building_block.arg_match()`](man/arg_match.qmd)
 
@@ -162,7 +162,7 @@
 [`building_block.assert_count()`](man/assert_dtype.qmd)
 [`building_block.assert_float()`](man/assert_dtype.qmd)
 
-### データ型を判定する論理関数
+#### データ型を判定する論理関数
 
 [`building_block.is_character()`](man/is_dtype.qmd)
 [`building_block.is_logical()`](man/is_dtype.qmd)
@@ -170,7 +170,7 @@
 [`building_block.is_integer()`](man/is_dtype.qmd)
 [`building_block.is_float()`](man/is_dtype.qmd)
 
-### 数字のフォーマット
+#### 数字のフォーマット
 
 [`building_block.style_number()`](man/miscellaneous.qmd)
 [`building_block.style_currency()`](man/miscellaneous.qmd)
@@ -179,7 +179,7 @@
 [`building_block.style_pvalue()`](man/style_pvalue.qmd)
 [`building_block.p_stars()`](man/style_pvalue.qmd)
 
-### 並列文の作成
+#### 並列文の作成
 
 [`building_block.oxford_comma()`](man/oxford_comma.qmd)
 [`building_block.oxford_comma_and()`](man/oxford_comma.qmd)
