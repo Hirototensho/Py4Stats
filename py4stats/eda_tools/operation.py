@@ -73,7 +73,7 @@ DataLike = Union[pd.Series, pd.DataFrame]
 def get_dtypes(data: IntoFrameT) -> pd.Series:
     data_nw = eda_utils.as_nw_datarame(data)
     implement = data_nw.implementation
-
+    
     if isinstance(data, nw.DataFrame):
         list_dtypes = list(data.schema.values())
     else:
@@ -86,7 +86,7 @@ def get_dtypes(data: IntoFrameT) -> pd.Series:
                 list_dtypes = data.schema.types
             case _: # どのケースにも一致しない場合
                 list_dtypes = list(data_nw.schema.values())
-
+    
     list_dtypes = pd.Series(
         [str(v) for v in list_dtypes],
         index = data_nw.columns
@@ -114,7 +114,7 @@ def diagnose(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
             If True, convert the result to the native DataFrame type of the
             selected backend. If False, return a narwhals DataFrame.
             Defaults to True.
-
+    
     Returns:
         IntoFrameT:
             A summary table with one row per variable and the following columns:
@@ -142,7 +142,7 @@ def diagnose(data: IntoFrameT, to_native: bool = True) -> IntoFrameT:
         (100 * nw.col('unique_count') / n).alias('unique_rate')
     )\
     .select('columns', 'dtype', 'missing_count', 'missing_percent', 'unique_count', 'unique_rate')
-
+    
     if to_native: return result.to_native()
     return result
 
@@ -246,9 +246,9 @@ def compare_df_cols(
         return_match, values = ['all', 'match', 'mismatch'],
         arg_name = 'return_match'
         )
-
+    
     build.assert_logical(dropna, arg_name = 'dropna')
-
+    
     build.assert_character(
         df_name, arg_name = 'df_name', 
         nullable = True, len_arg = build.length(df_list)
@@ -256,7 +256,7 @@ def compare_df_cols(
     build.assert_logical(to_native, arg_name = 'to_native')
     # --------------------------------------
     implement = nw.from_native(df_list[0]).implementation
-
+    
     # dtype の集計 =============================================
     dtype_list = [
         eda_utils.enframe(
@@ -267,10 +267,10 @@ def compare_df_cols(
             )
         for val, dt in zip(df_name, df_list)
         ]
-
+    
     # 結果の結合 ==============================================
     result = _join_comparsion(dtype_list, on = 'term')
-
+    
     # dtype の一致性を確認 ======================================
     match_dtype = (
         result[:, 1:].to_pandas()
@@ -405,13 +405,13 @@ def compare_df_stats(
     # ==========================================================
 
     df_list_nw = eda_utils.as_nw_datarame(df_list)
-
+    
     # 統計値の計算 =============================================
     stats_list = [
         _compute_stats(df, stats, name) 
         for df, name in zip(df_list_nw, df_name)
         ]
-
+    
     # 計算結果の結合 ==============================================
     result = _join_comparsion(stats_list, on = 'term')
 
@@ -428,7 +428,7 @@ def compare_df_stats(
         backend = implement
     )
     result = result.with_columns(match_stats)
-
+    
     # 結果の出力 =================================================================
 
     if(return_match == 'match'):
@@ -449,7 +449,7 @@ def _compute_stats(df, stats, name):
             col: stats(df[:, col].drop_nulls().to_list())
             for col in numeric_vars
         }
-
+    
     stats_df = eda_utils.enframe(
         stats_val , name = 'term', value = name, 
         to_native = False,
@@ -529,7 +529,7 @@ def compare_df_record(
     df2 = eda_utils.as_nw_datarame(df2, arg_name = 'df2')
     all1 = df1.columns
     all2 = df2.columns
-
+    
     build.assert_logical(sikipna, arg_name = 'sikipna')
     if sikipna:
         df1 = df1.drop_nulls(all1)
@@ -542,7 +542,7 @@ def compare_df_record(
         columns,  arg_name = 'columns',
         values = ['common', 'all']
         )
-
+    
     assert df1.shape[0] == df2.shape[0], (
         "df1 and df2 must have the same number of rows "
         f"(got len(df1)={df1.shape[0]} and len(df2)={df2.shape[0]})."
@@ -568,7 +568,7 @@ def compare_df_record(
             )
             raise ValueError("\n".join(messages))
     # ==================================================================================================
-
+    
     numeric1 = df1.select(ncs.numeric()).columns
     nonnum1 = df1.select(~ncs.numeric()).columns
     numeric2 = df2.select(ncs.numeric()).columns
@@ -578,7 +578,7 @@ def compare_df_record(
     all_columns = [item for item in all1 if item in all2]
     numeric_col = set(numeric1) & set(numeric2)
     nonnum_col = set(nonnum1) & set(nonnum2)
-
+    
     # 類似性の評価 ==========================================================
     res_number_col = [
         np.isclose(
@@ -602,7 +602,7 @@ def compare_df_record(
         res_nonnum_col_df = nw.concat(res_nonnum_col, how = 'horizontal')
     else:
         res_nonnum_col_df = None
-
+    
     # 結果の結合と出力 =======================================================
     res_list = [res_number_col_df, res_nonnum_col_df]
     res_list = list(filter(None, res_list))
@@ -704,7 +704,7 @@ def compare_group_means(
         name = 'variable', value = group_names[0],
         row_id = 0, to_native = False
         )
-
+    
     stats_df2 = eda_utils.enframe(
         group2.select(ncs.numeric().mean()), 
         name = 'variable', value = group_names[1],
@@ -717,7 +717,7 @@ def compare_group_means(
         row_id = 0, name = 'variable', value = 's2A',
         to_native = False
         )
-
+    
     var_df2 = eda_utils.enframe(
         group2.select(ncs.numeric().var()),
         row_id = 0, name = 'variable', value = 's2B',
@@ -739,13 +739,13 @@ def compare_group_means(
     # データフレームの結合 ===============================================================
     mean_sd2 = stats_df1\
         .join(stats_df2, on = 'variable', how = how_join)
-
+    
     if columns == "all":
         mean_sd2 = mean_sd2.with_columns(
             nw.when(nw.col("variable").is_null()).then("variable_right")\
             .otherwise("variable").alias('variable')
         )
-
+    
     mean_sd2 = mean_sd2.join(var_df, on = 'variable', how = 'left')
     # 差分統計量の計算 ==================================================================
     result = mean_sd2\
@@ -808,7 +808,7 @@ def compare_group_median(
         to_native (bool, optional):
             If True, return the result as a native DataFrame class of 'group1'.
             If False, return a `narwhals.DataFrame`.
-
+            
     Returns:
         IntoFrameT:
             A DataFrame with one row per variable and the following columns:
@@ -848,7 +848,7 @@ def compare_group_median(
         name = 'variable', value = group_names[0],
         row_id = 0, to_native = False
         )
-
+    
     stats_df2 = eda_utils.enframe(
         group2.select(ncs.numeric().mean()), 
         name = 'variable', value = group_names[1],
@@ -857,13 +857,13 @@ def compare_group_median(
     # データフレームの結合 ===============================================================
     stats_df = stats_df1\
         .join(stats_df2, on = 'variable', how = how_join)
-
+    
     if columns == "all":
         stats_df = stats_df.with_columns(
             nw.when(nw.col("variable").is_null()).then("variable_right")\
             .otherwise("variable").alias('variable')
         )
-
+    
     # 差分統計量の計算 ==================================================================
     result = stats_df\
         .with_columns(
@@ -899,7 +899,7 @@ def crosstab(
     build.assert_logical(to_native, arg_name = 'to_native')
     build.assert_logical(margins, arg_name = 'margins')
     build.assert_logical(dropna, arg_name = 'dropna')
-
+    
     if not isinstance(normalize, bool):
         normalize = build.arg_match(
             normalize,
@@ -932,7 +932,7 @@ def crosstab(
           # 欠損セルを0にしたい場合（バックエンド依存はあるが一般にOK）
           .with_columns(ncs.numeric().fill_null(0))
     )
-
+    
     if sort_index:
         result = result.sort(index)
 
@@ -957,25 +957,25 @@ def crosstab(
                     ], 
                     how = 'vertical'
                     )
-
+        
         if normalize == 'index':
             result = result.with_columns(
                 ncs.numeric() / nw.col(margins_name)
                 ).drop(margins_name, strict = False)
-
+        
         if normalize == 'all':
             total_val = result[margins_name].tail(1).item(0)
             result = result.with_columns(ncs.numeric()/total_val)
-
+        
         if not normalize:
             result = result.with_columns(ncs.numeric().cast(nw.Int64))
-
-
+    
+    
     if impl.is_pyarrow():
         result = nw.from_native(result.to_arrow())
 
     if not to_native: return result
-
+    
     if result.implementation.is_pandas_like():
         result = nw.to_native(result).set_index(index)
     else:
@@ -1036,7 +1036,7 @@ def freq_table(
         sort_by, arg_name = 'sort_by',
         values = ['frequency', 'values']
         )
-
+    
     build.assert_logical(descending, arg_name = 'descending')
     build.assert_logical(dropna, arg_name = 'dropna')
     build.assert_logical(to_native, arg_name = 'to_native')
@@ -1052,16 +1052,16 @@ def freq_table(
             stacklevel = 2,
         )
     # =========================================================
-
+    
     data_nw = eda_utils.as_nw_datarame(data)
-
+    
     if dropna:
         data_nw = data_nw.drop_nulls(subset)
 
     result = data_nw.with_columns(__n=nw.lit(1))\
         .group_by(nw.col(subset))\
         .agg(nw.col('__n').sum().alias('freq'))
-
+  
     # sort 引数を使った処理将来廃止予定 ============================
     if sort is not None:
         if sort:
@@ -1069,7 +1069,7 @@ def freq_table(
         else:
             result = result.sort(subset, descending = descending)
     # =========================================================
-
+    
     match sort_by:
         case 'frequency':
             result = result.sort('freq', descending = descending)
@@ -1083,7 +1083,7 @@ def freq_table(
         .with_columns(
             (nw.col('cumfreq') / nw.col('freq').sum()).alias('cumperc'),
         )
-
+    
     if to_native: 
         if result.implementation.is_pandas_like():
             return result.to_native().reset_index(drop=True)
@@ -1149,7 +1149,7 @@ def tabyl(
     build.assert_count(digits, arg_name = 'digits')
     build.assert_logical(to_native, arg_name = 'to_native')
     # ==============================================================
-
+    
     data_nw = eda_utils.as_nw_datarame(data)
 
     if(not isinstance(normalize, bool)):
@@ -1157,7 +1157,7 @@ def tabyl(
           normalize, arg_name = 'normalize',
           values = ['index', 'columns', 'all']
           )
-
+    
     # index または columns に bool 値が指定されていると後続処理でエラーが生じるので、
     # 文字列型に cast します。
     data_nw = data_nw[[index, columns]].with_columns(
@@ -1169,14 +1169,14 @@ def tabyl(
     args_dict.pop('normalize')
     args_dict.pop('data')
     args_dict.pop('to_native')
-
+    
     c_tab1 = crosstab(
         data = data_nw,
         normalize = False,
         to_native = False,
         **args_dict
        ).to_pandas().set_index(index)
-
+    
     c_tab1 = c_tab1.apply(build.style_number, digits = 0) # .astype('str')
 
     if(normalize != False):
@@ -1190,15 +1190,15 @@ def tabyl(
 
         # 2つめのクロス集計表の回答率をdigitsで指定した桁数のパーセントに換算し、文字列化します。
         c_tab2 = c_tab2.apply(build.style_percent, digits = digits)
-
+        
         col = c_tab2.columns
         idx = c_tab2.index
         # 1つめのクロス集計表も文字列化して、↑で計算したパーセントに丸括弧と%記号を追加したものを文字列として結合します。
         c_tab1.loc[idx, col] = c_tab1.loc[idx, col] + ' (' + c_tab2 + ')'
-
+    
     if to_native and data_nw.implementation.is_pandas():
        return c_tab1
-
+    
     c_tab1 = c_tab1.reset_index()
     # バックエンドの書き換え ==============================================
     # これは非推奨の実装なので、安易に使い回さないこと。
@@ -1276,7 +1276,7 @@ def is_dummy(
           result according to the underlying data representation.
     """
     raise NotImplementedError(f'is_dummy mtethod for object {type(data)} is not implemented.')
-
+    
 
 
 
@@ -1290,7 +1290,7 @@ def is_dummy_series(
     **kwargs
 ) -> bool:
     build.assert_logical(dropna, arg_name = 'dropna')
-
+    
     data_nw = eda_utils.as_nw_series(data)
     if dropna: data_nw = data_nw.drop_nulls()
 
@@ -1309,9 +1309,9 @@ def is_dummy_data_frame(
     build.assert_logical(dropna, arg_name = 'dropna')
     build.assert_logical(to_pd_series, arg_name = 'to_pd_series')
     build.assert_logical(to_native, arg_name = 'to_native')
-
+    
     data_nw = eda_utils.as_nw_datarame(data)
-
+    
     result_df = data_nw.select(
         nw.all().map_batches(
             lambda x: is_dummy_series(x, cording, dropna = dropna), 
@@ -1338,10 +1338,10 @@ def is_dummy_list(
     **kwargs
 ) -> bool:
     build.assert_logical(dropna, arg_name = 'dropna')
-
+    
     if dropna:
         data = [v for v in data if not build.is_missing(v).all()]
-
+        
     return set(data) == set(cording)
 
 
@@ -1365,13 +1365,13 @@ def entropy(x: IntoSeriesT, base: float = 2.0, dropna: bool = True) -> float:
 
 def normalized_entropy(x: IntoSeriesT, dropna: bool = True) -> float:
     build.assert_logical(dropna, arg_name = 'dropna')
-
+    
     x_nw = eda_utils.as_nw_series(x)
     if dropna: x_nw = x_nw.drop_nulls()
 
     K = x_nw.n_unique()
     result = entropy(x_nw, base = K, dropna = dropna) if K > 1 else 0.0
-
+    
     return result
 
 
@@ -1459,10 +1459,10 @@ def diagnose_category(data: IntoFrameT, dropna: bool = True, to_native: bool = T
     data_nw = eda_utils.as_nw_datarame(data)
     res_is_dummy = is_dummy(data_nw, to_pd_series = True)
     dummy_col = res_is_dummy[res_is_dummy].index.to_list()
-
+    
     if dummy_col:
         data_nw = data_nw.with_columns(nw.col(dummy_col).cast(nw.String))
-
+    
     df = (
         data_nw
         .select(
@@ -1473,14 +1473,14 @@ def diagnose_category(data: IntoFrameT, dropna: bool = True, to_native: bool = T
     N = df.shape[0]
 
     var_name = df.columns
-
+    
     if not var_name:
         raise ValueError(
             "`data` has no columns to summarize.\n"
             "Expected at least one categorical, string, or boolean column,\n"
             "or a 0/1 dummy column (integer values restricted to {0, 1})."
         )
-
+    
     result  = nw.from_dict({
         'variables': var_name,
         'count':df.select(nw.all().count()).row(0),
@@ -1526,7 +1526,7 @@ def diagnose_category(data: IntoFrameT, dropna: bool = True, to_native: bool = T
 def binning_for_ig(data, col, max_unique:int = 20, n_bins: Optional[int] = None):
     data_nw = eda_utils.as_nw_datarame(data)
     n = data_nw.shape[0]
-
+    
     x = data_nw[col]
     if x.n_unique() >= max_unique:
         # n_bins が未指定なら、スタージェスの公式で計算
@@ -1561,8 +1561,8 @@ def ig_compute(
         base: float = 2.0
         ):
     data_nw = eda_utils.as_nw_datarame(data)
-
-
+    
+    
     if build.is_numeric(data_nw[feature]) and use_bining:
         data_nw = binning_for_ig(
             data_nw, col = feature,
@@ -1572,14 +1572,14 @@ def ig_compute(
 
     h_target = entropy(data_nw[target], base = base)
     h_feature = entropy(data_nw[feature], base = base)
-
+    
     colpaire = build.list_unique([feature, target])
     freq = freq_table(data_nw, colpaire, to_native = False)['freq']
     joint_ent = st.entropy(freq, base = base)
-
+    
     h_cond = joint_ent - h_feature
     info_gain = np.max([h_target + h_feature - joint_ent, 0.0]) # 相互情報量の非負性を満たすため
-
+    
     ig_ratio = info_gain / h_target if h_target > 0 else np.nan
     result = IGResult(
         target, feature, h_target, h_feature, 
@@ -1678,13 +1678,13 @@ def info_gain(
     data_nw = eda_utils.as_nw_datarame(data)
 
     if isinstance(target, str): target = [target]
-
+    
     if features is None: 
         features = build.list_diff(data_nw.columns, target)
     elif isinstance(features, str): features = [features]
-
+    
     colpair = itertools.product(target, features)
-
+    
     result_dicts = []
 
     for cols in colpair:
@@ -1696,7 +1696,7 @@ def info_gain(
             base = base
             )
         result_dicts += [res._asdict()]
-
+    
     result = nw.from_dicts(
         result_dicts,
         backend = data_nw.implementation
@@ -1749,7 +1749,7 @@ def weighted_mean(x: IntoSeriesT, w: IntoSeriesT, dropna: bool = False) -> float
 
   build.assert_numeric(x, arg_name = 'x')
   build.assert_numeric(w, arg_name = 'w')
-
+  
   wmean = (x * w).sum() / w.sum()
   return wmean
 
@@ -1804,9 +1804,9 @@ def scale(
 def scale_series(x: IntoSeriesT, ddof: int = 1, to_native: bool = True) -> IntoSeriesT:
     build.assert_count(ddof, arg_name = 'ddof')
     build.assert_logical(to_native, arg_name = 'to_native')
-
+    
     x = eda_utils.as_nw_series(x)
-
+    
     build.assert_numeric(x, arg_name = 'x', any_missing = True)
 
     z = (x - x.mean()) / x.std(ddof = ddof)
@@ -1867,7 +1867,7 @@ def min_max_series(x: Union[IntoSeriesT, pd.DataFrame], to_native: bool = True) 
     build.assert_logical(to_native, arg_name = 'to_native')
 
     x = eda_utils.as_nw_series(x)
-
+    
     build.assert_numeric(x, arg_name = 'x', any_missing = True)
 
     z = (x - x.min()) / (x.max() - x.min())
@@ -1909,12 +1909,12 @@ def missing_percent(
             .select(
                 nw.sum_horizontal(nw.all()).alias('miss_count')
             )['miss_count']
-
+        
         if data_nw.implementation.is_pandas_like() and hasattr(data, 'index'):
             miss_count = pd.Series(miss_count, index = data.index)
         else:
             miss_count = pd.Series(miss_count)
-
+        
         k = data_nw.shape[1]
         miss_pct = (100 ** pct) * miss_count / k
         return miss_pct
@@ -1952,7 +1952,7 @@ def remove_empty(
             If True, convert the result to the native DataFrame type of the
             selected backend. If False, return a narwhals DataFrame.
             Defaults to True.
-
+    
     Returns:
         pandas.DataFrame:
             DataFrame after removing empty columns/rows.
@@ -1964,7 +1964,7 @@ def remove_empty(
     build.assert_logical(quiet, arg_name = 'quiet', len_arg = 1)
     build.assert_logical(to_native, arg_name = 'to_native', len_arg = 1)
     # ==============================================================
-
+    
     data_nw = eda_utils.as_nw_datarame(data)
     df_shape = data.shape
     # 空白列の除去 ------------------------------
@@ -2032,7 +2032,7 @@ def remove_constant(
             If True, convert the result to the native DataFrame type of the
             selected backend. If False, return a narwhals DataFrame.
             Defaults to True.
-
+    
     Returns:
         IntoFrameT:
             DataFrame after removing constant columns.
@@ -2051,7 +2051,7 @@ def remove_constant(
         col for i, col in enumerate(col_name) 
         if bool_constant[i]
         ]
-
+    
     if not(quiet) :
         n_removed = len(constant_columns)
         removed = build.oxford_comma_and(constant_columns, quotation = False)
@@ -2128,7 +2128,7 @@ def filtering_out(
         Row-wise filtering via axis='index' relies on the presence of an explicit index. 
         Therefore, this option is not available for DataFrame backends that do not expose 
         row labels (e.g. some Arrow-based tables).
-
+    
     """
     # 引数のアサーション ==============================================
     axis = str(axis)
@@ -2152,13 +2152,13 @@ def filtering_out(
             )
     if((axis == '1') | (axis == 'columns')):
         drop_table = pd.DataFrame()
-
+        
         if args:
             drop_list = data_nw.select(args).columns
         else: drop_list = []
 
         list_columns = data_nw.columns
-
+        
         if contains is not None:
             drop_list += build.list_subset(list_columns, lambda x: contains in x)
 
@@ -2167,14 +2167,14 @@ def filtering_out(
 
         if ends_with is not None:
             drop_list += build.list_subset(list_columns, lambda x: x.endswith(ends_with))
-
+        
         if contains is not None or starts_with is not None or ends_with is not None:
             drop_list = build.list_unique(drop_list)
-
+        
         data_nw = data_nw.drop(drop_list)
         if to_native: return data_nw.to_native()
         return data_nw
-
+    
     # index に基づく除外処理 =================================================================
     elif isinstance(data, pd.DataFrame):
         list_index = data.index.to_list()
@@ -2182,7 +2182,7 @@ def filtering_out(
         if args: 
             args = list(build.list_flatten(args))
             drop_list += [i for i in args if i in list_index]
-
+                
         if contains is not None: 
             drop_list += build.list_subset(list_index, lambda x: contains in x)
 
@@ -2191,11 +2191,11 @@ def filtering_out(
 
         if ends_with is not None:
             drop_list += build.list_subset(list_index, lambda x: x.endswith(ends_with))
-
+        
         if args or contains is not None or starts_with is not None or ends_with is not None:
             keep_list = [i not in drop_list for i in list_index]
             data_nw = data_nw.filter(keep_list)
-
+        
         if to_native: return data_nw.to_native()
         return data_nw
 
@@ -2245,7 +2245,7 @@ def mean_qi(
             If True, convert the result to the native DataFrame type of the
             selected backend. If False, return a narwhals DataFrame.
             Defaults to True.
-
+    
     Returns:
         IntoFrameT:
             Table indexed by variable names with columns:
@@ -2316,7 +2316,7 @@ def mean_qi_series(
     data_nw = eda_utils.as_nw_series(data)
     if data_nw.name: variable = data_nw.name
     else: variable = 'x'
-
+    
     result = nw.from_dict({
         'variable': [variable],
         'mean': [data_nw.mean()],
@@ -2387,7 +2387,7 @@ def median_qi_data_frame(
         values = interpolation_values
         )
     # =======================================================================
-
+    
     df_numeric = eda_utils.as_nw_datarame(data).select(ncs.numeric())
 
     result = nw.from_dict({
@@ -2421,11 +2421,11 @@ def median_qi_series(
         values = interpolation_values
         )
     # =======================================================================
-
+    
     data_nw = eda_utils.as_nw_series(data)
     if data_nw.name: variable = data_nw.name
     else: variable = 'x'
-
+    
     result = nw.from_dict({
         'variable': [variable],
         'median': [data_nw.median()],
@@ -2501,7 +2501,7 @@ def mean_ci_data_frame(
         .to_numpy()[0, :]
     x_std = df_numeric.select(ncs.numeric().std())\
         .to_numpy()[0, :]
-
+    
     result = nw.from_dict({
         'variable': df_numeric.columns,
         'mean':x_mean,
@@ -2531,7 +2531,7 @@ def mean_ci_series(
     t_alpha = t.isf((1 - width) / 2, df = n - 1)
     x_mean = data_nw.mean()
     x_std = data_nw.std()
-
+    
     result = nw.from_dict({
         'variable': [variable],
         'mean':[x_mean],
@@ -2578,9 +2578,9 @@ def is_kanzi(data:IntoSeriesT, na_default:bool = True, to_native: bool = True) -
     build.assert_logical(na_default, arg_name = 'na_default')
 
     data_nw = nw.from_native(data, allow_series = True)
-
+    
     result = data_nw.str.contains('[\u4E00-\u9FFF]+').fill_null(na_default)
-
+    
     if to_native: return result.to_native()
     return result
 
@@ -2622,7 +2622,7 @@ def is_ymd(data:IntoSeriesT, na_default:bool = True, to_native: bool = True) -> 
     rex_ymd = '[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}'
 
     data_nw = nw.from_native(data, allow_series = True)
-
+    
     result = data_nw.str.contains(rex_ymd)
 
     result = result.fill_null(na_default)
@@ -2667,7 +2667,7 @@ def is_ymd_like(data:IntoSeriesT, na_default:bool = True, to_native: bool = True
     rex_ymd_like = '[Script=Han]{0,2}[0-9]{1,4}(?:年|-)[0-9]{1,2}(?:月|-)[0-9]{1,2}(?:日)?'
 
     data_nw = eda_utils.as_nw_series(data)
-
+    
     result = data_nw.str.contains(rex_ymd_like)
 
     result = result.fill_null(na_default)
@@ -2710,7 +2710,7 @@ def is_number(data:IntoSeriesT, na_default:bool = True, to_native: bool = True) 
     """
     build.assert_logical(to_native, arg_name = 'to_native')
     build.assert_logical(na_default, arg_name = 'na_default')
-
+    
     data_nw = nw.from_native(data, allow_series = True)
 
     rex_dict = {
@@ -2913,7 +2913,7 @@ def set_miss(
         backend = x_nw.implementation
     )
     if not to_native: return result
-
+    
     result_native = nw.to_native(result)
     if x_nw.implementation.is_pandas_like():
         result_native.index = x.index
@@ -2939,13 +2939,13 @@ def arrange_colnames(
             return selected + unselected
         else:
             return unselected + selected
-
+    
     if before is not None:
         idx = unselected.index(before)
         col_pre = unselected[:idx]
         col_behind = unselected[idx:]
         return col_pre + selected + col_behind
-
+    
     elif after is not None:
         idx = unselected.index(after) + 1
         col_pre = unselected[:idx]
@@ -3034,7 +3034,7 @@ def relocate(
         ValueError:
             If `before`/`after` is the same as the only relocated column.
 
-
+            
     Notes:
         - This function only changes the order of columns; no columns are added
           or removed.
@@ -3074,10 +3074,10 @@ def relocate(
 
     build.assert_character(before, arg_name = 'before', nullable = True, scalar_only = True)
     build.assert_character(after, arg_name = 'after', nullable = True, scalar_only = True)
-
+    
     if (before is not None) and (after is not None):
         raise ValueError("Please specify either `before` or `after`, not both.")
-
+    
     place = build.arg_match(
         place, arg_name= 'place',
         values = ['first', 'last'],
@@ -3086,24 +3086,24 @@ def relocate(
     if (place is not None) and ((before is not None) or (after is not None)):
         raise ValueError("Please specify either `place` or `before`/`after`, not both.")
     # ======================================================
-
+    
     data_nw = eda_utils.as_nw_datarame(data)
     colnames = data_nw.columns
     selected = data_nw.select(args).columns
-
+    
     # before/after に指定された列が arg に含まれている場合への対処 =============================
     # selected の要素が1つで、befor/after と等しいなならエラー（並べ替え方が定義できないので）
     if _is_before_after_selected(selected, before):
         raise ValueError("`before` cannot be the same as the relocated column.")
     if _is_before_after_selected(selected, after):
         raise ValueError("`after` cannot be the same as the relocated column.")
-
+    
     # selected が複数の要素を持ち、befor/after 含まれるなら除外 ==================================
     if after is not None:
         selected = build.list_diff(selected, [after])
     if before is not None:
         selected = build.list_diff(selected, [before])
-
+    
     # selected が空のリストになった場合の安全処置
     # selected = [] なら arrange_colnames() は colnames をそのまま返すと思いますが念のため。
     if not selected:
@@ -3182,7 +3182,7 @@ def group_split(
         >>> import py4stats as py4st
         >>> from palmerpenguins import load_penguins
         >>> penguins = load_penguins()
-
+        
         >>> splited = py4st.group_split(penguins, 'species', 'island')
         >>> print(len(splited.data))
         5
@@ -3199,22 +3199,22 @@ def group_split(
     data_nw = eda_utils.as_nw_datarame(data)
     # group_cols で区別されるデータに対するグループ番号を生成・付与
     group_tab = data_nw.select(*group_cols).unique()
-
+    
     cols_selected = group_tab.columns
 
     if drop_na_groups:
         group_tab = group_tab.drop_nulls()
-
+    
     if sort_groups:
         group_tab = group_tab.sort(*group_cols)
-
+    
     group_tab = group_tab.with_row_index('_group_id')
-
+    
     with_group_id = data_nw.join(group_tab, on = cols_selected, how = 'left')
-
+    
     if not keep:
         with_group_id = with_group_id.drop(cols_selected)
-
+    
     # データセットをグループ番号別に分割
     list_dfs = [
         with_group_id.filter(nw.col('_group_id') == g).drop('_group_id')
@@ -3225,7 +3225,7 @@ def group_split(
         group_tab = group_tab.to_native()
 
     result = GroupSplitResult(data = list_dfs, groups = group_tab)
-
+    
     return result
 
 
@@ -3281,18 +3281,18 @@ def group_map(
         - `groups`: a data frame describing the grouping keys.
 
         The i-th element of `mapped` corresponds to the i-th row of `groups`.
-
+    
     Note:
         `func` can return any Python object. The results are not combined
         or coerced into a tabular structure. This makes `group_map()`
         suitable for use cases such as returning model objects,
         plots, or other non-tabular results.
-
+        
     Examples:
         >>> import py4stats as py4st
         >>> from palmerpenguins import load_penguins
         >>> penguins = load_penguins()
-
+        
         >>> res = py4st.group_map(penguins, "species", func=lambda df: df.shape[0])
         >>> res.mapped
         [152, 68, 124]
@@ -3310,9 +3310,9 @@ def group_map(
         drop_na_groups = drop_na_groups,
         to_native = True,
         )
-
+    
     mapped = [func(df) for df in list_dfs]
-
+    
     result = GroupMapResult(mapped = mapped, groups = group_tab)
     return result
 
@@ -3380,12 +3380,12 @@ def group_modify(
         Objects that cannot be converted into a tabular structure
         (e.g., fitted model objects or plot objects) are not supported.
         For such use cases, consider using `group_map()` instead.
-
+        
     Examples:
         >>> import py4stats as py4st
         >>> from palmerpenguins import load_penguins
         >>> penguins = load_penguins()
-
+        
         >>> result = group_modify(
         ...     penguins, 'species', 'island',
         ...     func = lambda df: df[['bill_length_mm']].mean()
@@ -3398,7 +3398,7 @@ def group_modify(
     build.assert_logical(drop_na_groups, arg_name = 'drop_na_groups')
     build.assert_logical(sort_groups, arg_name = 'sort_groups')
     build.assert_logical(to_native, arg_name = 'to_native')
-
+    
     # 実装メモ ================================================================
     # <3> における結合処理の一貫性と、<2> で pd.DataFrame など native class の 
     # DataFrame と同じメソッドが使えることを両立するために、<1> で `to_native = False`
@@ -3412,9 +3412,9 @@ def group_modify(
         drop_na_groups = drop_na_groups,
         to_native = False,                                   # <1>
         ) # -> Tuple[List[nw.DataFrame], nw.DataFrame]
-
+    
     list_result1 = [func(df.to_native()) for df in list_dfs] # <2>
-
+    
     list_result2 = [
         nw.from_native(v).with_columns(nw.lit(id).alias('_group_id')) 
         if eda_utils.is_intoframe(v) 
@@ -3422,13 +3422,13 @@ def group_modify(
             .with_columns(nw.lit(id).alias('_group_id')) 
         for v, id in zip(list_result1, group_tab['_group_id'])
         ] # -> List[nw.DataFrame]
-
+    
     result = group_tab.join(                                  # <3>
             nw.concat(list_result2),
             on = '_group_id',
             how = 'left'
         ).drop('_group_id')
-
+    
     if to_native: return result.to_native()
     return result
 
@@ -3484,10 +3484,10 @@ def bind_rows(
             - All elements must share the same type.
             - The element type must be one of: `str`, `int`, `float`, or `bool`.
             - Length must match the number of input data frames.
-
+        
             This argument is only meaningful for the data frame / list input forms.
             If a mapping is provided, mapping keys are used instead.
-
+            
         id (str, optional):
             Name of the identifier column to add. If `None`, no identifier column
             is created.
@@ -3566,7 +3566,7 @@ def bind_rows_df(
         result = nw.concat(args, how = "diagonal")
         if to_native: return result.to_native()
         return result
-
+    
     if names is None: names = range(len(args))
 
     else: build.assert_length(names, arg_name = 'names', len_arg = len(args))
@@ -3599,7 +3599,7 @@ def bind_rows_dict(
         result = nw.concat(args.values(), how = "diagonal")
         if to_native: return result.to_native()
         return result
-
+    
     tabl_list = [
         df.with_columns(nw.lit(key).alias(id))
         for key, df in args.items()
@@ -3628,7 +3628,7 @@ def _fill_implicit_missing(data_nw, fill):
         '__complete_index__', 
         to_native = False
         )
-
+    
     return result
 
 
@@ -3639,7 +3639,7 @@ def replace_na(data, replace, to_native: bool = True):
     build.assert_logical(to_native, arg_name = 'to_native')
     # ======================================================
     data_nw = eda_utils.as_nw_datarame(data)
-
+    
     fill_dict = {
         col: nw.col(col).fill_null(v)
         for col, v in replace.items()
@@ -3685,29 +3685,48 @@ def expand(
         IntoFrameT:
             A DataFrame containing all combinations of the unique
             values of the selected columns.
-
+            
     Notes:
         The number of rows in the output grows as the Cartesian
         product of the unique values in each selected column.
         Large numbers of unique values may result in substantial
         memory usage.
+
+        If the estimated number of generated rows exceeds a
+        predefined threshold, a UserWarning is issued indicating
+        the expected number of rows.
     """
     # 引数のアサーション ======================================
     args = list(build.list_flatten(args))
-    data_nw = eda_utils.as_nw_datarame(data)
+    eda_utils._assert_selectors(args, arg_name = '*args')
     build.assert_logical(to_native, arg_name = 'to_native')
     # ======================================================
+    data_nw = eda_utils.as_nw_datarame(data)
     selected_cols = data_nw.select(args).columns
 
     df_unique = [
         data_nw.select(col).unique()
         for col in selected_cols
     ]
-
-    result = reduce(
-        lambda df1, df2: df1.join(df2, how = 'cross'), 
-        df_unique
+    # 組み合わせ爆発に対する警告処理 ======================================
+    total_size = math.prod([len(df) for df in df_unique])
+    if total_size >= 10**7:
+        warnings.warn(
+            f"expand() will generate {total_size:,} rows "
+            "from the Cartesian product of selected columns. "
+            "This may consume large memory and take significant time.",
+            UserWarning,
+            stacklevel = 2,
         )
+    # ================================================================
+    
+    if len(df_unique) == 1:
+        result = df_unique[0]
+    else:
+        result = reduce(
+            lambda df1, df2: df1.join(df2, how = 'cross'), 
+            df_unique
+            )
 
     result = result.sort(selected_cols)
 
@@ -3770,26 +3789,34 @@ def complete(
         When `explicit=False`, the function internally tracks which
         rows were newly created during completion in order to
         distinguish implicit missing values from pre-existing nulls.
+    
+        This function internally calls `expand()` to generate
+        combinations. Therefore, the number of rows may grow as
+        the Cartesian product of the selected variables.
+
+        If the estimated number of generated rows exceeds a
+        predefined threshold, a UserWarning is issued indicating
+        the expected number of rows.
     """
-    # 引数のアサーション ======================================
-    args = list(build.list_flatten(args))
-    eda_utils._assert_selectors(*args, arg_name = 'args')
+    # 引数のアサーション ===============================================================
+    args = list(build.list_flatten(args))               
+    eda_utils._assert_selectors(*args, arg_name = 'args') 
     build.assert_logical(explicit, arg_name = 'explicit')
     build.assert_logical(to_native, arg_name = 'to_native')
-    # ======================================================
-    data_nw = nw.from_native(data)
-
+    # ===============================================================================
+    data_nw = eda_utils.as_nw_datarame(data)
+    
     if fill is not None and not explicit:
         data_nw = data_nw.with_row_index(name = '__complete_index__')
 
     expanded = expand(data_nw, *args, to_native = False)
-
+    
     result = expanded.join(
                 data_nw, 
                 on = expanded.columns, 
                 how = 'left'
                 )
-
+    
     if fill is not None:
         if explicit:
             result = replace_na(result, fill, to_native = False)
