@@ -79,7 +79,6 @@ print(data)
 ```
 
 ``` python
-
 # 暗黙の欠測値を明示的な欠測値に変換
 result = py4st.complete(data, 'name', 'time')
 print(result)
@@ -98,7 +97,6 @@ print(result)
 #> │ B    ┆ 3    ┆ 0.93 │
 #> │ B    ┆ 4    ┆ null │
 #> └──────┴──────┴──────┘
-
 
 # 暗黙の欠測値を明示的な欠測値に変換した上で0で置換
 result = py4st.complete(
@@ -121,7 +119,6 @@ print(result)
 #> │ B    ┆ 3    ┆ 0.93 │
 #> │ B    ┆ 4    ┆ 0.0  │
 #> └──────┴──────┴──────┘
-
 
 # 暗黙の欠測値を明示的な欠測値に変換した上で、暗黙の欠測値のみ0で置換
 result = py4st.complete(
@@ -146,6 +143,21 @@ print(result)
 #> │ B    ┆ 4    ┆ null │
 #> └──────┴──────┴──────┘
 ```
+
+## 注意 Notes
+
+`expand()` 関数はと `complete()` 関数が出力するデータフレームの行数は、指定された列のユニーク値の数の積に比例して増加します。したがって、指定された列やそのユニーク値の数が多い場合、メモリ使用量が大きくなる可能性があります。
+
+出力されるデータフレームの行数が1千万行を超えると推定された場合、以下のコードのような UserWarning が出力されます。
+
+``` python
+import pointblank as pb
+data = pb.load_dataset("game_revenue")
+
+res = py4st.expand(data, 'session_id', 'session_start', 'time')
+#> UserWarning: expand() will generate 759,646,836 rows from the Cartesian product of selected columns. This may consume large memory and take significant time.
+``` 
+
 
 ***
 [Return to **Function reference**.](../reference.qmd)

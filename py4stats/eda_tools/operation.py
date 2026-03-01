@@ -1009,7 +1009,7 @@ def freq_table(
             - 'frequency': sort by frequency. (default)
             - 'values': sort by the category values.
         descending (bool):
-            Sort order. Defaults to False.
+            Whether to sort in descending order. Defaults to False.
         dropna (bool):
             Whether to drop NaN from counts.
         to_native (bool, optional):
@@ -3691,23 +3691,42 @@ def expand(
         product of the unique values in each selected column.
         Large numbers of unique values may result in substantial
         memory usage.
+
+        If the estimated number of generated rows exceeds a
+        predefined threshold, a UserWarning is issued indicating
+        the expected number of rows.
     """
     # 引数のアサーション ======================================
     args = list(build.list_flatten(args))
-    data_nw = eda_utils.as_nw_datarame(data)
+    eda_utils._assert_selectors(args, arg_name = '*args')
     build.assert_logical(to_native, arg_name = 'to_native')
     # ======================================================
+    data_nw = eda_utils.as_nw_datarame(data)
     selected_cols = data_nw.select(args).columns
 
     df_unique = [
         data_nw.select(col).unique()
         for col in selected_cols
     ]
-
-    result = reduce(
-        lambda df1, df2: df1.join(df2, how = 'cross'), 
-        df_unique
+    # 組み合わせ爆発に対する警告処理 ======================================
+    total_size = math.prod([len(df) for df in df_unique])
+    if total_size >= 10**7:
+        warnings.warn(
+            f"expand() will generate {total_size:,} rows "
+            "from the Cartesian product of selected columns. "
+            "This may consume large memory and take significant time.",
+            UserWarning,
+            stacklevel = 2,
         )
+    # ================================================================
+
+    if len(df_unique) == 1:
+        result = df_unique[0]
+    else:
+        result = reduce(
+            lambda df1, df2: df1.join(df2, how = 'cross'), 
+            df_unique
+            )
 
     result = result.sort(selected_cols)
 
@@ -3770,14 +3789,22 @@ def complete(
         When `explicit=False`, the function internally tracks which
         rows were newly created during completion in order to
         distinguish implicit missing values from pre-existing nulls.
+
+        This function internally calls `expand()` to generate
+        combinations. Therefore, the number of rows may grow as
+        the Cartesian product of the selected variables.
+
+        If the estimated number of generated rows exceeds a
+        predefined threshold, a UserWarning is issued indicating
+        the expected number of rows.
     """
-    # 引数のアサーション ======================================
-    args = list(build.list_flatten(args))
-    eda_utils._assert_selectors(*args, arg_name = 'args')
+    # 引数のアサーション ===============================================================
+    args = list(build.list_flatten(args))               
+    eda_utils._assert_selectors(*args, arg_name = 'args') 
     build.assert_logical(explicit, arg_name = 'explicit')
     build.assert_logical(to_native, arg_name = 'to_native')
-    # ======================================================
-    data_nw = nw.from_native(data)
+    # ===============================================================================
+    data_nw = eda_utils.as_nw_datarame(data)
 
     if fill is not None and not explicit:
         data_nw = data_nw.with_row_index(name = '__complete_index__')

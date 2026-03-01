@@ -1,6 +1,6 @@
 # scaling up regression
 
-　ここでは実証分析の場面で便利な回帰分析の実装例を紹介します。
+ここでは実証分析の場面で便利な回帰分析の応用例を紹介します。
 
 ``` python
 import py4stats as py4st
@@ -204,6 +204,58 @@ ax.axvline(0, ls = "--", color = '#969696');
 - データセットが大きい場合、ブートストラップ法の実行には時間がかかるので `boot_sample.to_csv('output/boot_sample.csv')` を追加して保存しておいた方が、事後的な分析がしやすいと思います。
 - 今回のような通常の回帰分析であれば、回帰係数の標準誤差は簡単に計算できるためブートストラップ法を使う必要性を感じにくいですが、傾向スコアを用いたIPW推定量など、標準誤差の推定にブートストラップ法が必要になる場合もあります。
 - 今回は `DataFrame.sample()` メソッドを使ったごく簡単な方法でブートストラップ法を実装していますが、もう少し効率的な方法もあるのではないかと思います。
+
+## `py4st.tidy()` や `py4st.compare_ols()` の結果に、多重検定向けのp-値の補正を反映する方法
+
+Python では [`statsmodels.stats.multitest.multipletests()`](https://www.statsmodels.org/dev/generated/statsmodels.stats.multitest.multipletests.html) 関数でボンフェローニ補正（Bonferroni correction）や Holm法（Holm’s procedure）といった多重検定向けのp-値の補正法が実装されています。
+
+この関数にp-値の array を与えると補正後のp-値を出力するため、次のコードのように `fit.pvalues` に代入することで、`py4st.tidy()` や `py4st.compare_ols()` の結果に反映させることができます。
+
+``` python
+import copy
+from statsmodels.stats.multitest import multipletests
+
+mroz = wooldridge.data('mroz')
+
+fit1 = smf.ols(
+    'lwage ~ educ + exper + expersq + nwifeinc'
+    ' + age + kidslt6 + kidsge6',
+    data = mroz
+    ).fit()
+
+reject, pvals_corrected, _, _ = multipletests(
+    fit1.pvalues,
+    method = 'holm'
+    )
+
+fit2 = copy.deepcopy(fit1)
+fit2.pvalues = pd.Series(pvals_corrected)
+```
+
+以上の操作で `fit2.pvalues` には Holm法で補正されたp-値が記録され `py4st.compare_ols()` に代入すると `stats = 'p_value'` としたときに表示される値や、有意性のアスタリスク `*` に補正後の結果が反映されます。
+
+``` python
+compare_tab3 = py4st.compare_ols(
+    list_models = [fit1, fit2],
+    stats = 'p_value',
+    model_name = ['補正前', '補正後'],
+    line_break = ' '
+    )
+print(compare_tab3)
+#>                           補正前                  補正後
+#> term                                                  
+#> Intercept       -0.3580  (0.2613)    -0.3580  (1.0000)
+#> educ          0.0999 *** (0.0000)  0.0999 *** (0.0000)
+#> exper         0.0407 *** (0.0025)   0.0407 ** (0.0173)
+#> expersq        -0.0007 * (0.0636)    -0.0007  (0.3815)
+#> nwifeinc        0.0057 * (0.0870)     0.0057  (0.4351)
+#> age             -0.0035  (0.5159)    -0.0035  (1.0000)
+#> kidslt6         -0.0559  (0.5287)    -0.0559  (1.0000)
+#> kidsge6         -0.0176  (0.5272)    -0.0176  (1.0000)
+#> rsquared_adj               0.1502               0.1502
+#> nobs                          428                  428
+#> df                              7                    7
+``` 
 
 ## 参考文献
 
