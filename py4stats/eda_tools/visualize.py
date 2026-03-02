@@ -446,15 +446,15 @@ def plot_median_diff(
     ax.invert_yaxis();
 
 
-# # カテゴリー変数の水平棒グラフ
+# # 度数分布の棒グラフ
 
 
 
 def plot_count_h(
         data: IntoFrameT,
         valiable: str,
-        sort_by: Literal['frequency', 'values'] = 'frequency',
-        descending: bool = False,
+        sort_by: Literal['frequency', 'values'] = 'values',
+        descending: bool = True,
         dropna: bool = False,
         color = "#478FCE",
         fontsize: int = 12,
@@ -470,8 +470,7 @@ def plot_count_h(
     frequency and relative frequency (percentage) are displayed as labels
     on each bar.
 
-    The frequency table is internally computed using `eda_ops.freq_table()`,
-    with missing values excluded by default.
+    The frequency table is internally computed using `py4stats.freq_table()`.
 
     Args:
         data (IntoFrameT):
@@ -575,6 +574,135 @@ def plot_count_h(
         ticker.FuncFormatter(lambda x, pos: '{:,}'.format(int(x)))
         )
     ax.set_xlabel('frequency');
+
+
+
+
+def plot_count_v(
+        data: IntoFrameT,
+        valiable: str,
+        sort_by: Literal['frequency', 'values'] = 'values',
+        descending: bool = False,
+        dropna: bool = False,
+        color = "#478FCE",
+        fontsize: int = 12,
+        padding: int = 3,
+        digits: int = 1,
+        expand_y_limits: Union[float, int] = 1.1,
+        ax: Optional[Axes] = None,
+        ):
+    """Plot a vertical bar chart of frequency counts for a categorical variable.
+
+    This function computes a frequency table for the specified categorical
+    variable and visualizes it as a vertical bar chart. Both absolute
+    frequency and relative frequency (percentage) are displayed as labels
+    on each bar.
+
+    The frequency table is internally computed using `py4stats.freq_table()`.
+
+    Args:
+        data (IntoFrameT):
+            Input DataFrame containing categorical variables (one column per item).
+            Any DataFrame type supported by narwhals can be used
+            (e.g., pandas.DataFrame, polars.DataFrame, pyarrow.Table).
+        valiable (str):
+            Column name of the categorical variable to be summarized.
+        sort_by (Literal['frequency', 'values']):
+            Sorting rule for the output table.
+            - 'frequency': sort by frequency. (default)
+            - 'values': sort by the category values.
+        descending (bool, optional):
+            Whether to sort in descending order. Defaults to False.
+                dropna (bool):
+            Whether to drop NaN from counts. Defaults to False.
+        color (str, optional):
+            Color of the bars. Accepts any Matplotlib-compatible color
+            specification. Defaults to "#478FCE".
+        fontsize (int, optional):
+            Font size of the bar labels. Defaults to 12.
+        padding (int, optional):
+            Distance (in points) between the bar and its label.
+            Passed to `ax.bar_label()`. Defaults to 3.
+        digits (int, optional):
+            Number of decimal places for percentage labels.
+            Defaults to 1.
+        expand_y_limits (float, optional):
+            Multiplicative factor used to expand the upper limit of the
+            y-axis to ensure sufficient space for labels.
+            Defaults to 1.5.
+        ax (Optional[Axes], optional):
+            Existing Matplotlib Axes object to draw the plot on.
+            If None, a new figure and axes are created. Defaults to None.
+
+    Returns:
+        matplotlib.axes.Axes:
+            The Matplotlib Axes object containing the plot.
+
+    Raises:
+        ValueError:
+            If `sort_by` is not one of the allowed values.
+        TypeError:
+            If input arguments do not satisfy the required type constraints.
+
+    Examples:
+        >>> import py4stats as p4s
+        >>> from palmerpenguins import load_penguins
+        >>> penguins = load_penguins()
+        >>> ax = p4s.plot_count_h(penguins, valiable="species")
+    """
+    # 引数のアサーション ========================================
+    sort_by = build.arg_match(
+        sort_by, arg_name = 'sort_by',
+        values = ['frequency', 'values']
+        )
+    build.assert_scalar(valiable, arg_name = 'valiable')
+    build.assert_logical(descending, arg_name = 'descending', len_arg = 1)
+    build.assert_logical(dropna, arg_name = 'dropna', len_arg = 1)
+    build.assert_count(fontsize, arg_name = 'fontsize', len_arg = 1)
+    build.assert_count(padding, arg_name = 'padding', len_arg = 1)
+    build.assert_count(digits, arg_name = 'digits', len_arg = 1)
+    build.assert_numeric(expand_y_limits, arg_name = 'expand_y_limits', len_arg = 1)
+    # =========================================================
+
+    count_table = eda_ops.freq_table(
+                data, valiable, 
+                dropna = dropna, 
+                sort_by = sort_by,
+                descending = descending,
+                to_native = False
+                )
+    if not dropna:
+        count_table = count_table.with_columns(nw.col(valiable).cast(nw.String))
+        count_table = eda_ops.replace_na(count_table, {valiable: 'NA'}, to_native = False)
+    # 度数(相対頻度%) のラベルを作成
+    label_list = [
+        f'{freq:,} ({perc:.{digits}%})' for freq, perc in 
+        zip(count_table['freq'], count_table['perc'])
+    ]
+    
+    count_table = eda_utils.assign_nw(
+        count_table, 
+        label = label_list
+        )
+    
+    if ax is None:
+        fig, ax = plt.subplots()
+
+    bars = ax.bar(count_table[valiable], count_table['freq'], color = color)
+    
+    # ここでラベルを作図
+    ax.bar_label(
+        bars, 
+        labels = count_table['label'], 
+        padding = padding, 
+        fontsize = fontsize
+        );
+
+    ax.set_ylim(0, count_table['freq'].max() * expand_y_limits)
+    ax.yaxis.set_major_formatter(
+        ticker.FuncFormatter(lambda x, pos: '{:,}'.format(int(x)))
+        )
+    ax.set_ylabel('frequency');
 
 
 # # カテゴリー変数の積み上げ棒グラフ

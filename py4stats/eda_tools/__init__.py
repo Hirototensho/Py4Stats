@@ -57,6 +57,7 @@ from .visualize import (
     Pareto_plot,
     plot_category,
     plot_count_h,
+    plot_count_v,
     plot_mean_diff,
     plot_median_diff,
     plot_miss_var,

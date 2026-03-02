@@ -41,6 +41,7 @@
 | min_max              | Series           | ✅       | ✅       | ✅        |                                            |
 | plot_category        | DataFrame        | ✅       | ✅       | ✅        | Pyarrow では機能制限あり                      |
 | plot_count_h         | DataFrame        | ✅       | ✅       | ✅        |                                            |
+| plot_count_v         | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | plot_mean_diff       | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | plot_median_diff     | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | plot_miss_var        | DataFrame        | ✅       | ✅       | ✅        |                                            |

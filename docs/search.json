@@ -74,7 +74,7 @@
     "href": "reference.html#main-module",
     "title": "Function reference",
     "section": "",
-    "text": "py4stats.eda_tools\npy4stats.eda_tools モジュールは、探索的データ解析と前処理に関する機能を提供します。複数の DataFrame バックエンドに対して共通の API を提供することを目的として、narwhals ライブラリを用いて実装されています。詳細は Technical Notes を参照してください。\n\nデータフレームの概要\npy4stats.diagnose()\n\n\nクロス集計\npy4stats.tabyl()\npy4stats.freq_table()\npy4stats.plot_count_h()\npy4stats.Pareto_plot()\n\n\nカテゴリー変数の要約\npy4stats.diagnose_category()\npy4stats.plot_category()\npy4stats.info_gain()\n\n\n数値変数の点推定と区間推定\npy4stats.mean_qi() py4stats.median_qi() py4stats.mean_ci()\n\n\nデータフレームの列や行の削除\npy4stats.remove_empty()\npy4stats.remove_constant()\npy4stats.filtering_out()\n\n\nデータフレームの列の並べ替え\npy4stats.relocate()\n\n\nユニーク値の直積と、　暗黙の欠測値明示化\npy4stats.expand() py4stats.complete()\n\n\nデータフレームの縦結合\npy4stats.relocate()\n\n\nデータフレームのグループ化された処理\npy4stats.group_split() py4stats.group_map() py4stats.group_modify()\n\n\n複数のデータフレームの比較\npy4stats.compare_df_cols() py4stats.compare_df_stats()\npy4stats.review_wrangling()\npy4stats.review_shape() py4stats.review_col_addition() py4stats.review_casting() py4stats.review_missing() py4stats.review_category() py4stats.review_numeric()\n\n\n簡易なグループ別統計量の比較\npy4stats.compare_group_means() py4stats.compare_group_median()\npy4stats.plot_mean_diff() py4stats.plot_median_diff()\n\n\n簡易な欠測値の可視化\npy4stats.plot_miss_var()\npy4stats.set_miss()\n\n\n数値変数の集計と標準化\npy4stats.weighted_mean() py4stats.scale() py4stats.min_max()\n\n\n論理関数\npy4stats.is_number() py4stats.is_ymd() py4stats.is_ymd_like()\npy4stats.is_dummy()\n\n\n簡易なルールベースのデータ検証ツール\npy4stats.check_that() py4stats.check_viorate()\n\n\n\n\npy4stats.regression_tools\npy4stats.regression_tools は statsmodels ライブラリで作成された回帰分析の結果についての可視化と表作成を補助する機能を提供するモジュールです。\n\n線形モデルの比較\npy4stats.compare_ols()\npy4stats.compare_mfx()\n\n\n線形モデルの可視化\npy4stats.coefplot() py4stats.mfxplot()\n\n\n線形モデルを作表するためのバックエンド関数\npy4stats.tidy()py4stats.tidy_mfx()\npy4stats.tidy_test()\npy4stats.glance()\n\n\nBlinder-Oaxaca分解\npy4stats.Blinder_Oaxaca() py4stats.plot_Blinder_Oaxaca()",
+    "text": "py4stats.eda_tools\npy4stats.eda_tools モジュールは、探索的データ解析と前処理に関する機能を提供します。複数の DataFrame バックエンドに対して共通の API を提供することを目的として、narwhals ライブラリを用いて実装されています。詳細は Technical Notes を参照してください。\n\nデータフレームの概要\npy4stats.diagnose()\n\n\nクロス集計\npy4stats.tabyl()\npy4stats.freq_table()\npy4stats.plot_count_h()\npy4stats.plot_count_v()\npy4stats.Pareto_plot()\n\n\nカテゴリー変数の要約\npy4stats.diagnose_category()\npy4stats.plot_category()\npy4stats.info_gain()\n\n\n数値変数の点推定と区間推定\npy4stats.mean_qi() py4stats.median_qi() py4stats.mean_ci()\n\n\nデータフレームの列や行の削除\npy4stats.remove_empty()\npy4stats.remove_constant()\npy4stats.filtering_out()\n\n\nデータフレームの列の並べ替え\npy4stats.relocate()\n\n\nユニーク値の直積と、　暗黙の欠測値明示化\npy4stats.expand() py4stats.complete()\n\n\nデータフレームの縦結合\npy4stats.relocate()\n\n\nデータフレームのグループ化された処理\npy4stats.group_split() py4stats.group_map() py4stats.group_modify()\n\n\n複数のデータフレームの比較\npy4stats.compare_df_cols() py4stats.compare_df_stats()\npy4stats.review_wrangling()\npy4stats.review_shape() py4stats.review_col_addition() py4stats.review_casting() py4stats.review_missing() py4stats.review_category() py4stats.review_numeric()\n\n\n簡易なグループ別統計量の比較\npy4stats.compare_group_means() py4stats.compare_group_median()\npy4stats.plot_mean_diff() py4stats.plot_median_diff()\n\n\n簡易な欠測値の可視化\npy4stats.plot_miss_var()\npy4stats.set_miss()\n\n\n数値変数の集計と標準化\npy4stats.weighted_mean() py4stats.scale() py4stats.min_max()\n\n\n論理関数\npy4stats.is_number() py4stats.is_ymd() py4stats.is_ymd_like()\npy4stats.is_dummy()\n\n\n簡易なルールベースのデータ検証ツール\npy4stats.check_that() py4stats.check_viorate()\n\n\n\n\npy4stats.regression_tools\npy4stats.regression_tools は statsmodels ライブラリで作成された回帰分析の結果についての可視化と表作成を補助する機能を提供するモジュールです。\n\n線形モデルの比較\npy4stats.compare_ols()\npy4stats.compare_mfx()\n\n\n線形モデルの可視化\npy4stats.coefplot() py4stats.mfxplot()\n\n\n線形モデルを作表するためのバックエンド関数\npy4stats.tidy()py4stats.tidy_mfx()\npy4stats.tidy_test()\npy4stats.glance()\n\n\nBlinder-Oaxaca分解\npy4stats.Blinder_Oaxaca() py4stats.plot_Blinder_Oaxaca()",
     "crumbs": [
       "<span class='chapter-number'>3</span>  <span class='chapter-title'>Function reference</span>"
     ]
@@ -244,58 +244,58 @@
     ]
   },
   {
-    "objectID": "man/plot_count_h.html",
-    "href": "man/plot_count_h.html",
-    "title": "plot_count_h",
+    "objectID": "man/plot_count.html",
+    "href": "man/plot_count.html",
+    "title": "plot_count_h, plot_count_v",
     "section": "",
-    "text": "概要\nカテゴリ変数の度数分布を棒グラフとして可視化します。\n本関数は、指定したカテゴリ変数について度数表を計算し、その結果を横向きの棒グラフとして描画します。棒グラフの各バーには、「度数（相対頻度％）」のラベルが表示されます。",
+    "text": "概要\nカテゴリ変数の度数分布を棒グラフとして可視化します。\n本関数は、指定したカテゴリ変数について度数表を計算し、その結果を水平または垂直の棒グラフとして描画します。棒グラフの各バーには、「度数（相対頻度％）」のラベルが表示されます。",
     "crumbs": [
       "**EDA**",
-      "<span class='chapter-number'>7</span>  <span class='chapter-title'>plot_count_h</span>"
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>plot_count_h, plot_count_v</span>"
     ]
   },
   {
-    "objectID": "man/plot_count_h.html#概要",
-    "href": "man/plot_count_h.html#概要",
-    "title": "plot_count_h",
+    "objectID": "man/plot_count.html#概要",
+    "href": "man/plot_count.html#概要",
+    "title": "plot_count_h, plot_count_v",
     "section": "",
-    "text": "plot_count_h(\n        data: IntoFrameT,\n        valiable: str,\n        sort_by: Literal['frequency', 'values'] = 'frequency',\n        descending: bool = False,\n        dropna: bool = False,\n        color = \"#478FCE\",\n        fontsize: int = 12,\n        padding: int = 3,\n        digits: int = 1,\n        expand_x_limits: Union[float, int] = 1.5,\n        ax: Optional[Axes] = None,\n    )",
+    "text": "plot_count_h(\n    data: IntoFrameT,\n    valiable: str,\n    sort_by: Literal['frequency', 'values'] = 'values',\n    descending: bool = True,\n    dropna: bool = False,\n    color = \"#478FCE\",\n    fontsize: int = 12,\n    padding: int = 3,\n    digits: int = 1,\n    expand_x_limits: Union[float, int] = 1.5,\n    ax: Optional[Axes] = None,\n    )\n\nplot_count_v(\n    data: IntoFrameT,\n    valiable: str,\n    sort_by: Literal['frequency', 'values'] = 'values',\n    descending: bool = False,\n    dropna: bool = False,\n    color = \"#478FCE\",\n    fontsize: int = 12,\n    padding: int = 3,\n    digits: int = 1,\n    expand_y_limits: Union[float, int] = 1.1,\n    ax: Optional[Axes] = None,\n    )",
     "crumbs": [
       "**EDA**",
-      "<span class='chapter-number'>7</span>  <span class='chapter-title'>plot_count_h</span>"
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>plot_count_h, plot_count_v</span>"
     ]
   },
   {
-    "objectID": "man/plot_count_h.html#引数-argument",
-    "href": "man/plot_count_h.html#引数-argument",
-    "title": "plot_count_h",
+    "objectID": "man/plot_count.html#引数-argument",
+    "href": "man/plot_count.html#引数-argument",
+    "title": "plot_count_h, plot_count_v",
     "section": "引数 Argument",
-    "text": "引数 Argument\n\ndata：IntoFrameT（必須） 入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト （例：pandas.DataFrame、polars.DataFrame、pyarrow.Table）を指定できます。\nsubset：str（必須） 集計対象となるカテゴリ変数の列名。\nsort_by：str 　sort_by = 'frequency' なら度数分布表を頻度に応じてソートし、sort_by = 'values' なら subset で指定した列の値に応じてソートします。\ndescending：bool 　ソートの方式。True なら降順でソートし、False（初期設定）なら昇順でソートします。\ndropna：bool 　欠測値（NaN, None など）を集計から除外するかどうかを表すブール値。初期設定は False です。\ncolor: str  棒グラフの描画色。Matplotlib で指定可能な色指定形式を使用できます。\nfontsize: int \n棒グラフに追加されるラベルのフォントサイズ。既定値は12です。\npadding: int  棒グラフとラベルの間隔（ポイント単位）。ax.bar_label() に渡されます。既定値は3です。\ndigits: int  ラベルに表示される相対頻度（％）の小数点以下の表示桁数。既定値は1です。 expand_x_limits float or int  ラベルが見切れないようにするため、x 軸の上限を最大度数に対して何倍に拡張するかを指定します。既定値は1.5です。\nax:  描画先となる matplotlib の Axes。複数のグラフを並べる場合などに使用します。デフォルトの None の場合は、新しい Figure と Axes が作成されます。",
+    "text": "引数 Argument\n\ndata：IntoFrameT（必須） 入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト （例：pandas.DataFrame、polars.DataFrame、pyarrow.Table）を指定できます。\nvaliable：str（必須） 　度数の集計対象となるカテゴリ変数の列名。\nsort_by：str 　sort_by = 'frequency' なら度数分布表を頻度に応じてソートし、sort_by = 'values' なら valiable で指定した列の値に応じてソートします。\ndescending：bool 　ソートの方式。True なら降順でソートし、Falseなら昇順でソートします。\ndropna：bool 　欠測値（NaN, None など）を集計から除外するかどうかを表すブール値。初期設定は False です。\ncolor: str  棒グラフの描画色。Matplotlib で指定可能な色指定形式を使用できます。\nfontsize: int \n棒グラフに追加されるラベルのフォントサイズ。既定値は12です。\npadding: int  棒グラフとラベルの間隔（ポイント単位）。ax.bar_label() に渡されます。既定値は3です。\ndigits: int  ラベルに表示される相対頻度（％）の小数点以下の表示桁数。既定値は1です。 expand_x_limits float or int  ラベルが見切れないようにするため、x 軸の上限を最大度数に対して何倍に拡張するかを指定します。既定値は1.5です。 expand_x_limits float or int  ラベルが見切れないようにするため、y 軸の上限を最大度数に対して何倍に拡張するかを指定します。既定値は1.1です。\nax:  描画先となる matplotlib の Axes。複数のグラフを並べる場合などに使用します。デフォルトの None の場合は、新しい Figure と Axes が作成されます。",
     "crumbs": [
       "**EDA**",
-      "<span class='chapter-number'>7</span>  <span class='chapter-title'>plot_count_h</span>"
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>plot_count_h, plot_count_v</span>"
     ]
   },
   {
-    "objectID": "man/plot_count_h.html#使用例-example",
-    "href": "man/plot_count_h.html#使用例-example",
-    "title": "plot_count_h",
+    "objectID": "man/plot_count.html#使用例-example",
+    "href": "man/plot_count.html#使用例-example",
+    "title": "plot_count_h, plot_count_v",
     "section": "使用例 Example",
-    "text": "使用例 Example\nimport py4stats as py4st\nimport matplotlib.pyplot as plt\nimport seaborn as sns\ndiamonds = sns.load_dataset(\"diamonds\")\n\npy4st.plot_count_h(diamonds, 'cut')\n\n\n\nplot_count_h1\n\n\npy4st.plot_count_h(\n    diamonds, 'color', \n    sort_by = 'values', \n    descending = True,\n    color = \"#1F857DAD\"\n    )\n\n\n\nplot_count_h2",
+    "text": "使用例 Example\nimport py4stats as py4st\nimport matplotlib.pyplot as plt\nimport seaborn as sns\ndiamonds = sns.load_dataset(\"diamonds\")\n\npy4st.plot_count_h(diamonds, 'color')\n\n\n\nplot_count_h1\n\n\npy4st.plot_count_h(\n    diamonds, 'cut', \n    sort_by = 'frequency', \n    descending = False,\n    color = \"#1F857DAD\"\n    )\n\n\n\nplot_count_h2\n\n\nfrom palmerpenguins import load_penguins\npenguins = load_penguins() # サンプルデータの読み込み\n\npy4st.plot_count_v(penguins, 'species')\n\n\n\nplot_count_v1",
     "crumbs": [
       "**EDA**",
-      "<span class='chapter-number'>7</span>  <span class='chapter-title'>plot_count_h</span>"
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>plot_count_h, plot_count_v</span>"
     ]
   },
   {
-    "objectID": "man/plot_count_h.html#参考-see-also",
-    "href": "man/plot_count_h.html#参考-see-also",
-    "title": "plot_count_h",
+    "objectID": "man/plot_count.html#参考-see-also",
+    "href": "man/plot_count.html#参考-see-also",
+    "title": "plot_count_h, plot_count_v",
     "section": "参考 see also",
     "text": "参考 see also\nこの関数で可視化している度数と相対度数は py4stats.freq_table() 関数で算出しています。",
     "crumbs": [
       "**EDA**",
-      "<span class='chapter-number'>7</span>  <span class='chapter-title'>plot_count_h</span>"
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>plot_count_h, plot_count_v</span>"
     ]
   },
   {
@@ -2767,7 +2767,7 @@
     "href": "articles/eda_tools_development_status.html",
     "title": "eda_toolsの開発状況",
     "section": "",
-    "text": "関数の実装状況一覧\n2026年2月26日現在",
+    "text": "関数の実装状況一覧\n2026年3月2日現在",
     "crumbs": [
       "**Contributing Notes**",
       "<span class='chapter-number'>50</span>  <span class='chapter-title'>eda_toolsの開発状況</span>"
@@ -2778,7 +2778,7 @@
     "href": "articles/eda_tools_development_status.html#関数の実装状況一覧",
     "title": "eda_toolsの開発状況",
     "section": "",
-    "text": "関数の実装状況一覧\n\n\n\n\n\n\n\n\n\n\nfunctions\nInput\nPandas\nPolars\nPyarrow\n補足\n\n\n\n\nMean\npd.Series\n✅\n❌\n❌\npd.DataFrame.eval() での使用を想定した関数\n\n\nMedian\npd.Series\n✅\n❌\n❌\npd.DataFrame.eval() での使用を想定した関数\n\n\nMax\npd.Series\n✅\n❌\n❌\npd.DataFrame.eval() での使用を想定した関数\n\n\nMin\npd.Series\n✅\n❌\n❌\npd.DataFrame.eval() での使用を想定した関数\n\n\nPareto_plot\nDataFrame\n✅\n✅\n✅\n\n\n\nSum\npd.Series\n✅\n❌\n❌\npd.DataFrame.eval() での使用を想定した関数\n\n\nbind_rows\nDataFrame\n✅\n✅\n✅\n\n\n\ncheck_that\nDataFrame\n✅\n⭕️\n⭕️\n実装に pd.DataFrame.eval() を使用\n\n\ncheck_viorate\nDataFrame\n✅\n⭕️\n⭕️\n実装に pd.DataFrame.eval() を使用\n\n\ncompare_df_cols\nDataFrame\n✅\n✅\n✅\n\n\n\ncompare_df_record\nDataFrame\n✅\n✅\n✅\n\n\n\ncompare_df_stats\nDataFrame\n✅\n✅\n✅\n\n\n\ncompare_group_means\nDataFrame\n✅\n✅\n✅\n\n\n\ncompare_group_median\nDataFrame\n✅\n✅\n✅\n\n\n\ncomplete\nDataFrame\n✅\n✅\n✅\n\n\n\ncrosstab\nDataFrame\n✅\n✅\n⭕️\nPyarrow は Polars 依存の実装\n\n\ndiagnose\nDataFrame\n✅\n✅\n✅\n\n\n\ndiagnose_category\nDataFrame\n✅\n✅\n✅\n\n\n\nexpand\nDataFrame\n✅\n✅\n✅\n\n\n\nfiltering_out\nDataFrame\n✅\n✅\n✅\n\n\n\nfreq_table\nDataFrame\n✅\n✅\n✅\n\n\n\ngroup_split\nDataFrame\n✅\n✅\n✅\n\n\n\ngroup_map\nDataFrame\n✅\n✅\n✅\n\n\n\ngroup_modify\nDataFrame\n✅\n✅\n✅\n\n\n\nimplies_exper\npd.Series\n✅\n❌\n❌\npd.DataFrame.eval() での使用を想定した関数\n\n\ninfo_gain\nDataFrame/Series\n✅\n✅\n✅\n\n\n\nis_dummy\nDataFrame/Series\n✅\n✅\n✅\n\n\n\nis_number\nSeries\n✅\n✅\n✅\n\n\n\nis_ymd_like\nSeries\n✅\n✅\n✅\n\n\n\nis_ymd\nSeries\n✅\n✅\n✅\n\n\n\nmean_ci\nDataFrame/Series\n✅\n✅\n✅\n\n\n\nmean_qi\nDataFrame/Series\n✅\n✅\n✅\n\n\n\nmedian_qi\nDataFrame/Series\n✅\n✅\n✅\n\n\n\nmin_max\nSeries\n✅\n✅\n✅\n\n\n\nplot_category\nDataFrame\n✅\n✅\n✅\nPyarrow では機能制限あり\n\n\nplot_count_h\nDataFrame\n✅\n✅\n✅\n\n\n\nplot_mean_diff\nDataFrame\n✅\n✅\n✅\n\n\n\nplot_median_diff\nDataFrame\n✅\n✅\n✅\n\n\n\nplot_miss_var\nDataFrame\n✅\n✅\n✅\n\n\n\nscale\nSeries\n✅\n✅\n✅\n\n\n\nset_miss\nSeries\n✅\n✅\n✅\n\n\n\nrelocate\nDataFrame\n✅\n✅\n✅\n\n\n\nremove_constant\nDataFrame\n✅\n✅\n✅\n\n\n\nremove_empty\nDataFrame\n✅\n✅\n✅\n\n\n\nreview_wrangling\nDataFrame\n✅\n✅\n✅\n\n\n\nreview_shape\nDataFrame\n✅\n✅\n✅\n\n\n\nreview_col_addition\nDataFrame\n✅\n✅\n✅\n\n\n\nreview_casting\nDataFrame\n✅\n✅\n✅\n\n\n\nreview_missing\nDataFrame\n✅\n✅\n✅\n\n\n\ntabyl\nDataFrame\n✅\n⭕️\n⭕️\n一部の処理が Pandas 依存\n\n\nweighted_mean\nSeries\n✅\n✅\n✅",
+    "text": "関数の実装状況一覧\n\n\n\n\n\n\n\n\n\n\nfunctions\nInput\nPandas\nPolars\nPyarrow\n補足\n\n\n\n\nMean\npd.Series\n✅\n❌\n❌\npd.DataFrame.eval() での使用を想定した関数\n\n\nMedian\npd.Series\n✅\n❌\n❌\npd.DataFrame.eval() での使用を想定した関数\n\n\nMax\npd.Series\n✅\n❌\n❌\npd.DataFrame.eval() での使用を想定した関数\n\n\nMin\npd.Series\n✅\n❌\n❌\npd.DataFrame.eval() での使用を想定した関数\n\n\nPareto_plot\nDataFrame\n✅\n✅\n✅\n\n\n\nSum\npd.Series\n✅\n❌\n❌\npd.DataFrame.eval() での使用を想定した関数\n\n\nbind_rows\nDataFrame\n✅\n✅\n✅\n\n\n\ncheck_that\nDataFrame\n✅\n⭕️\n⭕️\n実装に pd.DataFrame.eval() を使用\n\n\ncheck_viorate\nDataFrame\n✅\n⭕️\n⭕️\n実装に pd.DataFrame.eval() を使用\n\n\ncompare_df_cols\nDataFrame\n✅\n✅\n✅\n\n\n\ncompare_df_record\nDataFrame\n✅\n✅\n✅\n\n\n\ncompare_df_stats\nDataFrame\n✅\n✅\n✅\n\n\n\ncompare_group_means\nDataFrame\n✅\n✅\n✅\n\n\n\ncompare_group_median\nDataFrame\n✅\n✅\n✅\n\n\n\ncomplete\nDataFrame\n✅\n✅\n✅\n\n\n\ncrosstab\nDataFrame\n✅\n✅\n⭕️\nPyarrow は Polars 依存の実装\n\n\ndiagnose\nDataFrame\n✅\n✅\n✅\n\n\n\ndiagnose_category\nDataFrame\n✅\n✅\n✅\n\n\n\nexpand\nDataFrame\n✅\n✅\n✅\n\n\n\nfiltering_out\nDataFrame\n✅\n✅\n✅\n\n\n\nfreq_table\nDataFrame\n✅\n✅\n✅\n\n\n\ngroup_split\nDataFrame\n✅\n✅\n✅\n\n\n\ngroup_map\nDataFrame\n✅\n✅\n✅\n\n\n\ngroup_modify\nDataFrame\n✅\n✅\n✅\n\n\n\nimplies_exper\npd.Series\n✅\n❌\n❌\npd.DataFrame.eval() での使用を想定した関数\n\n\ninfo_gain\nDataFrame/Series\n✅\n✅\n✅\n\n\n\nis_dummy\nDataFrame/Series\n✅\n✅\n✅\n\n\n\nis_number\nSeries\n✅\n✅\n✅\n\n\n\nis_ymd_like\nSeries\n✅\n✅\n✅\n\n\n\nis_ymd\nSeries\n✅\n✅\n✅\n\n\n\nmean_ci\nDataFrame/Series\n✅\n✅\n✅\n\n\n\nmean_qi\nDataFrame/Series\n✅\n✅\n✅\n\n\n\nmedian_qi\nDataFrame/Series\n✅\n✅\n✅\n\n\n\nmin_max\nSeries\n✅\n✅\n✅\n\n\n\nplot_category\nDataFrame\n✅\n✅\n✅\nPyarrow では機能制限あり\n\n\nplot_count_h\nDataFrame\n✅\n✅\n✅\n\n\n\nplot_count_v\nDataFrame\n✅\n✅\n✅\n\n\n\nplot_mean_diff\nDataFrame\n✅\n✅\n✅\n\n\n\nplot_median_diff\nDataFrame\n✅\n✅\n✅\n\n\n\nplot_miss_var\nDataFrame\n✅\n✅\n✅\n\n\n\nscale\nSeries\n✅\n✅\n✅\n\n\n\nset_miss\nSeries\n✅\n✅\n✅\n\n\n\nrelocate\nDataFrame\n✅\n✅\n✅\n\n\n\nremove_constant\nDataFrame\n✅\n✅\n✅\n\n\n\nremove_empty\nDataFrame\n✅\n✅\n✅\n\n\n\nreview_wrangling\nDataFrame\n✅\n✅\n✅\n\n\n\nreview_shape\nDataFrame\n✅\n✅\n✅\n\n\n\nreview_col_addition\nDataFrame\n✅\n✅\n✅\n\n\n\nreview_casting\nDataFrame\n✅\n✅\n✅\n\n\n\nreview_missing\nDataFrame\n✅\n✅\n✅\n\n\n\ntabyl\nDataFrame\n✅\n⭕️\n⭕️\n一部の処理が Pandas 依存\n\n\nweighted_mean\nSeries\n✅\n✅\n✅",
     "crumbs": [
       "**Contributing Notes**",
       "<span class='chapter-number'>50</span>  <span class='chapter-title'>eda_toolsの開発状況</span>"
