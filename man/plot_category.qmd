@@ -15,7 +15,7 @@ plot_category(
     legend_type: Literal['horizontal', 'vertical', 'none'] = 'horizontal',
     show_vline: bool = True,
     ax: Optional[Axes] = None,
-):
+)
 ``` 
 
 ## 引数 Argument

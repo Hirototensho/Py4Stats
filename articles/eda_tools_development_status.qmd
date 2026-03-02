@@ -1,5 +1,5 @@
 # eda_toolsの開発状況
-2026年2月26日現在
+2026年3月2日現在
 
 ## 関数の実装状況一覧
 
@@ -39,6 +39,8 @@
 | mean_qi              | DataFrame/Series | ✅       | ✅       | ✅        |                                            |
 | median_qi            | DataFrame/Series | ✅       | ✅       | ✅        |                                            |
 | min_max              | Series           | ✅       | ✅       | ✅        |                                            |
+| plot_category        | DataFrame        | ✅       | ✅       | ✅        | Pyarrow では機能制限あり                      |
+| plot_count_h         | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | plot_mean_diff       | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | plot_median_diff     | DataFrame        | ✅       | ✅       | ✅        |                                            |
 | plot_miss_var        | DataFrame        | ✅       | ✅       | ✅        |                                            |

@@ -156,7 +156,7 @@ def as_nw_series(arg: Any, arg_name: str = 'data', **keywargs):
     try:
         return nw.from_native(arg, series_only = True)
     except TypeError:
-
+        
         raise TypeError(
             f"Argument `{arg_name}` must be a Series supported by narwhals "
             "(e.g. pandas.Series, polars.Series, pyarrow.ChunkedArray), "
@@ -211,7 +211,7 @@ def assign_nw(
     }
 
     result = data_nw.with_columns(exprs, **named_exprs)
-
+    
     return result
 
 
@@ -220,7 +220,7 @@ def assign_nw(
 def _assert_selectors(*args, arg_name = '*args', nullable = False):
     if (not args and nullable) or (all(build.is_missing(args)) and nullable): 
         return None
-
+        
     build.assert_missing(args, arg_name = arg_name)
 
     is_varid = [
@@ -236,7 +236,7 @@ def _assert_selectors(*args, arg_name = '*args', nullable = False):
         message = f"Argument `{arg_name}` must be of type 'str', list of 'str', 'narwhals.Expr' or 'narwhals.Selector'\n"\
         + f"            The value(s) of {build.oxford_comma_and(invalids)} cannot be accepted.\n"\
         + "            Examples of valid inputs: 'x', ['x', 'y'], ncs.numeric(), nw.col('x')"
-
+        
         raise ValueError(message)
 
 
@@ -244,11 +244,11 @@ def _assert_selectors(*args, arg_name = '*args', nullable = False):
 
 def _assert_unique_backend(args, arg_name: str = 'args'):
     if build.length(args) <= 1: return None
-
+    
     unique_type = build.list_unique(
         df.implementation for df in args
         )
-
+    
     if build.length(unique_type) > 1:
         type_text = build.oxford_comma_and(unique_type)
         message = f"Elements of `{arg_name}` must share the same backend, got {type_text}." 
@@ -370,12 +370,12 @@ def enframe_table(
         backend = data.implementation
     if names is None:
         nemes = data.columns
-
+    
     result = nw.from_dict({
         name: nemes,
         value: data.row(row_id)
     }, backend = backend)
-
+    
     if to_native: return result.to_native()
     return result
 
@@ -404,7 +404,7 @@ def enframe_iterable(
         name: names,
         value: list(data)
     }, backend = backend)
-
+    
     if to_native: return result.to_native()
     return result
 
@@ -432,7 +432,7 @@ def enframe_atomic(
         name: 0,
         value: [data]
     }, backend = backend)
-
+    
     if to_native: return result.to_native()
     return result
 
@@ -495,7 +495,7 @@ def enframe_dict(
         name: names,
         value: data.values()
     }, backend = backend)
-
+    
     if to_native: return result.to_native()
     return result
 

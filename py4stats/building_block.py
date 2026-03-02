@@ -211,10 +211,10 @@ def oxford_comma_shorten(
         >>> from py4stats import building_block as build
         >>> import string
         >>> alpha = list(string.ascii_lowercase)
-
+        
         >>> build.oxford_comma_shorten(alpha)
         "'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l' and other 14 items"
-
+        
         >>> build.oxford_comma_shorten(alpha, max_width=40)
         "'a', 'b', 'c', 'd' and other 22 items"
 
@@ -223,11 +223,11 @@ def oxford_comma_shorten(
     """
     if isinstance(x, str): return x
     n_items = len(x)
-
+    
     item_text = oxford_comma(x, sep_last = sep_last, quotation = quotation)
 
     if not abbreviate: return item_text
-
+    
     # 省略処理 =================================================================
     if max_items is None:
         item_text = textwrap.shorten(
@@ -237,18 +237,18 @@ def oxford_comma_shorten(
             )
         in_text = [s for s in x if str(s) in item_text]
         n_remain = n_items - len(in_text)
-
+        
     elif max_items < n_items:
         if(quotation): x = [f"'{s}'" for s in x]
         item_text = ', '.join(x[:max_items])
         n_remain = n_items - max_items
-
+    
     elif max_items >= n_items: return item_text
-
+    
     if n_remain >= 1:
         return f"{item_text} {sep_last} other {n_remain} {suffix}"\
             .replace(f', {sep_last} other', f' {sep_last} other')
-
+    
     return item_text
 
 
@@ -360,7 +360,7 @@ def match_arg(arg: str, values: list[str], arg_name: str = "argument") -> str:
     """
     if(arg_name is None):
         arg_name = varname.argname('arg')
-
+    
     if(arg in values):
       return arg
     else:
@@ -434,7 +434,7 @@ def arg_match(
     """
     if(arg_name is None):
         arg_name = varname.argname('arg')
-
+    
     if (arg is None) and nullable: return None
     if all(is_missing(arg)) and all_missing: return None
 
@@ -443,11 +443,11 @@ def arg_match(
       any_missing = any_missing,
       all_missing = all_missing
       )
-
+    
     arg = pd.Series(arg)
     if any_missing: 
       arg = arg[~is_missing(arg)]
-
+    
     if(multiple):
     # 複数選択可の場合
         arg = [arg_match0(val, values = values, arg_name = arg_name) for val in arg]
@@ -516,7 +516,7 @@ def make_assert_type(
         `assert_*` is a high-level assertion that combines
         type checking, missing-value handling, length constraints,
         and range validation for numeric arguments.
-
+    
     Args:
         arg:
             The argument to validate. Can be a scalar or an
@@ -569,7 +569,7 @@ def make_assert_type(
             reported in the error message.
         - This function performs validation only and returns None if all checks
             pass.
-
+    
     Example:
         from py4stats import building_block as build
         x = [1, 2, 3]
@@ -606,7 +606,7 @@ def make_assert_type(
     if all(is_missing(arg)) and all_missing: return None
 
     if scalar_only: assert_scalar(arg, arg_name = arg_name)
-
+    
     arg = pd.Series(arg)
 
     assert_missing(
@@ -614,7 +614,7 @@ def make_assert_type(
       any_missing = any_missing,
       all_missing = all_missing
       )
-
+    
     # 引数の要素数に関するアサーション ============================================
     assert_length(
       arg, arg_name, 
@@ -622,7 +622,7 @@ def make_assert_type(
       len_min = len_min,
       len_max = len_max
       )
-
+    
     if any_missing: 
       arg = arg[~is_missing(arg)]
 
@@ -683,7 +683,7 @@ def assert_value_range(
     # range_message: str = '-inf <= x <= inf'
     ):
     arg = pd.Series(arg)
-
+    
     range_message = make_range_message(lower, upper, inclusive = inclusive)
     cond = arg.between(lower, upper, inclusive = inclusive)
 
@@ -810,7 +810,7 @@ def make_assert_numeric(
             reported in the error message.
         - This function performs validation only and returns None if all checks
             pass.
-
+    
     Example:
         from py4stats import building_block as build
         x = [1, 2, 3]
@@ -840,13 +840,13 @@ def make_assert_numeric(
     """
     if(arg_name is None):
       arg_name = varname.argname('arg')
-
+    
     # 欠測値に関するアサーション ============================================
     if (arg is None) and nullable: return None
     if all(is_missing(arg)) and all_missing: return None
-
+    
     if scalar_only: assert_scalar(arg, arg_name = arg_name)
-
+    
     arg = pd.Series(arg)
 
     assert_missing(
@@ -854,7 +854,7 @@ def make_assert_numeric(
       any_missing = any_missing,
       all_missing = all_missing
       )
-
+    
     # 引数の要素数に関するアサーション ============================================
     assert_length(
       arg, arg_name, 
@@ -862,7 +862,7 @@ def make_assert_numeric(
       len_min = len_min,
       len_max = len_max
       )
-
+    
     # 引数の型に関するアサーション ===============================================
     # 欠損値の除外は型ベースの検証のためだけに行います。
     # （長さおよび形状のチェックは元の入力に対して実行されます）
@@ -882,7 +882,7 @@ def make_assert_numeric(
       lower = lower, upper = upper,
       inclusive = inclusive,
       )
-
+  
   func.__name__ = func_name
   func.__qualname__ = func_name
   return func
@@ -992,14 +992,14 @@ def style_pvalue(
 ) -> pd.Series:
   """
   Format p-values into strings with optional clipping and prefix.
-
+  
   Args:
         p_value: Scalar or array-like of p-values.
         digits: Number of decimals.
         prepend_p: If True, prepend 'p' or 'p='.
         p_min: Lower clipping threshold.
         p_max: Upper clipping threshold.
-
+  
   Returns:
         pandas.Series: Formatted p-values as strings.
   """
@@ -1192,7 +1192,7 @@ def list_diff(x: List[Any], y: List[Any]) -> List[Any]:
         - `list_dupricated(x)`: Dupricated elements of list `x`
         - `list_dropnulls(x)`: Drop missing values from list `x`
         - `list_subset(x, subset)`: A subset of list `x`
-
+    
     Examples:
         from py4stats import building_block as build
         list1 = ['a', 'b', 'c', 'd']

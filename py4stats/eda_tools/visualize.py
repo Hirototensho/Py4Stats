@@ -15,6 +15,7 @@ from . import _utils as eda_utils
 from . import operation as eda_ops
 
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 import functools
 from functools import singledispatch, reduce, partial
 import pandas_flavor as pf
@@ -144,14 +145,14 @@ def plot_miss_var(
     # ====================================================================================
 
     diagnose_tab = eda_ops.diagnose(data, to_native = False)
-
+    
     if miss_only: diagnose_tab = diagnose_tab.filter(nw.col('missing_percent') > 0)
-
+    
     if top_n is not None:
         diagnose_tab = diagnose_tab.top_k(top_n, by = values)
-
+    
     if sort: diagnose_tab = diagnose_tab.sort(values)
-
+    
     # グラフの描画
     if ax is None:
         fig, ax = plt.subplots()
@@ -188,7 +189,7 @@ def make_rank_table(
     group = build.arg_match(group, values = col_names, arg_name = 'group')
     values = build.arg_match(values, values = col_names, arg_name = 'values')
     # ===================================================================================
-
+    
     if aggfunc.__module__ == 'narwhals.functions':
         stat_table = data_nw.group_by(group)\
                 .agg(aggfunc(values))
@@ -205,7 +206,7 @@ def make_rank_table(
     rank_table = stat_table.sort(values, descending = True)\
             .with_columns(share = nw.col(values) / nw.col(values).sum())\
             .with_columns(cumshare = nw.col('share').cum_sum())
-
+    
     if to_native:
         return rank_table.to_native()
     else:
@@ -304,14 +305,14 @@ def Pareto_plot(
 
     Returns:
         None
-
+    
     Notes:
        The aggregation function is expected to return a single scalar value for
         each group. If the function returns an array-like object or multiple
         values, the resulting output may be invalid or lead to unexpected
         behavior.
     """
-
+    
     # 引数のアサーション ===================================================================
     build.assert_numeric(fontsize, arg_name = 'fontsize', lower = 0, inclusive = 'right')
     build.assert_numeric(xlab_rotation, arg_name = 'xlab_rotation')
@@ -338,11 +339,11 @@ def Pareto_plot(
             to_native = False
             )
         cumlative = 'cumshare'
-
+    
     if top_n is not None:
         build.assert_count(top_n, lower = 1, arg_name = 'top_n')
         shere_rank = shere_rank.top_k(k = top_n, by = values)
-
+    
     shere_rank = shere_rank.to_pandas().set_index(group)
 
     # 作図
@@ -449,18 +450,17 @@ def plot_median_diff(
 
 
 
-import matplotlib.ticker as ticker
-
 def plot_count_h(
         data: IntoFrameT,
         valiable: str,
         sort_by: Literal['frequency', 'values'] = 'frequency',
         descending: bool = False,
+        dropna: bool = False,
         color = "#478FCE",
         fontsize: int = 12,
         padding: int = 3,
         digits: int = 1,
-        expand_x_limits: float = 1.5,
+        expand_x_limits: Union[float, int] = 1.5,
         ax: Optional[Axes] = None,
         ):
     """Plot a horizontal bar chart of frequency counts for a categorical variable.
@@ -486,6 +486,8 @@ def plot_count_h(
             - 'values': sort by the category values.
         descending (bool, optional):
             Whether to sort in descending order. Defaults to False.
+                dropna (bool):
+            Whether to drop NaN from counts. Defaults to False.
         color (str, optional):
             Color of the bars. Accepts any Matplotlib-compatible color
             specification. Defaults to "#478FCE".
@@ -527,7 +529,8 @@ def plot_count_h(
         values = ['frequency', 'values']
         )
     build.assert_scalar(valiable, arg_name = 'valiable')
-    build.assert_logical(descending, arg_name = 'descending')
+    build.assert_logical(descending, arg_name = 'descending', len_arg = 1)
+    build.assert_logical(dropna, arg_name = 'dropna', len_arg = 1)
     build.assert_count(fontsize, arg_name = 'fontsize', len_arg = 1)
     build.assert_count(padding, arg_name = 'padding', len_arg = 1)
     build.assert_count(digits, arg_name = 'digits', len_arg = 1)
@@ -536,27 +539,30 @@ def plot_count_h(
 
     count_table = eda_ops.freq_table(
                 data, valiable, 
-                dropna = True, 
+                dropna = dropna, 
                 sort_by = sort_by,
                 descending = descending,
                 to_native = False
                 )
+    if not dropna:
+        count_table = count_table.with_columns(nw.col(valiable).cast(nw.String))
+        count_table = eda_ops.replace_na(count_table, {valiable: 'NA'}, to_native = False)
     # 度数(相対頻度%) のラベルを作成
     label_list = [
         f'{freq:,} ({perc:.{digits}%})' for freq, perc in 
         zip(count_table['freq'], count_table['perc'])
     ]
-
+    
     count_table = eda_utils.assign_nw(
         count_table, 
         label = label_list
         )
-
+    
     if ax is None:
         fig, ax = plt.subplots()
 
     bars = ax.barh(count_table[valiable], count_table['freq'], color = color)
-
+    
     # ここでラベルを作図
     ax.bar_label(
         bars, labels = count_table['label'], 
@@ -581,7 +587,7 @@ def make_table_to_plot(
         to_native: bool = True
         ) -> None:
     data_nw = eda_utils.as_nw_datarame(data)
-
+    
     variables = data_nw.columns
     def foo(v):
         res_ft = eda_ops.freq_table(
@@ -594,9 +600,9 @@ def make_table_to_plot(
             .with_columns(
                 bottom = nw.col('cumperc').shift(n = 1).fill_null(0)
                 )
-
+        
         res_ft = res_ft.with_columns(nw.lit(v).alias('variable'))
-
+        
         return res_ft
 
     table_to_plot = nw.concat(
@@ -632,10 +638,10 @@ def make_categ_barh(
             n = k_categ, 
             as_cmap = False
         )
-
+    
     value = list_values[0]
     patch_list = []
-
+    
     if ax is None:
         fig, ax = plt.subplots()
     ## 積み上げ棒グラフの作成 =========================
@@ -647,23 +653,23 @@ def make_categ_barh(
             left = table_to_plot.query('value == @value')['bottom'],
             color = palette[i]
         )
-
+        
         patch = mpatches.Patch(color = palette[i], label = value)
         patch_list.append(patch)
-
+    
     ## 軸ラベルと垂直線の設定 =========================
     ax.xaxis.set_major_formatter(
         FuncFormatter(lambda x, pos: f"{abs(100 * x):.0f}%")
         )
-
+        
     ax.set_xlim(0, 1)
     ax.set_ylabel('')
     ax.set_xlabel('Percentage')
     ax.invert_yaxis()
-
+    
     if show_vline:
         ax.axvline(0.5, color = "gray", linewidth = 1, linestyle = "--")
-
+    
     ## 凡例の設定 ===============================
     if legend_type != 'none':
         if legend_type == 'horizontal':
@@ -766,7 +772,7 @@ def plot_category(
           as percentages.
         - This function assumes that `make_table_to_plot()` produces the
           columns `"variable"`, `"value"`, `"perc"`, and `"bottom"`.
-
+          
     Examples:
         >>> import py4stats as py4st
         >>> import pandas as pd
@@ -804,14 +810,14 @@ def plot_category(
     if not is_common_cording:
         messages = "This function assumes that all columns contained in `data` share a common coding scheme."
         raise ValueError(messages)
-
+    
     # データの集計 ==================================================
 
     table_to_plot = make_table_to_plot(
         data_nw, sort_by = sort_by,
         to_native = False
         )
-
+    
     list_values = table_to_plot['value'].unique().to_list()
     # if nw.is_ordered_categorical(table_to_plot['value']): 
     #     list_values = table_to_plot['value'].cat.get_categories().to_list() 
@@ -819,7 +825,7 @@ def plot_category(
     #     list_values = table_to_plot['value'].unique().to_list() 
 
     list_values = list_values[::-1]
-
+    
     # グラフの作図 ==================================================
     make_categ_barh(
         table_to_plot,

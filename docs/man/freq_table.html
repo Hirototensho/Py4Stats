@@ -65,7 +65,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../man/Pareto_plot.html" rel="next">
+<link href="../man/plot_count_h.html" rel="next">
 <link href="../man/tabyl.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -189,6 +189,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../man/freq_table.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">freq_table</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../man/plot_count_h.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">plot_count_h</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -531,7 +536,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="引数-argument">引数 Argument</h2>
 <ul>
 <li><code>data</code>：<strong>IntoFrameT</strong>（必須）<br> 入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト<br> （例：<code>pandas.DataFrame</code>、<code>polars.DataFrame</code>、<code>pyarrow.Table</code>）を指定できます。</li>
-<li><code>subset</code>：<strong>str or list of str</strong><br> 　集計に使用するデータフレームの列名（必須）。</li>
+<li><code>subset</code>：<strong>str or list of str</strong>（必須）<br> 　集計に使用するデータフレームの列名。</li>
 <li><code>sort_by</code>：<strong>str</strong><br> 　<code>sort_by = 'frequency'</code> なら度数分布表を頻度に応じてソートし、<code>sort_by = 'values'</code> なら <code>subset</code> で指定した列の値に応じてソートします。</li>
 <li><code>descending</code>：<strong>bool</strong><br> 　ソートの方式。True なら降順でソートし、False（初期設定）なら昇順でソートします。</li>
 <li><code>dropna</code>：<strong>bool</strong><br> 　欠測値（NaN, None など）を集計から除外するかどうかを表すブール値。初期設定は False です。</li>
@@ -1006,8 +1011,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../man/Pareto_plot.html" class="pagination-link" aria-label="Pareto_plot">
-        <span class="nav-page-text"><span class="chapter-title">Pareto_plot</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../man/plot_count_h.html" class="pagination-link" aria-label="plot_count_h">
+        <span class="nav-page-text"><span class="chapter-title">plot_count_h</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

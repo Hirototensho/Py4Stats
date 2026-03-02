@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Pareto_plot – Py4Stats</title>
+<title>plot_count_h – Py4Stats</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -65,8 +65,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../man/diagnose_category.html" rel="next">
-<link href="../man/plot_count_h.html" rel="prev">
+<link href="../man/Pareto_plot.html" rel="next">
+<link href="../man/freq_table.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
@@ -119,7 +119,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../man/diagnose.html"><strong>EDA</strong></a></li><li class="breadcrumb-item"><a href="../man/Pareto_plot.html"><span class="chapter-title">Pareto_plot</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../man/diagnose.html"><strong>EDA</strong></a></li><li class="breadcrumb-item"><a href="../man/plot_count_h.html"><span class="chapter-title">plot_count_h</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -193,12 +193,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/plot_count_h.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">plot_count_h</span></a>
+  <a href="../man/plot_count_h.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">plot_count_h</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/Pareto_plot.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Pareto_plot</span></a>
+  <a href="../man/Pareto_plot.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Pareto_plot</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -484,16 +484,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#概要" id="toc-概要" class="nav-link active" data-scroll-target="#概要">概要</a></li>
+  <li><a href="#引数-argument" id="toc-引数-argument" class="nav-link" data-scroll-target="#引数-argument">引数 Argument</a></li>
   <li><a href="#使用例-example" id="toc-使用例-example" class="nav-link" data-scroll-target="#使用例-example">使用例 Example</a></li>
+  <li><a href="#参考-see-also" id="toc-参考-see-also" class="nav-link" data-scroll-target="#参考-see-also">参考 see also</a></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/main/man/Pareto_plot.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/main/man/plot_count_h.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../man/diagnose.html"><strong>EDA</strong></a></li><li class="breadcrumb-item"><a href="../man/Pareto_plot.html"><span class="chapter-title">Pareto_plot</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../man/diagnose.html"><strong>EDA</strong></a></li><li class="breadcrumb-item"><a href="../man/plot_count_h.html"><span class="chapter-title">plot_count_h</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-title">Pareto_plot</span></h1>
+<h1 class="title"><span class="chapter-title">plot_count_h</span></h1>
 </div>
 
 
@@ -510,81 +512,71 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<div class="quarto-figure quarto-figure-left">
-<figure class="figure">
-<p><a href="../articles/eda_tools_development_status.html"><img src="https://img.shields.io/badge/Tested-Pandas_/_Polars_/_Pyarrow-blue.png" class="img-fluid quarto-figure quarto-figure-left figure-img" alt="badge of tested backend"></a></p>
-</figure>
-</div>
-<p>パレート図の作成</p>
+<p><img src="https://img.shields.io/badge/lifecycle-experimental-orange.png" class="img-fluid quarto-figure quarto-figure-left" alt="badge of lifecycle experimental"> <a href="../articles/eda_tools_development_status.html"><img src="https://img.shields.io/badge/Tested-Pandas_/_Polars_/_Pyarrow-blue.png" class="img-fluid quarto-figure quarto-figure-left" alt="badge of tested backend"></a></p>
+<p>カテゴリ変数の度数分布を棒グラフとして可視化します。</p>
 <section id="概要" class="level2">
 <h2 class="anchored" data-anchor-id="概要">概要</h2>
-<p>データフレームからパレート図を作図する関数です。</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>Pareto_plot(</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    data: IntoFrameT,</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    group: <span class="bu">str</span>,</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    values: Optional[<span class="bu">str</span>] <span class="op">=</span> <span class="va">None</span>,</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    top_n: Optional[<span class="bu">int</span>] <span class="op">=</span> <span class="va">None</span>,</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    aggfunc: Callable[[IntoSeriesT], Union[<span class="bu">int</span>, <span class="bu">float</span>]] <span class="op">=</span> np.mean,</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    ax: Optional[Axes] <span class="op">=</span> <span class="va">None</span>,</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    fontsize: <span class="bu">int</span> <span class="op">=</span> <span class="dv">12</span>,</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    xlab_rotation: Union[<span class="bu">int</span>, <span class="bu">float</span>] <span class="op">=</span> <span class="dv">0</span>,</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    palette: Sequence[<span class="bu">str</span>] <span class="op">=</span> (<span class="st">"#478FCE"</span>, <span class="st">"#252525"</span>),</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>本関数は、指定したカテゴリ変数について度数表を計算し、その結果を横向きの棒グラフとして描画します。棒グラフの各バーには、「度数（相対頻度％）」のラベルが表示されます。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>plot_count_h(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>        data: IntoFrameT,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>        valiable: <span class="bu">str</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>        sort_by: Literal[<span class="st">'frequency'</span>, <span class="st">'values'</span>] <span class="op">=</span> <span class="st">'frequency'</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>        descending: <span class="bu">bool</span> <span class="op">=</span> <span class="va">False</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        dropna: <span class="bu">bool</span> <span class="op">=</span> <span class="va">False</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>        color <span class="op">=</span> <span class="st">"#478FCE"</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        fontsize: <span class="bu">int</span> <span class="op">=</span> <span class="dv">12</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>        padding: <span class="bu">int</span> <span class="op">=</span> <span class="dv">3</span>,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>        digits: <span class="bu">int</span> <span class="op">=</span> <span class="dv">1</span>,</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        expand_x_limits: Union[<span class="bu">float</span>, <span class="bu">int</span>] <span class="op">=</span> <span class="fl">1.5</span>,</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>        ax: Optional[Axes] <span class="op">=</span> <span class="va">None</span>,</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="引数-argument" class="level2">
+<h2 class="anchored" data-anchor-id="引数-argument">引数 Argument</h2>
 <ul>
 <li><code>data</code>：<strong>IntoFrameT</strong>（必須）<br> 入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト<br> （例：<code>pandas.DataFrame</code>、<code>polars.DataFrame</code>、<code>pyarrow.Table</code>）を指定できます。</li>
-<li><code>group</code>：<strong>str</strong><br> 　集計に使用するデータフレームの列名（必須）。</li>
-<li><code>values</code>：<strong>str</strong><br> 　集計に使用するデータフレームの列名。<code>values = None</code>（初期設定）の場合、<code>group</code> 別の度数が表示され、<code>values</code> が指定された場合、<code>group</code> 別に <code>values</code> を <code>aggfunc</code>で集計した値がグラフに表示されます。</li>
-<li><code>top_n</code>：<strong>int</strong><br> 　棒グラフを表示するカテゴリーの件数。<code>top_n = None</code>（初期設定）の場合、すべてのカテゴリーを表示し、整数値が指定された場合、上位 <code>top_n</code> 件が表示されます。</li>
-<li><code>aggfunc</code>：<strong>callable</strong><br> <code>values</code> が指定された際に、集計に使用する集計関数。<code>np.mean</code> など <code>values</code> 列を1次元配列として受け取って単一の数値を返す任意の関数が使用できるほか、<code>nw.mean</code> など narwhals.functions モジュールで実装された関数を使用できます。</li>
-<li><code>ax</code><br> 描画先となる matplotlib の Axes。複数のグラフを並べる場合などに使用します。デフォルトの <code>None</code> の場合は、新しい Figure と Axes が作成されます。</li>
-<li><code>fontsize</code>：<strong>int</strong><br> 　軸ラベルなどのフォントサイズ。</li>
-<li><code>xlab_rotation</code>：<strong>int or float</strong><br> 横軸ラベルの角度。matplotlib の <code>ax.xaxis.set_tick_params()</code> に引数 <code>rotation</code> として渡されます。</li>
-<li><code>palette</code>：<strong>list of str</strong><br> グラフの描画に使用する色コード。1つ目の要素が棒グラフの色に、2つ目の累積値を表す折線グラフの色に対応します。</li>
+<li><code>subset</code>：<strong>str</strong>（必須）<br> 集計対象となるカテゴリ変数の列名。</li>
+<li><code>sort_by</code>：<strong>str</strong><br> 　<code>sort_by = 'frequency'</code> なら度数分布表を頻度に応じてソートし、<code>sort_by = 'values'</code> なら <code>subset</code> で指定した列の値に応じてソートします。</li>
+<li><code>descending</code>：<strong>bool</strong><br> 　ソートの方式。True なら降順でソートし、False（初期設定）なら昇順でソートします。</li>
+<li><code>dropna</code>：<strong>bool</strong><br> 　欠測値（NaN, None など）を集計から除外するかどうかを表すブール値。初期設定は False です。</li>
+<li><code>color</code>: <strong>str</strong> <br> 棒グラフの描画色。Matplotlib で指定可能な色指定形式を使用できます。</li>
+<li><code>fontsize</code>: <strong>int</strong> <br></li>
+<li>棒グラフに追加されるラベルのフォントサイズ。既定値は12です。</li>
+<li><code>padding</code>: <strong>int</strong> <br> 棒グラフとラベルの間隔（ポイント単位）。<code>ax.bar_label()</code> に渡されます。既定値は3です。</li>
+<li><code>digits</code>: <strong>int</strong> <br> ラベルに表示される相対頻度（％）の小数点以下の表示桁数。既定値は1です。 <code>expand_x_limits</code> <strong>float or int</strong> <br> ラベルが見切れないようにするため、x 軸の上限を最大度数に対して何倍に拡張するかを指定します。既定値は1.5です。</li>
+<li><code>ax</code>: <br> 描画先となる matplotlib の Axes。複数のグラフを並べる場合などに使用します。デフォルトの <code>None</code> の場合は、新しい Figure と Axes が作成されます。</li>
 </ul>
 </section>
 <section id="使用例-example" class="level2">
 <h2 class="anchored" data-anchor-id="使用例-example">使用例 Example</h2>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> py4stats <span class="im">as</span> py4st</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> palmerpenguins <span class="im">import</span> load_penguins</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>penguins <span class="op">=</span> load_penguins() <span class="co"># サンプルデータの読み込</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>penguins[<span class="st">'group'</span>] <span class="op">=</span> penguins[<span class="st">'species'</span>] <span class="op">+</span> <span class="st">'</span><span class="ch">\n</span><span class="st">'</span> <span class="op">+</span> penguins[<span class="st">'island'</span>]</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>py4st.Pareto_plot(penguins, group <span class="op">=</span> <span class="st">'group'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>diamonds <span class="op">=</span> sns.load_dataset(<span class="st">"diamonds"</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>py4st.plot_count_h(diamonds, <span class="st">'cut'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="image/Pareto_plot1.png" class="img-fluid figure-img"></p>
-<figcaption>Pareto_plot1</figcaption>
+<p><img src="image/plot_count_h1.png" class="img-fluid figure-img"></p>
+<figcaption>plot_count_h1</figcaption>
 </figure>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>py4st.Pareto_plot(</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    penguins, group <span class="op">=</span> <span class="st">'group'</span>, </span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    values <span class="op">=</span> <span class="st">'bill_length_mm'</span>,</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    aggfunc <span class="op">=</span> np.mean,</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    palette <span class="op">=</span> [<span class="st">'#FF6F91'</span>, <span class="st">'#252525'</span>]</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>py4st.plot_count_h(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    diamonds, <span class="st">'color'</span>, </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    sort_by <span class="op">=</span> <span class="st">'values'</span>, </span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    descending <span class="op">=</span> <span class="va">True</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    color <span class="op">=</span> <span class="st">"#1F857DAD"</span></span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="image/Pareto_plot2.png" class="img-fluid figure-img"></p>
-<figcaption>Pareto_plot2</figcaption>
+<p><img src="image/plot_count_h2.png" class="img-fluid figure-img"></p>
+<figcaption>plot_count_h2</figcaption>
 </figure>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>py4st.Pareto_plot(</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    penguins, </span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    values <span class="op">=</span> <span class="st">'bill_length_mm'</span>,</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    group <span class="op">=</span> <span class="st">'group'</span>,</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    aggfunc <span class="op">=</span> <span class="kw">lambda</span> x: x.std()</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="image/Pareto_plot3.png" class="img-fluid figure-img"></p>
-<figcaption>Pareto_plot3</figcaption>
-</figure>
-</div>
-<hr>
-<p><a href="../reference.html">Return to <strong>Function reference</strong>.</a></p>
+</section>
+<section id="参考-see-also" class="level2">
+<h2 class="anchored" data-anchor-id="参考-see-also">参考 see also</h2>
+<p>この関数で可視化している度数と相対度数は <a href="../man/freq_table.html"><code>py4stats.freq_table()</code></a> 関数で算出しています。</p>
 
 
 </section>
@@ -992,13 +984,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../man/plot_count_h.html" class="pagination-link" aria-label="plot_count_h">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">plot_count_h</span></span>
+      <a href="../man/freq_table.html" class="pagination-link" aria-label="freq_table">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">freq_table</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../man/diagnose_category.html" class="pagination-link" aria-label="diagnose_category">
-        <span class="nav-page-text"><span class="chapter-title">diagnose_category</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../man/Pareto_plot.html" class="pagination-link" aria-label="Pareto_plot">
+        <span class="nav-page-text"><span class="chapter-title">Pareto_plot</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -1007,4 +999,4 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/main/man/Pareto_plot.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/main/man/plot_count_h.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></div></div></footer></body></html>

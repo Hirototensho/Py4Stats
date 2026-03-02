@@ -90,24 +90,24 @@ def review_casting(before: IntoFrameT, after: IntoFrameT) -> str:
             A human-readable, multi-line string describing columns whose
             data types have changed. If no type changes are detected,
             a message indicating this is returned.
-
+    
     Examples:
         >>> import py4stats as py4st
         >>> print(py4st.review_casting(before, after))
         The following columns have changed their type:
           species object -> category
           year    int64 -> float64
-
+    
     """
     res_compare = eda_ops.compare_df_cols(
         [before, after], return_match = 'mismatch', 
         to_native = False
         ).drop_nulls()
-
+    
     name_w = res_compare.select(
         len = nw.col("term").str.len_chars()
         )['len'].max()
-
+    
     if build.length(res_compare) >= 1:
         col_cast = [
             f"  {row[0]:<{name_w}} {row[1]} -> {row[2]}"
@@ -155,7 +155,7 @@ def review_col_addition(
             A formatted string summarizing column additions and removals.
             If no columns were added or removed, an explanatory message
             is returned.
-
+    
     Examples:
         >>> import py4stats as py4st
         >>> print(py4st.review_col_addition(before, after))
@@ -177,7 +177,7 @@ def review_col_addition(
 
     added = build.list_diff(columns_after, columns_before)
     removed = build.list_diff(columns_before, columns_after)
-
+    
     if added or removed:
         col_adition = ["Column additions and removals:"]
         if added:
@@ -194,7 +194,7 @@ def review_col_addition(
                 )}"]
         else:
             col_adition += ['  No columns were removed.']
-
+        
         return '\n'.join(col_adition)
     else: return 'No columns were added or removed.'
 
@@ -251,7 +251,7 @@ def review_missing(before: IntoFrameT, after: IntoFrameT) -> str:
             A human-readable report describing increases and decreases
             in missing values. If no changes are detected, a message
             indicating this is returned.
-
+    
     Examples:
         >>> import py4stats as py4st
         >>> print(py4st.review_missing(before, after))
@@ -279,7 +279,7 @@ def review_missing(before: IntoFrameT, after: IntoFrameT) -> str:
     )
     if build.length(increased) == 0 and build.length(decreased) == 0:
         return 'No existing columns decreased the number of missing values.'
-
+    
     # return increased, decreased
     miss_review = []
     if build.length(increased) >= 1:
@@ -287,7 +287,7 @@ def review_missing(before: IntoFrameT, after: IntoFrameT) -> str:
         miss_review += [f'Increase in missing values:\n{"\n".join(col_miss)}']
     else: 
         miss_review += ['No existing columns increased the number of missing values.']
-
+    
     if build.length(decreased) >= 1:
         col_miss = format_missing_lines(decreased)
         miss_review += [f'Decrease in missing values:\n{"\n".join(col_miss)}']
@@ -392,7 +392,7 @@ def review_category(
     Raises:
         TypeError:
             If `before` and `after` use different DataFrame backends.
-
+    
     Examples:
         >>> import py4stats as py4st
         >>> print(py4st.review_category(before, after))
@@ -448,7 +448,7 @@ def review_category(
                 change_category += [f"    removal:  {removed_text}"]
             else:
                 change_category += [f"    removal:   None"]
-
+    
     if len(change_category) > 1:
         return '\n'.join(change_category)
     else: return 'No columns had categories added or removed.'
@@ -470,44 +470,44 @@ def draw_ascii_boxplot(data, range_min = None, range_max = None, width = 30):
     median = data.quantile(0.5, 'midpoint')
     q3 = data.quantile(0.75, 'midpoint')
     max_val = data.max()
-
+    
     # 描画のための計算
-
+    
     if range_min is not None and range_max is not None:
         data_range = range_max - range_min
     else:
         data_range = max_val - min_val
         range_min = min_val 
-
+    
     if data_range == 0:
         return "Data is constant".center(width, ' ')
-
+        
     def scale(val):
         return int((val - range_min) / data_range * (width - 1))
 
     # 文字列の箱を組み立て
     plot = [' '] * width
-
+    
     # ひげ (Whiskers)
     start = scale(min_val)
     end = scale(max_val)
     q1_idx = scale(q1)
     q3_idx = scale(q3)
     med_idx = scale(median)
-
+    
     for i in range(start, q1_idx): plot[i] = '-'
     for i in range(q3_idx, end + 1): plot[i] = '-'
-
+    
     # 箱 (Box)
     for i in range(q1_idx, q3_idx + 1): plot[i] = '='
-
+    
     # 中央値 (Median)
     plot[med_idx] = ':'
-
+    
     # キャップ (Caps)
     plot[start] = '|'
     plot[end] = '|'
-
+    
     return "".join(plot)
 
 
@@ -533,7 +533,7 @@ def make_boxplot_with_label(before, after, col, space_left = 7, space_right = 7,
         f"{' '*6}after:  {min_af:>{space_left},.{digits}f}{boxplot_after }{max_af:>{space_right},.{digits}f}"
     ]
     result = '\n'.join(review)
-
+    
     result = '\n'.join(review)
     return result
 
@@ -605,7 +605,7 @@ def review_numeric(
     build.assert_count(digits, arg_name = 'digits', len_arg = 1)
     build.assert_count(width_boxplot, arg_name = 'width_boxplot', len_arg = 1)
     # =======================================================================
-
+    
     before_nw = eda_utils.as_nw_datarame(before, arg_name = 'before')\
         .select(ncs.numeric())\
         .pipe(eda_ops.remove_empty, to_native = False)
@@ -619,7 +619,7 @@ def review_numeric(
     cols = [x for x in cols2 if x in cols1]
     if not cols:
         return "No common numeric columns exist between `before` and `after`"
-
+    
     before_nw = before_nw.select(cols)
     after_nw = after_nw.select(cols)
 
@@ -648,7 +648,7 @@ def review_numeric(
     ]
 
     review = ['Boxplot of Numeric values (for reference):'] + review
-
+    
     return '\n'.join(review)
 
 
@@ -780,21 +780,21 @@ def review_wrangling(
     if isinstance(items, str): items = [items]
     # 引数のアサーション =======================================================
     _assert_same_backend(before_nw, after_nw)
-
+    
     value_items = [
          "shape", "col_addition", "casting", 
          "missing", "category", "numeric", "all"
          ]
-
+    
     build.arg_match(
          items, values = value_items,
          arg_name = 'items', multiple = True
     )
 
     build.assert_character(title, arg_name = 'title', len_arg = 1)
-
+    
     build.assert_logical(abbreviate, arg_name = 'abbreviate')
-
+    
     build.assert_count(
         max_columns, arg_name = 'max_columns', 
         len_arg = 1, nullable = True)
@@ -804,10 +804,10 @@ def review_wrangling(
     build.assert_count(
         max_width, arg_name = 'max_width', 
         len_arg = 1)
-
+    
     # レビューの作成と整形=========================================================
     if 'all' in items: items = value_items
-
+    
     review = []
 
     for item in items:
@@ -830,13 +830,13 @@ def review_wrangling(
                     )]
             case 'numeric':
                   review += [review_numeric(before, after)]
-
+    
     result = '\n\n'.join(review)
     # ヘッダーとフッターの追加
     if title:
         result = f"{make_header(result, f' {title} ')}\n{result}"
         result = f"{result}\n{make_header(result, '=')}"
-
+    
     return result
 
 
@@ -885,7 +885,7 @@ def check_that(
                         value for a given record, the result is treated as NA, and that record is
                         counted here.
             - expression: the rule expression string
-
+    
     Raises:
         ValueError:
             If a rule expression does not evaluate to a boolean result.
@@ -904,7 +904,7 @@ def check_that(
     for name, rule in rule_dict.items():
 
         passes = pd.Series(data_pd.eval(rule, **kwargs))
-
+        
         # `rule` 評価結果がブール値ではない場合、エラーを出す。
         if not build.is_logical(passes):
             raise ValueError(
@@ -919,7 +919,7 @@ def check_that(
         # rule の検証ができなかったものとして扱うためです。
         if build.length(passes) == N:
             use_in_rule = [col for col in col_names if col in rule]
-
+            
             any_na = data_pd.loc[:, use_in_rule].isna().any(axis = 'columns')
 
             passes = passes.astype('boolean').mask(any_na, pd.NA)
@@ -934,7 +934,7 @@ def check_that(
                     }
 
         result_list.append(res_dict)
-
+    
     result = nw.from_dicts(result_list, backend = data_nw.implementation)
 
     if to_native: return result.to_native()
@@ -1010,9 +1010,9 @@ def check_viorate(
 
         if not isinstance(violation, pd.Series) and build.length(violation) == 1:
             violation = pd.Series(N * [violation])
-
+        
         result_dict.update({name: violation})
-
+    
     # any と all 列の追加 =============================================================
     result_pd = pd.DataFrame(result_dict)
     result_dict.update({
@@ -1029,7 +1029,7 @@ def check_viorate(
             nw.col('any', 'all')
             ) 
             # 列の並びを key の並びと一致させるため
-
+    
     # return result
     if to_native: return result.to_native()
     return result

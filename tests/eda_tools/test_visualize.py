@@ -246,3 +246,8 @@ def test_plot_count_h(backend) -> None:
     eda_vis.plot_count_h(penguins_dict.get(backend), 'species', ax = ax)
     assert len(ax.patches) > 0
     plt.close()
+
+    fig, ax = plt.subplots()
+    eda_vis.plot_count_h(penguins_dict.get(backend), 'sex', ax = ax)
+    assert len(ax.patches) > 0
+    plt.close()

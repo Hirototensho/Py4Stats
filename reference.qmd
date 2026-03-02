@@ -16,6 +16,8 @@
 
 [`py4stats.freq_table()`](man/freq_table.qmd)
 
+[`py4stats.plot_count_h()`](man/plot_count_h.qmd)
+
 [`py4stats.Pareto_plot()`](man/Pareto_plot.qmd)
 
 #### カテゴリー変数の要約

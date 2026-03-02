@@ -13,6 +13,7 @@ book:
       - man/diagnose.qmd
       - man/tabyl.qmd
       - man/freq_table.qmd
+      - man/plot_count_h.qmd
       - man/Pareto_plot.qmd
       - man/diagnose_category.qmd
       - man/plot_category.qmd

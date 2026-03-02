@@ -1,0 +1,78 @@
+# plot_count_h
+
+![](https://img.shields.io/badge/lifecycle-experimental-orange){fig-align="left" fig-alt="badge of lifecycle experimental"}
+[![](https://img.shields.io/badge/Tested-Pandas_/_Polars_/_Pyarrow-blue){fig-align="left" fig-alt="badge of tested backend"}](../articles/eda_tools_development_status.qmd)
+
+カテゴリ変数の度数分布を棒グラフとして可視化します。
+
+## 概要
+
+本関数は、指定したカテゴリ変数について度数表を計算し、その結果を横向きの棒グラフとして描画します。棒グラフの各バーには、「度数（相対頻度％）」のラベルが表示されます。
+
+``` python
+plot_count_h(
+        data: IntoFrameT,
+        valiable: str,
+        sort_by: Literal['frequency', 'values'] = 'frequency',
+        descending: bool = False,
+        dropna: bool = False,
+        color = "#478FCE",
+        fontsize: int = 12,
+        padding: int = 3,
+        digits: int = 1,
+        expand_x_limits: Union[float, int] = 1.5,
+        ax: Optional[Axes] = None,
+    )
+``` 
+
+## 引数 Argument
+
+- `data`：**IntoFrameT**（必須）<br>
+  入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト<br>
+  （例：`pandas.DataFrame`、`polars.DataFrame`、`pyarrow.Table`）を指定できます。
+- `subset`：**str**（必須）</br>
+集計対象となるカテゴリ変数の列名。
+- `sort_by`：**str**</br>
+　`sort_by = 'frequency'` なら度数分布表を頻度に応じてソートし、`sort_by = 'values'`  なら `subset` で指定した列の値に応じてソートします。
+- `descending`：**bool**</br>
+　ソートの方式。True なら降順でソートし、False（初期設定）なら昇順でソートします。
+- `dropna`：**bool**</br>
+　欠測値（NaN, None など）を集計から除外するかどうかを表すブール値。初期設定は False です。
+- `color`: **str** </br>
+  棒グラフの描画色。Matplotlib で指定可能な色指定形式を使用できます。
+- `fontsize`: **int** </br>
+- 棒グラフに追加されるラベルのフォントサイズ。既定値は12です。
+- `padding`: **int** </br>
+    棒グラフとラベルの間隔（ポイント単位）。`ax.bar_label()` に渡されます。既定値は3です。
+- `digits`: **int** </br>
+    ラベルに表示される相対頻度（％）の小数点以下の表示桁数。既定値は1です。
+`expand_x_limits` **float or int** </br>
+    ラベルが見切れないようにするため、x 軸の上限を最大度数に対して何倍に拡張するかを指定します。既定値は1.5です。
+- `ax`: <br>
+    描画先となる matplotlib の Axes。複数のグラフを並べる場合などに使用します。デフォルトの `None` の場合は、新しい Figure と Axes が作成されます。
+
+## 使用例 Example
+
+```python
+import py4stats as py4st
+import matplotlib.pyplot as plt
+import seaborn as sns
+diamonds = sns.load_dataset("diamonds")
+
+py4st.plot_count_h(diamonds, 'cut')
+```
+![plot_count_h1](image/plot_count_h1.png)
+
+``` python
+py4st.plot_count_h(
+    diamonds, 'color', 
+    sort_by = 'values', 
+    descending = True,
+    color = "#1F857DAD"
+    )
+``` 
+![plot_count_h2](image/plot_count_h2.png)
+
+## 参考 see also
+
+この関数で可視化している度数と相対度数は [`py4stats.freq_table()`](./freq_table.qmd) 関数で算出しています。
