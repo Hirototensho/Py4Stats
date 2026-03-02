@@ -15,6 +15,7 @@ from contextlib import nullcontext
 
 # tests/test_eda_tools.py
 import pytest
+from itertools import product
 import pandas as pd
 import numpy as np
 import wooldridge
@@ -92,63 +93,11 @@ list_backend = ['pd', 'pl', 'pa']
 # =========================================================
 
 # ================================================================
-# expand
+# test_plot_count_h
 # ================================================================
+@pytest.mark.parametrize('backend', list_backend)
 
-implicit_miss = pd.DataFrame({
-    'name': 3 * ['A'] + 3 * ['B'],
-    'time': [1, 2, 3, 1, 3, 4],
-    'x': [0.82, 0.21, 0.74, 0.63, 0.93, None]
-})
-
-implicit_miss_dict = {
-    'pd': implicit_miss,
-    'pl': pl.from_pandas(implicit_miss),
-    'pa': pa.Table.from_pandas(implicit_miss)
-}
-
-@pytest.mark.parametrize("backend", list_backend)
-def test_expand(backend):
-    path = f'{tests_path}/fixtures/expand_{backend}.csv'
-
-    output_df = eda_ops.expand(
-        implicit_miss_dict.get(backend), 
-        'name', 'time',
-        to_native = False
-        )
-    tfun._assert_df_eq(
-        output_df, path_fixture = path, 
-        update_fixture = False
-    )
-
-# ================================================================
-# complete
-# ================================================================
-
-@pytest.mark.parametrize(
-    "backend, fill, explicit, test_id",
-[
-    ('pd', None, True, 1), 
-    ('pd', {'x': 0}, True, 2), 
-    ('pd', {'x': 0}, False,3), 
-    ('pl', None, True, 1),  
-    ('pl', {'x': 0}, True, 2), 
-    ('pl', {'x': 0}, False, 3), 
-    ('pa', None, True, 1),  
-    ('pa', {'x': 0}, True, 2), 
-    ('pa', {'x': 0}, False, 3)
- ]
-)
-def test_complete(backend, fill, explicit, test_id):
-    path = f'{tests_path}/fixtures/complete_{backend}_{test_id}.csv'
-
-    output_df = eda_ops.complete(
-        implicit_miss_dict.get(backend), 'name', 'time',
-        fill = fill,
-        explicit = explicit,
-        to_native = False
-        )
-    tfun._assert_df_eq(
-        output_df, path_fixture = path, 
-        update_fixture = False
-    )
+def test_plot_count_h(backend) -> None:
+    fig, ax = plt.subplots()
+    eda_vis.plot_count_h(penguins_dict.get(backend), 'species', ax = ax)
+    assert len(ax.patches) > 0

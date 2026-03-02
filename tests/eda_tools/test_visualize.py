@@ -16,6 +16,7 @@ import matplotlib.pyplot as plt
 from pandas.testing import assert_frame_equal
 import polars as pl
 import pyarrow as pa
+from itertools import product
 
 import narwhals
 import narwhals as nw
@@ -90,6 +91,7 @@ def test_Pareto_plot() -> None:
     
     eda_vis.Pareto_plot(penguins_modify, group = 'group', ax = ax)
     assert len(ax.patches) > 0
+    plt.close()
 
     fig, ax = plt.subplots()
     eda_vis.Pareto_plot(
@@ -99,6 +101,7 @@ def test_Pareto_plot() -> None:
         ax = ax
         )
     assert len(ax.patches) > 0
+    plt.close()
 
     fig, ax = plt.subplots()
     eda_vis.Pareto_plot(
@@ -109,6 +112,7 @@ def test_Pareto_plot() -> None:
         ax = ax
         )
     assert len(ax.patches) > 0
+    plt.close()
 
 def test_make_rank_table_nw_error_on_non_exist_col():
     with pytest.raises(ValueError) as excinfo:
@@ -124,6 +128,7 @@ def test_Pareto_plot_pl() -> None:
 
     eda_vis.Pareto_plot(pl.from_pandas(penguins_modify), group = 'group', ax = ax)
     assert len(ax.patches) > 0
+    plt.close()
 
 def test_Pareto_plot_pa() -> None:
     penguins_modify = penguins.copy()
@@ -133,20 +138,15 @@ def test_Pareto_plot_pa() -> None:
 
     eda_vis.Pareto_plot(pa.Table.from_pandas(penguins_modify), group = 'group', ax = ax)
     assert len(ax.patches) > 0
+    plt.close()
 
 # ================================================================
 # plot_mean_diff / plot_median_diff
 # ================================================================
-
 @pytest.mark.parametrize(
     "backend, stats_diff",
-    [
-        ('pd', 'norm_diff'),
-        ('pl', 'abs_diff'),
-        ('pa', 'rel_diff'),
-    ],
+    list(product(list_backend, ['norm_diff', 'abs_diff', 'rel_diff']))
 )
-
 def test_plot_mean_diff(backend, stats_diff) -> None:
     fig, ax = plt.subplots()
     eda_vis.plot_mean_diff(
@@ -156,17 +156,12 @@ def test_plot_mean_diff(backend, stats_diff) -> None:
         ax = ax
     );
     assert len(ax.get_lines()) > 0 and len(ax.collections) > 0
-
+    plt.close()
 
 @pytest.mark.parametrize(
     "backend, stats_diff",
-    [
-        ('pd', 'abs_diff'),
-        ('pl', 'abs_diff'),
-        ('pa', 'rel_diff'),
-    ],
+    list(product(list_backend, ['abs_diff', 'rel_diff']))
 )
-
 def test_plot_median_diff(backend, stats_diff) -> None:
     fig, ax = plt.subplots()
     eda_vis.plot_median_diff(
@@ -176,24 +171,20 @@ def test_plot_median_diff(backend, stats_diff) -> None:
         ax = ax
     );
     assert len(ax.get_lines()) > 0 and len(ax.collections) > 0
+    plt.close()
+
+
 
 # =======================================================================
 # plot_miss_var
 # =======================================================================
-def test_plot_miss_var_pd() -> None:
-    fig, ax = plt.subplots()
-    eda_vis.plot_miss_var(penguins, ax = ax)
-    assert len(ax.patches) > 0
+@pytest.mark.parametrize('backend', list_backend)
 
-def test_plot_miss_var_pl() -> None:
+def test_plot_miss_var(backend) -> None:
     fig, ax = plt.subplots()
-    eda_vis.plot_miss_var(penguins_pl, ax = ax)
+    eda_vis.plot_miss_var(penguins_dict.get(backend), ax = ax)
     assert len(ax.patches) > 0
-
-def test_plot_miss_var_pa() -> None:
-    fig, ax = plt.subplots()
-    eda_vis.plot_miss_var(penguins_pa, ax = ax)
-    assert len(ax.patches) > 0
+    plt.close()
 
 # ================================================================
 # plot_category
@@ -220,6 +211,7 @@ def test_plot_category_pd() -> None:
     eda_vis.plot_category(data_pd, ax = ax)
 
     assert len(ax.patches) > 0
+    plt.close()
 
 def test_plot_category_pl() -> None:
 
@@ -232,6 +224,7 @@ def test_plot_category_pl() -> None:
     eda_vis.plot_category(data_pl, ax = ax)
 
     assert len(ax.patches) > 0
+    plt.close()
 
 def test_plot_category_pa() -> None:
 
@@ -241,3 +234,15 @@ def test_plot_category_pa() -> None:
     eda_vis.plot_category(data_pa, sort_by = 'frequency', ax = ax)
 
     assert len(ax.patches) > 0
+    plt.close()
+
+# ================================================================
+# test_plot_count_h
+# ================================================================
+@pytest.mark.parametrize('backend', list_backend)
+
+def test_plot_count_h(backend) -> None:
+    fig, ax = plt.subplots()
+    eda_vis.plot_count_h(penguins_dict.get(backend), 'species', ax = ax)
+    assert len(ax.patches) > 0
+    plt.close()

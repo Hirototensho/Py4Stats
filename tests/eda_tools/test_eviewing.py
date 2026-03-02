@@ -203,7 +203,7 @@ df_modify = {
 update_fixture = False
 # update_fixture = False
 
-@pytest.mark.parametrize("backend", list_backend)
+@pytest.mark.parametrize('backend', list_backend)
 def test_review_wrangling(backend):
     output = eda_review.review_wrangling(*df_modify.get(backend))
 
@@ -217,7 +217,7 @@ def test_review_wrangling(backend):
     assert output == expected
 
 
-@pytest.mark.parametrize("backend", list_backend)
+@pytest.mark.parametrize('backend', list_backend)
 def test_review_numeric(backend):
     output = eda_review.review_numeric(*df_modify.get(backend))
 

@@ -83,7 +83,7 @@ list_backend = ['pd', 'pl', 'pa']
 # diagnose
 # =========================================================
 
-@pytest.mark.parametrize("backend", list_backend)
+@pytest.mark.parametrize('backend', list_backend)
 def test_diagnose(backend) -> None:
     path = f'{tests_path}/fixtures/diagnose_{backend}.csv'
     
@@ -98,7 +98,7 @@ def test_diagnose(backend) -> None:
 # freq_tabl/ crosstab
 # =========================================================
 
-@pytest.mark.parametrize("backend", list_backend)
+@pytest.mark.parametrize('backend', list_backend)
 
 def test_freq_table(backend) -> None:
     path = f'{tests_path}/fixtures/freq_table_{backend}.csv'
@@ -223,7 +223,7 @@ def test_tabyl_with_boolen_col_pd():
 # =========================================================
 # compare_df_cols
 # =========================================================
-@pytest.mark.parametrize("backend", list_backend)
+@pytest.mark.parametrize('backend', list_backend)
 def test_compare_df_cols(backend):
 
     output_df = eda_ops.compare_df_cols(
@@ -327,7 +327,7 @@ empty_dict = {
     'pa': pa.Table.from_pandas(penguins_empty)
 }
 
-@pytest.mark.parametrize("backend", list_backend)
+@pytest.mark.parametrize('backend', list_backend)
 def test_remove_empty(backend):
     columns = eda_ops.remove_empty(
         empty_dict.get(backend), 
@@ -351,7 +351,7 @@ const_dict = {
     'pa': pa.Table.from_pandas(penguins_constant)
 }
 
-@pytest.mark.parametrize("backend", list_backend)
+@pytest.mark.parametrize('backend', list_backend)
 def test_remove_constant(backend):
     columns = eda_ops.remove_constant(
         const_dict.get(backend), 
@@ -398,7 +398,7 @@ def test_filtering_out_columns_pa() -> None:
     out = eda_ops.filtering_out(df, contains="foo", axis="columns")
     assert list(out.to_pandas().columns) == ["bar"]
 
-@pytest.mark.parametrize("backend", list_backend)
+@pytest.mark.parametrize('backend', list_backend)
 def test_filtering_out_cols(backend) -> None:
     path = f'{tests_path}/fixtures/filtering_out_{backend}.csv'
 
@@ -416,7 +416,7 @@ def test_filtering_out_cols(backend) -> None:
 # is_dummy_nw (Series/DataFrame)
 # =========================================================
 
-@pytest.mark.parametrize("backend", list_backend)
+@pytest.mark.parametrize('backend', list_backend)
 def test_is_dummy_series(backend) -> None:
     assert eda_ops.is_dummy(mroz_dict.get(backend)['inlf']) 
 
@@ -427,7 +427,7 @@ def test_is_dummy_series(backend) -> None:
         cording = [0, 1, 2, 3]
     )
 
-@pytest.mark.parametrize("backend", list_backend)
+@pytest.mark.parametrize('backend', list_backend)
 def test_is_dummy_nw_dataframe(backend) -> None:
     result = eda_ops.is_dummy(mroz_dict.get(backend), to_native = False)
 
@@ -464,7 +464,7 @@ pm2_dict = {
     'pl': pl.from_pandas(pm2),
     'pa': pa.Table.from_pandas(pm2)
 }
-@pytest.mark.parametrize("backend", list_backend)
+@pytest.mark.parametrize('backend', list_backend)
 def test_diagnose_category_pd(backend):
     path = f'{tests_path}/fixtures/diagnose_category_{backend}.csv'
     output_df = eda_ops.diagnose_category(pm2_dict.get(backend), to_native = False)
@@ -482,7 +482,7 @@ def test_diagnose_category_pd(backend):
 # ================================================================
 # compare_group_means / compare_group_median
 # ================================================================
-@pytest.mark.parametrize("backend", list_backend)
+@pytest.mark.parametrize('backend', list_backend)
 
 def test_compare_group_means(backend) -> None:
     path = f'{tests_path}/fixtures/compare_group_means_{backend}.csv'
@@ -498,7 +498,7 @@ def test_compare_group_means(backend) -> None:
             update_fixture = False
         )
 
-@pytest.mark.parametrize("backend", list_backend)
+@pytest.mark.parametrize('backend', list_backend)
 def test_compare_group_median(backend) -> None:
     path = f'{tests_path}/fixtures/compare_group_median_{backend}.csv'
 
@@ -519,7 +519,7 @@ def test_compare_group_median(backend) -> None:
 # mean_qi / median_qi / mean_ci (DataFrame)
 # ================================================================
 
-@pytest.mark.parametrize("backend", list_backend)
+@pytest.mark.parametrize('backend', list_backend)
 
 def test_mean_qi(backend) -> None:
     
@@ -532,7 +532,7 @@ def test_mean_qi(backend) -> None:
             update_fixture = False
         )
 
-@pytest.mark.parametrize("backend", list_backend)
+@pytest.mark.parametrize('backend', list_backend)
 def test_median_qi(backend) -> None:
     
     path = f'{tests_path}/fixtures/median_qi_{backend}.csv'
@@ -544,7 +544,7 @@ def test_median_qi(backend) -> None:
             update_fixture = False
         )
 
-@pytest.mark.parametrize("backend", list_backend)
+@pytest.mark.parametrize('backend', list_backend)
 def test_mean_ci(backend) -> None:
     
     path = f'{tests_path}/fixtures/mean_ci_{backend}.csv'
@@ -560,7 +560,7 @@ def test_mean_ci(backend) -> None:
 # mean_qi / median_qi / mean_ci (Series)
 # ================================================================
 
-@pytest.mark.parametrize("backend", list_backend)
+@pytest.mark.parametrize('backend', list_backend)
 
 def test_mean_qi_series(backend) -> None:
     
@@ -573,7 +573,7 @@ def test_mean_qi_series(backend) -> None:
             update_fixture = False
         )
 
-@pytest.mark.parametrize("backend", list_backend)
+@pytest.mark.parametrize('backend', list_backend)
 def test_median_qi_series(backend) -> None:
     
     path = f'{tests_path}/fixtures/median_qi_series_{backend}.csv'
@@ -585,7 +585,7 @@ def test_median_qi_series(backend) -> None:
             update_fixture = False
         )
 
-@pytest.mark.parametrize("backend", list_backend)
+@pytest.mark.parametrize('backend', list_backend)
 def test_mean_ci_series(backend) -> None:
     
     path = f'{tests_path}/fixtures/mean_ci_series_{backend}.csv'
@@ -825,7 +825,7 @@ def test_min_max_pa():
 # =========================================================
 # set_miss
 # =========================================================
-@pytest.mark.parametrize("backend", list_backend)
+@pytest.mark.parametrize('backend', list_backend)
 def test_set_miss(backend):
     x = penguins_dict.get(backend)['body_mass_g']
     y = penguins_dict.get(backend)['bill_length_mm']
@@ -838,13 +838,13 @@ def test_set_miss(backend):
 # ================================================================
 # group_split, group_map, group_modify
 # ================================================================
-@pytest.mark.parametrize("backend", list_backend)
+@pytest.mark.parametrize('backend', list_backend)
 def test_group_split(backend):
     res = eda_ops.group_split(penguins_dict.get(backend), "species", "island")
     assert all([eda_util.is_intoframe(df) for df in res.data])
     assert sum([df.shape[0] for df in res.data]) == 344
 
-@pytest.mark.parametrize("backend", list_backend)
+@pytest.mark.parametrize('backend', list_backend)
 def test_group_map(backend):
     res = eda_ops.group_map(
         penguins_dict.get(backend), 
@@ -853,7 +853,7 @@ def test_group_map(backend):
         )
     assert res.mapped == [44, 56, 52, 68, 124]
 
-@pytest.mark.parametrize("backend", list_backend)
+@pytest.mark.parametrize('backend', list_backend)
 def test_group_modify(backend) -> None:
     path = f'{tests_path}/fixtures/group_modify_{backend}.csv'
 
@@ -873,7 +873,6 @@ def test_group_modify(backend) -> None:
 # ================================================================
 # bind_rows
 # ================================================================
-from itertools import product
 
 df1 = pl.DataFrame({'x':[1, 2], 'y':[2, 6], 'z':['a', 'c']})
 df2 = pl.DataFrame({'x':[4], 'y':[3], 'z':['b']})
@@ -931,7 +930,7 @@ def test_bind_rows_mixed_backend():
 # info_gain
 # ================================================================
 
-@pytest.mark.parametrize("backend", list_backend)
+@pytest.mark.parametrize('backend', list_backend)
 def test_info_gain(backend) -> None:
     path = f'{tests_path}/fixtures/info_gain_{backend}.csv'
 
@@ -963,7 +962,7 @@ implicit_miss_dict = {
     'pa': pa.Table.from_pandas(implicit_miss)
 }
 
-@pytest.mark.parametrize("backend", list_backend)
+@pytest.mark.parametrize('backend', list_backend)
 def test_expand(backend):
     path = f'{tests_path}/fixtures/expand_{backend}.csv'
 

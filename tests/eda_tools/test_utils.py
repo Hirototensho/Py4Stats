@@ -114,7 +114,7 @@ def test_enframe(data):
     assert type(res).__name__ == 'DataFrame'
     assert 'name' in res.columns and 'value' in res.columns 
 
-@pytest.mark.parametrize("backend", list_backend)
+@pytest.mark.parametrize('backend', list_backend)
 def test_enframe_table(backend):
     tbl = nw.from_native(penguins_dict.get(backend))
     
