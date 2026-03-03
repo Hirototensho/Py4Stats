@@ -487,6 +487,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#引数-argument" id="toc-引数-argument" class="nav-link" data-scroll-target="#引数-argument">引数 Argument</a></li>
   <li><a href="#返り値-value" id="toc-返り値-value" class="nav-link" data-scroll-target="#返り値-value">返り値 Value</a></li>
   <li><a href="#使用例-example" id="toc-使用例-example" class="nav-link" data-scroll-target="#使用例-example">使用例 Example</a></li>
+  <li><a href="#参考-see-also" id="toc-参考-see-also" class="nav-link" data-scroll-target="#参考-see-also">参考 see also</a></li>
+  <li><a href="#注意-notes" id="toc-注意-notes" class="nav-link" data-scroll-target="#注意-notes">注意 Notes</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Hirototensho/Py4Stats/blob/main/man/freq_table.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></nav>
     </div>
@@ -520,11 +522,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>1変数または多変数の度数分布表</p>
 <section id="概要" class="level2">
 <h2 class="anchored" data-anchor-id="概要">概要</h2>
-<p>R言語の<a href="https://cran.r-project.org/web/packages/DescTools/DescTools.pdf"><code>DescTools::Freq()</code></a>をオマージュした、度数分布表を計算する関数です。度数 <code>freq</code> と相対度数 <code>perc</code> に加えて、それぞれの累積値を計算します。</p>
+<p>R言語の <a href="https://cran.r-project.org/web/packages/DescTools/DescTools.pdf"><code>DescTools::Freq()</code></a> 関数をオマージュした、度数分布表を計算する関数です。度数 <code>freq</code> と相対度数 <code>perc</code> に加えて、それぞれの累積値を計算します。</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>freq_table(</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    data: IntoFrameT,</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    subset: Union[<span class="bu">str</span>, Sequence[<span class="bu">str</span>]],</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    sort_by: Literal[<span class="st">'frequency'</span>, <span class="st">'values'</span>] <span class="op">=</span> <span class="st">'frequency'</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    sort_by: Literal[<span class="st">'frequency'</span>, <span class="st">'values'</span>] <span class="op">=</span> <span class="st">'values'</span>,</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    descending: <span class="bu">bool</span> <span class="op">=</span> <span class="va">False</span>,</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    dropna: <span class="bu">bool</span> <span class="op">=</span> <span class="va">False</span>,</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    to_native: <span class="bu">bool</span> <span class="op">=</span> <span class="va">True</span>,</span>
@@ -563,11 +565,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(py4st.freq_table(penguins, <span class="st">'species'</span>))</span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      species  freq      perc  cumfreq   cumperc</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 0  Chinstrap    68  0.197674       68  0.197674</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1     Gentoo   124  0.360465      192  0.558140</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2     Adelie   152  0.441860      344  1.000000</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 0     Adelie   152  0.441860      152  0.441860</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1  Chinstrap    68  0.197674      220  0.639535</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2     Gentoo   124  0.360465      344  1.000000</span></span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(py4st.freq_table(penguins, [<span class="st">'island'</span>, <span class="st">'species'</span>]))</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(py4st.freq_table(penguins, [<span class="st">'island'</span>, <span class="st">'species'</span>], sort_by <span class="op">=</span> <span class="st">'frequency'</span>))</span>
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       island    species  freq      perc  cumfreq   cumperc</span></span>
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 0     Biscoe     Adelie    44  0.127907       44  0.127907</span></span>
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1  Torgersen     Adelie    52  0.151163       96  0.279070</span></span>
@@ -597,6 +599,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 11     Gentoo   (45.85, 50.433]    65  0.190058      324  0.947368</span></span>
 <span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 12     Gentoo  (50.433, 55.017]    15  0.043860      339  0.991228</span></span>
 <span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 13     Gentoo    (55.017, 59.6]     3  0.008772      342  1.000000</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="参考-see-also" class="level2">
+<h2 class="anchored" data-anchor-id="参考-see-also">参考 see also</h2>
+<p><a href="../man/plot_count.html"><code>py4stats.plot_count_h()</code></a> 関数や <a href="../man/plot_count.html"><code>py4stats.plot_count_v()</code></a> 関数を使うと、<code>freq_table()</code> 関数で算出した度数分布を棒グラフとして可視化することができます。</p>
+</section>
+<section id="注意-notes" class="level2">
+<h2 class="anchored" data-anchor-id="注意-notes">注意 Notes</h2>
+<ul>
+<li>Py4Stats v0.6.0 以降: R言語の <a href="https://cran.r-project.org/web/packages/DescTools/DescTools.pdf"><code>DescTools::Freq()</code></a> 関数の挙動との一貫性を確保するため、度数分布表をソートする基準を制御する <code>sort_by</code> 引数の初期設定を度数 <code>sort_by = 'frequency'</code> から <code>subset</code> に指定された変数の値 <code>sort_by = 'values'</code> に変更しました。</li>
+</ul>
 <hr>
 <p><a href="../reference.html">Return to <strong>Function reference</strong>.</a></p>
 

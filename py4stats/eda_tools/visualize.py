@@ -453,7 +453,7 @@ def plot_median_diff(
 def plot_count_h(
         data: IntoFrameT,
         valiable: str,
-        sort_by: Literal['frequency', 'values'] = 'values',
+        sort_by: Literal['values', 'frequency'] = 'values',
         descending: bool = True,
         dropna: bool = False,
         color = "#478FCE",
@@ -484,8 +484,8 @@ def plot_count_h(
             - 'frequency': sort by frequency. (default)
             - 'values': sort by the category values.
         descending (bool, optional):
-            Whether to sort in descending order. Defaults to False.
-                dropna (bool):
+            Whether to sort in descending order. Defaults to True.
+        dropna (bool):
             Whether to drop NaN from counts. Defaults to False.
         color (str, optional):
             Color of the bars. Accepts any Matplotlib-compatible color
@@ -581,7 +581,7 @@ def plot_count_h(
 def plot_count_v(
         data: IntoFrameT,
         valiable: str,
-        sort_by: Literal['frequency', 'values'] = 'values',
+        sort_by: Literal['values', 'frequency'] = 'values',
         descending: bool = False,
         dropna: bool = False,
         color = "#478FCE",
@@ -613,7 +613,7 @@ def plot_count_v(
             - 'values': sort by the category values.
         descending (bool, optional):
             Whether to sort in descending order. Defaults to False.
-                dropna (bool):
+        dropna (bool):
             Whether to drop NaN from counts. Defaults to False.
         color (str, optional):
             Color of the bars. Accepts any Matplotlib-compatible color

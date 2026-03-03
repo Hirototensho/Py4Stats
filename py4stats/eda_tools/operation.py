@@ -989,7 +989,7 @@ def crosstab(
 def freq_table(
     data: IntoFrameT,
     subset: Union[str, Sequence[str]],
-    sort_by: Literal['frequency', 'values'] = 'frequency',
+    sort_by: Literal['frequency', 'values'] = 'values',
     descending: bool = False,
     dropna: bool = False,
     to_native: bool = True,
@@ -1487,15 +1487,15 @@ def diagnose_category(data: IntoFrameT, dropna: bool = True, to_native: bool = T
         'miss_pct':df.select(nw.all().null_count() * nw.lit(100 / N)).row(0),
         'unique':df.select(nw.all().drop_nulls().n_unique()).row(0),
         'mode':[
-            freq_table(df, v, descending = True, to_native = False, dropna = dropna)[v][0] 
+            freq_table(df, v,  sort_by = 'frequency' ,descending = True, to_native = False, dropna = dropna)[v][0] 
             for v in var_name
             ],
         'mode_freq':[
-            freq_table(df, v, descending = True, to_native = False, dropna = dropna)['freq'][0] 
+            freq_table(df, v, sort_by = 'frequency', descending = True, to_native = False, dropna = dropna)['freq'][0] 
             for v in var_name
             ],
         'mode_pct':[
-            freq_table(df, v, descending = True, to_native = False, dropna = dropna)['perc'][0] 
+            freq_table(df, v, sort_by = 'frequency', descending = True, to_native = False, dropna = dropna)['perc'][0] 
             for v in var_name
             ],
         'evenness':[normalized_entropy(s, dropna = dropna) for s in df.iter_columns()]
@@ -1574,7 +1574,7 @@ def ig_compute(
     h_feature = entropy(data_nw[feature], base = base)
     
     colpaire = build.list_unique([feature, target])
-    freq = freq_table(data_nw, colpaire, to_native = False)['freq']
+    freq = freq_table(data_nw, colpaire, sort_by = 'frequency', to_native = False)['freq']
     joint_ent = st.entropy(freq, base = base)
     
     h_cond = joint_ent - h_feature

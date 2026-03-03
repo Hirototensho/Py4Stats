@@ -13,7 +13,7 @@
 plot_count_h(
     data: IntoFrameT,
     valiable: str,
-    sort_by: Literal['frequency', 'values'] = 'values',
+    sort_by: Literal['values', 'frequency'] = 'values',
     descending: bool = True,
     dropna: bool = False,
     color = "#478FCE",
@@ -27,7 +27,7 @@ plot_count_h(
 plot_count_v(
     data: IntoFrameT,
     valiable: str,
-    sort_by: Literal['frequency', 'values'] = 'values',
+    sort_by: Literal['values', 'frequency'] = 'values',
     descending: bool = False,
     dropna: bool = False,
     color = "#478FCE",
@@ -62,7 +62,7 @@ plot_count_v(
     ラベルに表示される相対頻度（％）の小数点以下の表示桁数。既定値は1です。
 `expand_x_limits` **float or int** </br>
     ラベルが見切れないようにするため、x 軸の上限を最大度数に対して何倍に拡張するかを指定します。既定値は1.5です。
-`expand_x_limits` **float or int** </br>
+`expand_y_limits` **float or int** </br>
     ラベルが見切れないようにするため、y 軸の上限を最大度数に対して何倍に拡張するかを指定します。既定値は1.1です。
 - `ax`: <br>
     描画先となる matplotlib の Axes。複数のグラフを並べる場合などに使用します。デフォルトの `None` の場合は、新しい Figure と Axes が作成されます。
@@ -77,6 +77,7 @@ diamonds = sns.load_dataset("diamonds")
 
 py4st.plot_count_h(diamonds, 'color')
 ```
+
 ![plot_count_h1](image/plot_count_h1.png)
 
 ``` python
@@ -100,4 +101,7 @@ py4st.plot_count_v(penguins, 'species')
 
 ## 参考 see also
 
-この関数で可視化している度数と相対度数は [`py4stats.freq_table()`](./freq_table.qmd) 関数で算出しています。
+この関数で可視化している度数と相対度数は、[`py4stats.freq_table()`](./freq_table.qmd) 関数で算出しています。
+
+***
+[Return to **Function reference**.](../reference.qmd)

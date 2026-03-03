@@ -122,6 +122,8 @@ __all__ = [
     'mean_qi',
     'median_qi',
     'min_max',
+    'plot_count_h',
+    'plot_count_v',
     'plot_category',
     'plot_mean_diff',
     'plot_median_diff',

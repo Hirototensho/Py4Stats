@@ -523,11 +523,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>本関数は、複数のカテゴリ変数について回答分布を集計し、各変数を1本の100%積み上げ横棒グラフとして可視化します。リッカート尺度による設問や、共通のカテゴリをもつ、アンケートの回答データの可視化を主な用途としています。</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>plot_category(</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    data: IntoFrameT,</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    palette: Optional[sns.palettes._ColorPalette] <span class="op">=</span> <span class="va">None</span>,</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    legend_type: Literal[<span class="st">'horizontal'</span>, <span class="st">'vertical'</span>, <span class="st">'none'</span>] <span class="op">=</span> <span class="st">'horizontal'</span>,</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    show_vline: <span class="bu">bool</span> <span class="op">=</span> <span class="va">True</span>,</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    ax: Optional[Axes] <span class="op">=</span> <span class="va">None</span>,</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    sort_by: Literal[<span class="st">'values'</span>, <span class="st">'frequency'</span>] <span class="op">=</span> <span class="st">'values'</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    palette: Optional[sns.palettes._ColorPalette] <span class="op">=</span> <span class="va">None</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    legend_type: Literal[<span class="st">"horizontal"</span>, <span class="st">"vertical"</span>, <span class="st">"none"</span>] <span class="op">=</span> <span class="st">"horizontal"</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    show_vline: <span class="bu">bool</span> <span class="op">=</span> <span class="va">True</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    ax: Optional[Axes] <span class="op">=</span> <span class="va">None</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="引数-argument" class="level2">
 <h2 class="anchored" data-anchor-id="引数-argument">引数 Argument</h2>
@@ -601,10 +602,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="注意-notes" class="level2">
 <h2 class="anchored" data-anchor-id="注意-notes">注意 Notes</h2>
 <ul>
-<li><code>sort_by="values"</code> は、カテゴリの順序情報（例：<code>pandas</code> の <code>ordered categorical</code>、<code>Polars</code> の <code>Enum</code> で定義した順序）を前提に、カテゴリ順で描画します。</li>
-<li><strong>推奨</strong>： sort_by=“values” を利用する場合は、入力として <code>pandas.DataFrame</code>（各列を <code>pd.Categorical</code> に設定）または <code>polars.DataFrame</code>（各列を <code>Enum</code> に設定）を推奨します。</li>
+<li><code>sort_by = 'values'</code> は、カテゴリの順序情報（例：<code>pandas</code> の <code>ordered categorical</code>、<code>Polars</code> の <code>Enum</code> で定義した順序）を前提に、カテゴリ順で描画します。</li>
+<li><strong>推奨</strong>： <code>sort_by = 'values'</code> を利用する場合は、入力として各列を <code>pd.Categorical</code> にした <code>pandas.DataFrame</code> または、各列を <code>Enum</code> に設定 <code>polars.DataFrame</code> を推奨します。</li>
 <li><code>polars.Categorical</code> の列では、カテゴリ順が期待通りに保持されず、辞書順（例：Agree, Disagree, …）で描画される場合があります。</li>
-<li><code>pyarrow.Table</code> を入力した場合、<code>sort_by = 'values’</code> は <code>dictionary</code> 型の制約によりエラーとなる場合があります。その場合は <code>sort_by="frequency"</code> を使用してください。</li>
+<li><code>pyarrow.Table</code> を入力した場合、<code>sort_by = 'values'</code> は <code>dictionary</code> 型の制約によりエラーとなる場合があります。その場合は <code>sort_by = 'frequency'</code> を使用してください。</li>
 </ul>
 
 

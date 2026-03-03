@@ -465,7 +465,8 @@ pm2_dict = {
     'pa': pa.Table.from_pandas(pm2)
 }
 @pytest.mark.parametrize('backend', list_backend)
-def test_diagnose_category_pd(backend):
+
+def test_diagnose_category(backend):
     path = f'{tests_path}/fixtures/diagnose_category_{backend}.csv'
     output_df = eda_ops.diagnose_category(pm2_dict.get(backend), to_native = False)
     

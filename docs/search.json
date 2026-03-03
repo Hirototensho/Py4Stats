@@ -193,7 +193,7 @@
     "href": "man/freq_table.html",
     "title": "freq_table",
     "section": "",
-    "text": "概要\n1変数または多変数の度数分布表\nR言語のDescTools::Freq()をオマージュした、度数分布表を計算する関数です。度数 freq と相対度数 perc に加えて、それぞれの累積値を計算します。",
+    "text": "概要\n1変数または多変数の度数分布表\nR言語の DescTools::Freq() 関数をオマージュした、度数分布表を計算する関数です。度数 freq と相対度数 perc に加えて、それぞれの累積値を計算します。",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>6</span>  <span class='chapter-title'>freq_table</span>"
@@ -204,7 +204,7 @@
     "href": "man/freq_table.html#概要",
     "title": "freq_table",
     "section": "",
-    "text": "freq_table(\n    data: IntoFrameT,\n    subset: Union[str, Sequence[str]],\n    sort_by: Literal['frequency', 'values'] = 'frequency',\n    descending: bool = False,\n    dropna: bool = False,\n    to_native: bool = True,\n    *,\n    sort: Optional[bool] = None\n)",
+    "text": "freq_table(\n    data: IntoFrameT,\n    subset: Union[str, Sequence[str]],\n    sort_by: Literal['frequency', 'values'] = 'values',\n    descending: bool = False,\n    dropna: bool = False,\n    to_native: bool = True,\n    *,\n    sort: Optional[bool] = None\n)",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>6</span>  <span class='chapter-title'>freq_table</span>"
@@ -237,7 +237,29 @@
     "href": "man/freq_table.html#使用例-example",
     "title": "freq_table",
     "section": "使用例 Example",
-    "text": "使用例 Example\nimport py4stats as py4st\nimport pandas as pd\nfrom palmerpenguins import load_penguins\npenguins = load_penguins() # サンプルデータの読み込\n\nprint(py4st.freq_table(penguins, 'species'))\n#&gt;      species  freq      perc  cumfreq   cumperc\n#&gt; 0  Chinstrap    68  0.197674       68  0.197674\n#&gt; 1     Gentoo   124  0.360465      192  0.558140\n#&gt; 2     Adelie   152  0.441860      344  1.000000\n\nprint(py4st.freq_table(penguins, ['island', 'species']))\n#&gt;       island    species  freq      perc  cumfreq   cumperc\n#&gt; 0     Biscoe     Adelie    44  0.127907       44  0.127907\n#&gt; 1  Torgersen     Adelie    52  0.151163       96  0.279070\n#&gt; 2      Dream     Adelie    56  0.162791      152  0.441860\n#&gt; 3      Dream  Chinstrap    68  0.197674      220  0.639535\n#&gt; 4     Biscoe     Gentoo   124  0.360465      344  1.000000\npenguins2 = penguins.assign(bill_length_mm2 = pd.cut(penguins['bill_length_mm'], 6))\n\nprint(\n    py4st.freq_table(\n        penguins2, ['species', 'bill_length_mm2'], \n        sort_by = 'values',  dropna = True\n        )\n    )\n#&gt;       species   bill_length_mm2  freq      perc  cumfreq   cumperc\n#&gt; 0      Adelie  (32.072, 36.683]    36  0.105263       36  0.105263\n#&gt; 1      Adelie  (36.683, 41.267]    89  0.260234      125  0.365497\n#&gt; 2      Adelie   (41.267, 45.85]    25  0.073099      150  0.438596\n#&gt; 3      Adelie   (45.85, 50.433]     1  0.002924      151  0.441520\n#&gt; 4   Chinstrap  (36.683, 41.267]     1  0.002924      152  0.444444\n#&gt; 5   Chinstrap   (41.267, 45.85]    12  0.035088      164  0.479532\n#&gt; 6   Chinstrap   (45.85, 50.433]    29  0.084795      193  0.564327\n#&gt; 7   Chinstrap  (50.433, 55.017]    24  0.070175      217  0.634503\n#&gt; 8   Chinstrap    (55.017, 59.6]     2  0.005848      219  0.640351\n#&gt; 9      Gentoo  (36.683, 41.267]     1  0.002924      220  0.643275\n#&gt; 10     Gentoo   (41.267, 45.85]    39  0.114035      259  0.757310\n#&gt; 11     Gentoo   (45.85, 50.433]    65  0.190058      324  0.947368\n#&gt; 12     Gentoo  (50.433, 55.017]    15  0.043860      339  0.991228\n#&gt; 13     Gentoo    (55.017, 59.6]     3  0.008772      342  1.000000\n\nReturn to Function reference.",
+    "text": "使用例 Example\nimport py4stats as py4st\nimport pandas as pd\nfrom palmerpenguins import load_penguins\npenguins = load_penguins() # サンプルデータの読み込\n\nprint(py4st.freq_table(penguins, 'species'))\n#&gt;      species  freq      perc  cumfreq   cumperc\n#&gt; 0     Adelie   152  0.441860      152  0.441860\n#&gt; 1  Chinstrap    68  0.197674      220  0.639535\n#&gt; 2     Gentoo   124  0.360465      344  1.000000\n\nprint(py4st.freq_table(penguins, ['island', 'species'], sort_by = 'frequency'))\n#&gt;       island    species  freq      perc  cumfreq   cumperc\n#&gt; 0     Biscoe     Adelie    44  0.127907       44  0.127907\n#&gt; 1  Torgersen     Adelie    52  0.151163       96  0.279070\n#&gt; 2      Dream     Adelie    56  0.162791      152  0.441860\n#&gt; 3      Dream  Chinstrap    68  0.197674      220  0.639535\n#&gt; 4     Biscoe     Gentoo   124  0.360465      344  1.000000\npenguins2 = penguins.assign(bill_length_mm2 = pd.cut(penguins['bill_length_mm'], 6))\n\nprint(\n    py4st.freq_table(\n        penguins2, ['species', 'bill_length_mm2'], \n        sort_by = 'values',  dropna = True\n        )\n    )\n#&gt;       species   bill_length_mm2  freq      perc  cumfreq   cumperc\n#&gt; 0      Adelie  (32.072, 36.683]    36  0.105263       36  0.105263\n#&gt; 1      Adelie  (36.683, 41.267]    89  0.260234      125  0.365497\n#&gt; 2      Adelie   (41.267, 45.85]    25  0.073099      150  0.438596\n#&gt; 3      Adelie   (45.85, 50.433]     1  0.002924      151  0.441520\n#&gt; 4   Chinstrap  (36.683, 41.267]     1  0.002924      152  0.444444\n#&gt; 5   Chinstrap   (41.267, 45.85]    12  0.035088      164  0.479532\n#&gt; 6   Chinstrap   (45.85, 50.433]    29  0.084795      193  0.564327\n#&gt; 7   Chinstrap  (50.433, 55.017]    24  0.070175      217  0.634503\n#&gt; 8   Chinstrap    (55.017, 59.6]     2  0.005848      219  0.640351\n#&gt; 9      Gentoo  (36.683, 41.267]     1  0.002924      220  0.643275\n#&gt; 10     Gentoo   (41.267, 45.85]    39  0.114035      259  0.757310\n#&gt; 11     Gentoo   (45.85, 50.433]    65  0.190058      324  0.947368\n#&gt; 12     Gentoo  (50.433, 55.017]    15  0.043860      339  0.991228\n#&gt; 13     Gentoo    (55.017, 59.6]     3  0.008772      342  1.000000",
+    "crumbs": [
+      "**EDA**",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>freq_table</span>"
+    ]
+  },
+  {
+    "objectID": "man/freq_table.html#参考-see-also",
+    "href": "man/freq_table.html#参考-see-also",
+    "title": "freq_table",
+    "section": "参考 see also",
+    "text": "参考 see also\npy4stats.plot_count_h() 関数や py4stats.plot_count_v() 関数を使うと、freq_table() 関数で算出した度数分布を棒グラフとして可視化することができます。",
+    "crumbs": [
+      "**EDA**",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>freq_table</span>"
+    ]
+  },
+  {
+    "objectID": "man/freq_table.html#注意-notes",
+    "href": "man/freq_table.html#注意-notes",
+    "title": "freq_table",
+    "section": "注意 Notes",
+    "text": "注意 Notes\n\nPy4Stats v0.6.0 以降: R言語の DescTools::Freq() 関数の挙動との一貫性を確保するため、度数分布表をソートする基準を制御する sort_by 引数の初期設定を度数 sort_by = 'frequency' から subset に指定された変数の値 sort_by = 'values' に変更しました。\n\n\nReturn to Function reference.",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>6</span>  <span class='chapter-title'>freq_table</span>"
@@ -259,7 +281,7 @@
     "href": "man/plot_count.html#概要",
     "title": "plot_count_h, plot_count_v",
     "section": "",
-    "text": "plot_count_h(\n    data: IntoFrameT,\n    valiable: str,\n    sort_by: Literal['frequency', 'values'] = 'values',\n    descending: bool = True,\n    dropna: bool = False,\n    color = \"#478FCE\",\n    fontsize: int = 12,\n    padding: int = 3,\n    digits: int = 1,\n    expand_x_limits: Union[float, int] = 1.5,\n    ax: Optional[Axes] = None,\n    )\n\nplot_count_v(\n    data: IntoFrameT,\n    valiable: str,\n    sort_by: Literal['frequency', 'values'] = 'values',\n    descending: bool = False,\n    dropna: bool = False,\n    color = \"#478FCE\",\n    fontsize: int = 12,\n    padding: int = 3,\n    digits: int = 1,\n    expand_y_limits: Union[float, int] = 1.1,\n    ax: Optional[Axes] = None,\n    )",
+    "text": "plot_count_h(\n    data: IntoFrameT,\n    valiable: str,\n    sort_by: Literal['values', 'frequency'] = 'values',\n    descending: bool = True,\n    dropna: bool = False,\n    color = \"#478FCE\",\n    fontsize: int = 12,\n    padding: int = 3,\n    digits: int = 1,\n    expand_x_limits: Union[float, int] = 1.5,\n    ax: Optional[Axes] = None,\n    )\n\nplot_count_v(\n    data: IntoFrameT,\n    valiable: str,\n    sort_by: Literal['values', 'frequency'] = 'values',\n    descending: bool = False,\n    dropna: bool = False,\n    color = \"#478FCE\",\n    fontsize: int = 12,\n    padding: int = 3,\n    digits: int = 1,\n    expand_y_limits: Union[float, int] = 1.1,\n    ax: Optional[Axes] = None,\n    )",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>7</span>  <span class='chapter-title'>plot_count_h, plot_count_v</span>"
@@ -270,7 +292,7 @@
     "href": "man/plot_count.html#引数-argument",
     "title": "plot_count_h, plot_count_v",
     "section": "引数 Argument",
-    "text": "引数 Argument\n\ndata：IntoFrameT（必須） 入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト （例：pandas.DataFrame、polars.DataFrame、pyarrow.Table）を指定できます。\nvaliable：str（必須） 　度数の集計対象となるカテゴリ変数の列名。\nsort_by：str 　sort_by = 'frequency' なら度数分布表を頻度に応じてソートし、sort_by = 'values' なら valiable で指定した列の値に応じてソートします。\ndescending：bool 　ソートの方式。True なら降順でソートし、Falseなら昇順でソートします。\ndropna：bool 　欠測値（NaN, None など）を集計から除外するかどうかを表すブール値。初期設定は False です。\ncolor: str  棒グラフの描画色。Matplotlib で指定可能な色指定形式を使用できます。\nfontsize: int \n棒グラフに追加されるラベルのフォントサイズ。既定値は12です。\npadding: int  棒グラフとラベルの間隔（ポイント単位）。ax.bar_label() に渡されます。既定値は3です。\ndigits: int  ラベルに表示される相対頻度（％）の小数点以下の表示桁数。既定値は1です。 expand_x_limits float or int  ラベルが見切れないようにするため、x 軸の上限を最大度数に対して何倍に拡張するかを指定します。既定値は1.5です。 expand_x_limits float or int  ラベルが見切れないようにするため、y 軸の上限を最大度数に対して何倍に拡張するかを指定します。既定値は1.1です。\nax:  描画先となる matplotlib の Axes。複数のグラフを並べる場合などに使用します。デフォルトの None の場合は、新しい Figure と Axes が作成されます。",
+    "text": "引数 Argument\n\ndata：IntoFrameT（必須） 入力データ。narwhals が受け入れ可能な DataFrame 互換オブジェクト （例：pandas.DataFrame、polars.DataFrame、pyarrow.Table）を指定できます。\nvaliable：str（必須） 　度数の集計対象となるカテゴリ変数の列名。\nsort_by：str 　sort_by = 'frequency' なら度数分布表を頻度に応じてソートし、sort_by = 'values' なら valiable で指定した列の値に応じてソートします。\ndescending：bool 　ソートの方式。True なら降順でソートし、Falseなら昇順でソートします。\ndropna：bool 　欠測値（NaN, None など）を集計から除外するかどうかを表すブール値。初期設定は False です。\ncolor: str  棒グラフの描画色。Matplotlib で指定可能な色指定形式を使用できます。\nfontsize: int \n棒グラフに追加されるラベルのフォントサイズ。既定値は12です。\npadding: int  棒グラフとラベルの間隔（ポイント単位）。ax.bar_label() に渡されます。既定値は3です。\ndigits: int  ラベルに表示される相対頻度（％）の小数点以下の表示桁数。既定値は1です。 expand_x_limits float or int  ラベルが見切れないようにするため、x 軸の上限を最大度数に対して何倍に拡張するかを指定します。既定値は1.5です。 expand_y_limits float or int  ラベルが見切れないようにするため、y 軸の上限を最大度数に対して何倍に拡張するかを指定します。既定値は1.1です。\nax:  描画先となる matplotlib の Axes。複数のグラフを並べる場合などに使用します。デフォルトの None の場合は、新しい Figure と Axes が作成されます。",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>7</span>  <span class='chapter-title'>plot_count_h, plot_count_v</span>"
@@ -292,7 +314,7 @@
     "href": "man/plot_count.html#参考-see-also",
     "title": "plot_count_h, plot_count_v",
     "section": "参考 see also",
-    "text": "参考 see also\nこの関数で可視化している度数と相対度数は py4stats.freq_table() 関数で算出しています。",
+    "text": "参考 see also\nこの関数で可視化している度数と相対度数は、py4stats.freq_table() 関数で算出しています。\n\nReturn to Function reference.",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>7</span>  <span class='chapter-title'>plot_count_h, plot_count_v</span>"
@@ -413,7 +435,7 @@
     "href": "man/plot_category.html#概要",
     "title": "plot_category",
     "section": "",
-    "text": "plot_category(\n    data: IntoFrameT,\n    palette: Optional[sns.palettes._ColorPalette] = None,\n    legend_type: Literal['horizontal', 'vertical', 'none'] = 'horizontal',\n    show_vline: bool = True,\n    ax: Optional[Axes] = None,\n)",
+    "text": "plot_category(\n    data: IntoFrameT,\n    sort_by: Literal['values', 'frequency'] = 'values',\n    palette: Optional[sns.palettes._ColorPalette] = None,\n    legend_type: Literal[\"horizontal\", \"vertical\", \"none\"] = \"horizontal\",\n    show_vline: bool = True,\n    ax: Optional[Axes] = None,\n)",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>10</span>  <span class='chapter-title'>plot_category</span>"
@@ -446,7 +468,7 @@
     "href": "man/plot_category.html#注意-notes",
     "title": "plot_category",
     "section": "注意 Notes",
-    "text": "注意 Notes\n\nsort_by=\"values\" は、カテゴリの順序情報（例：pandas の ordered categorical、Polars の Enum で定義した順序）を前提に、カテゴリ順で描画します。\n推奨： sort_by=“values” を利用する場合は、入力として pandas.DataFrame（各列を pd.Categorical に設定）または polars.DataFrame（各列を Enum に設定）を推奨します。\npolars.Categorical の列では、カテゴリ順が期待通りに保持されず、辞書順（例：Agree, Disagree, …）で描画される場合があります。\npyarrow.Table を入力した場合、sort_by = 'values’ は dictionary 型の制約によりエラーとなる場合があります。その場合は sort_by=\"frequency\" を使用してください。",
+    "text": "注意 Notes\n\nsort_by = 'values' は、カテゴリの順序情報（例：pandas の ordered categorical、Polars の Enum で定義した順序）を前提に、カテゴリ順で描画します。\n推奨： sort_by = 'values' を利用する場合は、入力として各列を pd.Categorical にした pandas.DataFrame または、各列を Enum に設定 polars.DataFrame を推奨します。\npolars.Categorical の列では、カテゴリ順が期待通りに保持されず、辞書順（例：Agree, Disagree, …）で描画される場合があります。\npyarrow.Table を入力した場合、sort_by = 'values' は dictionary 型の制約によりエラーとなる場合があります。その場合は sort_by = 'frequency' を使用してください。",
     "crumbs": [
       "**EDA**",
       "<span class='chapter-number'>10</span>  <span class='chapter-title'>plot_category</span>"

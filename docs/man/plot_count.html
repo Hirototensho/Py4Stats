@@ -520,7 +520,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>plot_count_h(</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    data: IntoFrameT,</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    valiable: <span class="bu">str</span>,</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    sort_by: Literal[<span class="st">'frequency'</span>, <span class="st">'values'</span>] <span class="op">=</span> <span class="st">'values'</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    sort_by: Literal[<span class="st">'values'</span>, <span class="st">'frequency'</span>] <span class="op">=</span> <span class="st">'values'</span>,</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    descending: <span class="bu">bool</span> <span class="op">=</span> <span class="va">True</span>,</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    dropna: <span class="bu">bool</span> <span class="op">=</span> <span class="va">False</span>,</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    color <span class="op">=</span> <span class="st">"#478FCE"</span>,</span>
@@ -534,7 +534,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>plot_count_v(</span>
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    data: IntoFrameT,</span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    valiable: <span class="bu">str</span>,</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    sort_by: Literal[<span class="st">'frequency'</span>, <span class="st">'values'</span>] <span class="op">=</span> <span class="st">'values'</span>,</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    sort_by: Literal[<span class="st">'values'</span>, <span class="st">'frequency'</span>] <span class="op">=</span> <span class="st">'values'</span>,</span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    descending: <span class="bu">bool</span> <span class="op">=</span> <span class="va">False</span>,</span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    dropna: <span class="bu">bool</span> <span class="op">=</span> <span class="va">False</span>,</span>
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    color <span class="op">=</span> <span class="st">"#478FCE"</span>,</span>
@@ -557,7 +557,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>fontsize</code>: <strong>int</strong> <br></li>
 <li>棒グラフに追加されるラベルのフォントサイズ。既定値は12です。</li>
 <li><code>padding</code>: <strong>int</strong> <br> 棒グラフとラベルの間隔（ポイント単位）。<code>ax.bar_label()</code> に渡されます。既定値は3です。</li>
-<li><code>digits</code>: <strong>int</strong> <br> ラベルに表示される相対頻度（％）の小数点以下の表示桁数。既定値は1です。 <code>expand_x_limits</code> <strong>float or int</strong> <br> ラベルが見切れないようにするため、x 軸の上限を最大度数に対して何倍に拡張するかを指定します。既定値は1.5です。 <code>expand_x_limits</code> <strong>float or int</strong> <br> ラベルが見切れないようにするため、y 軸の上限を最大度数に対して何倍に拡張するかを指定します。既定値は1.1です。</li>
+<li><code>digits</code>: <strong>int</strong> <br> ラベルに表示される相対頻度（％）の小数点以下の表示桁数。既定値は1です。 <code>expand_x_limits</code> <strong>float or int</strong> <br> ラベルが見切れないようにするため、x 軸の上限を最大度数に対して何倍に拡張するかを指定します。既定値は1.5です。 <code>expand_y_limits</code> <strong>float or int</strong> <br> ラベルが見切れないようにするため、y 軸の上限を最大度数に対して何倍に拡張するかを指定します。既定値は1.1です。</li>
 <li><code>ax</code>: <br> 描画先となる matplotlib の Axes。複数のグラフを並べる場合などに使用します。デフォルトの <code>None</code> の場合は、新しい Figure と Axes が作成されます。</li>
 </ul>
 </section>
@@ -600,7 +600,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="参考-see-also" class="level2">
 <h2 class="anchored" data-anchor-id="参考-see-also">参考 see also</h2>
-<p>この関数で可視化している度数と相対度数は <a href="../man/freq_table.html"><code>py4stats.freq_table()</code></a> 関数で算出しています。</p>
+<p>この関数で可視化している度数と相対度数は、<a href="../man/freq_table.html"><code>py4stats.freq_table()</code></a> 関数で算出しています。</p>
+<hr>
+<p><a href="../reference.html">Return to <strong>Function reference</strong>.</a></p>
 
 
 </section>

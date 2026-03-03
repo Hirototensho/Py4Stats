@@ -11,8 +11,9 @@
 ``` python
 plot_category(
     data: IntoFrameT,
+    sort_by: Literal['values', 'frequency'] = 'values',
     palette: Optional[sns.palettes._ColorPalette] = None,
-    legend_type: Literal['horizontal', 'vertical', 'none'] = 'horizontal',
+    legend_type: Literal["horizontal", "vertical", "none"] = "horizontal",
     show_vline: bool = True,
     ax: Optional[Axes] = None,
 )
@@ -97,7 +98,7 @@ ax.set_title('Survey on attitudes toward reading');
 
 ## 注意 Notes
 
-- `sort_by="values"` は、カテゴリの順序情報（例：`pandas` の `ordered categorical`、`Polars` の `Enum` で定義した順序）を前提に、カテゴリ順で描画します。
-- **推奨**： sort_by="values" を利用する場合は、入力として `pandas.DataFrame`（各列を `pd.Categorical` に設定）または `polars.DataFrame`（各列を `Enum` に設定）を推奨します。 
+- `sort_by = 'values'` は、カテゴリの順序情報（例：`pandas` の `ordered categorical`、`Polars` の `Enum` で定義した順序）を前提に、カテゴリ順で描画します。
+- **推奨**： `sort_by = 'values'` を利用する場合は、入力として各列を `pd.Categorical` にした `pandas.DataFrame` または、各列を `Enum` に設定 `polars.DataFrame` を推奨します。 
 - `polars.Categorical` の列では、カテゴリ順が期待通りに保持されず、辞書順（例：Agree, Disagree, …）で描画される場合があります。
-- `pyarrow.Table` を入力した場合、`sort_by = 'values’` は `dictionary` 型の制約によりエラーとなる場合があります。その場合は `sort_by="frequency"` を使用してください。 
+- `pyarrow.Table` を入力した場合、`sort_by = 'values'` は `dictionary` 型の制約によりエラーとなる場合があります。その場合は `sort_by = 'frequency'` を使用してください。 
